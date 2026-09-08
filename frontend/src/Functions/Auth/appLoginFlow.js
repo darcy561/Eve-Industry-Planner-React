@@ -3,22 +3,25 @@
  * a single post-login client path.
  */
 import {
-  fetchServerSession,
-  refreshServerSessionForLogin,
-} from "./serverTokens.js";
+  establishPlannerSession,
+  bootstrapPlannerSession,
+} from "./sessionClient.js";
 import getEveOauthToken from "../EveESI/Character/getEveSSOToken";
-import getCharacterFromRefreshToken from "../../Components/Auth/RefreshToken";
+import {
+  buildCharacterFromAccessToken,
+  buildCharacterFromClientSecret,
+} from "./buildCharacterFromCredentials.js";
 import useUsersStore from "../../Zustand/usersStore";
 import { emitUserDataUpdate } from "../../Events/loginEvents";
 import { buildCorporationObjectFromUserObject } from "../Corporations/buildCorporationObject";
 import { runPostLoginAccountSync } from "../../Components/Auth/runPostLoginAccountSync";
+import { prefetchCharacterData } from "../Character/prefetchCharacterData";
 import { bootstrapJobGroupsLoginStep } from "../../Components/Auth/bootstrapJobGroupsLoginStep";
 import { bootstrapJobDocumentsLoginStep } from "../../Components/Auth/bootstrapJobDocumentsLoginStep.js";
 import { bootstrapWatchlistLoginStep } from "../../Components/Auth/bootstrapWatchlistLoginStep.js";
 import { upsertCloudStoredEsiRefreshTokens } from "../Endpoints/Private/cloudStoredEsiRefreshTokens.js";
-import { decodeJwt } from "jose";
-import Character from "../../Classes/character";
 import { getTabPlannerRefreshToken } from "./tabSessionStorage.js";
+import { heldEsiAccessToken } from "./esiCredentials/provider.js";
 
 /**
  * Stores main character ESI refresh in Mongo (encrypted) for cloud accounts and drops client-held material.
@@ -64,7 +67,7 @@ export async function resolveLoginWithEveOauthCode(authCode) {
   if (!character) {
     throw new Error("Unable to Authenticate SSO Token");
   }
-  const tokenResponse = await fetchServerSession(character.esiAccessToken);
+  const tokenResponse = await establishPlannerSession(heldEsiAccessToken(character.CharacterHash));
   return { character, tokenResponse };
 }
 
@@ -76,7 +79,7 @@ export async function resolveLoginWithEveOauthCode(authCode) {
  */
 export async function resolveLoginWithCookieCloudResume() {
   const tabRefresh = getTabPlannerRefreshToken();
-  const tokenResponse = await refreshServerSessionForLogin(tabRefresh, "");
+  const tokenResponse = await bootstrapPlannerSession(tabRefresh, "");
   const mainHash =
     tokenResponse.main_character_hash ??
     tokenResponse?.user_document?.mainCharacterHash;
@@ -105,17 +108,7 @@ export async function resolveLoginWithCookieCloudResume() {
   }
   const esiAccess = mainLinked.access_token;
 
-  const esiPayload = decodeJwt(esiAccess);
-  const character = new Character({
-    jwtPayload: esiPayload,
-    tokenResponse: {
-      access_token: mainLinked.access_token,
-      token_type: mainLinked.token_type,
-      expires_in: mainLinked.expires_in,
-      refresh_token: "",
-    },
-    isMainCharacter: true,
-  });
+  const character = buildCharacterFromAccessToken(esiAccess, { isMainCharacter: true });
 
   await persistCloudMainEsiRefreshToken(character, tokenResponse);
 
@@ -135,7 +128,7 @@ export async function resolveLoginWithCookieCloudResume() {
 export async function resolveLoginWithEveClientRefreshToken(
   eveClientRefreshToken
 ) {
-  const character = await getCharacterFromRefreshToken(
+  const character = await buildCharacterFromClientSecret(
     eveClientRefreshToken,
     true
   );
@@ -146,15 +139,15 @@ export async function resolveLoginWithEveClientRefreshToken(
   let tokenResponse;
   if (tabRefresh) {
     try {
-      tokenResponse = await refreshServerSessionForLogin(
+      tokenResponse = await bootstrapPlannerSession(
         tabRefresh,
-        character.esiAccessToken
+        heldEsiAccessToken(character.CharacterHash)
       );
     } catch {
-      tokenResponse = await fetchServerSession(character.esiAccessToken);
+      tokenResponse = await establishPlannerSession(heldEsiAccessToken(character.CharacterHash));
     }
   } else {
-    tokenResponse = await fetchServerSession(character.esiAccessToken);
+    tokenResponse = await establishPlannerSession(heldEsiAccessToken(character.CharacterHash));
   }
   return { character, tokenResponse };
 }
@@ -164,22 +157,13 @@ export async function resolveLoginWithEveClientRefreshToken(
  *
  * @param {object} input
  * @param {import("@tanstack/react-query").QueryClient} input.queryClient
- * @param {Function} input.prefetchMultipleCharacters
- * @param {Function} input.triggerCharacterDataPrefetch
  * @param {object} input.character
  * @param {object} input.tokenResponse
  * @param {boolean} [input.loginAlreadyApplied] - When true, `applyLoginAuthResponse` was already applied (cookie-cloud resume).
  * @returns {Promise<void>}
  */
 export async function applyClientSessionAfterAppTokens(input) {
-  const {
-    queryClient,
-    prefetchMultipleCharacters,
-    triggerCharacterDataPrefetch,
-    character,
-    tokenResponse,
-    loginAlreadyApplied = false,
-  } = input;
+  const { queryClient, character, tokenResponse, loginAlreadyApplied = false } = input;
 
   try {
     if (!loginAlreadyApplied) {
@@ -197,7 +181,7 @@ export async function applyClientSessionAfterAppTokens(input) {
     await buildCorporationObjectFromUserObject(character);
 
     useUsersStore.getState().account.actions.updateCharacters([character]);
-    triggerCharacterDataPrefetch(queryClient, character.CharacterHash);
+    prefetchCharacterData(queryClient, character.CharacterHash);
 
     emitUserDataUpdate({
       eveLoginComplete: true,
@@ -213,7 +197,6 @@ export async function applyClientSessionAfterAppTokens(input) {
 
     await runPostLoginAccountSync({
       queryClient,
-      prefetchMultipleCharacters,
       userDocument: tokenResponse.user_document,
       linkedCharacters: tokenResponse.linked_characters,
     });
@@ -235,18 +218,11 @@ export async function applyClientSessionAfterAppTokens(input) {
  *
  * @param {object} p
  * @param {import("@tanstack/react-query").QueryClient} p.queryClient
- * @param {Function} p.prefetchMultipleCharacters
- * @param {Function} p.triggerCharacterDataPrefetch
  * @param {AppLoginMode} p.mode
  * @returns {Promise<void>}
  */
 export async function runAppLogin(p) {
-  const {
-    queryClient,
-    prefetchMultipleCharacters,
-    triggerCharacterDataPrefetch,
-    mode,
-  } = p;
+  const { queryClient, mode } = p;
 
   const bundle =
     mode.type === "oauthCode"
@@ -257,8 +233,6 @@ export async function runAppLogin(p) {
 
   await applyClientSessionAfterAppTokens({
     queryClient,
-    prefetchMultipleCharacters,
-    triggerCharacterDataPrefetch,
     character: bundle.character,
     tokenResponse: bundle.tokenResponse,
     loginAlreadyApplied: Boolean(bundle.loginAlreadyApplied),

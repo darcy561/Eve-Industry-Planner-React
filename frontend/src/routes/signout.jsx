@@ -1,11 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { queryClient } from "../queryClient.js";
-import { logoutServerSession } from "../Functions/Auth/serverTokens";
+import { logoutPlannerSession } from "../Functions/Auth/sessionClient.js";
 import { getTabPlannerRefreshToken } from "../Functions/Auth/tabSessionStorage.js";
 import { clearPlannerAuthCookiesClientSide } from "../Functions/Auth/plannerAuthCookies.js";
 import { disconnectRealtime } from "../Realtime/realtimeClient.js";
 import { clearInboundJobDocumentCoalesce } from "../Functions/Debounce/inboundJobDocumentsCoalesce.js";
 import useUsersStore from '../Zustand/usersStore'
+import esiCredentials from "../Functions/Auth/esiCredentials/provider.js"
 import { LoadingPage } from '../Components/loadingPage'
 import { useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
@@ -27,6 +28,8 @@ function clearClientSessionState() {
   resetApplicationSettingsStore();
   resetWorldDataStore();
   clearPlannerAuthCookiesClientSide();
+  // Held ESI access tokens live outside the store, so no slice reset drops them.
+  esiCredentials.reset();
 }
 
 function SignoutComponent() {
@@ -35,7 +38,7 @@ function SignoutComponent() {
     async function performSignout() {
       try {
         disconnectRealtime();
-        await logoutServerSession(getTabPlannerRefreshToken());
+        await logoutPlannerSession(getTabPlannerRefreshToken());
 
         clearClientSessionState();
         queryClient.clear();

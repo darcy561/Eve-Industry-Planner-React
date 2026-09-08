@@ -1,11 +1,13 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCorpDivisions(character, config = {}) {
   try {
-    if (!character || !character.esiAccessToken || !character.corporation_id) {
+    if (!character || !character.CharacterHash || !character.corporation_id) {
       throw new Error("Character information is incomplete.");
     }
-    const { esiAccessToken, corporation_id } = character;
+    const { corporation_id } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
       priority: 'normal',
@@ -21,7 +23,7 @@ async function getCorpDivisions(character, config = {}) {
       `https://esi.evetech.net/corporations/${corporation_id}/divisions/?datasource=tranquility`,
       {
         headers: {
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

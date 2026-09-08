@@ -10,11 +10,11 @@ import { Box } from "@mui/material";
 import MaintenanceMode from "./MaintenanceMode";
 import { ThemeProvider } from "./Context/ThemeContext";
 import ErrorBoundary from "./Components/ErrorBoundary";
-import useRefreshESITokens from "./Hooks/App/useRefreshESITokens";
 import { useTranquilityServerStatusQuery } from "./Hooks/React Query/tranquilityServerStatus.js";
 import useFetchStaticDataFiles from "./Hooks/App/useFetchStaticDataFiles";
 import useAppConfig from "./Hooks/App/useAppConfig";
 import { useAccountWebSocket } from "./Realtime/useAccountWebSocket.js";
+import { useAccountAffiliationQuery } from "./Hooks/React Query/accountAffiliation.js";
 const { ENABLE_FEEDBACK_ICON } = GLOBAL_CONFIG;
 
 export default function App() {
@@ -23,9 +23,9 @@ export default function App() {
     enableVersionCheck: true,
   });
 
-  useRefreshESITokens();
   useAccountWebSocket();
   useTranquilityServerStatusQuery();
+  useAccountAffiliationQuery();
   useFetchStaticDataFiles();
 
   return (

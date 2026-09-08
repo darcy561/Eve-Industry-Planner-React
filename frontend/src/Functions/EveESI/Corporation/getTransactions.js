@@ -1,12 +1,14 @@
 import GLOBAL_CONFIG from "../../../global-config-app";
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCorpTransactions({ character, existingData = {}, config = {} }) {
   try {
-    if (!character || !character.esiAccessToken || !character.corporation_id) {
+    if (!character || !character.CharacterHash || !character.corporation_id) {
       throw new Error("Character information is incomplete.");
     }
-    const { esiAccessToken, corporation_id } = character;
+    const { corporation_id } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const { ESI_DATE_PERIOD } = GLOBAL_CONFIG;
     const maxDivisions = 7;
     const currentDate = Date.now();
@@ -30,7 +32,7 @@ async function getCorpTransactions({ character, existingData = {}, config = {} }
           {
             headers: {
               "If-None-Match": existingData[division]?.eTags || "",
-              Authorization: `Bearer ${esiAccessToken}`,
+              Authorization: `Bearer ${accessToken}`,
             },
           },
           enhancedConfig

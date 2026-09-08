@@ -1,7 +1,8 @@
-import { decodeJwt } from "jose";
-import Character from "../../Classes/character";
-import getCharacterFromRefreshToken from "../../Components/Auth/RefreshToken";
-import refreshCloudStoredEsiAccessToken from "../EveESI/Character/refreshCloudStoredEsiAccessToken.js";
+import {
+  buildCharacterFromAccessToken,
+  buildCharacterFromClientSecret,
+  buildCharacterFromStoredCredential,
+} from "./buildCharacterFromCredentials.js";
 import { canonicalCharacterHashKey } from "./characterHashCanonical.js";
 import { buildCorporationObjectFromUserObject } from "../Corporations/buildCorporationObject";
 import { emitUserDataUpdate } from "../../Events/loginEvents";
@@ -25,12 +26,7 @@ export async function hydrateLinkedCharactersFromAccessSessions(
     const hash = s.characterHash ?? s.CharacterHash;
     if (!s?.access_token || !hash) continue;
     try {
-      const jwtPayload = decodeJwt(s.access_token);
-      const ch = new Character({
-        jwtPayload,
-        tokenResponse: { access_token: s.access_token, refresh_token: "" },
-        isMainCharacter: false,
-      });
+      const ch = buildCharacterFromAccessToken(s.access_token);
       await ch.getPublicCharacterData();
       await buildCorporationObjectFromUserObject(ch);
       // Keep login progress UI behaviour consistent with refresh-token hydration:
@@ -70,7 +66,7 @@ export function getLocalAdditionalAccountsStorageKey(mainCharacterHash) {
 
 export async function buildAccountDataFromRefreshToken(refreshToken) {
     try {
-        const character = await getCharacterFromRefreshToken(refreshToken);
+        const character = await buildCharacterFromClientSecret(refreshToken);
         if (character instanceof Error) {
             throw character;
         }
@@ -160,35 +156,18 @@ export async function buildAccountDataFromRefreshTokenCandidates(rTokens) {
 }
 
 /**
- * Hydrates a linked (non-main) character in cloud mode using server-held OAuth refresh only.
- * No ESI refresh token is kept on the client.
+ * Hydrates a linked (non-main) character in cloud mode: credentials, then public data and corporation.
  *
  * @param {string} characterHash
  * @returns {Promise<import("../../Classes/character").default | null>}
  */
 export async function buildCharacterFromCloudStoredAccess(characterHash) {
-    const hash = typeof characterHash === "string" ? characterHash.trim() : "";
-    if (!hash) return null;
-    const tok = await refreshCloudStoredEsiAccessToken(hash);
-    if (tok instanceof Error || !tok?.access_token) {
-        console.warn("Cloud-stored ESI access failed for linked character", hash, tok);
-        return null;
-    }
+    const character = await buildCharacterFromStoredCredential(characterHash);
+    if (!character) return null;
     try {
-        const jwtPayload = decodeJwt(tok.access_token);
-        const ch = new Character({
-            jwtPayload,
-            tokenResponse: {
-                access_token: tok.access_token,
-                token_type: tok.token_type,
-                expires_in: tok.expires_in,
-                refresh_token: "",
-            },
-            isMainCharacter: false,
-        });
-        await ch.getPublicCharacterData();
-        await buildCorporationObjectFromUserObject(ch);
-        return ch;
+        await character.getPublicCharacterData();
+        await buildCorporationObjectFromUserObject(character);
+        return character;
     } catch (e) {
         console.error(e);
         return null;

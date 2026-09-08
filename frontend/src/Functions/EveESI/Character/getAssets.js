@@ -1,10 +1,11 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Fetches character assets from EVE ESI API with pagination and caching support.
  * 
  * @param {Object} params - Parameters object
- * @param {Object} params.character - Character object with esiAccessToken and CharacterID
+ * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {number} [params.page=1] - Page number for pagination
  * @param {Object} [params.existingEtags={}] - Existing ETags for caching
  * @param {Object} [params.config={}] - Additional configuration options
@@ -12,17 +13,18 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
  * 
  * @example
  * const assets = await getCharacterAssets({
- *   character: { esiAccessToken: "token", CharacterID: 123456 },
+ *   character: { CharacterHash: "hash", CharacterID: 123456 },
  *   page: 1,
  *   config: { characterHash: "hash" }
  * });
  */
 async function getCharacterAssets({ character, page = 1, existingEtags = {}, config = {} }) {
   try {
-    if (!character || !character.esiAccessToken || !character.CharacterID) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/assets/?datasource=tranquility&page=${page}`;
 
     // Enhanced configuration for rate limiting
@@ -41,7 +43,7 @@ async function getCharacterAssets({ character, page = 1, existingEtags = {}, con
       {
         headers: {
           "If-None-Match": existingEtags?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

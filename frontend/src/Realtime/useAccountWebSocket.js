@@ -13,8 +13,8 @@ import { fetchPlannerJobDocumentsFromApi } from "../Functions/Endpoints/Private/
  * (`isLoggedIn` + `sessionID` + `accountId`), disconnect otherwise; optional
  * session-resume handoff on teardown.
  * Subscribes to `visibilitychange` to re-sync account singletons and planner jobs
- * when a background tab becomes visible. Effect deps are narrow primitives to limit
- * reconnect storms.
+ * when a background tab becomes visible. No auth work happens here: tokens are acquired by
+ * whatever needs one. Effect deps are narrow primitives to limit reconnect storms.
  */
 export function useAccountWebSocket() {
   const accountID = useUsersStore((s) => s.account.accountID);
@@ -34,7 +34,7 @@ export function useAccountWebSocket() {
     };
   }, [isLoggedIn, accountID]);
 
-  /** Background tabs throttle timers / WS; refresh tokens when due, then re-sync data. */
+  /** A background tab's socket is throttled, so re-sync account data when it becomes visible. */
   useEffect(() => {
     if (!isLoggedIn || !accountID) {
       return;
@@ -51,16 +51,6 @@ export function useAccountWebSocket() {
           const logged = useUsersStore.getState().account.isLoggedIn;
           const acc = useUsersStore.getState().account.accountID;
           if (!logged || !acc) return;
-
-          const { runTabVisibleAuthRefresh } =
-            useUsersStore.getState().account.actions;
-          if (typeof runTabVisibleAuthRefresh === "function") {
-            await runTabVisibleAuthRefresh();
-          }
-
-          if (!useUsersStore.getState().account.isLoggedIn) {
-            return;
-          }
 
           scheduleDebouncedAccountDocumentsSync();
           await fetchPlannerJobDocumentsFromApi().catch(() => {});

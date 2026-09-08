@@ -7,13 +7,13 @@
  * Session field names align with the Go `Account` / API contract for the logged-in account.
  *
  * @fileoverview Account session, linked ESI, `characters`, and `corporations` for Zustand.
- * Session and linked refresh-token actions live in `tokenActions.js`.
+ * Session and linked refresh-token actions live in `plannerSessionActions.js`.
  */
 
 import Character from "../../Classes/character.js";
 import { characterActions } from "./characterActions.js";
 import { corporationsActions } from "./corporationsActions.js";
-import { tokenActions } from "./tokenActions.js";
+import { plannerSessionActions } from "./plannerSessionActions.js";
 import { clearTabPlannerSession } from "../../Functions/Auth/tabSessionStorage.js";
 import { asNumberIDSet } from "../../Functions/Helper/ids";
 
@@ -91,7 +91,7 @@ export const accountActions = (set, get) => ({
     );
   },
 
-  ...tokenActions(set, get),
+  ...plannerSessionActions(set, get),
 
   resetAccountStore: () => {
     clearTabPlannerSession();

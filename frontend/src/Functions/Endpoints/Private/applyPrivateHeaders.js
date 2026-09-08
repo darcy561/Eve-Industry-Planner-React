@@ -83,8 +83,8 @@ export const PRIVATE_AUTH_TOKEN_UNAVAILABLE =
 /**
  * Private API helpers: per-tab session auth via **`X-Session-ID`** (sessionStorage).
  *
- * {@link requestWithPrivateHeaders} awaits `account.actions.refreshServerToken` first (often a no-op
- * when the planner session was validated recently — see cooldown in `tokenActions.refreshServerToken`),
+ * {@link requestWithPrivateHeaders} awaits `account.actions.ensurePlannerSession` first (often a no-op
+ * when the planner session was validated recently — see cooldown in `plannerSessionActions.ensurePlannerSession`),
  * then performs `fetch` with tab session headers.
  * Session identity is **`X-Session-ID`**; **`X-WS-Client-ID`** is sent when the
  * realtime layer has assigned a tab id (echo suppression / locks).
@@ -186,7 +186,7 @@ function applyPrivateHeaders(options = {}, config = {}) {
  */
 async function executePrivateFetchOnce(URL, options, headerConfig) {
   if (!headerConfig.skipSessionRefresh) {
-    const refresh = useUserStore.getState()?.account?.actions?.refreshServerToken;
+    const refresh = useUserStore.getState()?.account?.actions?.ensurePlannerSession;
     if (typeof refresh === "function") {
       await refresh();
     }
@@ -223,7 +223,7 @@ async function executePrivateRequestSingle(URL, options = {}, config = {}) {
       !headerConfig.skipSessionRefresh &&
       (await responseIndicatesSessionMissing(res))
     ) {
-      const refresh = useUserStore.getState()?.account?.actions?.refreshServerToken;
+      const refresh = useUserStore.getState()?.account?.actions?.ensurePlannerSession;
       if (typeof refresh === "function") {
         await refresh({ force: true });
         return runOnce(true);

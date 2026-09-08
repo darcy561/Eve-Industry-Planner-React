@@ -1,6 +1,7 @@
 import { decodeJwt } from "jose";
 import Character from "../../../Classes/character";
 import { fetchWithPublicHeaders } from "../../Endpoints/Public/applyPublicHeaders.js";
+import { adoptEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Exchanges EVE SSO authorization code for access token and builds a {@link Character} instance.
@@ -73,6 +74,7 @@ async function getEveOauthToken(authCode, accountType = false) {
       tokenResponse: tokenJSON,
       isMainCharacter: accountType,
     });
+    adoptEsiAccessToken(newCharacter.CharacterHash, tokenJSON.access_token);
     if (accountType) {
       localStorage.setItem("Auth", tokenJSON.refresh_token);
     }

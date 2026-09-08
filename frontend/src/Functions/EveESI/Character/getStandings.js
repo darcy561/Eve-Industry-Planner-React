@@ -1,21 +1,23 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCharacterStandings({
   character,
   existingData = {},
 }) {
   try {
-    if (!character || !character.esiAccessToken || !character.CharacterID) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/standings/?datasource=tranquility`;
 
     const response = await fetchWithCustomHeaders(endpointURL, {
       headers: {
         "If-None-Match": existingData?.etag || "",
-        Authorization: `Bearer ${esiAccessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 

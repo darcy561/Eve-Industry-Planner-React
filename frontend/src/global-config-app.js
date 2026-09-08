@@ -163,45 +163,16 @@ const GLOBAL_CONFIG = Object.freeze({
   ENABLE_FEEDBACK_ICON: true,
 
   /**
-   * ESI: target time (minutes) to complete one full round-robin over all
-   * characters. Per-tick delay = `this × 60 / n` (clamped by min/max), so
-   * more toons get shorter gaps between steps and a full pass still fits
-   * under ~EVE 20m access + 15m in-code buffer.
+   * How often to re-check which corporation each character belongs to, and resubmit the ESI tokens
+   * the server derives session grants from.
+   *
+   * A character changing corporation is rare and never urgent; this is the cadence at which the app
+   * notices while it is open, and everything that matters is re-read at login anyway.
    *
    * @type {number}
    * @unit minutes
    */
-  ESI_STAGGER_TARGET_FULL_CYCLE_MINUTES: 10,
-
-  /**
-   * ESI: floor (seconds) for stagger tick — avoid hammering the token endpoint
-   * when the account has many characters.
-   *
-   * @type {number}
-   * @unit seconds
-   */
-  ESI_STAGGER_TICK_MIN_SECONDS: 20,
-
-  /**
-   * ESI: ceiling (seconds) for stagger tick — a solo or small account does not
-   * need to wait a full `TARGET` between checks on a single character.
-   *
-   * @type {number}
-   * @unit seconds
-   */
-  ESI_STAGGER_TICK_MAX_SECONDS: 180,
-
-  /**
-   * Default character refresh interval in minutes.
-   *
-   * How often to run non-ESI maintenance: corporation claims sync and app JWT
-   * refresh, after staggered ESI has kept per-character access tokens current.
-   * ESI is **not** bulk-refreshed on this tick (staggered rotation handles that).
-   *
-   * @type {number}
-   * @unit minutes
-   */
-  DEFAULT_CHARACTER_REFRESH_INTERVAL: 15,
+  ACCOUNT_AFFILIATION_REFRESH_MINUTES: 15,
 
   /**
    * Minimum gap between redundant `POST .../auth/sessions/rotate` calls when the

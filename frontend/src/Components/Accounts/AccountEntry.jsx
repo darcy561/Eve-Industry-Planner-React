@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import BusinessIcon from "@mui/icons-material/Business";
 import { alpha } from "@mui/material/styles";
 import { showSnackbarError } from "../../Events/snackbarEvents";
-import checkUserClaims from "../../Functions/Auth/checkUserClaims";
+import refreshAccountSessionGrants from "../../Functions/Auth/refreshAccountSessionGrants.js";
 import useUsersStore from "../../Zustand/usersStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { scheduleDebouncedUserAccountDocumentSave } from "../../Functions/Debounce/userDocumentsPersistSchedule.js";
@@ -39,7 +39,7 @@ export function AccountEntry({ character, appearance = "default" }) {
     } else {
       updateLocalRefreshTokens(useUsersStore.getState().account.characters);
     }
-    await checkUserClaims();
+    await refreshAccountSessionGrants();
 
     showSnackbarError(`${characterName} Removed`);
   }

@@ -1,18 +1,16 @@
-import { decodeJwt } from "jose";
-import refreshEsiAccessTokenViaSsoRefreshEndpoint from "../Functions/EveESI/Character/refreshAccessToken";
-import refreshEsiAccessTokenFromServerStoredCredential from "../Functions/EveESI/Character/refreshCloudStoredEsiAccessToken";
 import getCharacterPublicInfo from "../Functions/EveESI/Character/getPublicData";
-import useUsersStore from "../Zustand/usersStore";
 
 /**
  * @typedef {Object} CharacterFromSSOOptions
- * @property {Object} [jwtPayload] - Decoded ESI **access** JWT (`sub`, `owner`, `name`, `exp`, `tier`)
- * @property {Object} [tokenResponse] - OAuth-style `{ access_token, refresh_token }` from SSO exchange or refresh
+ * @property {Object} [jwtPayload] - Decoded ESI **access** JWT (`sub`, `owner`, `name`, `tier`)
+ * @property {Object} [tokenResponse] - OAuth-style `{ refresh_token }` from SSO exchange or refresh
  * @property {boolean} [isMainCharacter=false] - Main planner character (persists refresh to local `Auth` when true)
  */
 
 /**
- * EVE Online character model built from ESI OAuth tokens.
+ * EVE Online character identity. Access tokens are **not** here: they live in the ESI credential
+ * provider, so refreshing one does not write the store and does not re-render the roster's
+ * subscribers.
  *
  * @class Character
  * @example
@@ -42,10 +40,7 @@ class Character {
     this.CharacterID = Number(subMatch?.[1]) || 94800326;
     this.CharacterHash = jwtPayload?.owner || "ABC123";
     this.CharacterName = jwtPayload?.name || "Example Character";
-    this.esiAccessToken = tokenResponse?.access_token || "";
-    this.esiAccessTokenEXP = Number(jwtPayload?.exp) || 0;
     this.esiRefreshToken = tokenResponse?.refresh_token || "";
-    this.refreshState = 1;
     this.corporation_id = null;
     this.isOmega = jwtPayload?.tier === "live";
     this.isMainCharacter = isMainCharacter;
@@ -56,10 +51,7 @@ class Character {
     this.CharacterID = other.CharacterID;
     this.CharacterHash = other.CharacterHash;
     this.CharacterName = other.CharacterName;
-    this.esiAccessToken = other.esiAccessToken;
-    this.esiAccessTokenEXP = other.esiAccessTokenEXP;
     this.esiRefreshToken = other.esiRefreshToken;
-    this.refreshState = other.refreshState;
     this.corporation_id = other.corporation_id;
     this.isOmega = other.isOmega;
     this.isMainCharacter = other.isMainCharacter;
@@ -113,11 +105,6 @@ class Character {
     }
   }
 
-  setRefreshState = (inputStateValue) => {
-    if (!inputStateValue) return;
-    this.refreshState = inputStateValue;
-  };
-
   getPublicCharacterData = async () => {
     try {
       const characterObject = await getCharacterPublicInfo(this.CharacterID);
@@ -132,52 +119,6 @@ class Character {
       }
     } catch (err) {
       console.error(`Failed to fetch character data: ${err.message}`);
-    }
-  };
-
-  /**
-   * Refreshes the **ESI access JWT** (CCP), not the planner app session.
-   * Dispatches to server-stored vs client-held OAuth refresh (`esi_oauth_storage` / settings).
-   *
-   * Buffer is **660 s (11 min)** — see `tokenActions.refreshServerToken` for planner session cadence.
-   *
-   * @returns {Promise<number>} 1 if refreshed, 0 if skipped or failed
-   */
-  refreshEsiAccessTokenIfNeeded = async () => {
-    try {
-      if (this.isPlaceholder) {
-        return 0;
-      }
-      const currentTimeStamp = Math.floor(Date.now() / 1000);
-      const bufferTime = 660;
-
-      if (this.esiAccessTokenEXP >= currentTimeStamp + bufferTime) return 0;
-      this.refreshState = 2;
-      const cloudAccounts =
-        !!useUsersStore.getState().applicationSettings.userCloudAccounts;
-      const JWT = cloudAccounts
-        ? await refreshEsiAccessTokenFromServerStoredCredential(this.CharacterHash)
-        : await refreshEsiAccessTokenViaSsoRefreshEndpoint(this.esiRefreshToken);
-      if (JWT instanceof Error) {
-        throw JWT;
-      }
-      const { exp } = decodeJwt(JWT.access_token);
-
-      this.esiAccessToken = JWT.access_token;
-      this.esiAccessTokenEXP = Number(exp);
-      if (!cloudAccounts) {
-        this.esiRefreshToken = JWT.refresh_token ?? "";
-      } else {
-        this.esiRefreshToken = "";
-      }
-      this.refreshState = 3;
-      if (this.isMainCharacter && !cloudAccounts && JWT.refresh_token) {
-        localStorage.setItem("Auth", JWT.refresh_token);
-      }
-      return 1;
-    } catch (err) {
-      console.error(err.message);
-      return 0;
     }
   };
 }

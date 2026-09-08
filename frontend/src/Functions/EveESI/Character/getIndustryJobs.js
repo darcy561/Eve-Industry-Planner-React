@@ -1,12 +1,13 @@
 import GLOBAL_CONFIG from "../../../global-config-app";
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Fetches character industry jobs from EVE ESI API with pagination and caching support.
  * Filters jobs based on completion date and includes both active and completed jobs.
  *
  * @param {Object} params - Parameters object
- * @param {Object} params.character - Character object with esiAccessToken and CharacterID
+ * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {number} [params.page=1] - Page number for pagination
  * @param {Object} [params.existingData={}] - Existing data for caching
  * @param {Object} [params.config={}] - Additional configuration options
@@ -14,11 +15,12 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
  */
 async function getCharacterIndustryJobs({ character, page = 1, existingData = {}, config = {} }) {
   try {
-    if (!character || !character.CharacterID || !character.esiAccessToken) {
+    if (!character || !character.CharacterID || !character.CharacterHash) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/industry/jobs/?include_completed=true&datasource=tranquility&page=${page}`;
 
     // Enhanced configuration for rate limiting
@@ -37,7 +39,7 @@ async function getCharacterIndustryJobs({ character, page = 1, existingData = {}
       {
         headers: {
           "If-None-Match": existingData?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

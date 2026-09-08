@@ -1,10 +1,9 @@
-package helper
+package models
 
 import (
 	"testing"
 
 	"eve-industry-planner/shared/crypto/entityid"
-	"eve-industry-planner/shared/models"
 )
 
 func testCipher(t *testing.T) *entityid.Cipher {
@@ -25,33 +24,33 @@ func TestOwnerHandleRoundTripsToTheStoredOwner(t *testing.T) {
 
 	for _, tc := range []struct {
 		name       string
-		owner      func() models.Owner
+		owner      func() Owner
 		wantHandle string
 	}{
 		{
 			name:       "account",
-			owner:      func() models.Owner { return models.AccountOwner("acct-1") },
+			owner:      func() Owner { return AccountOwner("acct-1") },
 			wantHandle: "account:acct-1",
 		},
 		{
 			name: "corporation",
-			owner: func() models.Owner {
+			owner: func() Owner {
 				ref, err := cipher.Corporation(98000001)
 				if err != nil {
 					t.Fatalf("encrypt: %v", err)
 				}
-				return models.CorporationOwner(ref)
+				return CorporationOwner(ref)
 			},
 			wantHandle: "corporation:98000001",
 		},
 		{
 			name: "alliance",
-			owner: func() models.Owner {
+			owner: func() Owner {
 				ref, err := cipher.Alliance(99000001)
 				if err != nil {
 					t.Fatalf("encrypt: %v", err)
 				}
-				return models.AllianceOwner(ref)
+				return AllianceOwner(ref)
 			},
 			wantHandle: "alliance:99000001",
 		},
@@ -87,11 +86,11 @@ func TestOwnerHandleKeepsRefsOffTheWire(t *testing.T) {
 	if err != nil {
 		t.Fatalf("encrypt: %v", err)
 	}
-	handle, err := OwnerHandle(models.CorporationOwner(ref), cipher)
+	handle, err := OwnerHandle(CorporationOwner(ref), cipher)
 	if err != nil {
 		t.Fatalf("OwnerHandle: %v", err)
 	}
-	if handle == models.CorporationOwner(ref).Key() {
+	if handle == CorporationOwner(ref).Key() {
 		t.Fatal("the handle is the stored owner key, so the ref reached the client")
 	}
 	if len(handle) > len("corporation:")+20 {
@@ -134,7 +133,7 @@ func TestOwnerHandleNeedsACipherForEntityKinds(t *testing.T) {
 	if _, err := ParseOwnerHandle("corporation:98000001", nil); err == nil {
 		t.Error("a corporation handle was parsed without a cipher")
 	}
-	if _, err := OwnerHandle(models.CorporationOwner("corp_x"), nil); err == nil {
+	if _, err := OwnerHandle(CorporationOwner("corp_x"), nil); err == nil {
 		t.Error("a corporation owner was rendered without a cipher")
 	}
 
@@ -142,7 +141,23 @@ func TestOwnerHandleNeedsACipherForEntityKinds(t *testing.T) {
 	if _, err := ParseOwnerHandle("account:acct-1", nil); err != nil {
 		t.Errorf("an account handle needed a cipher: %v", err)
 	}
-	if _, err := OwnerHandle(models.AccountOwner("acct-1"), nil); err != nil {
+	if _, err := OwnerHandle(AccountOwner("acct-1"), nil); err != nil {
 		t.Errorf("an account owner needed a cipher: %v", err)
+	}
+}
+
+// A handle is held to the same rules as the key it parses to: a kind nothing can
+// own a document under is refused rather than carried.
+func TestParseOwnerHandleValidatesLikeAKey(t *testing.T) {
+	t.Parallel()
+	cipher := testCipher(t)
+
+	for _, bad := range []string{
+		"banana:1",
+		":acct-1",
+	} {
+		if _, err := ParseOwnerHandle(bad, cipher); err == nil {
+			t.Errorf("ParseOwnerHandle(%q) was accepted", bad)
+		}
 	}
 }

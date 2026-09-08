@@ -3,12 +3,12 @@ package nats
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
 	"strings"
 	"time"
 
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 
 	natslib "github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -30,7 +30,8 @@ var (
 	AckRetry     = RetryPolicy{Attempts: 3, InitialDelay: 100 * time.Millisecond, MaxDelay: 400 * time.Millisecond}
 )
 
-// Retry runs operation under policy. Backoff waits honour ctx.
+// Retry runs operation under policy, retrying what [IsRetryable] accepts.
+// operationName labels the logs; the error returned is the NATS failure itself.
 func Retry(ctx context.Context, policy RetryPolicy, operationName string, operation func() error) error {
 	if ctx == nil {
 		ctx = context.Background()
@@ -43,56 +44,63 @@ func Retry(ctx context.Context, policy RetryPolicy, operationName string, operat
 		opName = "NATS operation"
 	}
 
-	var lastErr error
-	for attempt := range policy.Attempts {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
+	attempts := 0
+	refused := false
 
-		err := operation()
-		if err == nil {
-			if attempt > 0 {
-				logs.InfoCtx(ctx, "NATS operation succeeded after retry",
-					"operation", opName,
-					"attempt", attempt+1)
-			}
-			return nil
+	// refuse reports whether err ends the operation rather than earning another
+	// attempt, and logs it once. The engine does not consult the predicate on the
+	// last attempt, so a failure there is classified after Do returns instead.
+	refuse := func(err error) bool {
+		if IsRetryable(err) {
+			return false
 		}
-		lastErr = err
-
-		if !IsRetryable(err) {
-			logs.WarnCtx(ctx, "NATS operation failed - non-retryable error",
-				"operation", opName,
-				"error", err)
-			return err
-		}
-
-		if attempt == policy.Attempts-1 {
-			break
-		}
-
-		delay := min(policy.InitialDelay*time.Duration(1<<attempt), policy.MaxDelay)
-		logs.InfoCtx(ctx, "NATS operation failed, retrying",
+		refused = true
+		logs.WarnCtx(ctx, "NATS operation failed - non-retryable error",
 			"operation", opName,
-			"attempt", attempt+1,
-			"max_attempts", policy.Attempts,
-			"delay_ms", delay.Milliseconds(),
 			"error", err)
-
-		timer := time.NewTimer(delay)
-		select {
-		case <-ctx.Done():
-			timer.Stop()
-			return ctx.Err()
-		case <-timer.C:
-		}
+		return true
 	}
 
-	logs.ErrorCtx(ctx, "NATS operation failed - all attempts exhausted",
-		"operation", opName,
-		"attempts", policy.Attempts,
-		"error", lastErr)
-	return fmt.Errorf("NATS operation failed after %d attempts: %w", policy.Attempts, lastErr)
+	err := retry.Do(ctx,
+		func(context.Context) error {
+			attempts++
+			return operation()
+		},
+		func(err error, at retry.AttemptContext) bool {
+			if refuse(err) {
+				return false
+			}
+			logs.InfoCtx(ctx, "NATS operation failed, retrying",
+				"operation", opName,
+				"attempt", at.Attempt,
+				"max_attempts", at.MaxAttempts,
+				"error", err)
+			return true
+		},
+		retry.WithMaxAttempts(policy.Attempts),
+		retry.WithInitialDelay(policy.InitialDelay),
+		retry.WithMaxDelay(policy.MaxDelay),
+		retry.WithOperationName(opName),
+	)
+
+	switch {
+	case err == nil:
+		if attempts > 1 {
+			logs.InfoCtx(ctx, "NATS operation succeeded after retry",
+				"operation", opName,
+				"attempt", attempts)
+		}
+	// The caller's context ended before any attempt ran, so this is not a NATS
+	// failure. A deadline reached mid-operation is one, and IsRetryable treats it
+	// as the server not answering.
+	case attempts == 0:
+	case !refused && !refuse(err):
+		logs.ErrorCtx(ctx, "NATS operation failed - all attempts exhausted",
+			"operation", opName,
+			"attempts", attempts,
+			"error", err)
+	}
+	return err
 }
 
 // IsRetryable reports whether err is a transient connection, stream, or timeout failure.

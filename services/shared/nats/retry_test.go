@@ -1,10 +1,12 @@
 package nats
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"net"
+	"os"
 	"testing"
 	"time"
 
@@ -163,5 +165,65 @@ func (m *fakeMsg) Metadata() (*jetstream.MsgMetadata, error) {
 func TestPing_withoutDeadline(t *testing.T) {
 	if err := (&NATS{}).Ping(context.Background()); err == nil {
 		t.Fatal("Ping on an empty handle should fail")
+	}
+}
+
+// A non-retryable failure on the final attempt is still refused rather than
+// reported as exhaustion: the engine does not consult the predicate there.
+func TestRetry_nonRetryableOnLastAttempt(t *testing.T) {
+	calls := 0
+	nonRetryable := errors.New("subject is malformed")
+	err := Retry(context.Background(), testPolicy, "test", func() error {
+		calls++
+		if calls < testPolicy.Attempts {
+			return natslib.ErrTimeout
+		}
+		return nonRetryable
+	})
+
+	if err != nonRetryable {
+		t.Fatalf("Retry returned %v, want %v", err, nonRetryable)
+	}
+	if calls != testPolicy.Attempts {
+		t.Fatalf("operation called %d times, want %d", calls, testPolicy.Attempts)
+	}
+}
+
+// An exhausted retry hands back the NATS failure itself, so a caller can
+// classify it without unwrapping an attempt-count wrapper.
+func TestRetry_exhaustedReturnsCause(t *testing.T) {
+	err := Retry(context.Background(), testPolicy, "test", func() error {
+		return natslib.ErrTimeout
+	})
+
+	if err != natslib.ErrTimeout {
+		t.Fatalf("Retry returned %v, want the cause %v unwrapped", err, natslib.ErrTimeout)
+	}
+}
+
+// A single-attempt policy makes one attempt and returns its failure.
+func TestRetry_singleAttemptPolicy(t *testing.T) {
+	calls := 0
+	err := Retry(context.Background(), RetryPolicy{Attempts: 1}, "test", func() error {
+		calls++
+		return natslib.ErrTimeout
+	})
+
+	if err != natslib.ErrTimeout {
+		t.Fatalf("Retry returned %v, want %v", err, natslib.ErrTimeout)
+	}
+	if calls != 1 {
+		t.Fatalf("operation called %d times, want 1", calls)
+	}
+}
+
+// Retry holds no loop of its own; the backoff lives in shared/retry.
+func TestRetry_hasNoLoopOfItsOwn(t *testing.T) {
+	src, err := os.ReadFile("retry.go")
+	if err != nil {
+		t.Fatalf("reading retry.go: %v", err)
+	}
+	if bytes.Contains(src, []byte("time.After")) || bytes.Contains(src, []byte("time.NewTimer")) {
+		t.Error("retry.go waits on a timer directly, want the backoff in shared/retry")
 	}
 }

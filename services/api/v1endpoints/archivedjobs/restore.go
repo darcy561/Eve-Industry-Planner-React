@@ -45,6 +45,11 @@ func restoreJobs(ctx context.Context, h *Handlers, req restoreRequest) (restoreR
 	if h.EntityCipher == nil {
 		return restoreResult{}, fmt.Errorf("entity ref helper is not configured")
 	}
+	// Named rather than left to the write to reject: the account and the archive's
+	// owner differ on a shared planner, so an unset one is a real mistake here.
+	if req.AccountID == "" || req.Archive.Owner.IsZero() {
+		return restoreResult{}, fmt.Errorf("restoreJobs: an account and an archive owner are required")
+	}
 
 	now := time.Now().UTC()
 	var err error

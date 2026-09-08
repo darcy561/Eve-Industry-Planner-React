@@ -56,11 +56,6 @@ func (h *Handlers) FileArchivedJobMonthsHandler(w http.ResponseWriter, r *http.R
 	})
 	defer metrics.Finish()
 
-	accountID, ok := helper.RequireAccountID(w, r)
-	if !ok {
-		metrics.Error("unauthorized")
-		return
-	}
 	if h.Mongo == nil {
 		metrics.Error("mongo_client_missing")
 		helper.RespondEndpointError(w, r, http.StatusServiceUnavailable, "Service unavailable", "file months: mongo client missing", "archived_jobs_mongo_unavailable", "archived_jobs_filing", errors.New("mongo client missing"), nil)
@@ -144,8 +139,10 @@ func (h *Handlers) FileArchivedJobMonthsHandler(w http.ResponseWriter, r *http.R
 		if rowErr != nil {
 			continue
 		}
-		row.Owner = models.AccountOwner(accountID)
-		row.ID = eipmongo.ArchivedJobStatsDocumentID(row.Owner, job.JobID)
+		// The archive's owner, not the account filing it: a row belongs to the
+		// planner whose job it describes.
+		row.Owner = scope.Owner
+		row.ID = scope.statsID(job.JobID)
 		rows = append(rows, row)
 	}
 
@@ -157,7 +154,7 @@ func (h *Handlers) FileArchivedJobMonthsHandler(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	if err := h.Mongo.QueueOwnerWork(ctx, models.AccountOwner(accountID), eipmongo.StatsWorkRebuild, now); err != nil {
+	if err := h.Mongo.QueueOwnerWork(ctx, scope.Owner, eipmongo.StatsWorkRebuild, now); err != nil {
 		metrics.Error("queue")
 		helper.RespondEndpointError(w, r, http.StatusInternalServerError, "Server error", "file months: queue rebuild", "archived_jobs_filing_queue", "archived_jobs_filing", err, nil)
 		return

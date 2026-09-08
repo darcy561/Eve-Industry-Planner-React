@@ -141,6 +141,8 @@ var cliTable = []cliCommand{
 	{command: "planners", args: "[-account id]", run: runPlanners},
 	{command: "rewriteOwnerScopedIDs", args: "[-collection=name] [-limit=N] [-dry-run]", run: runRewriteOwnerScopedIDs},
 	{command: "prepareRelease", args: "[-dry-run]", run: runPrepareRelease},
+	{command: "revertRelease", args: "[-dry-run]", run: runRevertRelease},
+	{command: "dropReleaseBackups", args: "[-dry-run]", run: runDropReleaseBackups},
 	{command: "rotateRefreshTokenKeys", args: "[--from=<version>] [--scan-batch-size=<n>] [--limit=<n>] [--dry-run]", run: runRotateRefreshTokenKeys},
 	{command: "encodeJobIdentity", args: "[-collection <name>] [-limit <n>] [-dry-run]", run: runEncodeJobIdentity},
 }

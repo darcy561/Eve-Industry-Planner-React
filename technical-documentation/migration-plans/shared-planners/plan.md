@@ -2003,6 +2003,17 @@ it runs. A partly-finished backfill in front of live readers is the thing an exp
 exists to prevent; with traffic stopped the failure mode is instead that the window overruns, which is
 answered by rehearsing on a copy rather than by keeping two shapes readable.
 
+**Every collection the release writes to is copied before anything writes, and a command puts the
+copies back.** `prepareRelease` opens with the copy — one `$out` per collection, server-side, count
+verified, recorded in `release_backups` — and `rewriteOwnerScopedIDs` takes the same copy of its own
+collections before it queues a task, because it runs outside the window. The list is built from the
+collection lists the steps iterate, so a step that starts writing somewhere new is backed up by the
+same edit. A copy already recorded is never replaced, so a re-run after the steps have written cannot
+overwrite the pre-release state with a half-migrated one. `eip cli -- revertRelease` restores every
+recorded collection — `$out` from the copy into the live name, which is atomic and keeps the indexes —
+empties one that was empty when copied, and refuses to run if nothing was recorded. The copies are kept
+until `eip cli -- dropReleaseBackups`.
+
 **Rehearsal is the substitute for reversibility, and it has been done.** The rename path was proven by
 putting dev back to live's exact collection names and running `eip ensure-mongo` once, with every count
 matching afterwards. The owner backfill and the statistics reshape have since had the same treatment
@@ -2013,7 +2024,7 @@ is ready for the window.
 
 | Surface | Change |
 |---------|--------|
-| `_meta` owner block | **migrate-required** — one cutover; no forward-compatible shape, so rollback is a database restore |
+| `_meta` owner block | **migrate-required** — one cutover; no forward-compatible shape. Rollback is `revertRelease` over the copies the release takes first — see § Live data, and the cutover window |
 | `_meta` on the wire | **not breaking** — the owner never leaves the server, and `accountID` had one SPA reader that already falls back to the store, so the client change is a deletion |
 | `ChangeStreamMessage` scope fields | **Landed** as one `ownerKey`, replacing the three. Breaking core to websocket only; internal, and both ship in the same window. JetStream holds `doc.update` for an hour, so the two shapes must not be split across deploys — see [archived-jobs-stats](../archived-jobs-stats/overlay.md) § How a change reaches the right clients |
 | `ArchivedJobStats` owner | **migrate-required** — same window |

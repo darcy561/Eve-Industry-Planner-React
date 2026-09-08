@@ -45,6 +45,14 @@ func runRewriteOwnerScopedIDs(ctx context.Context, args []string) error {
 		return fmt.Errorf("failed to ensure worker task stream: %w", err)
 	}
 
+	// Copied before a single task is queued: the workers write, and the copy is
+	// what revertRelease puts back. An existing copy is left as it is.
+	backedUp, err := backupCollections(ctx, clients.Mongo, currentRelease, opts.collections, opts.dryRun)
+	if err != nil {
+		return fmt.Errorf("back up before the rewrite: %w", err)
+	}
+	fmt.Println(backedUp)
+
 	batch := clients.NATS.Batching()
 	queued := 0
 	for _, collection := range opts.collections {

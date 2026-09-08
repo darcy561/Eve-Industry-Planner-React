@@ -437,6 +437,12 @@ sets `_meta` by path — Mongo refuses `$set` of a subdocument alongside `$inc` 
 setting the block whole would reset the counter to whatever the request body held. Server-side
 rewrites — schema maintenance, the statistics rebuild, the SDE import — do not count.
 
+**Everything the release writes to is copied first, and can be put back.** `prepareRelease` begins by
+copying every collection its steps or its fan-out commands write to, and `rewriteOwnerScopedIDs`
+copies its own collections before queuing a task. Copies are recorded in `release_backups` with their
+counts, an existing copy is never replaced, and `revertRelease` restores every recorded collection
+from them — refusing when nothing was recorded. `dropReleaseBackups` removes them afterwards.
+
 **The id rewrite is a fan-out, and the release gates on it.** `eip cli -- rewriteOwnerScopedIDs`
 enumerates the owners holding bare-id documents and queues one worker task each; a task inserts each
 document under its new id, seeds `_meta.version`, then removes the old one, and a duplicate key on the

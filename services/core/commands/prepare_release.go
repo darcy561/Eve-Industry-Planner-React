@@ -54,9 +54,12 @@ type release struct {
 // already current safe, and what lets an environment several versions behind
 // catch up in one command.
 var releases = []release{{
-	version: "0.9.0",
+	version: currentRelease,
 	steps: []releaseStep{
-		// First: later steps stamp the current schema version onto documents they
+		// Before anything writes: the copies are what revertRelease puts back, and
+		// a copy taken after a step ran is a copy of that step's output.
+		{name: "copy every collection this release writes to", required: true, run: backupReleaseCollections},
+		// Next: later steps stamp the current schema version onto documents they
 		// touch, so anything still owing an earlier upgrade has to run it now or
 		// be recorded as current without ever having done so.
 		{name: "complete outstanding schema maintenance", required: true, run: completeSchemaMaintenance},
@@ -67,11 +70,9 @@ var releases = []release{{
 		{name: "drop unaddressable rebuild queue entries", run: dropUnaddressableQueueEntries},
 		// Before the rebuild: it derives each row's category names from the jobs.
 		{name: "stamp extras category labels onto jobs", run: stampExtrasCategoryLabels},
-		// After the jobs are stamped and before the rebuild: the rebuild is what
-		// writes these collections back, in the owner-keyed shape.
-		{name: "copy the statistics documents before the rebuild", run: snapshotDerivedStatistics},
-		// After the copy, not before: the copy is what an operator falls back to,
-		// and a fallback missing the fields the previous release read is not one.
+		// After the release's copy, never before: the copy is what an operator
+		// falls back to, and one missing the fields the previous release read is
+		// not a fallback.
 		{name: "drop retired statistics fields", run: dropRetiredStatisticsFields},
 		{name: "queue every account for rebuild", run: queueEveryAccountForRebuild},
 		// After the owner stamp, because a planner's id is the owner key those

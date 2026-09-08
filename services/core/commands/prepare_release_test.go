@@ -12,6 +12,7 @@ import (
 	"eve-industry-planner/core/changestream"
 	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/models"
+	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/redisfake"
 )
@@ -140,16 +141,16 @@ func TestReleasesCatalogIsValid(t *testing.T) {
 func TestSnapshotNamesFollowTheirCollections(t *testing.T) {
 	t.Parallel()
 
-	if len(derivedStatisticsCollections) == 0 {
-		t.Fatal("no derived statistics collections declared")
+	if len(releaseTouchedCollections()) == 0 {
+		t.Fatal("the release touches no collections")
 	}
 	seen := map[string]bool{}
-	for _, name := range derivedStatisticsCollections {
+	for _, name := range releaseTouchedCollections() {
 		if name == "" {
 			t.Error("a derived statistics collection has no name")
 			continue
 		}
-		snapshot := name + preReleaseSnapshotSuffix
+		snapshot := name + backupSuffix(currentRelease)
 		if snapshot == name {
 			t.Errorf("%q would snapshot over itself", name)
 		}
@@ -166,11 +167,11 @@ func TestNoCollectionIsItsOwnSnapshotTarget(t *testing.T) {
 	t.Parallel()
 
 	live := map[string]bool{}
-	for _, name := range derivedStatisticsCollections {
+	for _, name := range releaseTouchedCollections() {
 		live[name] = true
 	}
-	for _, name := range derivedStatisticsCollections {
-		if live[name+preReleaseSnapshotSuffix] {
+	for _, name := range releaseTouchedCollections() {
+		if live[name+backupSuffix(currentRelease)] {
 			t.Errorf("%q snapshots into %q, which this step also empties", name, name+preReleaseSnapshotSuffix)
 		}
 	}
@@ -200,24 +201,51 @@ func stepIndex(t *testing.T, version, name string) int {
 func TestOwnerStampRunsBeforeTheStepsThatFilterOnIt(t *testing.T) {
 	t.Parallel()
 
-	stamp := stepIndex(t, "0.9.0", "stamp the owner onto every scoped document")
+	stamp := stepIndex(t, currentRelease, "stamp the owner onto every scoped document")
 	for _, dependent := range []string{
 		"stamp extras category labels onto jobs",
 		"queue every account for rebuild",
 	} {
-		if at := stepIndex(t, "0.9.0", dependent); at < stamp {
+		if at := stepIndex(t, currentRelease, dependent); at < stamp {
 			t.Errorf("%q runs at %d, before the owner stamp at %d", dependent, at, stamp)
 		}
 	}
 }
 
-// Schema maintenance is first because the steps after it stamp the current
-// version onto documents they touch.
-func TestSchemaMaintenanceRunsFirst(t *testing.T) {
+// The copy is first and required: every step after it writes, and a copy taken
+// after a step ran is a copy of that step's output rather than of the state an
+// operator would revert to.
+func TestTheBackupRunsBeforeAnythingWrites(t *testing.T) {
 	t.Parallel()
 
-	if at := stepIndex(t, "0.9.0", "complete outstanding schema maintenance"); at != 0 {
-		t.Errorf("schema maintenance runs at %d, want first", at)
+	if at := stepIndex(t, currentRelease, "copy every collection this release writes to"); at != 0 {
+		t.Errorf("the backup runs at %d, want first", at)
+	}
+}
+
+// Schema maintenance precedes every step that stamps the current version onto
+// documents it touches.
+func TestSchemaMaintenanceRunsBeforeTheStamps(t *testing.T) {
+	t.Parallel()
+
+	maintenance := stepIndex(t, currentRelease, "complete outstanding schema maintenance")
+	if stamp := stepIndex(t, currentRelease, "stamp the owner onto every scoped document"); stamp < maintenance {
+		t.Errorf("the owner stamp runs at %d, before schema maintenance at %d", stamp, maintenance)
+	}
+}
+
+// Every collection any step or fan-out writes to is in the copy, and the copy
+// is built from the lists those steps iterate rather than written out again.
+func TestTheBackupCoversEveryCollectionAStepWritesTo(t *testing.T) {
+	t.Parallel()
+
+	touched := releaseTouchedCollections()
+	for _, group := range [][]string{metaOwnerCollections, eipmongo.OwnerScopedIDCollections(), derivedStatisticsCollections} {
+		for _, name := range group {
+			if !slices.Contains(touched, name) {
+				t.Errorf("%s is written by a step and not copied first", name)
+			}
+		}
 	}
 }
 
@@ -228,8 +256,9 @@ func TestStepsOthersDependOnAreRequired(t *testing.T) {
 	t.Parallel()
 
 	want := map[string]bool{
-		"complete outstanding schema maintenance":    true,
-		"stamp the owner onto every scoped document": true,
+		"copy every collection this release writes to": true,
+		"complete outstanding schema maintenance":      true,
+		"stamp the owner onto every scoped document":   true,
 	}
 	for _, rel := range releases {
 		for _, step := range rel.steps {
@@ -246,8 +275,8 @@ func TestStepsOthersDependOnAreRequired(t *testing.T) {
 func TestRetiredFieldsAreDroppedAfterTheSnapshot(t *testing.T) {
 	t.Parallel()
 
-	snapshot := stepIndex(t, "0.9.0", "copy the statistics documents before the rebuild")
-	drop := stepIndex(t, "0.9.0", "drop retired statistics fields")
+	snapshot := stepIndex(t, currentRelease, "copy every collection this release writes to")
+	drop := stepIndex(t, currentRelease, "drop retired statistics fields")
 	if drop < snapshot {
 		t.Errorf("retired fields are dropped at %d, before the snapshot at %d — the copy would miss them", drop, snapshot)
 	}

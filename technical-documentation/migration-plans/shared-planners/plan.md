@@ -882,16 +882,29 @@ fix is therefore not shared-planner-specific, and is worth taking on its own mer
 `closeActiveJob` returns early on `!jobModifiedFlag`, so viewing and closing another member's job
 writes nothing. The hazard needs a real edit.
 
-### The persist gate must cover the whole cascade
+### The persist gate is narrower than the cascade, and the server is what closes the gap
 
 `closeActiveJob` collects the parent/child tree through `getAllRelatedJobs`, adds it to
 `batchUpdates`, and writes all of it through `saveJobsViaApi`. The gate,
 `canPersistJobClose(inputJob.jobID, groupID)`, tests the lock on the edited job or its group — not on
 each related job the cascade rewrites.
 
-On a personal planner the whole tree has one owner and the gap is invisible. On a shared planner
-another member can hold the lock on a related job and have it written anyway. The gate has to cover
-every document a close will write.
+**The gap that appears to leave is closed on the server, not the client.**
+`PutJobDocumentsHandler` collects the lock state for every job in the batch and refuses the whole
+request with a 409 when any one of them is held elsewhere, writing nothing. So no partial tree reaches
+Mongo, and a client-side pre-check over the cascade would save a round trip rather than prevent an
+incorrect write — see § Stage D, where investigating this was the reason that stage was skipped.
+
+What the investigation found instead is that a refusal reaches nobody: `saveJobsViaApi` resolves the
+same way whether the write landed or was refused, the client's own gate discards edits silently when
+it fails, and the retry queue replays whatever `jobArray` currently holds rather than what was
+refused. Those are tracked as
+[document-write-granularity](../document-write-granularity/contents.md) § Stage B, together with the
+question of whether the all-or-nothing batch refusal is the right shape at all.
+
+The direction that project takes is the opposite of widening this gate. With a version check on each
+document, a write does not need to predict what a cascade will touch — it validates each document as
+it arrives, which is the only protection that survives a write set not being knowable in advance.
 
 ## Data models
 
@@ -1579,11 +1592,11 @@ is part of the slice rather than a follow-up.
 its quantities change, a newly built job still derives them, and a single-member planner's figures are
 unchanged.
 
-#### D2 — The close gate covers what the close writes — *skipped, folded into a later review*
+#### D2 — The close gate covers what the close writes — *skipped, moved to document-write-granularity*
 
 **Skipped.** Investigation found the stage as written describes a gap that does not exist, and a real
-defect underneath it that is larger than this stage and belongs with the duplicate-job-writes and
-ownership review rather than here.
+defect underneath it that is larger than this stage and belongs with
+[document-write-granularity](../document-write-granularity/plan.md) rather than here.
 
 The stage assumed the client gate was the only thing standing between a multi-job write and a document
 another member holds. It is not. `PutJobDocumentsHandler` collects the lock state for **every** job in
@@ -1611,7 +1624,8 @@ way.
 Settling this needs a product decision the stage cannot make on its own: when a member's close is
 refused because another member holds a related job, their edits are real work, and discarding them,
 keeping them local with a warning, or blocking the close are three different applications. That
-question, the queue's replay semantics and job-write ownership are one review, not three slices.
+question, the queue's replay semantics and job-write ownership are one piece of work, not three
+slices, and they are that project's § Stage B.
 
 **Neither finding blocks the rest of Stage D.** Both are invisible on a single-member planner, and
 neither is reachable through D1 or D3.
@@ -1649,8 +1663,8 @@ and a single-member planner sees exactly the categories it sees today.
 #### Order
 
 D1 was a live defect on personal planners today and has landed. D2 is skipped — what it describes is
-already handled server-side, and the defect underneath it belongs with the duplicate-job-writes and
-ownership review.
+already handled server-side, and the defect underneath it is
+[document-write-granularity](../document-write-granularity/plan.md) § Stage B.
 
 D3 needs planner-scoped settings storage to exist, so it sequences after the planner document, and it
 has shrunk to the extras picker alone. The stage's headline turns out to be its smallest slice, and
@@ -1898,6 +1912,71 @@ reading the document's owner and then testing membership of that owner — two r
 planner-held document is no longer owned by whoever may read it. This is C4's rewrite of a rule the
 retired folder documented against `ExistsByAccountID`; the rule survived, the mechanism did not.
 
+### Stage H — The document lock stops being account-shaped
+
+The lock is per-document already: `LockKey` composes `doc_lock:{accountID}␞{collection}␞{docID}` and
+every Lua script in `documentlock/atomic.go` keys on exactly that. What is account-shaped is the first
+segment, and it is the segment that decides whether the lock exists at all between two members.
+
+**Two members of one planner take two different keys for the same job, and both are granted.** Ann's
+key is namespaced by her account, Bo's by his; nothing compares them. The lock does not contend and
+fail — it silently stops being a lock, while every surface that reads it goes on reporting an
+uncontested hold. The waitlist, the pulse, the viewer presence set and the whole group cascade take
+`accountID` on the same footing, so all of them partition the same way.
+
+**The replacement is the owner key.** `doc_lock:{ownerKey}␞{collection}␞{docID}`, with the owner read
+from the document rather than from the caller's JWT. Because an account planner's owner key *is*
+`account:{id}`, every key a personal planner holds today keeps its exact present value — this is a
+rename at the call sites, not a migration of live keys, and the same property that kept NATS subjects
+and tenant strings stable across § The owner key is the identity applies here for the same reason.
+
+Two details the slice has to get right rather than assume:
+
+**The expiry subscriber parses the key.** `ParseExpiredLockKey` requires exactly three parts and hands
+the account on to the promotion path, which is why the comment on `LockKey` calls the key
+account-scoped — the account is carried *on* the key so a keyspace notification does not need a lookup.
+An owner key contains `:` and the parse splits on the record separator, so the shape survives, but the
+subscriber's downstream use of that segment as an account id does not: it becomes an owner key, and
+what it feeds must take one.
+
+**Publication is on `doc.lock.{accountID}`.** The fan-out subject and
+`DocLockFiltersForHostedTenants` derive from the account today, with a comment already recording that
+corporation and alliance selectivity waits on this cutover. Lock events for a planner-held document
+have to reach the planner's members rather than one account's tabs, which is the same routing question
+§ What a connection subscribes to answered for document updates — and the same answer.
+
+**The document segment stays the bare id.** § Every owner-scoped document id carries its owner makes a
+stored `_id` into `{ownerKey}|{id}`, and the lock's third segment must not follow it: the owner is
+already the first segment, so a stored id there would carry it twice. `ParseExpiredLockKey` splits on
+the record separator and would accept such a key without complaint, handing the promotion path an id
+it would then have to strip. Segment one is the owner, segment three is the id a client sends — which
+is what every lock caller passes today and what the SPA keys its lock state on.
+
+**Holder identity does not change.** A lock is held by a *session*, not an account: two tabs on one
+account already contend, and `/force-release` exists to break exactly that. So the multi-writer
+mechanics — waitlist, handoff probe, viewer presence, contested versus solo lease — are already
+multi-writer and carry over untouched. What changes is which sessions can see each other, not how they
+arbitrate once they can.
+
+**Same-account force-release is the one piece that does not survive as it stands.** It lets a caller
+evict another session *of the same account* without consent, on the reasoning that a person may take
+their own work back from their own stale tab. Between two members of a planner that reasoning does not
+hold, and the script's account equality check is what currently prevents it — so the behaviour is
+correct today and stays correct only because the key is account-shaped. Once the namespace is the
+owner, the check has to become "same account" explicitly rather than implicitly, or the feature
+becomes one member evicting another.
+
+**Done when** two members of one planner contend for a single lock on one job, a personal planner's
+keys and behaviour are byte-for-byte unchanged, lock events reach a planner's members, and no caller
+can force-release a session belonging to another account.
+
+**Ordering.** This stage is what makes the lock *exist* on a shared planner. It does not make it
+pleasant: the lock's breadth — a group lease standing in for every job in it, and a batch write refused
+whole — is a separate question with no planner premise, and it is tracked as
+[document-write-granularity](../document-write-granularity/contents.md) § Stage D. That project decides
+whether the lock relaxes; this stage decides whether it works at all, and the two must not be confused.
+A relaxation landed before this stage would be relaxing something that is not holding.
+
 ## Live data, and the cutover window
 
 `Public` is deployed with real data, and the next deployment takes the stack down. Every data change
@@ -1932,6 +2011,9 @@ is ready for the window.
 | Owner on scoped writes and reads | **additive now, required at cutover.** Absent means the account's own only while the SPA is wired around; the cutover makes it mandatory and refuses a request without one — see § Ownership is decided at creation |
 | SPA query keys | additive, but mandatory — an owner-less key makes two planners share one cache entry. Archive and statistics keys carry the owner **asked for** rather than the active planner, since those reads cross planners without switching — see § The archive is read across planners without switching |
 | `group_template_catalog`, `group_template_payloads` owner block | **migrate-required** — the catalogue's `_id` becomes the owner key and both collections gain `_meta.owner`; existing rows are rewritten under `account:{id}` in the same window as the other stamps |
+| Document lock Redis keys | **not breaking, and no migration.** The namespace becomes the owner key, which for an account planner is the value already there; keys are ephemeral under a TTL besides, so any that do not match are abandoned rather than rewritten — see § Stage H |
+| `doc.lock.{id}` fan-out subject | **breaking core to websocket only** — internal, both ship in the same window. The subject takes the owner key so lock events reach a planner's members rather than one account's tabs |
+| Document lock HTTP endpoints | additive — the request body already names a collection and a document id, and the owner is resolved server-side from the document rather than sent |
 
 ## What the other projects owe
 
@@ -2040,7 +2122,8 @@ do not touch.
 | A — the owner block, in one cutover | **Landed.** Built under [archived-jobs-stats](../archived-jobs-stats/plan.md) and now owned here. Model, vocabulary, writers, filters, index specs, renames, `ChangeStreamMessage.OwnerKey`, the `prepareRelease` stamp and its gate are all in, the rehearsal against a restored copy of live is done, and the stamp has run: every document carries an owner and the gate passes. Not yet confirmed against every environment — see § Stage A |
 | B — grants and scopes as owner lists | **Landed.** `models.SessionGrants` is the one grants type, a connection's scopes and the routing index are owner keys derived at connect, and `prepareRelease` rewrites stored grants. `upgrade_scopes` is removed rather than reshaped, and the `active_planner` message replacing it landed at Stage E — see § Why the client no longer asks for scopes. The § Go modernisation item is applied |
 | C — planner and membership documents | **Landed.** C1 the two collections and their indexes, C2 the account-planner backfill and the write first login repairs from, C3 membership as the source of grants with authorisation reading the rows rather than a cached list, C4 the collection set per owner kind and document-subscribe authorisation by membership. Invites moved to Stage E |
-| D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered moves to the duplicate-job-writes and ownership review. D3 is the extras picker; the settings document it waited on landed at Stage E, so it is unblocked. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D |
+| D — what a second member breaks | **D1 landed**, D2 skipped, D3 outstanding. D1 recalculation keeping a job's build context — a live defect on personal planners, now fixed. D2 is handled server-side already; the retry-queue defect it uncovered is [document-write-granularity](../document-write-granularity/plan.md) § Stage B. D3 is the extras picker; the settings document it waited on landed at Stage E, so it is unblocked. Job statuses turned out to need nothing, their id space already being a frozen catalog. See § Stage D — what a second member breaks |
 | E — custom planners | **Partly landed.** In: the planner settings document (seeded by value from the creating account, planner-held and watched), one write path for every planner, the planners listing, corporation planner creation with its name looked up server-side and NPC corporations refused, the `active_planner` message with the ceiling intersection and its restore across a reconnect, the owner handle on every delivered document, and a client switcher wired around the SPA. Outstanding: invites as Redis records, the join path, the revocation path, keying the store and its query keys by owner. See § Stage E and [overlay.md](./overlay.md) § Stage E |
 | F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |
 | G — realtime state under more than one writer | **Not started.** The `lastModified` cursor, the account-shaped baseline and the asserting `session_resume` are all single-writer assumptions, and each becomes a defect on a shared planner. Absorbs what survived the retired websocket-realtime project. Runs alongside the Stage E store keying — see § Stage G |
+| H — the document lock stops being account-shaped | **Not started.** The lock key, the waitlist, the viewer set and the fan-out subject are all namespaced by the calling account, so two members of one planner take two keys for one job and neither contends. Becomes the owner key, which leaves a personal planner's keys unchanged. Blocks a planner holding two people as surely as Stage D does — see § Stage H |

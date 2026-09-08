@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
-import { renderWithProviders, setViewportWide } from "../../../tests/archiveHarness.jsx";
+import { renderWithProviders, setViewportWide } from "../../tests/archiveHarness.jsx";
 
 /**
  * Searching, sorting and paging the archive.
@@ -14,12 +14,12 @@ import { renderWithProviders, setViewportWide } from "../../../tests/archiveHarn
 const getArchivedJobs = vi.fn();
 
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../../tests/archiveHarness.jsx");
+  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
   return { ...emptyArchiveListMock(), getArchivedJobs: (...args) => getArchivedJobs(...args) };
 });
 vi.mock("../../Zustand/usersStore", async () => {
   const { usersStoreMock, archiveStoreState } = await import(
-    "../../../tests/archiveHarness.jsx"
+    "../../tests/archiveHarness.jsx"
   );
   return usersStoreMock(archiveStoreState());
 });

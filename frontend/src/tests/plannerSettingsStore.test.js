@@ -4,7 +4,7 @@ const fetched = [];
 let nextResponse = null;
 let nextError = null;
 
-vi.mock("../src/Functions/Endpoints/Private/planners.js", () => ({
+vi.mock("../Functions/Endpoints/Private/planners.js", () => ({
   fetchPlannerSettingsFromApi: async (handle) => {
     fetched.push(handle);
     if (nextError) throw nextError;
@@ -13,10 +13,10 @@ vi.mock("../src/Functions/Endpoints/Private/planners.js", () => ({
 }));
 
 const { default: useUsersStore } = await import(
-  "../src/Zustand/usersStore.js"
+  "../Zustand/usersStore.js"
 );
 const { extrasCategoriesDefault } = await import(
-  "../src/Context/defaultValues.jsx"
+  "../Context/defaultValues.jsx"
 );
 
 const OWNER = "corporation:98000001";

@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import {
   renderWithTheme,
   setViewportWide,
-} from "../../../tests/archiveHarness.jsx";
+} from "../../tests/archiveHarness.jsx";
 
 const useAccountTimelineQuery = vi.fn();
 const useAccountTotalsQuery = vi.fn();

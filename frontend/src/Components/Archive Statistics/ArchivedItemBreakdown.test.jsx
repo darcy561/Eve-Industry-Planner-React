@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
-import { renderWithProviders } from "../../../tests/archiveHarness.jsx";
+import { renderWithProviders } from "../../tests/archiveHarness.jsx";
 
 const useAccountTimelineItemsQuery = vi.fn();
 const getFullItemList = vi.fn();
@@ -11,7 +11,7 @@ vi.mock("../../Hooks/React Query/Backend/statisticsTimeline", () => ({
 }));
 
 vi.mock("../../Functions/Helper/getCachedData", async () => {
-  const { cachedDataMock } = await import("../../../tests/archiveHarness.jsx");
+  const { cachedDataMock } = await import("../../tests/archiveHarness.jsx");
   return cachedDataMock({ getFullItemList: (...args) => getFullItemList(...args) });
 });
 

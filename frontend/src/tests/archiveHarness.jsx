@@ -4,7 +4,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { activePlannerActions } from "../src/Zustand/activePlanner/actions.js";
+import { activePlannerActions } from "../Zustand/activePlanner/actions.js";
 import { activePlannerStoreState } from "./utils.js";
 
 /**

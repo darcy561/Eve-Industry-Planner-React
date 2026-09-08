@@ -3,19 +3,19 @@ import { activePlannerStoreState } from "./utils.js";
 
 const storeState = activePlannerStoreState();
 
-vi.mock("../src/Zustand/usersStore", () => ({
+vi.mock("../Zustand/usersStore", () => ({
   default: { getState: () => storeState },
 }));
-vi.mock("../src/Realtime/wsClientIdentity.js", () => ({
+vi.mock("../Realtime/wsClientIdentity.js", () => ({
   getRealtimeClientID: () => null,
 }));
-vi.mock("../src/Functions/Auth/tabSessionStorage.js", () => ({
+vi.mock("../Functions/Auth/tabSessionStorage.js", () => ({
   getTabPlannerSessionID: () => "session-1",
   tabPlannerSessionRequestHeaders: () => ({ "X-Session-ID": "session-1" }),
 }));
 
 const { applyPrivateHeaders } = await import(
-  "../src/Functions/Endpoints/Private/applyPrivateHeaders.js"
+  "../Functions/Endpoints/Private/applyPrivateHeaders.js"
 );
 
 const CORP_OWNER = "corporation:98000001";
@@ -60,7 +60,7 @@ describe("the planner a scoped request works in", () => {
   // scoped key names no owner and nothing it gates fires.
   it("leaves a scoped query key without an owner when signed out", async () => {
     const { plannerQueryScope } = await import(
-      "../src/Hooks/React Query/Backend/plannerQueryScope.js"
+      "../Hooks/React Query/Backend/plannerQueryScope.js"
     );
     expect(plannerQueryScope("archive")[2]).toBe("account:acct-1");
 

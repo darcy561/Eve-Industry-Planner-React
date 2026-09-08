@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
-import { renderWithTheme } from "../../../tests/archiveHarness.jsx";
+import { renderWithTheme } from "../../tests/archiveHarness.jsx";
 
 /**
  * Choosing the months a job counts in.

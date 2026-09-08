@@ -10,16 +10,16 @@ storeState.realtimeSync = {
   },
 };
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: { getState: () => storeState },
 }));
 const enqueued = [];
-vi.mock("../src/Functions/Debounce/inboundJobDocumentsCoalesce.js", () => ({
+vi.mock("../Functions/Debounce/inboundJobDocumentsCoalesce.js", () => ({
   enqueueInboundJobDocumentChange: (...args) => enqueued.push(args),
 }));
 
 const groupUpserts = [];
-vi.mock("../src/Realtime/handlers/index.js", () => ({
+vi.mock("../Realtime/handlers/index.js", () => ({
   handleUserJobGroupUpsert: (...args) => groupUpserts.push(args),
   handleUserJobGroupDelete: () => {},
   handleApplicationSettingsDocumentUpsert: () => {},
@@ -31,7 +31,7 @@ vi.mock("../src/Realtime/handlers/index.js", () => ({
 }));
 
 const { applyDocumentMessage } = await import(
-  "../src/Realtime/handlers/documentMessage.js"
+  "../Realtime/handlers/documentMessage.js"
 );
 
 function groupMessage(owner) {

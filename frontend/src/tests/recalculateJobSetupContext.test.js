@@ -26,7 +26,7 @@ const JOB_AS_BUILT = {
   TE: 20,
 };
 
-vi.mock("../src/Zustand/usersStore", () => ({
+vi.mock("../Zustand/usersStore", () => ({
   default: {
     getState: () => ({
       account: {
@@ -77,20 +77,20 @@ vi.mock("../src/Zustand/usersStore", () => ({
 
 // The blueprint cache the recalculating user holds: none, which is what makes the
 // derived ME fall back to their own default rather than the job's stored value.
-vi.mock("../src/Hooks/EveEsi/Character/useGetAllCharacterBlueprints", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterBlueprints", () => ({
   getAllCachedCharacterBlueprints: () => ({ data: {}, isLoading: false, isError: false }),
 }));
 
-vi.mock("../src/Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints", () => ({
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints", () => ({
   getAllCachedCorporationBlueprints: () => ({ data: {}, isLoading: false, isError: false }),
 }));
 
 const { default: recalculateJobForNewTotal } = await import(
-  "../src/Functions/JobPlanner/recalculateJobForNewTotal"
+  "../Functions/JobPlanner/recalculateJobForNewTotal"
 );
-const { default: Setup } = await import("../src/Classes/jobSetup");
+const { default: Setup } = await import("../Classes/jobSetup");
 
-const { default: Job } = await import("../src/Classes/job");
+const { default: Job } = await import("../Classes/job");
 
 /** A job with one setup, built in a structure the recalculating user does not own. */
 function jobBuiltByAnotherMember({ maxProductionLimit = 10, perRun = 1 } = {}) {
@@ -377,7 +377,7 @@ describe("building a job for the first time", () => {
   // the current settings.
   it("lets a build request outrank the setup it is based on", async () => {
     const { buildSetupContextForJob, buildSetupFromQuantity, setupQuantitiesForTotal } =
-      await import("../src/Functions/JobPlanner/setupBuildHelpers");
+      await import("../Functions/JobPlanner/setupBuildHelpers");
 
     const existing = new Setup({
       runCount: 1,
@@ -421,7 +421,7 @@ describe("building a job for the first time", () => {
 
   it("restores a stored template row through the same builder", async () => {
     const { buildSetupContextForJob, buildSetupFromQuantity } = await import(
-      "../src/Functions/JobPlanner/setupBuildHelpers"
+      "../Functions/JobPlanner/setupBuildHelpers"
     );
 
     const job = {
@@ -488,7 +488,7 @@ describe("recalculating one setup in place", () => {
 
   it("takes the system index values it is given", async () => {
     const { default: findSystemIndexForJob } = await import(
-      "../src/Functions/Helper/findSystemIndexValue"
+      "../Functions/Helper/findSystemIndexValue"
     );
     const job = jobBuiltByAnotherMember();
     const setup = onlySetup(job);
@@ -547,7 +547,7 @@ describe("calculating materials for a job type", () => {
 
   it("passes raw quantities through for a job type with no formula", async () => {
     const { default: materialQuantitiesForSetup } = await import(
-      "../src/Functions/Blueprint Calculations/calculateMaterialsForSetup"
+      "../Functions/Blueprint Calculations/calculateMaterialsForSetup"
     );
     const setup = new Setup({ runCount: 5, jobCount: 2, jobType: 0 });
 

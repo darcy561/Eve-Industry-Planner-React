@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { activePlannerStoreState } from "../../../../tests/utils.js";
+import { activePlannerStoreState } from "../../../tests/utils.js";
 
 const plannerState = activePlannerStoreState();
 

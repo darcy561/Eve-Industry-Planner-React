@@ -13,11 +13,11 @@ const storeState = {
   },
 };
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: { getState: () => storeState },
 }));
 
-const { plannerDisplayName } = await import("../src/Hooks/React Query/planners.js");
+const { plannerDisplayName } = await import("../Hooks/React Query/planners.js");
 
 // A handle carries the EVE id: refs are the server's identity and never reach a client.
 const CORP_OWNER = "corporation:98000001";
@@ -90,15 +90,15 @@ describe("naming a planner for display", () => {
   });
 });
 
-vi.mock("../src/Functions/Endpoints/Private/applyPrivateHeaders.js", () => ({
+vi.mock("../Functions/Endpoints/Private/applyPrivateHeaders.js", () => ({
   requestWithPrivateHeaders: vi.fn(),
 }));
 
 const { requestWithPrivateHeaders } = await import(
-  "../src/Functions/Endpoints/Private/applyPrivateHeaders.js"
+  "../Functions/Endpoints/Private/applyPrivateHeaders.js"
 );
 const { ensurePlannerViaApi, fetchPlannersFromApi } = await import(
-  "../src/Functions/Endpoints/Private/planners.js"
+  "../Functions/Endpoints/Private/planners.js"
 );
 
 describe("addressing a planner over the API", () => {

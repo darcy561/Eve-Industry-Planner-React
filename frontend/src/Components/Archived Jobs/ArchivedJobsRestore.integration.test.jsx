@@ -3,7 +3,7 @@ import { screen, fireEvent, waitFor } from "@testing-library/react";
 import {
   renderWithProviders,
   setViewportWide,
-} from "../../../tests/archiveHarness.jsx";
+} from "../../tests/archiveHarness.jsx";
 
 /**
  * Restoring, from the click to what the tab is left holding.
@@ -21,7 +21,7 @@ const showSnackbarSuccess = vi.fn();
 const showSnackbarError = vi.fn();
 
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../../tests/archiveHarness.jsx");
+  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
   return {
     ...emptyArchiveListMock(),
     getArchivedJobs: (...args) => getArchivedJobs(...args),
@@ -37,8 +37,8 @@ vi.mock("../../Events/snackbarEvents", () => ({
   showSnackbarError: (...args) => showSnackbarError(...args),
 }));
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock } = await import("../../../tests/archiveHarness.jsx");
-  const { archiveStoreState } = await import("../../../tests/archiveHarness.jsx");
+  const { usersStoreMock } = await import("../../tests/archiveHarness.jsx");
+  const { archiveStoreState } = await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(archiveStoreState());
 });
 

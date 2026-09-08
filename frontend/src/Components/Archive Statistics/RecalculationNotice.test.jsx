@@ -4,7 +4,7 @@ import {
   archiveStoreState,
   renderWithProviders,
   usersStoreMock,
-} from "../../../tests/archiveHarness.jsx";
+} from "../../tests/archiveHarness.jsx";
 
 const getAccountTimeline = vi.fn();
 
@@ -14,7 +14,7 @@ vi.mock("../../Functions/Endpoints/Private/statisticsTimeline.js", () => ({
 }));
 vi.mock("../../Zustand/usersStore", async () => {
   const { usersStoreMock, archiveStoreState } = await import(
-    "../../../tests/archiveHarness.jsx"
+    "../../tests/archiveHarness.jsx"
   );
   return usersStoreMock(archiveStoreState());
 });

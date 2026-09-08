@@ -1,21 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
-import { renderWithProviders } from "../../../tests/archiveHarness.jsx";
+import { renderWithProviders } from "../../tests/archiveHarness.jsx";
 
 /** The archive list with its real query hook, faked only at the transport. */
 
 const getArchivedJobs = vi.fn();
 
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../../tests/archiveHarness.jsx");
+  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
   return { ...emptyArchiveListMock(), getArchivedJobs: (...args) => getArchivedJobs(...args) };
 });
 const storeState = await (async () => {
-  const { archiveStoreState } = await import("../../../tests/archiveHarness.jsx");
+  const { archiveStoreState } = await import("../../tests/archiveHarness.jsx");
   return archiveStoreState();
 })();
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock } = await import("../../../tests/archiveHarness.jsx");
+  const { usersStoreMock } = await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(storeState);
 });
 

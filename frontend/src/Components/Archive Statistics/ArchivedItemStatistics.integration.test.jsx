@@ -8,7 +8,7 @@ import {
   renderWithProviders,
   settledOn,
   timelineResponse,
-} from "../../../tests/archiveHarness.jsx";
+} from "../../tests/archiveHarness.jsx";
 
 /**
  * The item tab with its real hooks and adapters: choosing an item, narrowing the
@@ -30,12 +30,12 @@ vi.mock("../../Functions/Endpoints/Private/statisticsTotals.js", () => ({
 }));
 vi.mock("../../Zustand/usersStore", async () => {
   const { usersStoreMock, archiveStoreState } = await import(
-    "../../../tests/archiveHarness.jsx"
+    "../../tests/archiveHarness.jsx"
   );
   return usersStoreMock(archiveStoreState());
 });
 vi.mock("../../Styled Components/Charts", async () => {
-  const { chartMocks } = await import("../../../tests/archiveHarness.jsx");
+  const { chartMocks } = await import("../../tests/archiveHarness.jsx");
   return chartMocks();
 });
 // The planner's search is exercised where it lives; what matters here is what

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { activePlannerStoreState } from "../../../../tests/utils.js";
+import { activePlannerStoreState } from "../../../tests/utils.js";
 
 const storeState = activePlannerStoreState();
 

@@ -3,25 +3,25 @@ import { activePlannerStoreState } from "./utils.js";
 
 const storeState = activePlannerStoreState();
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: { getState: () => storeState },
 }));
-vi.mock("../src/Functions/Endpoints/Private/applyPrivateHeaders.js", () => ({
+vi.mock("../Functions/Endpoints/Private/applyPrivateHeaders.js", () => ({
   getSessionIDFromStore: () => "session-1",
 }));
-vi.mock("../src/Functions/Endpoints/Private/jobDocuments.js", () => ({
+vi.mock("../Functions/Endpoints/Private/jobDocuments.js", () => ({
   fetchPlannerJobDocumentsFromApi: vi.fn(),
 }));
-vi.mock("../src/Functions/App/appVersionCheck.js", () => ({
+vi.mock("../Functions/App/appVersionCheck.js", () => ({
   considerRemoteAppVersion: vi.fn(),
   isClientAppVersionOutdated: () => false,
 }));
-vi.mock("../src/Realtime/applyRemoteMessage.js", () => ({ applyRemoteMessage: vi.fn() }));
-vi.mock("../src/Events/appConfigEvents.js", () => ({ requestAppConfigRecheck: vi.fn() }));
-vi.mock("../src/Realtime/syncAccountDocumentsFromServer.js", () => ({
+vi.mock("../Realtime/applyRemoteMessage.js", () => ({ applyRemoteMessage: vi.fn() }));
+vi.mock("../Events/appConfigEvents.js", () => ({ requestAppConfigRecheck: vi.fn() }));
+vi.mock("../Realtime/syncAccountDocumentsFromServer.js", () => ({
   syncAccountDocumentsFromServer: vi.fn(),
 }));
-vi.mock("../src/Realtime/wsClientIdentity.js", () => ({
+vi.mock("../Realtime/wsClientIdentity.js", () => ({
   clearRealtimeClientID: vi.fn(),
   clearRealtimeClientIdentityHard: vi.fn(),
   getRealtimeClientID: () => null,
@@ -29,7 +29,7 @@ vi.mock("../src/Realtime/wsClientIdentity.js", () => ({
 }));
 
 const { sendActivePlanner, restoreActivePlanner } = await import(
-  "../src/Realtime/realtimeClient.js"
+  "../Realtime/realtimeClient.js"
 );
 
 beforeEach(() => {

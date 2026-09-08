@@ -23,8 +23,10 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Service import boundaries (stop services importing each other) | [service-import-boundaries/contents.md](./service-import-boundaries/contents.md) |
 | Task dispatch (task type authority, envelope collapse, operator CLI) | [task-dispatch/contents.md](./task-dispatch/contents.md) |
 | ESI collections (one normalised row shape from the query layer for assets and blueprints; tree, search, quantity, library and location consumers) | [esi-collections/contents.md](./esi-collections/contents.md) |
+| ESI limiter maintainability (slot-hash ledger overlay, benchmark data, property testing and ledger diagnostics) | [esi-limiter-maintainability/contents.md](./esi-limiter-maintainability/contents.md) |
 | Redis rebuild (shared handle, key ownership, retry and leases; rewrite proven equal, then cut over) | [redis-rebuild/contents.md](./redis-rebuild/contents.md) |
 | Retry consolidation (one backoff engine for mongo, nats and the rest; **runs after redis-rebuild**) | [retry-consolidation/contents.md](./retry-consolidation/contents.md) |
 | Mongo test database (a database of the tests' own, dropped between runs, and the live suite in CI) | [mongo-test-database/contents.md](./mongo-test-database/contents.md) |
 | Document write granularity (whole-document writes to field-scoped ones, and how broad the document lock has to be; **found by shared-planners Stage G**) | [document-write-granularity/contents.md](./document-write-granularity/contents.md) |
 | Planning stage panels (splitting the Edit Job market panel; selling costs at plan time; speculative child jobs) | [planning-stage-panels/contents.md](./planning-stage-panels/contents.md) |
+| SPA token acquisition (auth tokens acquired at the point of use; React-lifecycle refresh clocks deleted, cloud/local split confined to one module) | [spa-token-acquisition/contents.md](./spa-token-acquisition/contents.md) |

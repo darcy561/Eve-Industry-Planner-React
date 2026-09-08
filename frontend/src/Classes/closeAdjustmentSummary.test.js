@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1" },
@@ -11,9 +11,9 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 }));
 
 const { closeAdjustmentSummary } = await import(
-  "../src/Functions/JobPlanner/closeAdjustmentSummary.js"
+  "../Functions/JobPlanner/closeAdjustmentSummary.js"
 );
-const { default: Job } = await import("../src/Classes/job.js");
+const { default: Job } = await import("./job.js");
 
 function job({ parents = [], children = [] } = {}) {
   return new Job({

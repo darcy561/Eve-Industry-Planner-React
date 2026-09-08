@@ -4,11 +4,11 @@ import {
   TAB_REAUTH_REQUIRED_AT_KEY,
   hasResumablePlannerSession,
   persistTabPlannerSession,
-} from "../src/Functions/Auth/tabSessionStorage.js";
+} from "./tabSessionStorage.js";
 import {
   EIP_ESI_OAUTH_STORAGE_COOKIE,
   clearClientReadablePlannerAuthCookies,
-} from "../src/Functions/Auth/plannerAuthCookies.js";
+} from "./plannerAuthCookies.js";
 
 describe("hasResumablePlannerSession", () => {
   beforeEach(() => {

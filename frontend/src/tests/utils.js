@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { vi } from 'vitest';
-import { activePlannerActions } from '../src/Zustand/activePlanner/actions.js';
+import { activePlannerActions } from '../Zustand/activePlanner/actions.js';
 
 /**
  * Test utilities for Zustand store testing
@@ -188,4 +188,34 @@ export function activePlannerStoreState({ accountID = "acct-1", owner = null } =
     () => state
   );
   return state;
+}
+
+/**
+ * An unsigned but structurally real ESI access JWT.
+ *
+ * The SPA reads `exp` and the identity claims out of tokens it is handed and never verifies a
+ * signature — that is the server's job — so a token built here exercises the same paths a real one
+ * does.
+ *
+ * @param {object} [claims]
+ * @param {number} [claims.exp] - Unix seconds; defaults to an hour out.
+ * @param {string} [claims.owner] - Character hash.
+ * @param {string} [claims.name]
+ * @param {number} [claims.characterID]
+ * @returns {string}
+ */
+export function esiAccessToken(claims = {}) {
+  const {
+    exp = Math.floor(Date.now() / 1000) + 3600,
+    owner = "owner-hash",
+    name = "Test Pilot",
+    characterID = 94800326,
+  } = claims;
+  const part = (obj) => btoa(JSON.stringify(obj)).replace(/=+$/, "");
+  return `${part({ alg: "RS256" })}.${part({
+    sub: `CHARACTER:EVE:${characterID}`,
+    owner,
+    name,
+    exp,
+  })}.signature`;
 }

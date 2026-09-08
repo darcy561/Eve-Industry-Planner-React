@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import {
   USER_JOB_GROUPS_COLLECTION,
   USER_JOBS_COLLECTION,
-} from "../src/Functions/DocumentLock/documentLockCollections.js";
-import { resolveDocumentLockApiTarget } from "../src/Functions/DocumentLock/resolveDocumentLockApiTarget.js";
+} from "./documentLockCollections.js";
+import { resolveDocumentLockApiTarget } from "./resolveDocumentLockApiTarget.js";
 
 const findJobInJobArray = vi.fn();
 const getGroupObject = vi.fn();
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       jobData: { actions: { findJobInJobArray, getGroupObject } },

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false },
@@ -12,9 +12,9 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 }));
 
 const { MaterialExcessBox_Purchasing } = await import(
-  "../src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialExcessBox.jsx"
+  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialExcessBox.jsx"
 );
-const { default: Material } = await import("../src/Classes/jobMaterial.js");
+const { default: Material } = await import("./jobMaterial.js");
 
 function materialNeeding(quantity, purchases) {
   const material = new Material({ typeID: 34, name: "Tritanium" }, quantity);

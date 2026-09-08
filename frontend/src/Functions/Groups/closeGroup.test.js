@@ -1,34 +1,34 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { create } from "zustand";
-import documentLockSlice from "../src/Zustand/documentLockSlice.js";
-import { docLockScopeKey } from "../src/Functions/DocumentLock/documentLockScope.js";
-import { USER_JOB_GROUPS_COLLECTION } from "../src/Functions/Endpoints/Private/groups.js";
+import documentLockSlice from "../../Zustand/documentLockSlice.js";
+import { docLockScopeKey } from "../DocumentLock/documentLockScope.js";
+import { USER_JOB_GROUPS_COLLECTION } from "../Endpoints/Private/groups.js";
 
 const flushPendingGroupSave = vi.fn().mockResolvedValue(undefined);
 const saveJobsViaApi = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("../src/Functions/Debounce/jobGroupsPersistSchedule.js", () => ({
+vi.mock("../Debounce/jobGroupsPersistSchedule.js", () => ({
   flushPendingGroupSave: (...args) => flushPendingGroupSave(...args),
 }));
 
-vi.mock("../src/Functions/JobDocuments/saveJobsViaApi.js", () => ({
+vi.mock("../JobDocuments/saveJobsViaApi.js", () => ({
   saveJobsViaApi: (...args) => saveJobsViaApi(...args),
 }));
 
-vi.mock("../src/Functions/Shared/normaliseParentChildRelationships.js", () => ({
+vi.mock("../Shared/normaliseParentChildRelationships.js", () => ({
   default: () => [],
 }));
 
 const storeHolder = { current: null };
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => storeHolder.current.getState(),
     setState: (...args) => storeHolder.current.setState(...args),
   },
 }));
 
-import closeActiveGroup from "../src/Functions/Groups/closeGroup.js";
+import closeActiveGroup from "./closeGroup.js";
 
 function makeGroup(id = "g1") {
   return {

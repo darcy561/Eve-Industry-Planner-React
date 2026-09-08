@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false },
@@ -13,9 +13,9 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 }));
 
 const { MaterialCostsFrame_Purchasing } = await import(
-  "../src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCostsFrame.jsx"
+  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCostsFrame.jsx"
 );
-const { default: Job } = await import("../src/Classes/job.js");
+const { default: Job } = await import("./job.js");
 
 // The same scenarios each purchasing surface handled before the material class
 // owned them, run through the methods the call sites use now.

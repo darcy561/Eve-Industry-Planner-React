@@ -10,17 +10,17 @@ vi.mock("@tanstack/react-query", async (importOriginal) => ({
   useQueryClient: () => null,
 }));
 vi.mock(
-  "../src/Hooks/EveEsi/Character/useGetAllCharacterMarketOrders",
+  "../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders",
   () => ({ getAllCachedCharacterMarketOrders: () => characterOrders }),
 );
 vi.mock(
-  "../src/Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders",
+  "../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders",
   () => ({ getAllCachedCorporationMarketOrders: () => corporationOrders }),
 );
-vi.mock("../src/Hooks/EveEsi/useGetAllIndustryJobs", () => ({
+vi.mock("../Hooks/EveEsi/useGetAllIndustryJobs", () => ({
   getCachedAllIndustryJobs: () => industryJobs,
 }));
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", characters: [], isLoggedIn: false },
@@ -31,9 +31,9 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 }));
 
 const { useRefreshLinkedESIData } = await import(
-  "../src/Components/Edit Job/Hooks/useRefreshLinkedESIData.js"
+  "../Components/Edit Job/Hooks/useRefreshLinkedESIData.js"
 );
-const { default: Job } = await import("../src/Classes/job.js");
+const { default: Job } = await import("./job.js");
 
 function jobWithOrder(overrides = {}) {
   return new Job({

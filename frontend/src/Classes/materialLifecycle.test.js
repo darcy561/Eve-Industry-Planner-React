@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false },
@@ -9,10 +9,10 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
   },
 }));
 
-const { default: Job } = await import("../src/Classes/job.js");
-const { default: Setup } = await import("../src/Classes/jobSetup.js");
+const { default: Job } = await import("./job.js");
+const { default: Setup } = await import("./jobSetup.js");
 const { distributeItemCostsBetweenJobs } = await import(
-  "../src/Functions/Shared/passBuildCosts.js"
+  "../Functions/Shared/passBuildCosts.js"
 );
 
 // A job walked through the stages a real one goes through, asserting the whole

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   isTerminalPlannerAuthCode,
   parsePlannerAuthCodeFromText,
-} from "../src/Functions/Auth/plannerSessionRedirect.js";
+} from "./plannerSessionRedirect.js";
 
 describe("plannerSessionRedirect", () => {
   it("parses reauth_required from JSON body", () => {
@@ -11,6 +11,12 @@ describe("plannerSessionRedirect", () => {
         JSON.stringify({ code: "reauth_required", message: "Unauthorized" })
       )
     ).toBe("reauth_required");
+  });
+
+  // The stuck-session defect: a plain-text 401 yields no code, so nothing redirects and the tab
+  // retries a dead refresh token on every request.
+  it("yields no code for an uncoded plain-text rejection", () => {
+    expect(parsePlannerAuthCodeFromText("Invalid token\n")).toBeNull();
   });
 
   it("treats reauth_required and session_revoked as terminal", () => {

@@ -4,7 +4,7 @@ const characterTransactions = { data: {} };
 const characterJournal = { data: {} };
 const linkedTrans = new Set();
 
-vi.mock("../src/Zustand/usersStore", () => ({
+vi.mock("../Zustand/usersStore", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false, linkedTrans },
@@ -13,40 +13,40 @@ vi.mock("../src/Zustand/usersStore", () => ({
     }),
   },
 }));
-vi.mock("../src/Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
   getAllCachedCharacterTransactions: () => characterTransactions,
 }));
-vi.mock("../src/Hooks/EveEsi/Corporation/useGetAllCorporationTransactions", () => ({
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationTransactions", () => ({
   getAllCachedCorporationTransactions: () => ({ data: {} }),
 }));
-vi.mock("../src/Hooks/EveEsi/Character/useGetAllCharacterJournal", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterJournal", () => ({
   getAllCachedCharacterJournal: () => characterJournal,
 }));
-vi.mock("../src/Hooks/EveEsi/Corporation/useGetAllCorporationJournal", () => ({
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationJournal", () => ({
   getAllCachedCorporationJournal: () => ({ data: {} }),
 }));
-vi.mock("../src/Functions/EveESI/World/getStationData", () => ({
+vi.mock("../Functions/EveESI/World/getStationData", () => ({
   default: async () => ({ race_id: 500001, owner: 1000035 }),
 }));
-vi.mock("../src/Hooks/EveEsi/Character/useGetCharacterSkills", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetCharacterSkills", () => ({
   getCachedCharacterSkills: () => ({ data: { 3446: { activeLevel: 5 } } }),
 }));
-vi.mock("../src/Hooks/EveEsi/Character/useGetCharacterStandings", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetCharacterStandings", () => ({
   getCachedCharacterStandings: () => ({ data: [] }),
 }));
 
-const { default: Job } = await import("../src/Classes/job.js");
+const { default: Job } = await import("./job.js");
 const { default: calcBrokersFee } = await import(
-  "../src/Functions/MarketOrders/calcBrokersFee.js"
+  "../Functions/MarketOrders/calcBrokersFee.js"
 );
 const { default: findBrokersFeeEntry } = await import(
-  "../src/Functions/MarketOrders/findBrokersFeeEntry.js"
+  "../Functions/MarketOrders/findBrokersFeeEntry.js"
 );
 const { default: findOrderTransactions } = await import(
-  "../src/Functions/MarketOrders/findOrderTransactions.js"
+  "../Functions/MarketOrders/findOrderTransactions.js"
 );
 const { default: applyLatestOrderData } = await import(
-  "../src/Functions/MarketOrders/applyLatestOrderData.js"
+  "../Functions/MarketOrders/applyLatestOrderData.js"
 );
 
 const CITADEL = 1035466617946;

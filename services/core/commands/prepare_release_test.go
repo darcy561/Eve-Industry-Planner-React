@@ -172,7 +172,7 @@ func TestNoCollectionIsItsOwnSnapshotTarget(t *testing.T) {
 	}
 	for _, name := range releaseTouchedCollections() {
 		if live[name+backupSuffix(currentRelease)] {
-			t.Errorf("%q snapshots into %q, which this step also empties", name, name+preReleaseSnapshotSuffix)
+			t.Errorf("%q snapshots into %q, which this step also empties", name, name+backupSuffix(currentRelease))
 		}
 	}
 }

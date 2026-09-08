@@ -61,7 +61,7 @@ func filePath(t *testing.T, h *Handlers, path, body string) (int, string) {
 // the reduction produces rather than on the response.
 func rowFor(t *testing.T, ctx context.Context, mongo *eipmongo.Mongo, jobID string) models.ArchivedJobStats {
 	t.Helper()
-	job, err := mongo.ArchivedJobs.LoadJobByID(ctx, filingScratchAccount, jobID)
+	job, err := mongo.ArchivedJobs.LoadJobByID(ctx, models.AccountOwner(filingScratchAccount), jobID)
 	if err != nil {
 		t.Fatalf("reload archived job: %v", err)
 	}

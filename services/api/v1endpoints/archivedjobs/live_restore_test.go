@@ -108,7 +108,7 @@ func TestLive_restorePutsTheJobBackAndTakesItOutOfTheArchive(t *testing.T) {
 		t.Fatalf("restored %d jobs, want 1", len(result.RestoredJobIDs))
 	}
 
-	restored, err := mongo.JobDocuments.LoadJobByID(ctx, restoreScratchAccount, "job-restore-1")
+	restored, err := mongo.JobDocuments.LoadJobByID(ctx, models.AccountOwner(restoreScratchAccount), "job-restore-1")
 	if err != nil {
 		t.Fatalf("the job is not on the planner: %v", err)
 	}
@@ -188,7 +188,7 @@ func TestLive_restoreReturnsTheJobToItsGroup(t *testing.T) {
 		t.Fatalf("restoreJobs: %v", err)
 	}
 
-	stored, err := mongo.Groups.LoadGroupByID(ctx, restoreScratchAccount, "group-restore-1")
+	stored, err := mongo.Groups.LoadGroupByID(ctx, models.AccountOwner(restoreScratchAccount), "group-restore-1")
 	if err != nil {
 		t.Fatalf("load group: %v", err)
 	}
@@ -242,7 +242,7 @@ func TestLive_restoreStripsAnEsiIdAnotherJobAlreadyHolds(t *testing.T) {
 		t.Fatal("a contested link should not stop the job coming back")
 	}
 
-	restored, err := mongo.JobDocuments.LoadJobByID(ctx, restoreScratchAccount, "job-restore-contested")
+	restored, err := mongo.JobDocuments.LoadJobByID(ctx, models.AccountOwner(restoreScratchAccount), "job-restore-contested")
 	if err != nil {
 		t.Fatalf("load restored job: %v", err)
 	}

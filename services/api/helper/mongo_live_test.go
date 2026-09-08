@@ -117,7 +117,7 @@ func TestLive_JobDocumentsPutGetFlow(t *testing.T) {
 		t.Fatalf("BulkUpsertJobs: expected write, got %+v", result)
 	}
 
-	got, err := m.JobDocuments.LoadJobByID(ctx, apiLiveScratchAccount, job.JobID)
+	got, err := m.JobDocuments.LoadJobByID(ctx, models.AccountOwner(apiLiveScratchAccount), job.JobID)
 	if err != nil {
 		t.Fatalf("LoadJobByID: %v", err)
 	}
@@ -135,7 +135,7 @@ func TestLive_JobDocumentsPutGetFlow(t *testing.T) {
 	}
 
 	// Wrong account must not see the doc (handler ownership filter).
-	_, err = m.JobDocuments.LoadJobByID(ctx, "eip-api-live-other", job.JobID)
+	_, err = m.JobDocuments.LoadJobByID(ctx, models.AccountOwner("eip-api-live-other"), job.JobID)
 	if err == nil {
 		t.Fatal("expected LoadJobByID to fail for other account")
 	}
@@ -162,7 +162,7 @@ func TestLive_GroupsPutGetFlow(t *testing.T) {
 		t.Fatalf("BulkUpsertGroups: unexpected result %+v", res)
 	}
 
-	got, err := m.Groups.LoadGroupByID(ctx, apiLiveScratchAccount, group.GroupID)
+	got, err := m.Groups.LoadGroupByID(ctx, models.AccountOwner(apiLiveScratchAccount), group.GroupID)
 	if err != nil {
 		t.Fatalf("LoadGroupByID: %v", err)
 	}
@@ -309,7 +309,7 @@ func TestLive_JobDocumentsDeleteFlow(t *testing.T) {
 	if deleted != 1 {
 		t.Fatalf("deleted count: got %d want 1", deleted)
 	}
-	_, err = m.JobDocuments.LoadJobByID(ctx, apiLiveScratchAccount, job.JobID)
+	_, err = m.JobDocuments.LoadJobByID(ctx, models.AccountOwner(apiLiveScratchAccount), job.JobID)
 	if err == nil {
 		t.Fatal("expected job gone after delete")
 	}
@@ -344,7 +344,7 @@ func TestLive_GroupsDeleteFlow(t *testing.T) {
 	if deleted != 1 {
 		t.Fatalf("deleted count: got %d want 1", deleted)
 	}
-	_, err = m.Groups.LoadGroupByID(ctx, apiLiveScratchAccount, group.GroupID)
+	_, err = m.Groups.LoadGroupByID(ctx, models.AccountOwner(apiLiveScratchAccount), group.GroupID)
 	if err == nil {
 		t.Fatal("expected group gone after delete")
 	}
@@ -384,7 +384,7 @@ func TestLive_JobsGroupsListFlows(t *testing.T) {
 		t.Fatalf("LoadJobsByFilter: got %d jobs want 2", len(byIDs))
 	}
 
-	groups, err := m.Groups.LoadGroupsByAccount(ctx, apiLiveScratchAccount)
+	groups, err := m.Groups.LoadGroupsForOwner(ctx, models.AccountOwner(apiLiveScratchAccount))
 	if err != nil {
 		t.Fatalf("LoadGroupsByAccount: %v", err)
 	}
@@ -440,7 +440,7 @@ func TestLive_GroupsMembershipDelta(t *testing.T) {
 		t.Fatalf("expected AddedJobIDs to include %s; deltas=%+v", jobID, res.Deltas)
 	}
 
-	got, err := m.Groups.LoadGroupByID(ctx, apiLiveScratchAccount, groupID)
+	got, err := m.Groups.LoadGroupByID(ctx, models.AccountOwner(apiLiveScratchAccount), groupID)
 	if err != nil {
 		t.Fatalf("LoadGroupByID: %v", err)
 	}

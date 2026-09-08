@@ -11,13 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-// LoadJobByID loads one job for an account (mongo.JobDocuments).
-func (d *Docs) LoadJobByID(ctx context.Context, accountID, jobID string) (models.Job, error) {
+// LoadJobByID loads one job from a planner (mongo.JobDocuments).
+func (d *Docs) LoadJobByID(ctx context.Context, owner models.Owner, jobID string) (models.Job, error) {
 	coll, err := d.requireColl()
-	if err != nil || accountID == "" || jobID == "" {
+	if err != nil || owner.IsZero() || jobID == "" {
 		return models.Job{}, fmt.Errorf("LoadJobByID: invalid arguments")
 	}
-	filter := bson.M{FieldMetaOwnerKind: models.OwnerAccount, FieldMetaOwnerID: accountID, "_id": jobID}
+	filter := bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": jobID}
 	var doc models.Job
 	if err := Retry(ctx, "LoadJobByID", func() error {
 		return coll.FindOne(ctx, filter).Decode(&doc)

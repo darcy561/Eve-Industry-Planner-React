@@ -10,15 +10,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-// LoadGroupsByAccount loads all groups for an account (mongo.Groups).
-func (d *Docs) LoadGroupsByAccount(ctx context.Context, accountID string) ([]models.Group, error) {
+// LoadGroupsForOwner loads every group in one planner (mongo.Groups).
+func (d *Docs) LoadGroupsForOwner(ctx context.Context, owner models.Owner) ([]models.Group, error) {
 	coll, err := d.requireColl()
-	if err != nil || accountID == "" {
-		return nil, fmt.Errorf("LoadGroupsByAccount: invalid arguments")
+	if err != nil || owner.IsZero() {
+		return nil, fmt.Errorf("LoadGroupsForOwner: invalid arguments")
 	}
-	filter := bson.M{FieldMetaOwnerID: accountID}
+	// Both halves: an id alone would match a planner of another kind that happens
+	// to carry the same id.
+	filter := bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID}
 	var cursor *mongo.Cursor
-	if err := Retry(ctx, "LoadGroupsByAccount", func() error {
+	if err := Retry(ctx, "LoadGroupsForOwner", func() error {
 		var findErr error
 		cursor, findErr = coll.Find(ctx, filter)
 		return findErr
@@ -33,13 +35,13 @@ func (d *Docs) LoadGroupsByAccount(ctx context.Context, accountID string) ([]mod
 	return groups, nil
 }
 
-// LoadGroupByID loads one group for an account.
-func (d *Docs) LoadGroupByID(ctx context.Context, accountID, groupID string) (models.Group, error) {
+// LoadGroupByID loads one group from a planner.
+func (d *Docs) LoadGroupByID(ctx context.Context, owner models.Owner, groupID string) (models.Group, error) {
 	coll, err := d.requireColl()
-	if err != nil || accountID == "" || groupID == "" {
+	if err != nil || owner.IsZero() || groupID == "" {
 		return models.Group{}, fmt.Errorf("LoadGroupByID: invalid arguments")
 	}
-	filter := bson.M{FieldMetaOwnerKind: models.OwnerAccount, FieldMetaOwnerID: accountID, "_id": groupID}
+	filter := bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": groupID}
 	var group models.Group
 	if err := Retry(ctx, "LoadGroupByID", func() error {
 		return coll.FindOne(ctx, filter).Decode(&group)

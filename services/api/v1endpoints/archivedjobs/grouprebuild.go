@@ -55,7 +55,7 @@ func restoreGroups(ctx context.Context, m *eipmongo.Mongo, accountID string, job
 
 	out := make([]models.Group, 0, len(order))
 	for _, groupID := range order {
-		existing, err := m.Groups.LoadGroupByID(ctx, accountID, groupID)
+		existing, err := m.Groups.LoadGroupByID(ctx, models.AccountOwner(accountID), groupID)
 		switch {
 		case err == nil:
 			out = append(out, existing.AddJobs(byGroup[groupID]))

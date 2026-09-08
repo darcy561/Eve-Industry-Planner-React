@@ -28,9 +28,12 @@ func (h *Handlers) GetGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accountID := helper.AuthenticatedAccountID(r)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "groups_get")
+	if !ok {
+		return
+	}
 
-	groups, err := h.Mongo.Groups.LoadGroupsByAccount(ctx, accountID)
+	groups, err := h.Mongo.Groups.LoadGroupsForOwner(ctx, owner)
 	if err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to retrieve groups", "failed to query groups", "groups_query_failed", "groups_get", err, nil)

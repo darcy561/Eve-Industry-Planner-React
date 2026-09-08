@@ -31,8 +31,6 @@ func (h *Handlers) GetGroupByIDHandler(w http.ResponseWriter, r *http.Request, g
 		metrics.Error("method_not_allowed")
 		return
 	}
-	accountID := helper.AuthenticatedAccountID(r)
-
 	groupID = strings.TrimSpace(groupID)
 	if groupID == "" {
 		metrics.Error("bad_request")
@@ -40,7 +38,12 @@ func (h *Handlers) GetGroupByIDHandler(w http.ResponseWriter, r *http.Request, g
 		return
 	}
 
-	group, err := h.Mongo.Groups.LoadGroupByID(ctx, accountID, groupID)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "groups_get")
+	if !ok {
+		return
+	}
+
+	group, err := h.Mongo.Groups.LoadGroupByID(ctx, owner, groupID)
 	if err != nil {
 		if errors.Is(err, mongodriver.ErrNoDocuments) {
 			helper.RespondNotFound(w, r, metrics)

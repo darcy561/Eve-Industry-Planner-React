@@ -54,7 +54,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 	if _, failed, err := jobs.BulkUpsertJobs(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Job{clone}, now, "parity-sess", "parity-client"); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs: failed=%d err=%v", failed, err)
 	}
-	got, err := jobs.LoadJobByID(ctx, parityScratchAccount, jobID)
+	got, err := jobs.LoadJobByID(ctx, models.AccountOwner(parityScratchAccount), jobID)
 	if err != nil {
 		t.Fatalf("LoadJobByID after write: %v", err)
 	}
@@ -65,7 +65,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 	if _, failed, err := jobs.BulkUpsertJobs(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Job{clone}, now2, "parity-sess-2", "parity-client-2"); err != nil || failed != 0 {
 		t.Fatalf("BulkUpsertJobs rewrite: failed=%d err=%v", failed, err)
 	}
-	got2, err := jobs.LoadJobByID(ctx, parityScratchAccount, jobID)
+	got2, err := jobs.LoadJobByID(ctx, models.AccountOwner(parityScratchAccount), jobID)
 	if err != nil {
 		t.Fatalf("LoadJobByID after rewrite: %v", err)
 	}
@@ -87,7 +87,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 		if res == nil || res.FailedCount != 0 {
 			t.Fatalf("BulkUpsertGroups unexpected result: %+v", res)
 		}
-		gotGroup, err := groups.LoadGroupByID(ctx, parityScratchAccount, groupID)
+		gotGroup, err := groups.LoadGroupByID(ctx, models.AccountOwner(parityScratchAccount), groupID)
 		if err != nil {
 			t.Fatalf("LoadGroupByID after write: %v", err)
 		}
@@ -99,7 +99,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 		if _, err := groups.BulkUpsertGroups(ctx, models.AccountOwner(parityScratchAccount), parityScratchAccount, []models.Group{g}, now3, "parity-sess-3", "parity-client-3"); err != nil {
 			t.Fatalf("BulkUpsertGroups rewrite: %v", err)
 		}
-		gotGroup2, err := groups.LoadGroupByID(ctx, parityScratchAccount, groupID)
+		gotGroup2, err := groups.LoadGroupByID(ctx, models.AccountOwner(parityScratchAccount), groupID)
 		if err != nil {
 			t.Fatalf("LoadGroupByID after rewrite: %v", err)
 		}
@@ -146,7 +146,7 @@ func findOneJob(t *testing.T, ctx context.Context, m *eipmongo.Mongo) (models.Jo
 	if id == "" || accountID == "" {
 		return models.Job{}, false
 	}
-	job, err := m.JobDocuments.LoadJobByID(ctx, accountID, id)
+	job, err := m.JobDocuments.LoadJobByID(ctx, models.AccountOwner(accountID), id)
 	if err != nil {
 		t.Fatalf("load sample job: %v", err)
 	}
@@ -174,7 +174,7 @@ func findOneGroup(t *testing.T, ctx context.Context, m *eipmongo.Mongo) (models.
 	if id == "" || accountID == "" {
 		return models.Group{}, false
 	}
-	g, err := m.Groups.LoadGroupByID(ctx, accountID, id)
+	g, err := m.Groups.LoadGroupByID(ctx, models.AccountOwner(accountID), id)
 	if err != nil {
 		t.Fatalf("load sample group: %v", err)
 	}

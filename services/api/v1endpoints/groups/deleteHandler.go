@@ -13,7 +13,6 @@ import (
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 
-	"eve-industry-planner/shared/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -63,9 +62,14 @@ func (h *Handlers) DeleteGroupsHandler(w http.ResponseWriter, r *http.Request) {
 		"batch_size": len(reqBody.GroupIDs),
 	})
 
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "groups_delete")
+	if !ok {
+		return
+	}
+
 	collection := h.Mongo.Groups.Collection()
 	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID,
+		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
 		"_id": bson.M{"$in": reqBody.GroupIDs},
 	}
 

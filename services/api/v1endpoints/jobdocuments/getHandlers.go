@@ -11,7 +11,6 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 
-	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	mongodriver "go.mongodb.org/mongo-driver/v2/mongo"
@@ -31,9 +30,13 @@ func (h *Handlers) GetPlannerJobDocumentsHandler(w http.ResponseWriter, r *http.
 	defer metrics.Finish()
 
 	accountID := helper.AuthenticatedAccountID(r)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "job_documents")
+	if !ok {
+		return
+	}
 
 	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID,
+		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
 		"displayOnPlanner": true,
 	}
 	findJobs(ctx, w, r, h, filter, accountID, start, "planner jobs", metrics)
@@ -53,9 +56,13 @@ func (h *Handlers) GetJobDocumentsByGroupHandler(w http.ResponseWriter, r *http.
 	defer metrics.Finish()
 
 	accountID := helper.AuthenticatedAccountID(r)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "job_documents")
+	if !ok {
+		return
+	}
 
 	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID,
+		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
 		"groupID": groupID,
 	}
 	findJobs(ctx, w, r, h, filter, accountID, start, "jobs by group", metrics)
@@ -74,9 +81,12 @@ func (h *Handlers) GetJobDocumentByIDHandler(w http.ResponseWriter, r *http.Requ
 	})
 	defer metrics.Finish()
 
-	accountID := helper.AuthenticatedAccountID(r)
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "job_documents")
+	if !ok {
+		return
+	}
 
-	doc, err := h.Mongo.JobDocuments.LoadJobByID(ctx, accountID, jobID)
+	doc, err := h.Mongo.JobDocuments.LoadJobByID(ctx, owner, jobID)
 	if err != nil {
 		if errors.Is(err, mongodriver.ErrNoDocuments) {
 			metrics.Error("not_found")
@@ -163,8 +173,13 @@ func (h *Handlers) GetJobDocumentsByIDsHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "job_documents")
+	if !ok {
+		return
+	}
+
 	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID,
+		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
 		"_id": bson.M{"$in": uniqueIDs},
 	}
 	findJobs(ctx, w, r, h, filter, accountID, start, "jobs by ids", metrics)

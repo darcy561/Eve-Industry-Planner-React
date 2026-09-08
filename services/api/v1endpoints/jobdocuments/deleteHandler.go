@@ -13,7 +13,6 @@ import (
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 
-	"eve-industry-planner/shared/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -60,8 +59,13 @@ func (h *Handlers) DeleteJobDocumentsHandler(w http.ResponseWriter, r *http.Requ
 		"batch_size": len(reqBody.JobIDs),
 	})
 
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "job_documents")
+	if !ok {
+		return
+	}
+
 	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID,
+		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
 		"_id": bson.M{"$in": reqBody.JobIDs},
 	}
 
@@ -84,7 +88,7 @@ func (h *Handlers) DeleteJobDocumentsHandler(w http.ResponseWriter, r *http.Requ
 			}
 			collection := h.Mongo.JobDocuments.Collection()
 			cur, findErr := collection.Find(ctx, bson.M{
-				eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID,
+				eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
 				"_id": bson.M{"$in": reqBody.JobIDs},
 			}, options.Find().SetProjection(bson.M{"groupID": 1, "includedInGroup": 1}))
 			if findErr != nil {

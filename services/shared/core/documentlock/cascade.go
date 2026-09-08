@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
 
 	mongodriver "go.mongodb.org/mongo-driver/v2/mongo"
@@ -123,7 +124,9 @@ func cascadeReleaseDependentJobLocks(
 		return
 	}
 
-	group, err := d.Mongo.Groups.LoadGroupByID(ctx, accountID, groupID)
+	// The lock namespace is still the account, so the group this cascade releases
+	// is the one in the account's own planner — see shared-planners § Stage H.
+	group, err := d.Mongo.Groups.LoadGroupByID(ctx, models.AccountOwner(accountID), groupID)
 	if err != nil {
 		if errors.Is(err, mongodriver.ErrNoDocuments) {
 			return

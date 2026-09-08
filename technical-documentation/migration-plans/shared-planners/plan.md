@@ -501,6 +501,12 @@ give it an owner; the id rewrite needs that same owner, so it happens in the sam
 second walk over the largest collection in the database. `_id` is immutable, so each row is written
 under its new id and the old one removed — which is why doing it in one pass rather than two matters.
 
+**Only a user's own writes count.** `BulkUpsertJobs`, `BulkUpsertGroups` and the archive write
+increment the version; the generic `UpsertStructsWithMetaBulk` and `UpsertStructsPreservingMetaBulk`
+paths do not, and should not. Those are server-side rewrites — schema maintenance, the statistics
+rebuild, the SDE import — and a document a person has not touched has not changed for the purpose a
+conditional write asks about.
+
 **The same pass seeds `_meta.version`.** A per-document write counter is owed by
 [document-write-granularity](../document-write-granularity/contents.md) § Stage A, and a field costs
 nothing in a pass already rewriting the row. Nothing here reads it; it is seeded so that stage never

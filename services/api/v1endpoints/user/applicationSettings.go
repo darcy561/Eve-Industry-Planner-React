@@ -100,7 +100,7 @@ func (h *Handlers) handleSaveApplicationSettings(w http.ResponseWriter, r *http.
 		})
 		return
 	}
-	helper.PopulateRequestMeta(r, &settingsDoc.MetaData.MetaData, accountID)
+	helper.PopulateRequestMeta(r, &settingsDoc.MetaData.MetaData, models.AccountOwner(accountID))
 
 	result, retriedWithoutWSClientID, err := h.Mongo.ApplicationSettings.UpsertApplicationSettings(ctx, accountID, settingsDoc)
 	if retriedWithoutWSClientID {

@@ -129,7 +129,7 @@ func (h *Handlers) handleSaveUserDocument(w http.ResponseWriter, r *http.Request
 		})
 		return
 	}
-	helper.PopulateRequestMeta(r, &userDoc.MetaData.MetaData, accountID)
+	helper.PopulateRequestMeta(r, &userDoc.MetaData.MetaData, models.AccountOwner(accountID))
 
 	var existingDoc models.UserAccountDocument
 	existingDoc, loadErr := h.Mongo.LoadUserAccount(ctx, accountID)

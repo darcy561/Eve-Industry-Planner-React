@@ -19,13 +19,16 @@ func RequestStartOrNow(ctx context.Context) time.Time {
 	return start
 }
 
-// PopulateRequestMeta fills account id, session id (from auth context / cookie), and client id (X-WS-Client-ID).
+// PopulateRequestMeta fills the owner, session id (from auth context / cookie), and client id (X-WS-Client-ID).
 // Bulk upserts use the same session/client pairing via eipmongo.ApplyMetaSessionClient.
-func PopulateRequestMeta(r *http.Request, meta *models.MetaData, accountID string) {
+//
+// owner is the planner the document belongs to, which for an account's own
+// singleton documents is [models.AccountOwner] of the writing account.
+func PopulateRequestMeta(r *http.Request, meta *models.MetaData, owner models.Owner) {
 	if meta == nil {
 		return
 	}
-	meta.Owner = models.AccountOwner(accountID)
+	meta.Owner = owner
 	if sessionID := auth.SessionIDFromContext(r.Context()); sessionID != "" {
 		meta.SessionID = sessionID
 	}

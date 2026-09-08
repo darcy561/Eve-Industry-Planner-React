@@ -159,13 +159,18 @@ func (h *Handlers) PutArchivedJobsHandler(w http.ResponseWriter, r *http.Request
 		})
 	}
 
+	owner, ok := helper.RequestPlannerOwner(w, r, h.Mongo, h.EntityCipher, metrics, "archived_jobs")
+	if !ok {
+		return
+	}
+
 	now := time.Now().UTC()
 	bulkOps := make([]mongodriver.WriteModel, 0, len(reqBody.Jobs))
 	statsRows := make([]models.ArchivedJobStats, 0, len(reqBody.Jobs))
 	var unbuildable int
 	for i := range reqBody.Jobs {
 		job := &reqBody.Jobs[i]
-		helper.PopulateRequestMeta(r, &job.MetaData.MetaData, accountID)
+		helper.PopulateRequestMeta(r, &job.MetaData.MetaData, owner)
 		job.MetaData.LastModified = now
 		job.MetaData.LastUpdatedBy = accountID
 		if job.MetaData.CreatedAt.IsZero() {
@@ -174,9 +179,18 @@ func (h *Handlers) PutArchivedJobsHandler(w http.ResponseWriter, r *http.Request
 		job.MetaData.ArchivedAt = now
 		job.MetaData.ArchivedBy = accountID
 
+		update, uerr := eipmongo.SetVersionedDocument(job, eipmongo.ArchivedJobsUpsertUnset)
+		if uerr != nil {
+			metrics.Error("build_update_failed")
+			helper.RespondEndpointServerError(w, r, "Failed to archive jobs",
+				"archived jobs: build update failed", "archived_jobs_update_failed",
+				"archived_jobs", uerr, nil)
+			return
+		}
 		bulkOps = append(bulkOps, mongodriver.NewUpdateOneModel().
-			SetFilter(bson.M{"_id": job.JobID, eipmongo.FieldMetaOwnerID: job.MetaData.Owner.ID}).
-			SetUpdate(bson.M{"$set": job, "$unset": eipmongo.ArchivedJobsUpsertUnset}).
+			SetFilter(bson.M{"_id": job.JobID,
+				eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID}).
+			SetUpdate(update).
 			SetUpsert(true))
 
 		// The row is derived from the job and nothing else, so it is built where
@@ -235,7 +249,7 @@ func (h *Handlers) PutArchivedJobsHandler(w http.ResponseWriter, r *http.Request
 	// A failure to queue is logged rather than failing the request: the jobs are
 	// saved and their rows are still unstamped, so the next archive or a manual
 	// rebuild picks them up.
-	if err := h.Mongo.QueueOwnerWork(ctx, models.AccountOwner(accountID), eipmongo.StatsWorkDelta, time.Now().UTC()); err != nil {
+	if err := h.Mongo.QueueOwnerWork(ctx, owner, eipmongo.StatsWorkDelta, time.Now().UTC()); err != nil {
 		logs.AttachHandlerCaveat(r, "stats_rebuild_not_queued",
 			"archived jobs saved but the statistics rebuild was not queued",
 			map[string]any{"account_id": accountID, "error": err.Error()})

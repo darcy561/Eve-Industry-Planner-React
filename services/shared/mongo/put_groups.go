@@ -88,7 +88,7 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, owner models.Owner, account
 	err = Retry(ctx, "BulkUpsertGroups", func() error {
 		prevByID := make(map[string][]string, len(ids))
 		cur, ferr := coll.Find(ctx,
-			bson.M{"_id": bson.M{"$in": ids}, FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID},
+			bson.M{"_id": bson.M{"$in": OwnerScopedDocumentIDs(owner, ids)}},
 			options.Find().SetProjection(bson.M{"includedJobIDs": 1, "_id": 1}),
 		)
 		if ferr != nil {
@@ -103,7 +103,8 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, owner models.Owner, account
 				_ = cur.Close(ctx)
 				return derr
 			}
-			prevByID[doc.ID] = doc.IncludedJobIDs
+			// Keyed by the group id the caller knows, not the id it is stored under.
+			prevByID[BareDocumentID(doc.ID)] = doc.IncludedJobIDs
 		}
 		if err := cur.Err(); err != nil {
 			_ = cur.Close(ctx)
@@ -118,7 +119,7 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, owner models.Owner, account
 				return uerr
 			}
 			bulkOps = append(bulkOps, mongo.NewUpdateOneModel().
-				SetFilter(bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": g.GroupID}).
+				SetFilter(bson.M{"_id": OwnerScopedDocumentID(owner, g.GroupID)}).
 				SetUpdate(update).
 				SetUpsert(true))
 		}

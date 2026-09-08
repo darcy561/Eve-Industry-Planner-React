@@ -17,7 +17,7 @@ func (d *Docs) LoadJobByID(ctx context.Context, owner models.Owner, jobID string
 	if err != nil || owner.IsZero() || jobID == "" {
 		return models.Job{}, fmt.Errorf("LoadJobByID: invalid arguments")
 	}
-	filter := bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": jobID}
+	filter := bson.M{"_id": OwnerScopedDocumentID(owner, jobID)}
 	var doc models.Job
 	if err := Retry(ctx, "LoadJobByID", func() error {
 		return coll.FindOne(ctx, filter).Decode(&doc)

@@ -21,9 +21,13 @@ func OwnerScopedIDCollections() []string {
 		CollectionJobDocuments,
 		CollectionJobGroups,
 		CollectionArchivedJobs,
-		CollectionGroupTemplatePayloads,
 	}
 }
+
+// The group template collections belong here too, and are absent until they
+// carry an owner block at all: the rewrite reads a document's owner to build its
+// new id, so listing them now would skip every row while the release gate went
+// on failing over the same ones. They join when the owner block does.
 
 // NeedsOwnerScopedID reports whether a stored id in one of these collections has
 // yet to be rewritten.

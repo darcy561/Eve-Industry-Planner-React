@@ -64,10 +64,7 @@ func (h *Handlers) DeleteJobDocumentsHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
-		"_id": bson.M{"$in": reqBody.JobIDs},
-	}
+	filter := bson.M{"_id": bson.M{"$in": eipmongo.OwnerScopedDocumentIDs(owner, reqBody.JobIDs)}}
 
 	now := time.Now().UTC()
 	sessionID := helper.AuthenticatedSessionID(r)
@@ -87,10 +84,9 @@ func (h *Handlers) DeleteJobDocumentsHandler(w http.ResponseWriter, r *http.Requ
 				IncludedInGroup bool   `bson:"includedInGroup"`
 			}
 			collection := h.Mongo.JobDocuments.Collection()
-			cur, findErr := collection.Find(ctx, bson.M{
-				eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
-				"_id": bson.M{"$in": reqBody.JobIDs},
-			}, options.Find().SetProjection(bson.M{"groupID": 1, "includedInGroup": 1}))
+			cur, findErr := collection.Find(ctx,
+				bson.M{"_id": bson.M{"$in": eipmongo.OwnerScopedDocumentIDs(owner, reqBody.JobIDs)}},
+				options.Find().SetProjection(bson.M{"groupID": 1, "includedInGroup": 1}))
 			if findErr != nil {
 				metrics.Error("lock_error")
 				helper.RespondEndpointServerError(w, r, "Failed to verify document lock", "job documents delete lock gate: group lookup failed", "job_docs_lock_gate_group_lookup_failed", "job_documents", findErr, nil)
@@ -105,7 +101,8 @@ func (h *Handlers) DeleteJobDocumentsHandler(w http.ResponseWriter, r *http.Requ
 					return
 				}
 				if row.IncludedInGroup && row.GroupID != "" {
-					jobGroupBypass[row.ID] = row.GroupID
+					// The lock keys on the id a client sends, not the stored one.
+					jobGroupBypass[eipmongo.BareDocumentID(row.ID)] = row.GroupID
 				}
 			}
 			if err := cur.Close(ctx); err != nil {

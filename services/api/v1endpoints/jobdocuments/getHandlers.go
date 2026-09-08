@@ -10,6 +10,7 @@ import (
 	"eve-industry-planner/api/helper"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
+	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -166,7 +167,9 @@ func (h *Handlers) GetJobDocumentsByIDsHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	findJobs(ctx, w, r, h, bson.M{"_id": bson.M{"$in": uniqueIDs}}, owner, start, "jobs by ids", metrics)
+	findJobs(ctx, w, r, h,
+		bson.M{"_id": bson.M{"$in": eipmongo.OwnerScopedDocumentIDs(owner, uniqueIDs)}},
+		owner, start, "jobs by ids", metrics)
 }
 
 func findJobs(

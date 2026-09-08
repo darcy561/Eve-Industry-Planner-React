@@ -68,10 +68,7 @@ func (h *Handlers) DeleteGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	collection := h.Mongo.Groups.Collection()
-	filter := bson.M{
-		eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID,
-		"_id": bson.M{"$in": reqBody.GroupIDs},
-	}
+	filter := bson.M{"_id": bson.M{"$in": eipmongo.OwnerScopedDocumentIDs(owner, reqBody.GroupIDs)}}
 
 	var resolvedIDs []string
 	findErr := eipmongo.Retry(ctx, fmt.Sprintf("resolve groups for delete account %s", accountID), func() error {
@@ -89,7 +86,9 @@ func (h *Handlers) DeleteGroupsHandler(w http.ResponseWriter, r *http.Request) {
 				return err
 			}
 			if doc.ID != "" {
-				resolvedIDs = append(resolvedIDs, doc.ID)
+				// Bare: what remains of these ids is the lock, which keys on the id
+				// a client sends.
+				resolvedIDs = append(resolvedIDs, eipmongo.BareDocumentID(doc.ID))
 			}
 		}
 		return cur.Err()

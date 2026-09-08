@@ -39,7 +39,7 @@ func (d *Docs) BulkUpsertJobs(ctx context.Context, owner models.Owner, accountID
 			continue
 		}
 		bulkOps = append(bulkOps, mongo.NewUpdateOneModel().
-			SetFilter(bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": job.JobID}).
+			SetFilter(bson.M{"_id": OwnerScopedDocumentID(owner, job.JobID)}).
 			SetUpdate(update).
 			SetUpsert(true))
 	}

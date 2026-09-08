@@ -188,8 +188,7 @@ func (h *Handlers) PutArchivedJobsHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 		bulkOps = append(bulkOps, mongodriver.NewUpdateOneModel().
-			SetFilter(bson.M{"_id": job.JobID,
-				eipmongo.FieldMetaOwnerKind: owner.Kind, eipmongo.FieldMetaOwnerID: owner.ID}).
+			SetFilter(bson.M{"_id": eipmongo.OwnerScopedDocumentID(owner, job.JobID)}).
 			SetUpdate(update).
 			SetUpsert(true))
 

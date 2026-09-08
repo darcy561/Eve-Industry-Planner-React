@@ -41,7 +41,7 @@ func (d *Docs) LoadGroupByID(ctx context.Context, owner models.Owner, groupID st
 	if err != nil || owner.IsZero() || groupID == "" {
 		return models.Group{}, fmt.Errorf("LoadGroupByID: invalid arguments")
 	}
-	filter := bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": groupID}
+	filter := bson.M{"_id": OwnerScopedDocumentID(owner, groupID)}
 	var group models.Group
 	if err := Retry(ctx, "LoadGroupByID", func() error {
 		return coll.FindOne(ctx, filter).Decode(&group)

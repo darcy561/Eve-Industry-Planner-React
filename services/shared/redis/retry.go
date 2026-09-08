@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"eve-industry-planner/shared/core/retry"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -20,8 +20,8 @@ const (
 )
 
 // Retry runs operation with exponential backoff (3 attempts, 100ms → 2s),
-// retrying what [IsRetryableError] accepts. operationName appears in the logs
-// and in the error after the last attempt.
+// retrying what [IsRetryableError] accepts. operationName labels the logs; the
+// error returned is the Redis failure itself.
 func Retry(ctx context.Context, operationName string, operation func() error) error {
 	opName := operationName
 	if opName == "" {

@@ -4,8 +4,8 @@
 
 One retry engine for the whole backend, and the flow every retried operation follows.
 
-- **`services/shared/core/retry`** as the single backoff loop: attempts, delays, context handling,
-  and the outcome a caller gets.
+- **`services/shared/retry`** as the single backoff loop: attempts, delays, jitter, context handling,
+  and the outcome a caller gets — including where the package lives.
 - The **shape a caller supplies**: which failures are worth retrying, what the operation is called,
   and what is logged around it.
 - The **per-area policies** — Mongo's three attempts, NATS's publish and acknowledgement budgets,
@@ -30,6 +30,7 @@ One retry engine for the whole backend, and the flow every retried operation fol
 |------------|------|
 | Understand why three loops exist and what replaces them | [plan.md](./plan.md) § Goal, § Starting position |
 | See what the engine is missing before anything moves onto it | [plan.md](./plan.md) § What the engine owes first |
+| Know what the engine guarantees a caller today | [overlay.md](./overlay.md) § Stage A |
 | Know what a caller supplies and what the engine decides | [plan.md](./plan.md) § The shape a caller supplies |
 | Check what is additive and what breaks | [plan.md](./plan.md) § Wire compatibility |
 | See the stages and their order | [plan.md](./plan.md) §§ Stage A – Stage D |

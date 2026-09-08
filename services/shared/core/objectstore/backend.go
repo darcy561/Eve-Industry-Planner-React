@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"eve-industry-planner/shared/core/config"
-	"eve-industry-planner/shared/core/retry"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 )
 
 const (

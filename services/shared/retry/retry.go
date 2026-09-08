@@ -1,8 +1,10 @@
+// Package retry is the backend's backoff loop. An area supplies what a failure
+// means to it and what its budget is; the loop itself lives here once.
 package retry
 
 import (
 	"context"
-	"fmt"
+	"math/rand/v2"
 	"time"
 )
 
@@ -12,6 +14,7 @@ type Config struct {
 	InitialDelay  time.Duration
 	MaxDelay      time.Duration
 	OperationName string
+	Jitter        float64
 }
 
 // Option overrides default retry behaviour. Pass zero or more to Do.
@@ -53,15 +56,29 @@ func WithMaxDelay(d time.Duration) Option {
 	}
 }
 
-// WithOperationName sets a name used only in the exhausted-retry error message.
+// WithOperationName sets a name for a caller's own logging. Do never puts it in
+// an error: an exhausted retry returns the failure itself.
 func WithOperationName(name string) Option {
 	return func(c *Config) {
 		c.OperationName = name
 	}
 }
 
+// WithJitter spreads each delay by up to fraction of itself in either direction,
+// so simultaneous losers of a contended operation do not retry in step. 0
+// (the default) keeps backoff exact; values above 1 are clamped to 1.
+func WithJitter(fraction float64) Option {
+	return func(c *Config) {
+		c.Jitter = fraction
+	}
+}
+
 // Do executes operation with exponential backoff while shouldRetry returns true.
 // Defaults match DefaultConfig(); pass Options only when you need overrides.
+//
+// The error returned is always the one the operation produced — never a wrapper
+// counting the attempts — so errors.Is and an area's own predicates work on it
+// without unwrapping. A cancelled context returns ctx.Err() instead.
 func Do(
 	ctx context.Context,
 	operation func(context.Context) error,
@@ -83,7 +100,6 @@ func Do(
 		cfg.MaxDelay = 2 * time.Second
 	}
 
-	var lastErr error
 	for attempt := 1; attempt <= cfg.MaxAttempts; attempt++ {
 		if err := ctx.Err(); err != nil {
 			return err
@@ -94,7 +110,6 @@ func Do(
 			return nil
 		}
 
-		lastErr = err
 		attemptCtx := AttemptContext{
 			Attempt:     attempt,
 			MaxAttempts: cfg.MaxAttempts,
@@ -103,21 +118,31 @@ func Do(
 			return err
 		}
 
-		delay := cfg.InitialDelay * time.Duration(1<<(attempt-1))
-		if delay > cfg.MaxDelay {
-			delay = cfg.MaxDelay
-		}
-
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(delay):
+		case <-time.After(backoff(cfg, attempt)):
 		}
 	}
 
-	opName := cfg.OperationName
-	if opName == "" {
-		opName = "operation"
+	// Unreachable: the loop returns on success, on exhaustion, and on refusal.
+	return nil
+}
+
+// backoff returns the wait before the attempt after this one: the delay doubles
+// per attempt, is capped at MaxDelay, and only then is jittered — so jitter
+// spreads the cap rather than being erased by it.
+func backoff(cfg Config, attempt int) time.Duration {
+	delay := min(cfg.InitialDelay<<(attempt-1), cfg.MaxDelay)
+	if cfg.Jitter <= 0 {
+		return delay
 	}
-	return fmt.Errorf("%s failed after %d attempts: %w", opName, cfg.MaxAttempts, lastErr)
+
+	fraction := min(cfg.Jitter, 1)
+	spread := float64(delay) * fraction
+	jittered := float64(delay) + spread*(2*rand.Float64()-1)
+	if jittered < 1 {
+		return 1
+	}
+	return time.Duration(jittered)
 }

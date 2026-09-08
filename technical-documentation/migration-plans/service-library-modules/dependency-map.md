@@ -6,6 +6,11 @@ module boundaries proposed there are derived from these numbers, not chosen by t
 
 Regenerate with `go list -deps` from `services/`; the plan's phases assume these shapes still hold.
 
+The backoff engine has since moved from `shared/core/retry` to `shared/retry`, and the closures below
+say `retry` accordingly — it is still the same leaf package in every closure that held it. Retry work
+is tracked in [retry-consolidation/](../retry-consolidation/contents.md), which will also fold
+`shared/mongo` and `shared/nats` onto that package; neither gains or loses a dependency by doing so.
+
 ## What each candidate module would have to contain
 
 Internal (in-module) closure of each candidate root — the packages that must travel with it:
@@ -15,7 +20,7 @@ Internal (in-module) closure of each candidate root — the packages that must t
 | `shared/logs` | none — leaf |
 | `shared/models` | `crypto/aesgcm` |
 | `shared/telemetry` | `logs`, `container` |
-| `shared/redis` | `logs`, `core/config`, `core/retry`, `core/swarmsecret`, `container`, `crypto/aesgcm`, `crypto/aesgcm/keyrings` |
+| `shared/redis` | `logs`, `core/config`, `retry`, `core/swarmsecret`, `container`, `crypto/aesgcm`, `crypto/aesgcm/keyrings` |
 | `shared/core/nats` | the same four, plus `telemetry/natsprop` |
 | `shared/mongo` | the same four, plus `models`, `documentschema` |
 | `shared/core/documentlock` | 13 packages — `mongo`, `core/nats`, `core/redis`, `core/objectstore`, `stackservices`, `models`, … |

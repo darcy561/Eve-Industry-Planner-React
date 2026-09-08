@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"eve-industry-planner/shared/core/retry"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 )
 
 func newEveSSOTokenRequest(ctx context.Context, clientID, clientSecret, grantType, grantValue string) (*http.Request, error) {

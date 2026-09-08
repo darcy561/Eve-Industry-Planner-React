@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"eve-industry-planner/shared/core/retry"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 )
 
 // retryableCCPHTTPError marks transient failures when talking to CCP static-data HTTP endpoints.
@@ -53,8 +53,7 @@ func httpGetOKWithRetry(ctx context.Context, url, operationName string) (*http.R
 		resp = r
 		return nil
 	}, func(err error, attempt retry.AttemptContext) bool {
-		var re retryableCCPHTTPError
-		if !errors.As(err, &re) {
+		if _, ok := errors.AsType[retryableCCPHTTPError](err); !ok {
 			return false
 		}
 		logs.WarnCtx(ctx, "retrying CCP static-data HTTP request",

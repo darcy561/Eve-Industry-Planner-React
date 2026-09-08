@@ -14,7 +14,7 @@ the other areas.
 
 Four packages retry an operation, and three of them implement the loop themselves.
 
-`services/shared/core/retry` is a generic engine — `Do(ctx, operation, shouldRetry, opts…)` — that
+`services/shared/retry` is a generic engine — `Do(ctx, operation, shouldRetry, opts…)` — that
 takes the retry predicate as an argument, so the part that differs per area is already a parameter.
 It is used by the object store, EVE SSO, the SDE fetcher, and now the Redis handle.
 `services/shared/mongo` and `services/shared/nats` each hand-roll the same loop beside it.
@@ -27,7 +27,7 @@ similar files.
 
 | Package | Loop | Attempts | Backoff | Predicate | Callers |
 |---------|------|----------|---------|-----------|---------|
-| `core/retry` | the engine | 3 (default) | 200ms → 2s | supplied by the caller | object store, EVE SSO, SDE fetch |
+| `shared/retry` | the engine | 3 (default) | 200ms → 2s | supplied by the caller | object store, EVE SSO, SDE fetch |
 | `shared/redis` | uses the engine | 3 | 100ms → 2s | `IsRetryableError` | the handle's own operations |
 | `shared/mongo` | its own | 3 | 100ms → 2s | `IsRetryableMongoError` | ~30 call sites, plus `Docs` helpers and `writers` |
 | `shared/nats` | its own | per policy | per policy | `IsRetryable` | 4 call sites, two named policies |
@@ -66,8 +66,8 @@ compare-and-set needed randomised backoff and got its own, separate from this en
 belongs here as an option is worth deciding while the engine is open, rather than after four areas
 depend on its timing.
 
-`go fix -diff` on `shared/core/retry`, `shared/mongo` and `shared/nats` before any of this, and again
-on what is edited.
+`go fix -diff` on `shared/retry`, `shared/mongo` and `shared/nats` before any of this, and again on
+what is edited.
 
 ## The shape a caller supplies
 
@@ -106,13 +106,15 @@ adds tests that fix the new one.
 
 ## Stages
 
-### Stage A — Fix the engine
+### Stage A — Fix the engine — **done**
 
-Resolve the unreachable wrapper, decide the jitter question, and give the engine tests for the
-contract the other stages will rely on: what a caller receives on exhaustion, that the context is
-honoured in every wait, and that a non-retryable failure returns immediately.
+The engine moved to `services/shared/retry` (out of `core/`, which holds application components), the
+unreachable wrapper is gone so an exhausted retry returns the cause, `WithOperationName` is
+logging-only, and `WithJitter` exists as an option that is off by default. The engine has its own
+tests for exhaustion, cancellation mid-wait, a non-retryable failure, option fallbacks, and the
+backoff curve.
 
-Done when: the engine's behaviour is pinned by its own tests rather than by its three callers.
+What landed, and why each way: [overlay.md](./overlay.md) § Stage A.
 
 ### Stage B — Mongo
 
@@ -131,7 +133,7 @@ Done when: `shared/nats` holds no loop, and its retry tests pass unchanged.
 
 ### Stage D — Close
 
-Confirm no package outside `core/retry` implements a backoff loop, enforced by a test. Promote the
+Confirm no package outside `shared/retry` implements a backoff loop, enforced by a test. Promote the
 retry flow into live documentation — it has no home today — and delete this folder.
 
 Done when: one loop exists, the live docs describe it, and this folder is gone.
@@ -141,15 +143,22 @@ Done when: one loop exists, the live docs describe it, and this folder is gone.
 | Stage | Status |
 |-------|--------|
 | Phase 1 — project folder and docs | **done** |
-| Stage A — fix the engine | not started |
+| Stage A — fix the engine | **done** |
 | Stage B — Mongo | not started |
 | Stage C — NATS | not started |
 | Stage D — close | not started |
 
 ## Pickup
 
-Start at Stage A, and take the exhausted-error decision first: Stages B and C both depend on which
-error a caller gets, and changing it after they land means revisiting both.
+Start at Stage B. The engine's contract is settled and tested, so B and C are now mechanical: replace
+each loop with a `retry.Do` call that supplies the area's predicate and its policy as options.
+
+Two things the converted areas must account for, both recorded in [overlay.md](./overlay.md) § Stage A:
+
+- An exhausted retry returns the cause, so the `fmt.Errorf("… failed after %d attempts")` in each loop
+  goes rather than moving.
+- `shouldRetry` is not called on the last attempt, so a loop's "all retries exhausted" log line moves
+  to after `Do` returns.
 
 The Redis adoption is the reference for what a converted area looks like —
 `services/shared/redis/retry.go`, a predicate plus options and no loop of its own.

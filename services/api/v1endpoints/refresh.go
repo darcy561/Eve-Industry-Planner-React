@@ -126,7 +126,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	if err != nil {
 		if errors.Is(err, auth.ErrRefreshTokenNotFound) {
 			m.Errors.WithLabelValues("refresh_token_not_found").Inc(ctx)
-			respondSessionRefreshClientError(w, r, credLog, http.StatusUnauthorized, "Invalid token", "planner refresh token not found in Redis", "auth_refresh_token_not_found", map[string]any{
+			respondSessionRefreshTerminalAuthError(w, r, credLog, auth.CodeSessionRevoked, "planner refresh token not found in Redis", "auth_refresh_token_not_found", map[string]any{
 				"metric":                     "session_refresh",
 				"session_recovery_attempted": credLog.HasEipSessionCookie,
 			})
@@ -153,7 +153,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		})
 		auth.ClearAppSessionCookie(w)
 		auth.ClearAppRefreshCookie(w, r)
-		writeRefreshAuthError(w, http.StatusUnauthorized, "reauth_required")
+		writeRefreshAuthError(w, http.StatusUnauthorized, auth.CodeReauthRequired)
 		return
 	}
 
@@ -178,7 +178,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 				})
 			case errors.Is(err, user.ErrMongoStoredEsiNoRow), errors.Is(err, user.ErrMongoStoredEsiUserNotFound):
 				m.Errors.WithLabelValues("cloud_esi_not_found").Inc(ctx)
-				respondSessionRefreshClientError(w, r, credLog, http.StatusUnauthorized, "Invalid token", "cloud ESI material not found for refresh session", "auth_cloud_esi_not_found", map[string]any{
+				respondSessionRefreshTerminalAuthError(w, r, credLog, auth.CodeSessionRevoked, "cloud ESI material not found for refresh session", "auth_cloud_esi_not_found", map[string]any{
 					"metric":         "session_refresh",
 					"character_hash": tokenData.CharacterHash,
 				})
@@ -189,7 +189,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 				})
 			case errors.Is(err, user.ErrMongoStoredEsiInvalidGrant):
 				m.Errors.WithLabelValues("validation_error").Inc(ctx)
-				respondSessionRefreshClientError(w, r, credLog, http.StatusUnauthorized, "Stored ESI refresh invalid — full EVE login required", "stored ESI refresh invalid for planner session refresh", "auth_cloud_esi_invalid_grant", map[string]any{
+				respondSessionRefreshTerminalAuthError(w, r, credLog, auth.CodeSessionRevoked, "stored ESI refresh invalid for planner session refresh", "auth_cloud_esi_invalid_grant", map[string]any{
 					"metric": "session_refresh",
 				})
 			default:

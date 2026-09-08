@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const getFullItemList = vi.fn();
 
 vi.mock("../Functions/Helper/getCachedData", async () => {
-  const { cachedDataMock } = await import("../../tests/archiveHarness.jsx");
+  const { cachedDataMock } = await import("../tests/archiveHarness.jsx");
   return cachedDataMock({ getFullItemList: (...args) => getFullItemList(...args) });
 });
 

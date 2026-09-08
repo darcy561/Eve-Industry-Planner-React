@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestStore, createMockStore, createTestData, waitForStoreCondition } from './utils.js';
-import store from '../src/Zustand/usersStore';
+import { createTestStore, createMockStore, createTestData, waitForStoreCondition } from '../tests/utils.js';
+import store from './usersStore';
 
 // Example test for Zustand store actions
 describe('Zustand Store Testing Examples', () => {

@@ -23,7 +23,7 @@ const store = {
   documentLock: { scopes: {} },
 };
 
-vi.mock("../src/Zustand/usersStore.js", () => {
+vi.mock("../Zustand/usersStore.js", () => {
   const useUsersStore = (selector) =>
     typeof selector === "function" ? selector(store) : store;
   useUsersStore.getState = () => store;
@@ -31,9 +31,9 @@ vi.mock("../src/Zustand/usersStore.js", () => {
 });
 
 const { MaterialCardFrame_Purchasing } = await import(
-  "../src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCardFrame.jsx"
+  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCardFrame.jsx"
 );
-const { default: Job } = await import("../src/Classes/job.js");
+const { default: Job } = await import("./job.js");
 
 const TRITANIUM = 34;
 

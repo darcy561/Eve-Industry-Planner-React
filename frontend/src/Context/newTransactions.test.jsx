@@ -15,56 +15,56 @@ const store = {
   applicationSettings: { actions: { getCurrentLocale: () => "en-GB" } },
 };
 
-vi.mock("../src/Zustand/usersStore", () => ({
+vi.mock("../Zustand/usersStore", () => ({
   default: Object.assign(
     (selector) => selector(store),
     { getState: () => store },
   ),
 }));
-vi.mock("../src/Hooks/EveEsi/Character/useGetAllCharacterMarketOrders", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders", () => ({
   useGetAllCharacterMarketOrders: () => characterOrders,
   getAllCachedCharacterMarketOrders: () => characterOrders,
 }));
 vi.mock(
-  "../src/Hooks/EveEsi/Character/useGetAllCharacterHistoricMarketOrders",
+  "../Hooks/EveEsi/Character/useGetAllCharacterHistoricMarketOrders",
   () => ({
     useGetAllCharacterHistoricMarketOrders: () => emptyQuery,
     getAllCachedCharacterHistoricMarketOrders: () => emptyQuery,
   }),
 );
-vi.mock("../src/Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders", () => ({
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders", () => ({
   useGetAllCorporationMarketOrders: () => corporationOrders,
   getAllCachedCorporationMarketOrders: () => corporationOrders,
 }));
 vi.mock(
-  "../src/Hooks/EveEsi/Corporation/useGetAllCorporationHistoricMarketOrders",
+  "../Hooks/EveEsi/Corporation/useGetAllCorporationHistoricMarketOrders",
   () => ({
     useGetAllCorporationHistoricMarketOrders: () => emptyQuery,
     getAllCachedCorporationHistoricMarketOrders: () => emptyQuery,
   }),
 );
-vi.mock("../src/Hooks/EveEsi/Character/useGetAllCharacterJournal", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterJournal", () => ({
   useGetAllCharacterJournal: () => emptyQuery,
   getAllCachedCharacterJournal: () => characterJournal,
 }));
-vi.mock("../src/Hooks/EveEsi/Corporation/useGetAllCorporationJournal", () => ({
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationJournal", () => ({
   useGetAllCorporationJournal: () => emptyQuery,
   getAllCachedCorporationJournal: () => ({ data: {} }),
 }));
-vi.mock("../src/Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
   getAllCachedCharacterTransactions: () => characterTransactions,
 }));
-vi.mock("../src/Hooks/EveEsi/Corporation/useGetAllCorporationTransactions", () => ({
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationTransactions", () => ({
   getAllCachedCorporationTransactions: () => ({ data: {} }),
 }));
-vi.mock("../src/Hooks/App/useCachedData", () => ({
+vi.mock("../Hooks/App/useCachedData", () => ({
   useCachedData: () => ({ data: [{ itemID: 34, name: "Tritanium" }] }),
 }));
 
 const { NewTransactions } = await import(
-  "../src/Components/Dashboard/Components/NewTransactions.jsx"
+  "../Components/Dashboard/Components/NewTransactions.jsx"
 );
-const { LAST_JOB_STATUS_ID } = await import("../src/Context/defaultValues");
+const { LAST_JOB_STATUS_ID } = await import("./defaultValues");
 
 const SOLD_AT = "2026-08-01T12:00:00Z";
 const ORDER = { order_id: 900, type_id: 34, location_id: 60003760 };

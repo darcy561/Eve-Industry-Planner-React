@@ -4,11 +4,11 @@ const store = {
   jobs: new Map(),
 };
 
-vi.mock("../src/Functions/JobDocuments/saveJobsViaApi.js", () => ({
+vi.mock("../JobDocuments/saveJobsViaApi.js", () => ({
   saveJobsViaApi: async () => {},
 }));
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false },
@@ -28,8 +28,8 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 }));
 
 const { distributeItemCostsBetweenJobs, passBuildCostsToParentJobs } =
-  await import("../src/Functions/Shared/passBuildCosts.js");
-const { default: Job } = await import("../src/Classes/job.js");
+  await import("./passBuildCosts.js");
+const { default: Job } = await import("../../Classes/job.js");
 
 // A child job producing `produced` units for `spend` ISK, so its build cost per
 // item is `spend / produced`.

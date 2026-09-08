@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { create } from "zustand";
-import { USER_JOBS_COLLECTION } from "../src/Functions/DocumentLock/documentLockCollections.js";
-import { patchGroupMemberJobScopesAfterGroupGrant } from "../src/Functions/DocumentLock/patchGroupMemberJobScopesAfterGroupGrant.js";
+import { USER_JOBS_COLLECTION } from "./documentLockCollections.js";
+import { patchGroupMemberJobScopesAfterGroupGrant } from "./patchGroupMemberJobScopesAfterGroupGrant.js";
 
 const patchManyDocumentLockScopes = vi.fn();
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => useTestStore.getState(),
   },

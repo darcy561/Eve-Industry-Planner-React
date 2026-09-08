@@ -6,7 +6,7 @@ import {
   lastChart,
   monthRow,
   renderWithProviders,
-} from "../../../tests/archiveHarness.jsx";
+} from "../../tests/archiveHarness.jsx";
 import { COST_COMPONENTS } from "./chartAdapters.js";
 
 /**
@@ -32,18 +32,18 @@ vi.mock("../../Hooks/React Query/Backend/statisticsTotals", () => ({
 }));
 vi.mock("../../Zustand/usersStore", async () => {
   const { usersStoreMock, archiveStoreState } = await import(
-    "../../../tests/archiveHarness.jsx"
+    "../../tests/archiveHarness.jsx"
   );
   return usersStoreMock(archiveStoreState());
 });
 vi.mock("../../Styled Components/Charts", async () => {
-  const { chartMocks } = await import("../../../tests/archiveHarness.jsx");
+  const { chartMocks } = await import("../../tests/archiveHarness.jsx");
   return chartMocks();
 });
 // The panels resolve item names from the cached static list, the way the rest
 // of the app reads it.
 vi.mock("../../Functions/Helper/getCachedData", async () => {
-  const { cachedDataMock } = await import("../../../tests/archiveHarness.jsx");
+  const { cachedDataMock } = await import("../../tests/archiveHarness.jsx");
   return cachedDataMock({ getFullItemList: vi.fn(async () => ({ 34: { name: "Tritanium" } })) });
 });
 

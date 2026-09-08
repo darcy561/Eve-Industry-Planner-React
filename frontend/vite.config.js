@@ -113,7 +113,7 @@ export default defineConfig(({ command, mode }) => {
       environment: "jsdom",
       globals: true,
       clearMocks: true,
-      setupFiles: ["tests/setup.js"],
+      setupFiles: ["src/tests/setup.js"],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html'],
@@ -121,7 +121,7 @@ export default defineConfig(({ command, mode }) => {
         exclude: [
           'node_modules/',
           'dist/',
-          'tests/',
+          'src/tests/',
           'src/routeTree.gen.js',
           '**/*.test.*',
           '**/*.spec.*',

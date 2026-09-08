@@ -11,7 +11,7 @@ import {
   settledOn,
   timelineResponse,
   usersStoreMock,
-} from "../../../tests/archiveHarness.jsx";
+} from "../../tests/archiveHarness.jsx";
 
 /**
  * The page with its real panels, hooks and adapters, faked only at the transport.
@@ -34,21 +34,21 @@ vi.mock("../../Functions/Endpoints/Private/statisticsTotals.js", () => ({
   getAccountTotalsSummary: vi.fn(async () => null),
 }));
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../../tests/archiveHarness.jsx");
+  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
   return emptyArchiveListMock();
 });
 vi.mock("../../Zustand/usersStore", async () => {
   const { usersStoreMock, archiveStoreState } = await import(
-    "../../../tests/archiveHarness.jsx"
+    "../../tests/archiveHarness.jsx"
   );
   return usersStoreMock(archiveStoreState());
 });
 vi.mock("../../Functions/Helper/getCachedData", async () => {
-  const { cachedDataMock } = await import("../../../tests/archiveHarness.jsx");
+  const { cachedDataMock } = await import("../../tests/archiveHarness.jsx");
   return cachedDataMock();
 });
 vi.mock("../../Styled Components/Charts", async () => {
-  const { chartMocks } = await import("../../../tests/archiveHarness.jsx");
+  const { chartMocks } = await import("../../tests/archiveHarness.jsx");
   return chartMocks();
 });
 // Page chrome pulls in the router; it is not what this exercises.

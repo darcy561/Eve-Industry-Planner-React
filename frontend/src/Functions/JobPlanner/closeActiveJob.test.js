@@ -1,45 +1,45 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { create } from "zustand";
-import documentLockSlice from "../src/Zustand/documentLockSlice.js";
+import documentLockSlice from "../../Zustand/documentLockSlice.js";
 import {
   USER_JOBS_COLLECTION,
   USER_JOB_GROUPS_COLLECTION,
-} from "../src/Functions/DocumentLock/documentLockCollections.js";
+} from "../DocumentLock/documentLockCollections.js";
 
 const saveJobsViaApi = vi.fn().mockResolvedValue(undefined);
 const saveUserAccountDocument = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("../src/Functions/JobDocuments/saveJobsViaApi.js", () => ({
+vi.mock("../JobDocuments/saveJobsViaApi.js", () => ({
   saveJobsViaApi: (...args) => saveJobsViaApi(...args),
 }));
 
-vi.mock("../src/Functions/Endpoints/Private/userDocument.js", () => ({
+vi.mock("../Endpoints/Private/userDocument.js", () => ({
   saveUserAccountDocument: (...args) => saveUserAccountDocument(...args),
 }));
 
-vi.mock("../src/Components/Edit Job/functions/applyParentChildChanges", () => ({
+vi.mock("../../Components/Edit Job/functions/applyParentChildChanges", () => ({
   default: () => [],
 }));
 
-vi.mock("../src/Functions/Shared/repairMissingParentChildRelationships", () => ({
+vi.mock("../Shared/repairMissingParentChildRelationships", () => ({
   default: () => [],
 }));
 
-vi.mock("../src/Functions/Shared/normaliseParentChildRelationships.js", () => ({
+vi.mock("../Shared/normaliseParentChildRelationships.js", () => ({
   default: () => [],
 }));
 
-vi.mock("../src/Functions/Helper/getAllRelatedJobs", () => ({
+vi.mock("../Helper/getAllRelatedJobs", () => ({
   default: () => [],
 }));
 
 const shakerAdjustments = { current: [] };
 
-vi.mock("../src/Functions/JobPlanner/recalculateJobForNewTotal", () => ({
+vi.mock("./recalculateJobForNewTotal", () => ({
   default: () => {},
 }));
 
-vi.mock("../src/Functions/Helper/materialTreeShaker", () => ({
+vi.mock("../Helper/materialTreeShaker", () => ({
   default: (jobs, recalculate) => {
     const ids = new Set();
     for (const adjustment of shakerAdjustments.current) {
@@ -52,20 +52,20 @@ vi.mock("../src/Functions/Helper/materialTreeShaker", () => ({
 
 const showSnackbarInfo = vi.fn();
 
-vi.mock("../src/Events/snackbarEvents", () => ({
+vi.mock("../../Events/snackbarEvents", () => ({
   showSnackbarInfo: (...args) => showSnackbarInfo(...args),
 }));
 
 const storeHolder = { current: null };
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => storeHolder.current.getState(),
     setState: (...args) => storeHolder.current.setState(...args),
   },
 }));
 
-import closeActiveJob from "../src/Functions/JobPlanner/closeActiveJob.js";
+import closeActiveJob from "./closeActiveJob.js";
 
 function makeJob(id = "j1", groupID = null) {
   return {

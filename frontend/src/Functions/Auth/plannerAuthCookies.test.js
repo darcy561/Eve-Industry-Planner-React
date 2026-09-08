@@ -3,7 +3,7 @@ import {
   EIP_ESI_OAUTH_STORAGE_COOKIE,
   clearClientReadablePlannerAuthCookies,
   hasCloudOAuthStorageServerHint,
-} from "../src/Functions/Auth/plannerAuthCookies.js";
+} from "./plannerAuthCookies.js";
 
 describe("plannerAuthCookies", () => {
   beforeEach(() => {

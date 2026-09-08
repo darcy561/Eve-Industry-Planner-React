@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { create } from "zustand";
-import documentLockSlice from "../src/Zustand/documentLockSlice.js";
+import documentLockSlice from "../../Zustand/documentLockSlice.js";
 import {
   USER_JOBS_COLLECTION,
   USER_JOB_GROUPS_COLLECTION,
-} from "../src/Functions/DocumentLock/documentLockCollections.js";
+} from "./documentLockCollections.js";
 
 const storeHolder = { current: null };
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => storeHolder.current.getState(),
   },
@@ -19,7 +19,7 @@ import {
   canPersistGroupClose,
   canEditActiveJob,
   canEditActiveGroup,
-} from "../src/Functions/DocumentLock/canPersistDocumentEditClose.js";
+} from "./canPersistDocumentEditClose.js";
 
 describe("canPersistDocumentEditClose", () => {
   beforeEach(() => {

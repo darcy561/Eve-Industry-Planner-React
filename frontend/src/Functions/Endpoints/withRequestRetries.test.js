@@ -4,7 +4,7 @@ import {
   getRetryDelayMs,
   mergeApiRetryOptions,
   withRequestRetries,
-} from "../src/Functions/Endpoints/withRequestRetries.js";
+} from "./withRequestRetries.js";
 
 describe("getRetryDelayMs", () => {
   it("uses linear backoff for non-429 responses", () => {

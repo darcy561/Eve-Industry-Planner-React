@@ -3,8 +3,8 @@ import {
   calculateInstallCostfromSetup,
   getJobInstallCostForPlanning,
   sumSetupEstimatedInstallCosts,
-} from "../src/Functions/Installation Costs/installCosts.js";
-import Job from "../src/Classes/job.js";
+} from "./installCosts.js";
+import Job from "../../Classes/job.js";
 
 // The job helpers read what the installs cost through Job.totalInstallCost, so
 // these cases are real jobs rather than job-shaped literals.

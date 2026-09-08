@@ -3,7 +3,7 @@ import {
   clearOrphanedCustomStructureOnSetups,
   setupHasOrphanedCustomStructure,
   setupShowsManualStructureFields,
-} from "../src/Functions/Helper/customStructureSetup.js";
+} from "./customStructureSetup.js";
 
 describe("customStructureSetup helpers", () => {
   const getCustomStructureWithID = vi.fn((id) =>

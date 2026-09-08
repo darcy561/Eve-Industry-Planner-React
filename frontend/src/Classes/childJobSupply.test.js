@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const store = { jobs: new Map() };
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false },
@@ -17,9 +17,9 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
 }));
 
 const { childJobSupplyForMaterial } = await import(
-  "../src/Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/functions/childJobSupplyForMaterial.js"
+  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/functions/childJobSupplyForMaterial.js"
 );
-const { default: Job } = await import("../src/Classes/job.js");
+const { default: Job } = await import("./job.js");
 
 const TRITANIUM = 34;
 

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   serialiseGroupToTemplatePayload,
   hasParentCycle,
-} from "../src/Functions/GroupTemplates/serialiseGroupToTemplatePayload";
+} from "./serialiseGroupToTemplatePayload";
 
 function minimalJob(overrides = {}) {
   const jobID = overrides.jobID ?? "job-a";

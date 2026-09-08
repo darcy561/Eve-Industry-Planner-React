@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { calculateMaterialCostFromChildJobs } from "../src/Functions/Groups/materialCostFromChildJobs.js";
-import Job from "../src/Classes/job.js";
+import { calculateMaterialCostFromChildJobs } from "./materialCostFromChildJobs.js";
+import Job from "../../Classes/job.js";
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       jobData: { jobArray: [] },

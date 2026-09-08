@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("../src/Zustand/usersStore", () => ({
+vi.mock("../Zustand/usersStore", () => ({
   default: {
     getState: () => ({
       account: { accountID: "acc-1", isLoggedIn: false },
@@ -10,10 +10,10 @@ vi.mock("../src/Zustand/usersStore", () => ({
   },
 }));
 
-const { default: Job } = await import("../src/Classes/job.js");
-const { default: LinkedESIJob } = await import("../src/Classes/linkedESIJob.js");
+const { default: Job } = await import("./job.js");
+const { default: LinkedESIJob } = await import("./linkedESIJob.js");
 const { default: findIndustryJobsForItem } = await import(
-  "../src/Functions/IndustryJobs/findIndustryJobsForItem.js"
+  "../Functions/IndustryJobs/findIndustryJobsForItem.js"
 );
 
 // The shipped rule the Building panel offers runs by.

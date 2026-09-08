@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const yieldDocumentLockOnLeave = vi.fn();
 
-vi.mock("../src/Zustand/usersStore.js", () => ({
+vi.mock("../../Zustand/usersStore.js", () => ({
   default: {
     getState: () => ({
       documentLock: {
@@ -12,7 +12,7 @@ vi.mock("../src/Zustand/usersStore.js", () => ({
   },
 }));
 
-import { yieldEditJobDocumentLocksOnLeave } from "../src/Functions/DocumentLock/yieldEditJobDocumentLocksOnLeave.js";
+import { yieldEditJobDocumentLocksOnLeave } from "./yieldEditJobDocumentLocksOnLeave.js";
 
 describe("yieldEditJobDocumentLocksOnLeave", () => {
   it("yields solo job lock when no groupID", async () => {

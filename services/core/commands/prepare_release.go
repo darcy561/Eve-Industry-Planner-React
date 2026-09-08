@@ -84,6 +84,10 @@ var releases = []release{{
 		// Last: the window's gate. A document with no owner is unreachable, so the
 		// release fails rather than reporting success over it.
 		{name: "verify every document carries an owner", run: verifyMetaOwner},
+		// The rewrite itself is a fan-out command run before the window; this is
+		// the gate that it finished, because a bare id no longer identifies a
+		// document the writers can find.
+		{name: "verify every owner-scoped id carries its owner", run: verifyOwnerScopedIDs},
 	},
 }}
 

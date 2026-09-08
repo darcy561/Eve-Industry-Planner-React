@@ -139,6 +139,7 @@ var cliTable = []cliCommand{
 	{command: "backfillArchivedAt", args: "[-dry-run]", run: runBackfillArchivedAt},
 	{command: "queueArchivedJobStatsRebuild", args: "[-all] [-account id] [-dry-run]", run: runQueueArchivedJobStatsRebuild},
 	{command: "planners", args: "[-account id]", run: runPlanners},
+	{command: "rewriteOwnerScopedIDs", args: "[-collection=name] [-limit=N] [-dry-run]", run: runRewriteOwnerScopedIDs},
 	{command: "prepareRelease", args: "[-dry-run]", run: runPrepareRelease},
 	{command: "rotateRefreshTokenKeys", args: "[--from=<version>] [--scan-batch-size=<n>] [--limit=<n>] [--dry-run]", run: runRotateRefreshTokenKeys},
 	{command: "encodeJobIdentity", args: "[-collection <name>] [-limit <n>] [-dry-run]", run: runEncodeJobIdentity},

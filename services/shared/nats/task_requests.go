@@ -42,6 +42,14 @@ type EncodeJobIdentityRequest struct {
 	DryRun     bool   `json:"dry_run,omitempty"`
 }
 
+// RewriteOwnerScopedIDsRequest is the per-owner payload for the document id
+// rewrite. The owner is a key rather than an Owner so the payload stays flat.
+type RewriteOwnerScopedIDsRequest struct {
+	OwnerKey   string `json:"owner_key"`
+	Collection string `json:"collection"`
+	DryRun     bool   `json:"dry_run,omitempty"`
+}
+
 // SchemaVersionMaintenanceBatchRequest scopes one schema-maintenance batch run.
 type SchemaVersionMaintenanceBatchRequest struct {
 	Collection string `json:"collection"`

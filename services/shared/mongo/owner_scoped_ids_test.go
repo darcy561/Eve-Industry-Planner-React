@@ -1,0 +1,75 @@
+package mongo
+
+import (
+	"slices"
+	"testing"
+
+	"eve-industry-planner/shared/models"
+)
+
+// The rewrite's selector is the id itself, which is what makes re-running it
+// safe and its remaining work countable.
+func TestNeedsOwnerScopedIDReadsTheIDItself(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		id   string
+		want bool
+	}{
+		"a bare job id":           {id: "job-1", want: true},
+		"already scoped":          {id: "account:acct-1|job-1", want: false},
+		"scoped to a corporation": {id: "corporation:corp_ref|job-1", want: false},
+		"an owner kind we refuse": {id: "wizard:merlin|job-1", want: true},
+		"empty":                   {id: "", want: true},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			if got := NeedsOwnerScopedID(tc.id); got != tc.want {
+				t.Fatalf("NeedsOwnerScopedID(%q) = %v, want %v", tc.id, got, tc.want)
+			}
+		})
+	}
+}
+
+// A document already moved reports no new id, so a re-run writes nothing.
+func TestRewrittenDocumentIDIsEmptyForAMovedDocument(t *testing.T) {
+	t.Parallel()
+	owner := models.AccountOwner("acct-1")
+
+	if got := RewrittenDocumentID(owner, "account:acct-1|job-1"); got != "" {
+		t.Fatalf("RewrittenDocumentID = %q, want empty for a document already moved", got)
+	}
+	if got := RewrittenDocumentID(owner, "job-1"); got != "account:acct-1|job-1" {
+		t.Fatalf("RewrittenDocumentID = %q, want the scoped id", got)
+	}
+}
+
+// The account's own singleton documents keep bare ids: their _id is the account
+// id, which already names the only owner they can have.
+func TestOwnerScopedIDCollectionsExcludeTheAccountSingletons(t *testing.T) {
+	t.Parallel()
+
+	for _, singleton := range AccountOwnedCollections() {
+		if slices.Contains(OwnerScopedIDCollections(), singleton) {
+			t.Errorf("%s holds account singletons and must keep bare ids", singleton)
+		}
+	}
+}
+
+// Every collection that takes owner-scoped ids is one a planner holds, so the
+// two lists cannot drift into disagreeing about what a planner owns.
+func TestOwnerScopedIDCollectionsArePlannerHeld(t *testing.T) {
+	t.Parallel()
+
+	planner := PlannerHeldCollections()
+	for _, name := range OwnerScopedIDCollections() {
+		if name == CollectionArchivedJobs || name == CollectionGroupTemplatePayloads {
+			// Held by a planner but not delivered live, so absent from the
+			// subscribe set by design.
+			continue
+		}
+		if !slices.Contains(planner, name) {
+			t.Errorf("%s takes an owner-scoped id but is not planner-held", name)
+		}
+	}
+}

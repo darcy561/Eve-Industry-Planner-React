@@ -141,3 +141,37 @@ func verifyMetaOwner(ctx context.Context, clients *stackservices.Clients, dryRun
 	}
 	return "", fmt.Errorf("%d document(s) have no owner and are unreachable: %s", total, strings.Join(offenders, ", "))
 }
+
+// verifyOwnerScopedIDs fails the release if any planner-held document is still
+// stored under an id that does not name its owner.
+//
+// The rewrite is a fan-out command an operator runs before the window
+// (`eip cli -- rewriteOwnerScopedIDs`), not a step here: it moves every document
+// in the largest collections in the database, and doing that inside the release
+// would put the window at the mercy of how long it takes. What the release owes
+// is the check that it finished.
+func verifyOwnerScopedIDs(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
+	bareID := bson.M{"_id": bson.M{"$type": "string", "$not": bson.M{"$regex": `\|`}}}
+
+	var offenders []string
+	var total int64
+	for _, name := range eipmongo.OwnerScopedIDCollections() {
+		count, err := clients.Mongo.Coll(name).CountDocuments(ctx, bareID)
+		if err != nil {
+			return "", fmt.Errorf("count %s: %w", name, err)
+		}
+		if count > 0 {
+			offenders = append(offenders, fmt.Sprintf("%s: %d", name, count))
+			total += count
+		}
+	}
+	if total == 0 {
+		return "every owner-scoped document id carries its owner", nil
+	}
+	remaining := fmt.Sprintf("%d document(s) still carry a bare id (%s); run `eip cli -- rewriteOwnerScopedIDs`",
+		total, strings.Join(offenders, ", "))
+	if dryRun {
+		return remaining, nil
+	}
+	return "", fmt.Errorf("%s", remaining)
+}

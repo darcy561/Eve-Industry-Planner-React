@@ -12,6 +12,7 @@ import (
 	"eve-industry-planner/shared/telemetry/workermetrics"
 	"eve-industry-planner/worker/taskrun"
 	"eve-industry-planner/worker/tasks/archivedjobs"
+	"eve-industry-planner/worker/tasks/documentids"
 	"eve-industry-planner/worker/tasks/esi"
 	"eve-industry-planner/worker/tasks/jobidentity"
 	"eve-industry-planner/worker/tasks/maintenance"
@@ -46,6 +47,7 @@ func SetupHandlers(mux *asynq.ServeMux, taskDeps *taskrun.Dependencies) error {
 	handle(handlers, eipnats.ReconcileOwnerStatistics, taskDeps, archivedjobs.ReconcileOwnerStatistics)
 	handle(handlers, eipnats.RotateRefreshTokenKeys, taskDeps, maintenance.RotateRefreshTokenKeys)
 	handle(handlers, eipnats.EncodeJobIdentity, taskDeps, jobidentity.EncodeJobIdentity)
+	handle(handlers, eipnats.RewriteOwnerScopedIDs, taskDeps, documentids.RewriteOwnerScopedIDs)
 	handle(handlers, eipnats.SchemaVersionMaintenanceBatch, taskDeps, maintenance.SchemaVersionMaintenanceBatch)
 	handle(handlers, eipnats.InactiveAccountPlannerCleanup, taskDeps, maintenance.InactiveAccountPlannerCleanup)
 	handle(handlers, eipnats.CloudStoredEsiRefreshMaintenance, taskDeps, maintenance.CloudStoredEsiRefreshMaintenance)

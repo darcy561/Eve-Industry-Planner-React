@@ -75,16 +75,24 @@ func TestMissingMetaOwnerSelectsOnOwnerAlone(t *testing.T) {
 	}
 }
 
-// The gate runs last: every step before it can leave a document unstamped.
-func TestReleaseVerifiesOwnersLast(t *testing.T) {
+// The gates run last, after every step that could leave work undone. A step
+// added below one would be verified by nothing.
+func TestReleaseVerifiesLast(t *testing.T) {
 	t.Parallel()
+	gates := []string{
+		"verify every document carries an owner",
+		"verify every owner-scoped id carries its owner",
+	}
 	for _, rel := range releases {
-		if len(rel.steps) == 0 {
+		if len(rel.steps) < len(gates) {
 			continue
 		}
-		last := rel.steps[len(rel.steps)-1]
-		if last.name != "verify every document carries an owner" {
-			t.Fatalf("release %s ends with %q, not the owner gate", rel.version, last.name)
+		tail := rel.steps[len(rel.steps)-len(gates):]
+		for i, gate := range gates {
+			if tail[i].name != gate {
+				t.Fatalf("release %s runs %q where the gate %q belongs",
+					rel.version, tail[i].name, gate)
+			}
 		}
 	}
 }

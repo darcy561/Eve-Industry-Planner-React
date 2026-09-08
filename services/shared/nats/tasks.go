@@ -135,6 +135,16 @@ var (
 		DefaultTimeout:  20 * time.Minute,
 		MaxRetries:      10,
 	})
+	// RewriteOwnerScopedIDs moves one owner's documents onto ids that carry the
+	// owner. Its writes are an insert under the new id and a delete of the old,
+	// because _id cannot be updated.
+	RewriteOwnerScopedIDs = defineTask(Definition{
+		Name:            "rewriteOwnerScopedIDs",
+		Subject:         "task.maintenance.rewriteOwnerScopedIDs",
+		DefaultPriority: Priority5,
+		DefaultTimeout:  20 * time.Minute,
+		MaxRetries:      10,
+	})
 	SchemaVersionMaintenanceBatch = defineTask(Definition{
 		Name:            "schemaVersionMaintenanceBatch",
 		Subject:         "task.maintenance.schemaVersionMaintenanceBatch",
@@ -257,6 +267,16 @@ func PublishRotateRefreshTokenKeys(ctx context.Context, n *NATS, accountID, from
 func PublishEncodeJobIdentity(ctx context.Context, n *NATS, accountID, collection string, dryRun bool) error {
 	return publish(ctx, n, EncodeJobIdentity, EncodeJobIdentityRequest{
 		AccountID:  accountID,
+		Collection: collection,
+		DryRun:     dryRun,
+	})
+}
+
+// PublishRewriteOwnerScopedIDs moves one owner's documents in a collection onto
+// ids that carry the owner.
+func PublishRewriteOwnerScopedIDs(ctx context.Context, n *NATS, ownerKey, collection string, dryRun bool) error {
+	return publish(ctx, n, RewriteOwnerScopedIDs, RewriteOwnerScopedIDsRequest{
+		OwnerKey:   ownerKey,
 		Collection: collection,
 		DryRun:     dryRun,
 	})

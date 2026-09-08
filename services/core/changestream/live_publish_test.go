@@ -125,3 +125,154 @@ func awaitDocUpdateFor(t *testing.T, sub *natslib.Subscription, docID string, wi
 	t.Fatalf("no doc.update for %s within %s", docID, within)
 	return nil
 }
+
+// A planner-held document is stored under {ownerKey}|{id}, and what reaches a
+// subscriber is the bare id — the value a browser sends, keys its store on and
+// reads back. The owner travels beside it as ownerKey rather than inside it.
+//
+// Requires EIP_MONGO_PARITY_LIVE=1, the stack's NATS, and a running core.
+func TestLive_Publish_sendsTheBareIDForAnOwnerScopedDocument(t *testing.T) {
+	m := mongolive.Require(t)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+
+	nats, err := eipnats.Open(ctx)
+	if err != nil {
+		t.Skipf("stack NATS unreachable: %v", err)
+	}
+	t.Cleanup(func() { nats.Close() })
+
+	const (
+		accountID = "eip-live-publish-scoped-account"
+		jobID     = "eip-live-publish-scoped-job"
+	)
+	owner := models.AccountOwner(accountID)
+	storedID := eipmongo.OwnerScopedDocumentID(owner, jobID)
+
+	coll := m.Coll(eipmongo.CollectionJobDocuments)
+	clear := func() {
+		cctx, c := context.WithTimeout(context.Background(), 30*time.Second)
+		defer c()
+		_, _ = coll.DeleteOne(cctx, bson.M{"_id": storedID})
+	}
+	clear()
+	t.Cleanup(clear)
+
+	sub, err := nats.Conn().SubscribeSync(eipnats.SubjectDocUpdate + ".>")
+	if err != nil {
+		t.Fatalf("subscribe: %v", err)
+	}
+	t.Cleanup(func() { _ = sub.Unsubscribe() })
+
+	if _, err := coll.InsertOne(ctx, bson.M{
+		"_id": storedID,
+		"_meta": bson.M{
+			models.MetaFieldOwner: mongolive.OwnerDoc(owner),
+		},
+		"jobID": jobID,
+	}); err != nil {
+		t.Fatalf("insert the job: %v", err)
+	}
+
+	// Awaited by the bare id, which is the assertion: a subscriber never sees the
+	// stored form.
+	msg := awaitDocUpdateFor(t, sub, jobID, 30*time.Second)
+
+	var got struct {
+		DocID    string `json:"docID"`
+		OwnerKey string `json:"ownerKey"`
+	}
+	if err := json.Unmarshal(msg.Data, &got); err != nil {
+		t.Fatalf("decode published message: %v\n%s", err, msg.Data)
+	}
+	if got.DocID != jobID {
+		t.Fatalf("published docID = %q, want the bare %q", got.DocID, jobID)
+	}
+	if got.OwnerKey != owner.Key() {
+		t.Fatalf("published ownerKey = %q, want %q", got.OwnerKey, owner.Key())
+	}
+
+	// The subject carries the bare id too, so a filter built from what a client
+	// knows still matches.
+	wantSubject := eipnats.DocUpdateSubject(owner.Key(), eipmongo.CollectionJobDocuments, jobID)
+	if msg.Subject != wantSubject {
+		t.Fatalf("subject = %q, want %q", msg.Subject, wantSubject)
+	}
+}
+
+// A delete states no owner without a preimage. The stored id carries one, so the
+// message still routes to the planner's members instead of falling back to
+// explicit subscribers.
+//
+// Requires EIP_MONGO_PARITY_LIVE=1, the stack's NATS, and a running core.
+func TestLive_Publish_recoversADeletedDocumentsOwnerFromItsID(t *testing.T) {
+	m := mongolive.Require(t)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+
+	nats, err := eipnats.Open(ctx)
+	if err != nil {
+		t.Skipf("stack NATS unreachable: %v", err)
+	}
+	t.Cleanup(func() { nats.Close() })
+
+	const (
+		accountID = "eip-live-publish-delete-account"
+		jobID     = "eip-live-publish-delete-job"
+	)
+	owner := models.AccountOwner(accountID)
+	storedID := eipmongo.OwnerScopedDocumentID(owner, jobID)
+
+	coll := m.Coll(eipmongo.CollectionJobDocuments)
+	clear := func() {
+		cctx, c := context.WithTimeout(context.Background(), 30*time.Second)
+		defer c()
+		_, _ = coll.DeleteOne(cctx, bson.M{"_id": storedID})
+	}
+	clear()
+	t.Cleanup(clear)
+
+	if _, err := coll.InsertOne(ctx, bson.M{
+		"_id": storedID,
+		"_meta": bson.M{
+			models.MetaFieldOwner: mongolive.OwnerDoc(owner),
+		},
+		"jobID": jobID,
+	}); err != nil {
+		t.Fatalf("insert the job: %v", err)
+	}
+
+	// Subscribed after the insert, so the delete is the message awaited.
+	sub, err := nats.Conn().SubscribeSync(eipnats.SubjectDocUpdate + ".>")
+	if err != nil {
+		t.Fatalf("subscribe: %v", err)
+	}
+	t.Cleanup(func() { _ = sub.Unsubscribe() })
+
+	if _, err := coll.DeleteOne(ctx, bson.M{"_id": storedID}); err != nil {
+		t.Fatalf("delete the job: %v", err)
+	}
+
+	msg := awaitDocUpdateFor(t, sub, jobID, 30*time.Second)
+
+	var got struct {
+		DocID     string `json:"docID"`
+		OwnerKey  string `json:"ownerKey"`
+		Operation string `json:"operationType"`
+	}
+	if err := json.Unmarshal(msg.Data, &got); err != nil {
+		t.Fatalf("decode published message: %v\n%s", err, msg.Data)
+	}
+	if got.Operation != "delete" {
+		t.Fatalf("operationType = %q, want delete", got.Operation)
+	}
+	if got.DocID != jobID {
+		t.Fatalf("published docID = %q, want the bare %q", got.DocID, jobID)
+	}
+	if got.OwnerKey != owner.Key() {
+		t.Fatalf("published ownerKey = %q, want %q — a delete lost its owner",
+			got.OwnerKey, owner.Key())
+	}
+}

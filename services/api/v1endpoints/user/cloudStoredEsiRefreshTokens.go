@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"eve-industry-planner/api/helper"
 	"eve-industry-planner/shared/core/config"
@@ -171,7 +170,8 @@ func (h *Handlers) handlePutCloudStoredEsiRefreshTokens(w http.ResponseWriter, r
 		prevByHash[hash] = row
 	}
 
-	nextRows := make([]models.RefreshToken, 0, len(existingDoc.RefreshTokens)+len(req.RefreshTokens))
+	resultCount := 0
+	changedRows := make([]models.RefreshToken, 0, len(req.RefreshTokens))
 	used := make(map[string]struct{}, len(req.RefreshTokens))
 	for i := range req.RefreshTokens {
 		row := req.RefreshTokens[i]
@@ -189,12 +189,13 @@ func (h *Handlers) handlePutCloudStoredEsiRefreshTokens(w http.ResponseWriter, r
 				})
 				return
 			}
-			nextRows = append(nextRows, row)
+			resultCount++
+			changedRows = append(changedRows, row)
 			used[key] = struct{}{}
 			continue
 		}
 		if prev, ok := prevByHash[key]; ok && prev.RTokenCiphertext != "" {
-			nextRows = append(nextRows, prev)
+			resultCount++
 			used[key] = struct{}{}
 		}
 	}
@@ -207,18 +208,18 @@ func (h *Handlers) handlePutCloudStoredEsiRefreshTokens(w http.ResponseWriter, r
 		if _, ok := used[key]; ok {
 			continue
 		}
-		nextRows = append(nextRows, row)
+		resultCount++
 	}
 
-	if err := eipmongo.Retry(ctx, fmt.Sprintf("update cloud-stored ESI refresh tokens %s", accountID), func() error {
-		_, err := col.UpdateOne(ctx, bson.M{eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID, "_id": accountID}, bson.M{
-			"$set": bson.M{
-				"refreshTokens":      nextRows,
-				"_meta.lastModified": time.Now().UTC(),
-			},
-		})
-		return err
-	}); err != nil {
+	if err := func() error {
+		for _, row := range changedRows {
+			if err := h.Mongo.Users.PushUserRefreshTokenRow(ctx, accountID, row,
+				eipmongo.WithOpName(fmt.Sprintf("update cloud-stored ESI refresh tokens %s", accountID))); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to save refresh tokens", "linked chars refresh tokens save", "linked_chars_refresh_tokens_save", "cloud_stored_esi_refresh_tokens", err, map[string]any{
 			"additional_chars_endpoint": "linked_characters_oauth_credentials",
@@ -231,7 +232,7 @@ func (h *Handlers) handlePutCloudStoredEsiRefreshTokens(w http.ResponseWriter, r
 	metrics.Success()
 	logs.AttachDebugStep(r, "tokens_merged", map[string]any{
 		"incoming_count": len(req.RefreshTokens),
-		"result_count":   len(nextRows),
+		"result_count":   resultCount,
 	})
 }
 
@@ -289,27 +290,24 @@ func (h *Handlers) handleDeleteCloudStoredEsiRefreshTokens(w http.ResponseWriter
 		return
 	}
 
-	nextRows := make([]models.RefreshToken, 0, len(existingDoc.RefreshTokens))
+	// Matching is case-insensitive but a Mongo filter is not, so the pull is given the hashes
+	// exactly as the document spells them.
+	removedHashes := make([]string, 0, len(toRemove))
+	remainingCount := 0
 	for _, row := range existingDoc.RefreshTokens {
 		key := strings.ToLower(strings.TrimSpace(row.CharacterHash))
 		if key == "" {
 			continue
 		}
 		if _, remove := toRemove[key]; remove {
+			removedHashes = append(removedHashes, row.CharacterHash)
 			continue
 		}
-		nextRows = append(nextRows, row)
+		remainingCount++
 	}
 
-	if err := eipmongo.Retry(ctx, fmt.Sprintf("delete cloud-stored ESI refresh tokens %s", accountID), func() error {
-		_, err := col.UpdateOne(ctx, bson.M{eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID, "_id": accountID}, bson.M{
-			"$set": bson.M{
-				"refreshTokens":      nextRows,
-				"_meta.lastModified": time.Now().UTC(),
-			},
-		})
-		return err
-	}); err != nil {
+	if err := h.Mongo.Users.PullUserRefreshTokenRows(ctx, accountID, removedHashes,
+		eipmongo.WithOpName(fmt.Sprintf("delete cloud-stored ESI refresh tokens %s", accountID))); err != nil {
 		metrics.Error("database_error")
 		helper.RespondEndpointServerError(w, r, "Failed to delete refresh tokens", "linked chars refresh tokens delete", "linked_chars_refresh_tokens_delete", "cloud_stored_esi_refresh_tokens", err, map[string]any{
 			"additional_chars_endpoint": "linked_characters_oauth_credentials",
@@ -323,6 +321,6 @@ func (h *Handlers) handleDeleteCloudStoredEsiRefreshTokens(w http.ResponseWriter
 	metrics.Success()
 	logs.AttachDebugStep(r, "mongo_updated", map[string]any{
 		"hashes_requested": len(toRemove),
-		"remaining_count":  len(nextRows),
+		"remaining_count":  remainingCount,
 	})
 }

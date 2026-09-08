@@ -37,3 +37,15 @@ func SetEntityID(t testing.TB) {
 	t.Helper()
 	t.Setenv(entityid.EnvKey, EntityID)
 }
+
+// RefreshTokenAES is the shared refresh-token keyring secret for tests. Material encrypted at rest
+// under one key does not decrypt under another, so a fixture that seeds rows and the code that reads
+// them back have to agree on this one.
+const RefreshTokenAES = "0123456789abcdef0123456789abcdef"
+
+// SetRefreshTokenAES installs RefreshTokenAES for the duration of the test, for code that builds the
+// keyring itself from the environment.
+func SetRefreshTokenAES(t testing.TB) {
+	t.Helper()
+	t.Setenv("REFRESH_TOKEN_AES_KEY", RefreshTokenAES)
+}

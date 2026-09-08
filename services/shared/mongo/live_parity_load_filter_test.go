@@ -46,7 +46,7 @@ func TestLive_LoadJobsByFilter_handlerShapes(t *testing.T) {
 		}
 
 		for _, fc := range filters {
-			jobs, err := mongo.JobDocuments.LoadJobsByFilter(ctx, s.accountID, cloneFilter(fc.filter))
+			jobs, err := mongo.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(s.accountID), cloneFilter(fc.filter))
 			if err != nil {
 				t.Fatalf("account %s %s: %v", s.accountID, fc.label, err)
 			}
@@ -97,7 +97,7 @@ func TestLive_LoadJobsByFilter_accountScope(t *testing.T) {
 
 	// Filter omits account — only _id. Unique _id still finds the row; merge keeps account scope.
 	idOnly := bson.M{"_id": bson.M{"$in": []string{jobID}}}
-	gotID, err := mongo.JobDocuments.LoadJobsByFilter(ctx, accountID, cloneFilter(idOnly))
+	gotID, err := mongo.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(accountID), cloneFilter(idOnly))
 	if err != nil {
 		t.Fatalf("id_only: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestLive_LoadJobsByFilter_accountScope(t *testing.T) {
 		eipmongo.FieldMetaOwnerID: "eip-parity-wrong-account",
 		"_id":                     jobID,
 	}
-	gotWrong, err := mongo.JobDocuments.LoadJobsByFilter(ctx, accountID, cloneFilter(wrongAccountFilter))
+	gotWrong, err := mongo.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(accountID), cloneFilter(wrongAccountFilter))
 	if err != nil {
 		t.Fatalf("wrong_acct_filter: %v", err)
 	}
@@ -121,7 +121,7 @@ func TestLive_LoadJobsByFilter_accountScope(t *testing.T) {
 
 	// Broad filter without account — must stay on accountID (not otherAccount).
 	broad := bson.M{"displayOnPlanner": true, "_id": bson.M{"$in": []string{jobID, otherJobID}}}
-	gotBroad, err := mongo.JobDocuments.LoadJobsByFilter(ctx, accountID, cloneFilter(broad))
+	gotBroad, err := mongo.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(accountID), cloneFilter(broad))
 	if err != nil {
 		t.Fatalf("planner_no_acct: %v", err)
 	}
@@ -249,7 +249,7 @@ func TestLive_LoadJobsByFilter_docsLayerSlip(t *testing.T) {
 	t.Logf("without merge: Find returned %d jobs (accounts leaked across A+B)", len(slipped))
 
 	// With Docs merge: only account A.
-	scoped, err := mongo.JobDocuments.LoadJobsByFilter(ctx, accountA, filterNoAccount)
+	scoped, err := mongo.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(accountA), filterNoAccount)
 	if err != nil {
 		t.Fatalf("LoadJobsByFilter: %v", err)
 	}

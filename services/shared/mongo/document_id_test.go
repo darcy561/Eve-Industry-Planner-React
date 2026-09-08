@@ -188,3 +188,32 @@ func TestSetVersionedDocumentOmitsAnEmptyUnset(t *testing.T) {
 		t.Error("an empty $unset was included")
 	}
 }
+
+// The owner a read is scoped to is the loader's, never the caller's filter.
+// mergeFilters lets `extra` win, so applying the owner second is what stops a
+// filter naming another owner from widening the read.
+func TestMergeFiltersLetsTheScopeWin(t *testing.T) {
+	t.Parallel()
+
+	caller := bson.M{
+		FieldMetaOwnerKind: models.OwnerAccount,
+		FieldMetaOwnerID:   "someone-else",
+		"displayOnPlanner": true,
+	}
+	owner := models.CorporationOwner("corp_ref")
+
+	scoped := mergeFilters(caller, bson.M{
+		FieldMetaOwnerKind: owner.Kind,
+		FieldMetaOwnerID:   owner.ID,
+	})
+
+	if scoped[FieldMetaOwnerKind] != owner.Kind {
+		t.Errorf("kind = %v, want %v", scoped[FieldMetaOwnerKind], owner.Kind)
+	}
+	if scoped[FieldMetaOwnerID] != owner.ID {
+		t.Errorf("id = %v, want %v", scoped[FieldMetaOwnerID], owner.ID)
+	}
+	if scoped["displayOnPlanner"] != true {
+		t.Error("the caller's own predicate was dropped")
+	}
+}

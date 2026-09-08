@@ -90,12 +90,11 @@ func TestLive_plannerSyncAgreesWithTheHTTPPlannerRead(t *testing.T) {
 		t.Fatalf("QueryAllJobsForAccount: %v", err)
 	}
 
-	// The filter the HTTP planner handler builds.
-	overHTTP, err := mongo.JobDocuments.LoadJobsByFilter(ctx, plannerSyncScratchAccount, bson.M{
-		eipmongo.FieldMetaOwnerKind: models.OwnerAccount,
-		eipmongo.FieldMetaOwnerID:   plannerSyncScratchAccount,
-		"displayOnPlanner":          true,
-	})
+	// The filter the HTTP planner handler builds. The owner is the loader's, not
+	// the filter's.
+	overHTTP, err := mongo.JobDocuments.LoadJobsByFilter(ctx,
+		models.AccountOwner(plannerSyncScratchAccount),
+		bson.M{"displayOnPlanner": true})
 	if err != nil {
 		t.Fatalf("LoadJobsByFilter: %v", err)
 	}

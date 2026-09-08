@@ -27,14 +27,18 @@ func (d *Docs) LoadJobByID(ctx context.Context, owner models.Owner, jobID string
 	return doc, nil
 }
 
-// LoadJobsByFilter finds jobs for accountID matching filter, sorted by _meta.lastModified desc.
-// Always scopes to the account's ownership (merged into filter).
-func (d *Docs) LoadJobsByFilter(ctx context.Context, accountID string, filter bson.M) ([]models.Job, error) {
+// LoadJobsByFilter finds jobs in one planner matching filter, sorted by
+// _meta.lastModified desc.
+//
+// The owner is applied here rather than trusted from the caller's filter, so a
+// filter that names none cannot read across planners. Both halves are set: an id
+// without a kind would match a planner of another kind carrying the same id.
+func (d *Docs) LoadJobsByFilter(ctx context.Context, owner models.Owner, filter bson.M) ([]models.Job, error) {
 	coll, err := d.requireColl()
-	if err != nil || accountID == "" || filter == nil {
+	if err != nil || owner.IsZero() || filter == nil {
 		return nil, fmt.Errorf("LoadJobsByFilter: invalid arguments")
 	}
-	scoped := mergeFilters(filter, bson.M{FieldMetaOwnerID: accountID})
+	scoped := mergeFilters(filter, bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID})
 	var cursor *mongo.Cursor
 	if err := Retry(ctx, "LoadJobsByFilter", func() error {
 		var findErr error

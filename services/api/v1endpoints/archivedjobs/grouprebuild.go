@@ -38,7 +38,7 @@ func liveGroupMembers(ctx context.Context, m *eipmongo.Mongo, accountID, groupID
 	if m == nil || m.JobDocuments == nil {
 		return nil, fmt.Errorf("mongo handle is required")
 	}
-	return m.JobDocuments.LoadJobsByFilter(ctx, accountID, bson.M{"groupID": groupID})
+	return m.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(accountID), bson.M{"groupID": groupID})
 }
 
 // restoreGroups returns each restored job to the group it was archived from:

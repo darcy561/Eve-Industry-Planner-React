@@ -372,7 +372,7 @@ func TestLive_JobsGroupsListFlows(t *testing.T) {
 		t.Fatalf("BulkUpsertGroups: %v", err)
 	}
 
-	byIDs, err := m.JobDocuments.LoadJobsByFilter(ctx, apiLiveScratchAccount, bson.M{
+	byIDs, err := m.JobDocuments.LoadJobsByFilter(ctx, models.AccountOwner(apiLiveScratchAccount), bson.M{
 		eipmongo.FieldMetaOwnerKind: models.OwnerAccount,
 		eipmongo.FieldMetaOwnerID:   apiLiveScratchAccount,
 		"_id":                       bson.M{"$in": []string{jobA.JobID, jobB.JobID}},

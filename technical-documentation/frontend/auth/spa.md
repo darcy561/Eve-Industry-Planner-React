@@ -1,413 +1,427 @@
-# Authentication — Frontend
+# Authentication (`frontend/src/Functions/Auth`)
 
-How the React SPA establishes, maintains, and tears down planner sessions; how every private fetch picks up identity; how the realtime layer authenticates; and the role of the Tranquility status gate.
+Live SoT for how the SPA signs a user in, holds the credentials it needs, authenticates every private
+request and the realtime connection, and tears all of it down again. Package:
+[`frontend/src/Functions/Auth`](../../../frontend/src/Functions/Auth). Session state and the rotate
+action: [`frontend/src/Zustand/account`](../../../frontend/src/Zustand/account).
 
-> Companion docs: **[README.md](../../backend/api/auth/overview.md)** for overview and wire contracts; **[BACKEND.md](../../backend/api/auth/sessions.md)** for server-side detail; **[ROADMAP.md](../../backend/api/auth/roadmap.md)** for SPA backlog, test gaps, and pickup order; **[Frontend lifecycles roadmap](../lifecycles/roadmap.md)** for moving maintenance timers out of React.
+Wire contracts, cookies and status codes → [backend/api/auth/overview.md](../../backend/api/auth/overview.md).
+Server-side session storage and the websocket upgrade check → [sessions.md](../../backend/api/auth/sessions.md).
+Endpoint list → [session-esi.md](../../backend/api/session-esi.md). Test depth →
+[testing/frontend/auth.md](../../testing/frontend/auth.md).
 
----
+## Defaults
 
-## 1. Account slice — Zustand state shape
+| Piece | Default | Change |
+|-------|---------|--------|
+| ESI access token buffer | refresh when fewer than 660s remain | `frontend/src/Functions/Auth/esiCredentials/provider.js` |
+| ESI token skew for a rotate body | 60s | `frontend/src/Zustand/account/plannerSessionActions.js` |
+| Cloud access-token batch | 50 character hashes per request | `frontend/src/Functions/Auth/esiCredentials/strategies.js` |
+| Planner rotate cooldown | 20 minutes (`PLANNER_SESSION_ROTATE_COOLDOWN_MINUTES`) | `frontend/src/global-config-app.js` |
+| Rotate failure backoff | 30s | `frontend/src/Zustand/account/plannerSessionActions.js` |
+| Affiliation refresh | 15 minutes, both `staleTime` and `refetchInterval` (`ACCOUNT_AFFILIATION_REFRESH_MINUTES`) | `frontend/src/global-config-app.js` |
+| Tranquility poll | 15 minutes online, 5 minutes offline, no poll before the first success | `frontend/src/Hooks/React Query/tranquilityServerStatus.js` |
+| Tranquility rate-limit retry | up to 50 attempts, delay from the error or 1s | same |
+| Request retry | 4 attempts, 350ms base, on 408 / 429 / 5xx; 429 waits the server `Retry-After`, capped at 120s | `frontend/src/Functions/Endpoints/withRequestRetries.js` |
+| React Query `staleTime` | 60s | `frontend/src/queryClient.js` |
+| WebSocket ping | 45s | `frontend/src/Realtime/realtimeClient.js` |
+| WebSocket reconnect | 750ms doubling, capped at 20s | same |
+| Session handoff window | reconnect cap + 5s = 25s | same |
+| `resume_ack` wait | 400ms, then continue without it | same |
+| Visibility re-sync delay | 800ms after a background tab becomes visible | `frontend/src/Realtime/useAccountWebSocket.js` |
 
-Defined in `frontend/src/Zustand/account/account.js` (defaults) and `frontend/src/Zustand/account/tokenActions.js` (actions). All slices live under `useUsersStore` (`frontend/src/Zustand/usersStore.js`).
+Nothing here runs on a schedule of its own. Every value above is either a *staleness* bound React
+Query enforces, or a floor that stops a caller repeating work — never a timer that acquires a
+credential nobody asked for.
 
-### 1.1 Identity fields
+## Wiring
 
-| Field | Type | Notes |
-|---|---|---|
-| `accountID` | `string \| null` | Sanitised character hash. Set by `applyLoginAuthResponse`. |
-| `mainCharacterHash` | `string \| null` | EVE character hash for the main character. |
-| `sessionID` | `string \| null` | Planner session id for **this tab** (mirrors `sessionStorage` via `tabSessionStorage.js`). |
-| `lastPlannerSessionValidatedAt` | `number \| null` | `Date.now()` of the last successful login / rotate / bootstrap. Drives the rotate cooldown. |
-| `refreshToken` | `string \| null` | Per-tab planner refresh token (mirrors `sessionStorage`; sent in JSON on bootstrap/rotate). |
-| `refreshTokenEXP` | `number \| null` | Optional epoch-seconds expiry mirrored from the server. |
-| `isLoggedIn` | `boolean` | The single source of truth used by route guards. Flipped by `setLoggedIn(true)` after `applyClientSessionAfterAppTokens` resolves. |
-| `isFirstTimeLogin` | `boolean` | `first_login` from the server (login-only). |
-| `hasCompletedFirstLoginFlow` | `boolean` | From `users` document; gates the `/first-login` redirect in `__root.jsx`. |
-| `linkedCharacterHashesFromBootstrapSession` | `string[] \| null` | Captured from cloud login `linked_characters` so the hydrator can adopt all alts before any subsequent fetch. |
-| `linkedBootstrapHydrationPending` | `boolean` | True until `runPostLoginAccountSync` has consumed the bootstrap. |
-| `characters`, `corporations` | typed arrays | Hydrated by post-login sync, not by login itself. |
-
-### 1.2 Action surface (`tokenActions` factory)
-
-| Action | Role |
-|---|---|
-| `applyLoginAuthResponse(response, mainCharacterHash)` | Single Zustand transaction. Mirrors the `SessionBootstrapResponse` (or rotate response) onto the account slice + `applicationSettings` slice. Detects cloud vs local via `esi_oauth_storage`. Persists `session_id` + `refresh_token` to **tab** `sessionStorage`. |
-| `clearLinkedBootstrapHydrationPending()` | Called by `runPostLoginAccountSync` when bootstrap hydration finishes. |
-| `applyUserDocumentFromRemote(doc)` | Realtime updates to the `users` collection (linked sets, `userCloudAccounts`, etc.). |
-| `setSessionTokens(partial)` | Merge `{ sessionID?, refreshToken?, refreshTokenEXP? }` after a successful rotate. |
-| `refreshServerToken()` | The **only** call site allowed to hit `/auth/sessions/rotate`. Single-flight, cooldown-gated, Tranquility-gated. |
-| `runStaggeredEsiTokenStep()` | One character per tick; rotated by `useRefreshESITokens`. |
-| `runEsiTokenIntervalMaintenance()` | 15-minute maintenance pass: corporation claims + `refreshServerToken()`. |
-| `runScheduledTokenRefresh()` | Bulk ESI refresh (all characters in parallel) + claims + `refreshServerToken()`. Reserved for exceptional flows (e.g. post-bulk-import). |
-
----
-
-## 2. App bootstrap
-
-Mount order (page load → authenticated UI):
-
-```mermaid
-flowchart TB
-    Idx[index.jsx mounts <AppWrapper/>]
-    AppWrap[AppWrapper.jsx\nQueryClientProvider + RouterProvider]
-    Root[__root.jsx beforeLoad\nrequiresFirstLoginFlow -> /first-login]
-    App[App.jsx renders Outlet]
-    Hooks[useAppConfig\nuseRefreshESITokens\nuseAccountWebSocket\nuseTranquilityServerStatusQuery\nuseFetchStaticDataFiles]
-    AuthRoute[/auth -> MainUserAuth]
-    Login[useAuthUrlLogin chooses mode]
-    Apply[applyClientSessionAfterAppTokens]
-    Done[setLoggedIn(true) + connectRealtime]
-
-    Idx --> AppWrap --> Root --> App --> Hooks
-    Root -. unauthenticated user navigates to /auth .-> AuthRoute --> Login --> Apply --> Done
+```text
+useAuthUrlLogin ──► runAppLogin ──► applyClientSessionAfterAppTokens
+                                             │
+        ┌────────────────────────────────────┼────────────────────────────────────┐
+        ▼                                    ▼                                    ▼
+  account slice                        esiCredentials                     useAccountWebSocket
+  (identity, session id)         (ESI access tokens, per character)              (/ws)
+        │                                    ▲                                    │
+        │ ensurePlannerSession               │ getEsiAccessToken                  │ clientID
+        ▼                                    │                                    ▼
+  POST /auth/sessions/rotate      ESI fetchers, rotate body           requestWithPrivateHeaders
+                                                                                  │
+                                                                                  ▼
+                                                       fetch: eip_session cookie + X-Session-ID
 ```
 
-**Login modes** (`useAuthUrlLogin`, `frontend/src/Components/Auth/Hooks/useAuthUrlLogin.js`):
+Login is the only thing that assembles a session; everything after it is pulled by a caller that
+needs something. A private request awaits `ensurePlannerSession`, which is a no-op unless the session
+is actually due. An ESI fetcher awaits `getEsiAccessToken`, which returns the token already in hand
+unless it is close to expiry. The websocket depends only on being logged in.
 
-1. URL contains `?code=…` → `runAppLogin({ mode: "oauthCode", authCode })`.
-2. `localStorage["Auth"]` exists → `runAppLogin({ mode: "eveClientRefresh", eveClientRefreshToken })`.
-3. Tab has stored refresh (`sessionStorage`) or cloud OAuth hint → `runAppLogin({ mode: "cookieCloudResume" })` (POSTs `/auth/sessions/bootstrap` with per-tab `refresh_token` + `X-Session-ID`; cloud may omit `eve_token`).
-4. Otherwise → EVE SSO redirect (new tab gets a **new** planner session).
+## What the SPA holds
 
-All successful modes converge on `applyClientSessionAfterAppTokens` (`frontend/src/Functions/Auth/appLoginFlow.js`), which:
+The account slice (`frontend/src/Zustand/account/account.js`) holds **identity**: who is signed in,
+which planner session this browser tab owns, and the character roster. It holds no ESI access token.
 
-1. Runs `applyLoginAuthResponse` (unless the mode already did).
-2. For cloud accounts, calls `persistCloudMainEsiRefreshToken` to push the main ESI refresh token into Mongo and clear `localStorage["Auth"]`.
-3. Flips `setLoggedIn(true)`.
-4. Hydrates `character.getPublicCharacterData`, builds the corporation object, runs `triggerCharacterDataPrefetch`.
-5. Emits the user-data update event for legacy listeners.
-6. Clears the in-memory job array (`jobData.actions.clearJobArray()`).
-7. Awaits `runPostLoginAccountSync` (linked-character bootstrap + remote alt ESI tokens).
-8. Kicks off `bootstrapWatchlistLoginStep`, `bootstrapJobGroupsLoginStep`, `bootstrapJobDocumentsLoginStep` (fire-and-forget).
+| Field | Holds |
+|-------|-------|
+| `accountID` | the account, from the login response |
+| `mainCharacterHash` | the EVE character hash the account was established with |
+| `sessionID` | the planner session id for **this tab**, mirrored from `sessionStorage` |
+| `lastPlannerSessionValidatedAt` | when a login, rotate or bootstrap last confirmed the session — what the rotate cooldown reads |
+| `refreshToken` / `refreshTokenEXP` | the tab's planner refresh token, mirrored from `sessionStorage` and sent in the body on bootstrap and rotate |
+| `isLoggedIn` | the only signal a route guard reads |
+| `plannerPrivateAuthReady` | false from the moment a login response lands until the post-login sync finishes; gates work that must not race the first private request |
+| `isFirstTimeLogin` / `hasCompletedFirstLoginFlow` | a new account, and whether the guided flow has been completed — the second drives the `/first-login` redirect |
+| `linkedCharacterHashesFromBootstrapSession` / `linkedBootstrapHydrationPending` | the linked characters a cloud login reported, held until the post-login sync has adopted them |
+| `characters` / `corporations` | the roster, hydrated by the post-login sync rather than by login itself |
 
-After `setLoggedIn(true)`, `useAccountWebSocket` reacts to `[isLoggedIn, accountID]` and calls `connectRealtime({ accountId })` (see §6).
+The slice's actions live in `frontend/src/Zustand/account/plannerSessionActions.js`:
+`applyLoginAuthResponse` merges a login, bootstrap or rotate response onto the account and
+application-settings slices in one transaction; `setSessionTokens` merges what a rotate returned;
+`applyUserDocumentFromRemote` applies a realtime change to the `users` document, which is how a
+storage-mode switch made elsewhere reaches this tab; and `ensurePlannerSession` is the rotate path
+below. Roster writes are beside them in `characterActions.js`.
 
----
+Planner session material is **per tab**, in `sessionStorage`
+(`frontend/src/Functions/Auth/tabSessionStorage.js`): session id, refresh token, its expiry, and the
+reauth deadline. The Zustand fields mirror it, and the storage copy is what a cold reload resumes
+from — so two tabs of the same account hold two planner sessions and never spend each other's refresh
+token. `localStorage["Auth"]` is separate again: it is the main character's EVE refresh secret, and
+only a local account keeps one.
 
-## 3. Request-time authentication
+## Signing in
 
-All private API calls go through `requestWithPrivateHeaders` (`frontend/src/Functions/Endpoints/Private/applyPrivateHeaders.js`).
+`useAuthUrlLogin` (`frontend/src/Components/Auth/Hooks/useAuthUrlLogin.js`) runs once on `/auth` and
+picks a mode for `runAppLogin`:
 
-### 3.1 Single fetch path
+| Situation | Mode | What it does |
+|-----------|------|--------------|
+| The URL carries an OAuth `code` | `oauthCode` | exchanges the code with EVE SSO, then `POST /auth/sessions` |
+| No `localStorage["Auth"]`, but a tab refresh token or the cloud storage cookie hint | `cookieCloudResume` | `POST /auth/sessions/bootstrap` with the tab's refresh token; a cloud account may send no `eve_token` |
+| `localStorage["Auth"]` is present | `eveClientRefresh` | builds the character from that secret, then bootstrap if the tab has a refresh token, falling back to `POST /auth/sessions` |
+| Nothing resumable, or any of the above failing | — | full EVE SSO redirect, which gives the tab a new planner session |
+
+`hasResumablePlannerSession()` is what decides there is nothing to resume: a passed reauth deadline
+makes a tab non-resumable however much material it holds, and a tab refresh token *alone* is not
+enough for a local account, because bootstrap still needs an `eve_token` it can only get from
+`localStorage["Auth"]`.
+
+Every mode builds its `Character` through
+`frontend/src/Functions/Auth/buildCharacterFromCredentials.js`, which adopts the access token that
+falls out of the exchange into the credential provider — so the first ESI query for that character
+does not exchange a second time.
+
+All modes converge on `applyClientSessionAfterAppTokens`
+(`frontend/src/Functions/Auth/appLoginFlow.js`), which applies the session response, pushes a cloud
+account's main ESI refresh secret into Mongo and drops the browser copy, flips `isLoggedIn`, hydrates
+the character and its corporation into the roster, prefetches that character's data, clears the
+in-memory job array, awaits the post-login account sync that adopts the linked characters, and starts
+the watchlist, job-group and job-document bootstrap steps without waiting on them. It releases
+`plannerPrivateAuthReady` in a `finally`, so a login that failed part-way still opens the gate.
+
+`connectRealtime` follows from `isLoggedIn` flipping, not from anything the login flow calls.
+
+## Acquiring an ESI access token
+
+`frontend/src/Functions/Auth/esiCredentials/provider.js` owns *give me a usable ESI access token for
+this character*. Call sites import its default instance:
+
+```js
+const { accessToken, exp } = await getEsiAccessToken(characterHash, { minRemainingSec });
+```
+
+| Member | Behaviour |
+|--------|-----------|
+| `getEsiAccessToken(hash, { minRemainingSec = 660 })` | returns the held token while more than `minRemainingSec` seconds remain, and refreshes otherwise; concurrent callers for one character share a single refresh |
+| `adoptEsiAccessToken(hash, accessToken)` | takes ownership of a token another flow already obtained — login and bootstrap exchange refresh material anyway, and the token that falls out is the one to hold |
+| `heldEsiAccessToken(hash)` | the token in hand, or `""`, for a caller that can proceed without one; never fetches |
+| `forget(hash)` / `reset()` | drop one character's token, or all of them |
+
+**An access token is not application state.** It lives in the provider's map rather than on a
+`Character` in Zustand, so a refresh writes no store state and renders nothing.
+`account.characters` is subscribed to across the app — header, dashboard, account cards, asset pages,
+character pickers — and none of those surfaces display a token. Identity belongs in the store,
+credentials belong here. The same reasoning applies to a rotated client-held refresh secret, which is
+written onto the roster entry in place rather than through `set`.
+
+Because nothing implicitly drops a held token, they are dropped explicitly: signout calls `reset()`,
+and `removeCharacter` calls `forget(hash)`.
+
+**Failures are classified, not swallowed.** A rejection is an `EsiCredentialError` carrying
+`recoverable` or `reauth_required`, read back with `isReauthRequired(err)`. A 4xx means the stored
+material was rejected and will be rejected again; anything else — network, 5xx, a rate limit — is
+worth a later attempt. A caller acts on the class, because only the strategy knows what a given
+failure means for its own material.
+
+### The two storage modes
+
+Where the refresh material lives is the only place cloud and local differ for a token. The strategy
+is resolved per call from `applicationSettings.userCloudAccounts`, so an account that switches mode
+while the app is open is followed.
+
+| Strategy | Material | Request |
+|----------|----------|---------|
+| `serverStoredCredentials` | encrypted in Mongo; never reaches the browser | `POST /api/v1/esi/characters/access-tokens/server` with the hashes gathered in one tick, split at 50 per request. A per-character `error` row fails that character alone; the request itself failing is `recoverable` for every waiter, because a transport fault says nothing about anyone's stored material. |
+| `clientHeldCredentials` | the refresh secret on the `Character` in the roster, and `localStorage["Auth"]` for the main character | `POST /api/v1/eve-sso/tokens/refresh`. EVE SSO may return a rotated secret, which is written back in place — a spent secret is refused on the next attempt. |
+
+Batching lives inside the cloud strategy, so nothing above it changes: the provider single-flights
+per character, which is exactly what leaves several acquisitions in flight for the strategy to
+gather. The batch size matches the Go handler's cap — one over it answers 400, failing every
+character in the request for a reason none of them caused. A hash asked for twice is exchanged once
+on both sides, because a second exchange would spend the refresh token the first just rotated.
+
+### Who asks for one
+
+Every ESI fetcher under `frontend/src/Functions/EveESI/**` awaits the provider and sends what it
+returns, guarding on a character hash rather than on a token being present.
+`refreshAccountSessionGrants` acquires one token per character with `Promise.allSettled`, so one dead
+credential does not stop the submission — for a cloud account it returns immediately, because the
+server holds the material and recomputes grants itself. `ensurePlannerSession` acquires the main
+character's token for the rotate body.
+
+## The planner session
+
+`ensurePlannerSession` (`frontend/src/Zustand/account/plannerSessionActions.js`) is the **only** code
+path that hits `POST /api/v1/auth/sessions/rotate`. Private requests await it before sending, and it
+returns without HTTP unless the session is actually due.
+
+The gates, in the order they are checked:
+
+| Gate | Skips the rotate when |
+|------|-----------------------|
+| Tranquility | the cache says the cluster is offline |
+| Single-flight | a rotate is already in flight — the caller awaits that one |
+| Main character | the roster holds no main character yet |
+| Reauth deadline | the tab's stored deadline has passed; this redirects to full EVE SSO instead |
+| Cooldown | the session was validated less than 20 minutes ago and a session id is held — `force` skips this gate |
+| Failure backoff | a rotate failed less than 30 seconds ago — `force` does **not** skip this gate |
+
+Past the gates it acquires the main character's ESI access token with `minRemainingSec = 60`, reads
+the tab's refresh token, and rotates. A cloud account can rotate on the cookie plus its Mongo-stored
+material, so a token it cannot acquire is not fatal and an empty `eve_token` is sent; a local account
+has no such fallback and does not rotate without one, redirecting to full EVE SSO if the failure was
+`reauth_required`.
+
+**Single-flight, cooldown and backoff are all module-level, not store state.** Concurrent private
+requests would otherwise each rotate the session and orphan each other's refresh row; a failed rotate
+would leave the cooldown permanently elapsed and have every subsequent private request repeat it; and
+a rotate marker in the store would re-render subscribers for a value nothing displays. `force` exists
+for the `session_missing` recovery in the request path, which is precisely the burst the failure
+backoff is there to stop — hence one gate it does not open.
+
+On success the response's session id and, for a local account, the raw refresh token and its expiry
+are written through `setSessionTokens`, which persists to `sessionStorage` and mirrors into the
+slice, and `lastPlannerSessionValidatedAt` is stamped.
+
+Failures are read for their code. A 401 whose body carries `session_revoked` or `reauth_required` —
+the two terminal codes in `frontend/src/Functions/Auth/plannerSessionRedirect.js` — clears the tab's
+session material and cookies and starts a full EVE SSO login. An untyped 401 on a **local** account
+that still holds an ESI access token is retried once as `establishPlannerSession`: a fresh session
+rather than a rotate. Anything else records the failure time and logs.
+
+A failed rotate never signs the user out. Only `requireAuth`, driven by `isLoggedIn`, redirects a
+route.
+
+### Why nothing runs on a timer
+
+Acquisition is on demand, and this is the reasoning a later change is most likely to undo by adding a
+scheduler back:
+
+- The reauth deadline is fixed at the session's start and does not slide
+  ([sessions.md](../../backend/api/auth/sessions.md)), so rotating early buys no extra life.
+- The websocket authenticates on the session, which a rotate carries forward.
+- EVE OAuth refresh tokens do not expire from disuse.
+
+The cost is that the first query after a long idle period pays one OAuth round-trip for that
+character. Several ESI hooks set `refetchOnWindowFocus: false`, so a tab regaining focus does not
+warm every token — perceived latency only, since a request that needs a token still gets a fresh one.
+
+### Affiliation and session grants
+
+Which corporation each character belongs to, and the ESI tokens the server derives session grants
+from, are one subject on one cadence, owned by `frontend/src/Hooks/React Query/accountAffiliation.js`
+and mounted from `App.jsx`.
+
+| Piece | Value |
+|-------|-------|
+| Query key | `["account", "affiliation"]` |
+| `staleTime` / `refetchInterval` | 15 minutes |
+| `enabled` | `isLoggedIn && plannerPrivateAuthReady` |
+
+The query function re-reads every live character's public data, then calls
+`refreshAccountSessionGrants`. It writes the roster **only when a corporation actually changed**,
+because `account.characters` is subscribed to across the app and a periodic no-op write would
+re-render all of it on a timer. It is a query rather than a clock: React Query decides when it is
+stale, refetches on focus when it is, and stops entirely once the user is not logged in.
+
+## Authenticating a request
+
+Every private API call goes through `requestWithPrivateHeaders`
+(`frontend/src/Functions/Endpoints/Private/applyPrivateHeaders.js`).
 
 ```
 requestWithPrivateHeaders(URL, options, config)
   └── executePrivateRequestSingle (retry shell)
         └── executePrivateFetchOnce
-              ├── await refreshServerToken() unless config.skipSessionRefresh   // §4; logout sets skip
-              └── fetch(URL, applyPrivateHeaders(options, config))                      // §3.2
+              ├── await ensurePlannerSession()   unless config.skipSessionRefresh
+              └── fetch(URL, applyPrivateHeaders(options, config))
 ```
 
-Pass **`skipSessionRefresh: true`** on calls that must not rotate the planner session first (today: `logoutPlannerSession`). Pass **`retry: false`** when retries would be unsafe or redundant (logout).
-
-### 3.2 Headers added by `applyPrivateHeaders`
-
-```js
-{
-  ...options.headers,
-  ...(config.requestName && { "X-Request-Name": config.requestName }),
-  ...(getRealtimeClientID() && { "X-WS-Client-ID": getRealtimeClientID() }),
-}
-```
-
-`credentials` is forced to `"same-origin"` (unless the caller already set it) so the browser attaches the `eip_session` cookie. **There is no `Authorization` header**: the previous "Bearer" comment is stale; the implementation is cookie-only.
-
-`X-WS-Client-ID` (read from `Realtime/wsClientIdentity.js`) is only added once `/ws` has sent its `connected` message. The backend uses it for echo suppression on document-lock and document-edit broadcasts.
-
-### 3.3 Retry & batching
-
-- **Retry policy** (`withRequestRetries` / `apiRateLimitRetryConfig`): 408 / 429 / 5xx. On **429**, the client waits for the API fixed-window **`Retry-After`** header (seconds, set in `services/api/middleware/ratelimiter.go` from `X-RateLimit-Reset`), then retries. Applied by default on all `requestWithPrivateHeaders` and `fetchWithPublicHeaders` calls unless `config.retry: false`. The "never retry" sentinel `PRIVATE_AUTH_TOKEN_UNAVAILABLE` is defined but no current code path throws it.
-- **Batching**: pass `config.batch = { size, arrayKey, mergeResponseJsonArrays?, failure? }` to split a JSON-body array across chunks (`Promise.allSettled`). Typical sizes mirror backend handler limits: 100 / 200.
-
----
-
-## 4. Refresh flow — `refreshServerToken()`
-
-Defined in `frontend/src/Zustand/account/tokenActions.js`. This is the **only** code path that hits `/api/v1/auth/sessions/rotate`.
-
-### 4.1 Decision flow
-
-```mermaid
-flowchart TD
-    start[refreshServerToken called]
-    tq{Tranquility cached offline?\n(see §5)}
-    inflight{inflightRefreshServerTokenPromise set?}
-    cooldown{sessionID set AND now - lastPlannerSessionValidatedAt < 20m?}
-    cloud{cloud account?\n(applicationSettings.userCloudAccounts)}
-    haveRefresh{refreshToken OR cloud cookie likely present?}
-    eveTok{cloud AND ESI expired/missing within 60s skew?}
-    httpRotate[POST /api/v1/auth/sessions/rotate]
-    apply[setSessionTokens + lastPlannerSessionValidatedAt = now]
-    skip[return without HTTP]
-
-    start --> tq
-    tq -- yes --> skip
-    tq -- no --> inflight
-    inflight -- yes --> share[await shared promise] --> done[return]
-    inflight -- no --> cooldown
-    cooldown -- yes --> skip
-    cooldown -- no --> haveRefresh
-    haveRefresh -- no --> skip
-    haveRefresh -- yes --> cloud
-    cloud -- yes --> eveTok
-    eveTok -- yes --> sendEmpty[eve_token = ""\n(server uses Mongo fallback)]
-    eveTok -- no --> sendCurrent[eve_token = mainCharacter.esiAccessToken]
-    cloud -- no --> requireToken{mainCharacter.esiAccessToken set?}
-    requireToken -- no --> skip
-    requireToken -- yes --> sendCurrent
-
-    sendEmpty --> httpRotate
-    sendCurrent --> httpRotate
-    httpRotate --> apply --> done
-```
-
-### 4.2 Guarantees
-
-- **Single-flight**: `inflightRefreshServerTokenPromise` ensures concurrent callers share one HTTP round-trip. Without it, parallel callers would each rotate the Redis row and orphan each other's `refresh_token` rows.
-- **Cooldown**: `PLANNER_SESSION_ROTATE_COOLDOWN_MS = max(1, GLOBAL_CONFIG.PLANNER_SESSION_ROTATE_COOLDOWN_MINUTES || 20) * 60 * 1000`. Default 20 minutes (matches `global-config-app.js`). The hot path on every private fetch is a no-op when this hits.
-- **Tranquility-aware**: defers when the cached `/status/` says offline — see §5.
-- **ESI skew**: `ESI_ACCESS_TOKEN_REFRESH_SKEW_SEC = 60`. For cloud accounts, if the local ESI access token is missing or within 60s of expiry, the SPA sends an empty `eve_token` so the server uses the Mongo-stored refresh token to mint a fresh ESI access internally.
-
-### 4.3 Triggers
-
-| Trigger | Cadence | File |
-|---|---|---|
-| Every private fetch (`executePrivateFetchOnce`) | per request | `applyPrivateHeaders.js` |
-| 15-minute maintenance interval (`DEFAULT_CHARACTER_REFRESH_INTERVAL`) | every 15 min | `Hooks/App/useRefreshESITokens.js` |
-| `runScheduledTokenRefresh()` (manual / bulk paths) | ad-hoc | `tokenActions.js` |
-
-Note: realtime reconnects do **not** force a rotate. Session resume is handled by the WS layer (§6).
-
-### 4.4 Response handling
-
-```js
-const tokenPatch = { sessionID: response.session_id ?? state.account.sessionID };
-if (response.refresh_token) {                       // local account: server returns raw token
-  tokenPatch.refreshToken = response.refresh_token;
-  tokenPatch.refreshTokenEXP =
-    response.refresh_token_exp ?? response.refresh_token_expires_at;
-}
-get().account.actions.setSessionTokens(tokenPatch);
-// stamp the cooldown clock
-set((s) => ({ account: { ...s.account, lastPlannerSessionValidatedAt: Date.now(), ... } }));
-```
-
-Errors are `console.error`-logged. The account slice does **not** auto-logout on a failed rotate — the next request will retry; only `requireAuth` (driven by `isLoggedIn`) can redirect.
-
----
-
-## 5. Tranquility status gate
-
-When EVE's Tranquility cluster is offline (extended downtimes, CCP outages), hammering SSO and rotate paths is wasteful and noisy. The gate suppresses planner / ESI refresh activity while the cache says offline.
-
-### 5.1 Components
-
-- **`frontend/src/Functions/EveESI/fetchTranquilityStatus.js`** — `fetchTranquilityStatus()` hits `https://esi.evetech.net/status/?datasource=tranquility` via `fetchWithCustomHeaders`. Returns `{ online: boolean, playerCount?: number }`. Maps rate-limit responses to `createTranquilityRateLimitError(delayMs)`.
-- **`frontend/src/Hooks/React Query/tranquilityServerStatus.js`** — defines the query.
-  - Query key: `TRANQUILITY_SERVER_STATUS_QUERY_KEY = ["esi", "tranquility-server-status"]`.
-  - `staleTime: Infinity`, `gcTime: Infinity`, `refetchOnWindowFocus: false`.
-  - `refetchInterval`: **15 min when online**, **5 min when offline**, `false` until the first successful fetch.
-  - `retry`: only for `error.message === "TRANQUILITY_RATE_LIMIT"`, up to 50 attempts; backoff from `error.delayMs` or 1s.
-  - Helpers: `getTranquilityServerStatusFromCache`, `isTranquilityOnlineFromCache`, `getTranquilityServerStatusQueryState`.
-- **`frontend/src/Functions/Auth/authRefreshTranquilityGate.js`** — `shouldDeferAuthRefreshDueToTranquilityOffline(_get)`:
-
-```js
-if (data?.online === true) return false;                     // online: do not defer
-if (qState?.status !== "success" || !qState.dataUpdatedAt) return false; // never fetched: do not defer
-return data?.online === false;                                // success + offline: defer
-```
-
-### 5.2 Mounting
-
-`useTranquilityServerStatusQuery()` is called from `App.jsx` so the cache is alive whenever the SPA is mounted. Synchronous consumers (Zustand actions) read the same cache via `getTranquilityServerStatusFromCache()`.
-
-### 5.3 Replacement for `useCheckEveServerStatus`
-
-The deleted hook held its result in component state; the new query lives in React Query so non-React code (Zustand `get`, fetch interceptors) can read the same cache without prop drilling.
-
----
-
-## 6. Realtime auth integration
-
-### 6.1 `useAccountWebSocket`
-
-```js
-useEffect(() => {
-  if (!isLoggedIn || !accountID) {
-    disconnectRealtime();
-    return;
-  }
-  connectRealtime({ accountId: accountID });
-  return () => {
-    stashRealtimeSessionResumeHint();
-    disconnectRealtime();
-  };
-}, [isLoggedIn, accountID]);
-```
-
-The effect depends only on `[isLoggedIn, accountID]`. Rotating the planner `sessionID` does **not** trigger a reconnect — the existing socket keeps working because the `eip_session` cookie is rotated together with the session and the new value is sent on the next reconnect automatically by the browser.
-
-### 6.2 `realtimeClient.js` essentials
-
-- Singleton WebSocket to `wss://<host>/ws` (or `ws://` on non-https). No query string; the browser attaches `eip_session` on the upgrade.
-- On `open`: reads `sessionIdForWs = getSessionIDFromStore()`. Compares to `lastSuccessfulOpenSessionId`. Runs `syncAccountDocumentsFromServer()` when `sessionID` changed vs the last successful open, or when `session_resume` was sent but `resume_ack` did not set `skipBaselineSync`. Refetches planner job documents when `sessionID` changed and this is not the first open.
-- **Session resume**: on effect teardown the hook calls `stashRealtimeSessionResumeHint()` (no-op if already logged out). On the next `connectRealtime`, the client sends `{ type: "session_resume", previousClientID }` immediately after open and races a 400ms timeout against the server's `resume_ack`. Baseline singleton GETs also follow `sessionID` change vs the last successful open (see `realtimeClient.js`).
-- **Ping**: every `PING_MS = 45_000`ms.
-- **Reconnect**: exponential backoff `WS_RECONNECT_BASE_MS = 750` capped at `WS_RECONNECT_MAX_MS = 20_000`. `WS_SESSION_HANDOFF_MS = 25_000` matches the Go server's resume window.
-
-### 6.3 `wsClientIdentity.js` (read-side)
-
-`getRealtimeClientID()` returns the value sent by the server in `{ type: "connected", clientID }`. The SPA uses it as `X-WS-Client-ID` on private API calls so the API knows which tab originated a change and can suppress its own broadcast back to that tab.
-
----
-
-## 7. Route guards
-
-### 7.1 `requireAuth` (private routes)
-
-```js
-export function requireAuth({ location }) {
-  const isLoggedIn = useUsersStore.getState().account.isLoggedIn;
-  if (!isLoggedIn) {
-    throw redirect({ to: '/auth', search: { state: location.pathname } });
-  }
-}
-```
-
-- Pure Zustand read; no network I/O.
-- Used by `routes/_protected.jsx` as `beforeLoad`, which guards the entire `/_protected/*` subtree (dashboard, asset-library, accounts, blueprint-library, settings, first-login).
-- 401s from the API do **not** redirect the user. The session-state machine relies on `isLoggedIn` being explicitly flipped (login success → true, signout → false). If the server invalidates a session out-of-band, the next refresh will fail and the user will continue to see a "logged in" UI until they explicitly sign out or reload — this is an intentional trade-off to avoid forced redirects during transient outages.
-
-### 7.2 `allowPublicAccess` (public routes that *can* hydrate from auth state)
-
-```js
-export function allowPublicAccess({ location }) {
-  const isLoggedIn = useUsersStore.getState().account.isLoggedIn;
-  if (!isLoggedIn) {
-    const existingAuth = localStorage.getItem("Auth");
-    if (existingAuth || hasCloudOAuthStorageServerHint()) {
-      throw redirect({ to: '/auth', search: { state: location.pathname } });
-    }
-  }
-  return { isLoggedIn };
-}
-```
-
-`hasCloudOAuthStorageServerHint()` (from `Functions/Auth/plannerAuthCookies.js`) reads the non-HttpOnly **`eip_esi_oauth_storage`** cookie. When it equals `"server"`, the user has cloud-stored ESI material and the SPA can resume via the cookie path; the guard redirects them to `/auth` to rebuild client state and then return. Sign-out clears this cookie client-side so public routes do not loop back into `/auth` after logout.
-
-### 7.3 First-login redirect (`__root.jsx`)
-
-Independent of `requireAuth`. If `getRequiresFirstLoginFlow()` is true (account flag not yet set) and the user is not on `/first-login`, the root route redirects there before mounting anything else.
-
----
-
-## 8. Signout
-
-`routes/signout.jsx` is a regular TanStack route. Mounting `<SignoutComponent />` runs the orchestrated teardown in a `useEffect`:
-
-```js
-async function performSignout() {
-  const { refreshToken } = useUsersStore.getState().account;
-  try {
-    disconnectRealtime();                              // 1. close /ws first
-    await logoutServerSession(refreshToken);           // 2. POST /api/v1/auth/sessions/logout
-
-    clearClientSessionState();                          // 3. reset Zustand + clearPlannerAuthCookiesClientSide()
-    queryClient.clear();                               // 4. blow away React Query cache
-
-    sessionStorage.clear();                            // 5. local + session storage
-    localStorage.removeItem("Auth");
-    localStorage.removeItem("originalPath");
-
-    navigate({ to: "/" });                              // 6. SPA navigation home
-  } catch (error) {
-    // same cleanup as above, then hard reload
-    window.location.href = "/";
-  }
-}
-```
-
-### 8.1 `clearClientSessionState`
-
-The internal order is critical:
-
-1. `clearInboundJobDocumentCoalesce()` — drop queued WS-driven job upserts that could otherwise repopulate the store after the reset.
-2. `resetAccountStore()` — also calls `realtimeSync?.actions?.reset?.()`.
-3. `resetJobDataStore()`.
-4. `resetApplicationSettingsStore()`.
-5. `resetWorldDataStore()`.
-6. `clearPlannerAuthCookiesClientSide()` — expires `eip_esi_oauth_storage` (and best-effort `eip_session` / `eip_app_refresh`; those are HttpOnly and are cleared by the server `Set-Cookie` on a successful logout response).
-
-Account is reset **first** so that any in-flight account GET completing after the reset cannot re-merge stale application settings in the same tick.
-
-### 8.2 Logout request
-
-`logoutPlannerSession` (`sessionClient.js`) uses `requestWithPrivateHeaders` with **`skipSessionRefresh: true`** and **`retry: false`** so logout does not rotate the session first or retry a destructive call. The request uses `credentials: "same-origin"` so the browser applies server `Set-Cookie` clears for HttpOnly cookies.
-
-The body carries the raw `refresh_token` for local accounts when Zustand still holds it; for cloud accounts the server reads the value from `eip_app_refresh`. A `finally` block always runs `clearPlannerAuthCookiesClientSide()` even when the API returns an error.
+`applyPrivateHeaders` forces `credentials: "same-origin"` unless the caller set it, so the browser
+attaches the `eip_session` cookie, and adds:
+
+| Header | When |
+|--------|------|
+| `X-Session-ID` | whenever this tab holds a planner session id — how the API knows *which* of an account's sessions is calling |
+| `X-Request-Name` | the caller passed `config.requestName`, for reading the network tab |
+| `X-WS-Client-ID` | `/ws` has sent its `connected` message; the API uses it to suppress echoing a change back to the tab that made it |
+
+There is no `Authorization` header. Identity is the cookie plus the session header.
+
+Two 401 shapes are read off the response before the retry policy sees it. A body carrying a terminal
+auth code redirects to full EVE SSO and throws rather than retrying — the tab is already leaving. A
+body carrying `session_missing` triggers one `ensurePlannerSession({ force: true })` and one retry of
+the same request; recovery is attempted once, and the retried attempt does not attempt it again.
+
+Two config flags exist for calls that must not take the default path. `skipSessionRefresh: true`
+suppresses both the pre-request rotate and the 401 recovery, and `retry: false` disables the retry
+shell. Logout passes both: it must not rotate a session it is about to destroy, and it must not
+repeat a destructive call.
+
+**Batching** splits a JSON-body array across several requests: pass
+`config.batch = { size, arrayKey, mergeResponseJsonArrays?, failure? }`. Chunks run **sequentially**,
+not in parallel, so a large write does not burst the private rate limiter. `failure: "first"`
+rethrows the first chunk's error as it stands, preserving `err.status`; the default aggregates.
+`mergeResponseJsonArrays` reassembles the chunk responses into one synthetic JSON array response, so
+the caller sees one result. Sizes mirror the Go handler limits — 100 for document PUTs, 200 for
+id lists.
+
+`PRIVATE_AUTH_TOKEN_UNAVAILABLE` is the never-retry sentinel the retry shell checks for. It is
+exported and honoured; no path throws it today.
+
+## The Tranquility gate
+
+When EVE's Tranquility cluster is offline, hammering SSO and the rotate path is wasteful and noisy.
+The status lives in React Query rather than component state, so non-React callers — Zustand actions,
+the fetch path — read the same cache without prop drilling.
+`useTranquilityServerStatusQuery()` is mounted from `App.jsx` so the cache is alive whenever the SPA
+is.
+
+| Piece | Behaviour |
+|-------|-----------|
+| Query key | `["esi", "tranquility-server-status"]` |
+| Fetch | `https://esi.evetech.net/status/?datasource=tranquility`, answering `{ online, playerCount }` |
+| Caching | `staleTime` and `gcTime` `Infinity`, no refetch on focus; the poll interval is the only refresh |
+| Retry | only a rate-limit rejection is retried, waiting the delay the error carries |
+| Readers | `getTranquilityServerStatusFromCache`, `isTranquilityOnlineFromCache`, `getTranquilityServerStatusQueryState` |
+
+`shouldDeferAuthRefreshDueToTranquilityOffline` is the predicate the rotate path calls. It defers
+**only** on a successful fetch that reported offline: a cache that has never been filled does not
+defer, so a `/status/` endpoint that is itself unreachable cannot lock the SPA out of its own
+session. ESI domain queries make their own decision from the same cache, in
+`frontend/src/Functions/Shared/queryExecutionEnabled.js`.
+
+## The realtime connection
+
+`useAccountWebSocket` (`frontend/src/Realtime/useAccountWebSocket.js`) connects on
+`[isLoggedIn, accountID]` and disconnects on anything else. It does **no** auth work — a credential is
+acquired by whatever needs one. A second effect in the same hook re-syncs account singletons and
+planner job documents 800ms after a background tab becomes visible, because a background socket is
+throttled and may have missed fan-out.
+
+`frontend/src/Realtime/realtimeClient.js` is a module singleton on same-origin `/ws`, upgraded to
+`wss:` on an https page. The tab's planner session id travels as the `planner_session_id` query
+parameter and the browser attaches `eip_session` on the upgrade; the server checks both
+([sessions.md](../../backend/api/auth/sessions.md) § WebSocket upgrade auth). A baked app version is
+sent alongside as an ops hint only.
+
+Rotating the session does **not** reconnect: the connect effect depends on the account, not the
+session. The socket that is open stays open on the identity it opened with, and the next reconnect
+for any reason picks up the current session id.
+
+What happens on open is decided by the session id, not by the socket:
+
+| Condition on open | Follows |
+|-------------------|---------|
+| The session id differs from the last successful open | baseline GET of the account singletons |
+| A `session_resume` was sent and no `resume_ack` cleared the baseline within 400ms | baseline GET of the account singletons |
+| The session id differs and this is not the first open | refetch of the planner job documents |
+
+The resume handoff is what makes a same-session reconnect cheap. On teardown the hook stashes the
+current client id, and the next connect sends `{ type: "session_resume", previousClientID }`
+immediately after open. An acknowledged handoff skips the duplicate baseline GETs; an unanswered one
+falls back to fetching them, because an uncertain handoff must not be trusted with what the tab
+already believes.
+
+`frontend/src/Realtime/wsClientIdentity.js` holds the `clientID` the server sends in its `connected`
+message. That value is what `X-WS-Client-ID` carries on private calls, and it is best-effort: before
+the socket is open there is nothing to send, and the API simply treats such a change as coming from
+another tab.
+
+## Route guards
+
+`frontend/src/utils/authGuard.js` holds both guards, and neither does network I/O — each is a
+synchronous read of Zustand and browser storage.
+
+| Guard | Used by | Behaviour |
+|-------|---------|-----------|
+| `requireAuth` | `routes/_protected.jsx` as `beforeLoad`, guarding the whole `/_protected/*` subtree | redirects to `/auth` when `isLoggedIn` is false, carrying the attempted path as `state` |
+| `allowPublicAccess` | public routes that can hydrate from auth state | when not logged in but `hasResumablePlannerSession()`, redirects to `/auth` to rebuild client state and return; otherwise reports `isLoggedIn` and lets the route render |
+
+**`isLoggedIn` is the only redirect signal.** A 401 from the API does not redirect a route: the flag
+is flipped explicitly by a login succeeding and by signout. A session invalidated out-of-band
+therefore leaves a logged-in-looking UI until the user signs out or reloads — deliberate, so a
+transient outage does not throw people out of the app mid-edit. A *coded terminal* 401 is the
+exception, and it does not go through a guard: it sends the tab to full EVE SSO from the request
+path.
+
+The first-login redirect in `routes/__root.jsx` is independent of both guards: an account whose
+guided flow is not complete is sent to `/first-login` before anything else mounts.
+
+## Signout
+
+`routes/signout.jsx` is an ordinary route whose component runs the teardown on mount:
+
+1. `disconnectRealtime()` — close `/ws` before anything else, so no fan-out lands mid-teardown.
+2. `logoutPlannerSession(tabRefreshToken)` — `POST /api/v1/auth/sessions/logout`, carrying the tab's
+   raw refresh token when it holds one; a cloud account's server reads the value from
+   `eip_app_refresh` instead.
+3. Reset the client: drop the queued inbound job-document upserts, reset the account slice, then job
+   data, application settings and world data, expire the client-readable cookie, and `reset()` the
+   credential provider.
+4. `queryClient.clear()`, then `sessionStorage.clear()` and the `localStorage` keys.
+5. Navigate home.
+
+Any failure runs the same cleanup and then hard-navigates, so a logout that could not reach the API
+still leaves nothing behind in the browser.
+
+Two orderings in step 3 are load-bearing. The inbound coalesce queue is dropped **first**, because a
+pending flush would repopulate job data after the reset. The account slice is reset **before** the
+others, so an in-flight account GET completing in the same tick cannot re-merge stale application
+settings. Held ESI access tokens live outside the store, so no slice reset drops them — the provider
+is reset explicitly.
 
 | Cookie | HttpOnly | Cleared by |
-|---|---|---|
-| `eip_session` | yes | Server `Set-Cookie` on `204` (requires successful logout fetch) |
-| `eip_app_refresh` | yes | Server `Set-Cookie` on `204` |
-| `eip_esi_oauth_storage` | no | Server + `clearPlannerAuthCookiesClientSide()` |
+|--------|----------|------------|
+| `eip_session` | yes | server `Set-Cookie` on a successful logout |
+| `eip_app_refresh` | yes | server `Set-Cookie` on a successful logout |
+| `eip_esi_oauth_storage` | no | the server, and the client-side expiry in the teardown |
 
----
+The logout call clears the tab's `sessionStorage` material and expires the client-readable cookie in a
+`finally`, whatever the API answered — so a request that never landed still cannot leave a stale cloud
+hint for a public route to read and bounce a signed-out user back into `/auth`.
 
-## 9. Session lifecycle summary
+## Topic-only detail
 
-```mermaid
-stateDiagram-v2
-    [*] --> NotLoggedIn
-    NotLoggedIn --> LoggingIn: useAuthUrlLogin chooses mode
-    LoggingIn --> LoggedIn: applyClientSessionAfterAppTokens\nsetLoggedIn(true)
-    LoggedIn --> LoggedIn: refreshServerToken (cooldown 20m, single-flight)
-    LoggedIn --> LoggedIn: runEsiTokenIntervalMaintenance (15m)
-    LoggedIn --> LoggedIn: runStaggeredEsiTokenStep (dynamic)
-    LoggedIn --> SigningOut: navigate /signout
-    SigningOut --> NotLoggedIn: clearClientSessionState + queryClient.clear()
-    LoggedIn --> Deferred: Tranquility offline (refresh paths skipped)
-    Deferred --> LoggedIn: Tranquility back online
-```
-
----
-
-## 10. Files
-
-| Path | Role |
-|---|---|
-| `frontend/src/App.jsx` | Mounts `useRefreshESITokens`, `useAccountWebSocket`, `useTranquilityServerStatusQuery`. |
-| `frontend/src/AppWrapper.jsx` | `QueryClientProvider` + router shell. |
-| `frontend/src/queryClient.js` | Shared `QueryClient` (60s default `staleTime`). |
-| `frontend/src/routes/__root.jsx` | First-login redirect. |
-| `frontend/src/routes/_protected.jsx` | `beforeLoad: requireAuth`. |
-| `frontend/src/routes/signout.jsx` | Orchestrated logout. |
-| `frontend/src/utils/authGuard.js` | `requireAuth`, `allowPublicAccess`. |
-| `frontend/src/Functions/Auth/plannerAuthCookies.js` | Cookie constants; `clearPlannerAuthCookiesClientSide`, `hasCloudOAuthStorageServerHint`. |
-| `frontend/tests/plannerAuthCookies.test.js` | Client cookie expiry on sign-out. |
-| `frontend/src/Zustand/account/account.js` | Account slice defaults. |
-| `frontend/src/Zustand/account/tokenActions.js` | Login merge, rotate, ESI maintenance, scheduled refresh. |
-| `frontend/src/Zustand/account/index.js` | Barrel exports. |
-| `frontend/src/Functions/Auth/appLoginFlow.js` | Login mode resolvers + post-login hydration. |
-| `frontend/src/Functions/Auth/sessionClient.js` | Raw `fetch` to `/auth/sessions[/rotate|/bootstrap|/logout]`. |
-| `frontend/src/Functions/Auth/serverTokens.js` | Aliases re-exported from `sessionClient`. |
-| `frontend/src/Functions/Auth/authRefreshTranquilityGate.js` | Deferral predicate. |
-| `frontend/src/Functions/Endpoints/Private/applyPrivateHeaders.js` | Cookie-backed private fetch + header builder + batching. |
-| `frontend/src/Functions/EveESI/fetchTranquilityStatus.js` | `/status/` fetch + rate-limit error shape. |
-| `frontend/src/Hooks/React Query/tranquilityServerStatus.js` | Query options + cache accessors. |
-| `frontend/src/Hooks/App/useRefreshESITokens.js` | Maintenance + stagger timers. |
-| `frontend/src/Realtime/realtimeClient.js` | `/ws` singleton, resume, ping, reconnect. |
-| `frontend/src/Realtime/useAccountWebSocket.js` | Lifecycle hook for the WS. |
-| `frontend/src/Realtime/wsClientIdentity.js` | Stores the server-assigned `clientID`. |
-| `frontend/src/Components/Auth/Hooks/useAuthUrlLogin.js` | OAuth code / `Auth` / cookie-resume chooser. |
-
----
-
-## 11. Pitfalls & operational notes
-
-- **Never call `establishPlannerSession` from the rotate path.** It always issues a fresh `sessionID` and clears the cooldown timer; only login should use it.
-- **Never reach into `refreshServerToken` from another tab path.** All rotate work goes through the single Zustand action; the in-flight promise + cooldown depend on it.
-- **`X-WS-Client-ID` is best-effort.** It is only sent once `/ws` is open. The backend tolerates missing values; document-lock echo suppression simply behaves as if the change came from another tab.
-- **`isLoggedIn` is the only redirect signal.** A 401 from the API does **not** auto-redirect; reload + `useAuthUrlLogin` is the recovery path.
-- **Cloud vs local detection** uses `applicationSettings.userCloudAccounts`, derived from `esi_oauth_storage` (`"server"` ⇒ cloud) and the user document. Don't mirror this state separately on the account slice; consume it from settings.
-- **Deletion of `useCheckEveServerStatus.js`** moved the gate to React Query. Anywhere that previously called the old hook should now either use `useTranquilityServerStatusQuery()` (for component rendering) or `shouldDeferAuthRefreshDueToTranquilityOffline(get)` (for non-React code).
+- Planner session material is per tab. Two tabs of one account hold two sessions, and neither one's
+  rotate invalidates the other's refresh row.
+- `establishPlannerSession` always issues a fresh session id and clears the cooldown. Only login and
+  the local-account 401 recovery may call it; the rotate path must not.
+- All rotate work goes through `ensurePlannerSession`. Reaching `/auth/sessions/rotate` from anywhere
+  else bypasses the in-flight promise, the cooldown and the failure backoff at once.
+- Cloud versus local is read from `applicationSettings.userCloudAccounts`, derived from
+  `esi_oauth_storage` on the session response and from the user document. For a token it is consulted
+  in exactly one place, the credential strategy; do not mirror the flag onto the account slice.
+- Read the Tranquility status through its accessors: `useTranquilityServerStatusQuery()` for
+  rendering, `shouldDeferAuthRefreshDueToTranquilityOffline(get)` for non-React code — both over the
+  one cache.

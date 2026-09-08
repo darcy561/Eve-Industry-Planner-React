@@ -2,6 +2,8 @@
 
 Planner **app session** (opaque Redis refresh + cookies) is separate from **ESI access JWT** (CCP) and from **OAuth credential storage** (Mongo).
 
+How the SPA calls these → [frontend/auth/spa.md](../../frontend/auth/spa.md). Server-side session storage → [auth/sessions.md](./auth/sessions.md).
+
 ## Planner session
 
 | Method | Path | Response `kind` |
@@ -18,7 +20,12 @@ Bootstrap payloads include `esi_oauth_storage`: `client` \| `server` (mirrors `u
 | Mode | Method | Path |
 |------|--------|------|
 | Client-held OAuth refresh | POST | `/api/v1/eve-sso/tokens/refresh` |
-| Server-stored OAuth refresh | POST | `/api/v1/esi/characters/access-token/server` (private) |
+| Server-stored OAuth refresh, one character | POST | `/api/v1/esi/characters/access-token/server` (private) |
+| Server-stored OAuth refresh, several characters | POST | `/api/v1/esi/characters/access-tokens/server` (private) |
+
+The plural form takes `character_hashes` (up to 50) and answers one row per character — an access token,
+or an `error` for that character alone. It reads the account document once and writes the rotated rows
+once, whatever the count.
 
 Raw CCP OAuth exchange remains `POST /api/v1/eve-sso/tokens/exchange`.
 
@@ -29,9 +36,3 @@ Raw CCP OAuth exchange remains `POST /api/v1/eve-sso/tokens/exchange`.
 | GET, PUT, DELETE | `/api/v1/user/linked-characters/oauth-credentials` |
 
 GET returns character hashes only.
-
-## SPA module layout
-
-- **Session:** [`frontend/src/Functions/Auth/sessionClient.js`](frontend/src/Functions/Auth/sessionClient.js) (re-exported as `serverTokens.js`; URLs live at the top of that file).
-- **ESI access HTTP:** [`frontend/src/Functions/Endpoints/esiAccessClient.js`](frontend/src/Functions/Endpoints/esiAccessClient.js).
-- **OAuth credentials (private):** [`frontend/src/Functions/Endpoints/Private/accountCredentialsClient.js`](frontend/src/Functions/Endpoints/Private/accountCredentialsClient.js) and [`cloudStoredEsiRefreshTokens.js`](frontend/src/Functions/Endpoints/Private/cloudStoredEsiRefreshTokens.js).

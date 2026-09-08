@@ -4,14 +4,13 @@ Tracks **strategy**, **shipped work**, **test gaps**, and **open backlog** for t
 
 Companion architecture docs:
 
-- [readme.md](./overview.md) — vocabulary, wire contracts, flows, file index
+- [readme.md](./overview.md) — vocabulary, wire contracts, flows
 - [sessions.md](./sessions.md) — Go API + WS + Redis
 - [spa.md](../../../frontend/auth/spa.md) — SPA bootstrap, rotate, signout, Tranquility gate
 
 Related rollouts (separate plans):
 
 - [Authz HMAC rollout](../../../migration-plans/authz-hmac/contents.md) — ref IDs and scope snapshots
-- [Frontend lifecycles](../../../frontend/lifecycles/roadmap.md) — move SPA maintenance timers out of React mount into a boot-time supervisor
 
 > Per backlog item: **status** · **size** (S/M/L) · **where** · **why** · **how** · optional **acceptance**.  
 > Add **new** open items at the bottom **without renumbering** existing ids. Layer-specific items use **#4x** ids.
@@ -42,7 +41,8 @@ flowchart TB
     SSO[EVE SSO redirect / code]
     LS[localStorage Auth - local ESI refresh]
     CK[HttpOnly cookies eip_session / eip_app_refresh / eip_esi_oauth_storage]
-    ZS[Zustand account + tokenActions]
+    ZS[Zustand account + plannerSessionActions]
+    CP[esiCredentials provider - ESI access tokens]
   end
 
   subgraph api ["API (services/api)"]
@@ -84,6 +84,8 @@ flowchart TB
   RT --> RTK
   RT --> AS
   ZS --> RT
+  CP --> EX
+  CP --> MW
   CK --> MW
   MW --> AS
   MW --> SI
@@ -108,10 +110,10 @@ flowchart TB
 | **Session HTTP** | Login, rotate, bootstrap, logout; cookie issuance | `authenticate.go`, `refresh.go`, `logout.go` |
 | **Private API auth** | Cookie → Redis on every private route | `middleware/auth.go`, `auth_helpers.go` |
 | **WebSocket auth** | Same cookie + Redis as REST; no internal JWT | `websocket/server/handler.go` |
-| **ESI access (runtime)** | Short-lived JWT for ESI calls; cloud refreshes from Mongo | `user/cloudStoredEsiRefresh*.go`, `tokenActions.js` |
+| **ESI access (runtime)** | Short-lived JWT for ESI calls; cloud refreshes from Mongo | `user/cloudStoredEsiRefresh*.go`, `user/cloudStoredEsiAccessTokens.go`, `Functions/Auth/esiCredentials/*` |
 | **Session grants** | Corp/alliance IDs on session + `custom_claims_*` | `UpdateAccountSessionGrants`, worker `update_account_session_grants` |
 | **SPA bootstrap** | OAuth code / localStorage / cookie cloud resume | `useAuthUrlLogin.js`, `appLoginFlow.js` |
-| **SPA maintenance** | Rotate cooldown, Tranquility gate, staggered ESI refresh | `tokenActions.js`, `useRefreshESITokens.js` |
+| **SPA session upkeep** | Rotate cooldown, failure backoff, Tranquility gate | `plannerSessionActions.js` |
 | **Signout** | WS disconnect → logout → store reset | `routes/signout.jsx` |
 | **First login** | Onboarding route (orthogonal UX, same session) | `routes/__root.jsx`, `First Login/*` |
 | **Hygiene jobs** | Prune expired sessions, orphan keys | `session_cleanup.go`, worker cron, core singleton |
@@ -120,7 +122,7 @@ flowchart TB
 
 | Token | Lifetime | Stored | Used for |
 |-------|----------|--------|----------|
-| ESI access JWT | ~20m | Memory / Zustand character rows | ESI API calls; optional body on rotate |
+| ESI access JWT | ~20m | SPA credential provider (in memory, outside the store) | ESI API calls; optional body on rotate |
 | ESI refresh (OAuth) | Long | Mongo (cloud, encrypted) or `localStorage["Auth"]` (local) | Mint new ESI access via CCP or server |
 | Planner refresh | 7d chain | Redis `refresh_token:*` + cookie (cloud) or Zustand (local) | Rotate/bootstrap without full SSO |
 | Planner session id | 7d | Redis + `eip_session` cookie | Every private API + `/ws` |
@@ -157,14 +159,14 @@ flowchart TB
 | Persist verify + cleanup | `session_persist_test.go`, `session_cleanup_test.go` | — |
 | JSON response shapes | `session_types_test.go` | — |
 | SSO grant error strings | `sso/helpers_test.go` | Exchange/refresh handlers |
-| **HTTP login / rotate / bootstrap / logout** | — | **#15** |
+| **HTTP login / rotate / bootstrap / logout** | `live_session_rotation_test.go` (rotate, gated on live Redis) | Login, bootstrap and logout handlers — **#15** |
 | **Middleware `AuthConstructor`** | indirect via helpers | Cookie + error codes |
 | **WS `/ws` upgrade** | `subscribe_auth_test.go` (doc subscribe only) | Session cookie upgrade |
 | **Worker grants task** | `update_account_session_grants_test.go` | — |
-| **Frontend auth** | — | **#16**, login/rotate/signout flows |
+| **Frontend auth** | Credential provider, storage strategies, planner session and its recovery, private-request retry, post-login prefetch | Login-mode chooser and rendered auth surfaces — **#16** |
 | **E2E** | — | Optional Playwright smoke |
 
-**Summary:** Redis/session **helpers** are well covered; **HTTP handlers**, **middleware**, **WS session auth**, and **SPA** are not.
+**Summary:** Redis/session **helpers** and the SPA auth surface are well covered; the remaining **HTTP handlers**, **middleware**, and **WS session auth** are not.
 
 ---
 
@@ -179,6 +181,7 @@ flowchart TB
 | **#5** | Verify session row before cookies; rollback new refresh on failure |
 | **#6** | Unified `IsReauthExpired` / refresh + middleware alignment |
 | **#20** | `RunAuthSessionMaintenance` (orphan index + refresh tokens) |
+| **#57** | SPA auth clocks removed; credentials acquired at the point of use |
 
 ---
 
@@ -203,7 +206,7 @@ flowchart TB
 | **#7** | **Logout revokes `refresh_token:*`** — `RevokeRefreshTokensForLogout` + SPA `clearPlannerAuthCookiesClientSide` | done | S |
 | **#21** | **Admin revoke-all for account** — support/compromise: all sessions, indexes, refresh rows | open | M |
 
-**Where:** `logout.go`, `session_persist.go` (`RevokeRefreshTokensForLogout`), `plannerAuthCookies.js`; [BACKEND §6.3](./sessions.md#63-post-apiv1authsessionslogout-private--logouthandler), [FRONTEND §8](../../../frontend/auth/spa.md#8-signout).
+**Where:** `logout.go`, `session_persist.go` (`RevokeRefreshTokensForLogout`), `plannerAuthCookies.js`; [BACKEND §6.3](./sessions.md#63-post-apiv1authsessionslogout-private--logouthandler), [FRONTEND § Signout](../../../frontend/auth/spa.md#signout).
 
 ---
 
@@ -239,7 +242,7 @@ flowchart TB
 | **#47** | **WS upgrade integration test** — cookie present/absent, `reauth_required`, `session_missing` | open | M |
 | **#48** | **Session resume vs planner rotate** — document that `sessionID` rotate does not force WS reconnect; resume uses `previousClientID` | open | S |
 
-**Where:** `websocket/server/handler.go`, `realtimeClient.js`, [FRONTEND §6](../../../frontend/auth/spa.md#6-realtime-auth-integration).
+**Where:** `websocket/server/handler.go`, `realtimeClient.js`, [FRONTEND § The realtime connection](../../../frontend/auth/spa.md#the-realtime-connection).
 
 ---
 
@@ -251,7 +254,7 @@ flowchart TB
 | **#50** | **Linked characters bootstrap** — test cloud login returns per-character access tokens; hydration in `appLoginFlow` | open | M |
 | **#51** | **Additional account import OAuth** — `tryCompleteAdditionalAccountImportWindow` documented + regression test | open | S |
 
-**Where:** `user/cloudStoredEsiRefresh*.go`, `cloudAdditionalSessions.go`, `tokenActions.js`, `useRefreshESITokens.js`.
+**Where:** `user/cloudStoredEsiRefresh*.go`, `cloudAdditionalSessions.go`, `Functions/Auth/esiCredentials/*`.
 
 ---
 
@@ -274,12 +277,11 @@ flowchart TB
 | **#9** | Explicit `reauth_required` / `session_missing` handling | open | M |
 | **#10** | Private fetch 401 → auth reset (debounced) | open | M |
 | **#11** | Show `reauth_required_at` in settings/debug | open | S |
-| **#16** | Frontend tests for auth errors + login modes | open | S |
+| **#16** | Frontend tests for the login-mode chooser and the rendered auth surfaces | open | S |
 | **#54** | **Signout orchestration test** — disconnect WS → logout → `queryClient.clear` order | open | S |
 | **#55** | **`requireAuth` vs API 401** — document intentional split; optional sync on hard invalidation | open | S |
-| **#57** | **SPA maintenance lifecycles** — extract `useRefreshESITokens` timers into boot-time `Lifecycles/*`; keep `tokenActions` + React Query ownership | open | M |
 
-**Where:** [spa.md](../../../frontend/auth/spa.md), `authGuard.js`, `signout.jsx`; full plan [lifecycles/roadmap.md](../../../frontend/lifecycles/roadmap.md).
+**Where:** [spa.md](../../../frontend/auth/spa.md), `authGuard.js`, `signout.jsx`.
 
 ---
 
@@ -348,9 +350,8 @@ One production failure mode that motivated **#2–#6** and **#20** — not the o
 3. **#13** — middleware cookie hygiene on `reauth_required` (**#7** done).
 4. **#14**, **#16**, **#54** — metrics + frontend tests.
 5. **#40**, **#41** — SSO handler tests.
-6. **#57** — SPA lifecycle supervisor ([frontend-lifecycles](../../../frontend/lifecycles/roadmap.md)); can parallelise with SPA tests.
-7. **#17**, **#18** — when scheduled (separate plans).
-8. **#21**, **#30+** — admin and product features.
+6. **#17**, **#18** — when scheduled (separate plans).
+7. **#21**, **#30+** — admin and product features.
 
 ---
 

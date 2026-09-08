@@ -58,6 +58,18 @@ derived from. They are absent from a spread of an instance, so an object built w
 `{ ...job }` carries the fields and none of the derived values — pass instances, or rebuild
 with the class.
 
+## Tests sit beside what they test
+
+A `*.test.js(x)` lives in the same folder as the module it covers, the way `_test.go` does in
+[`services/`](../../services/). `Functions/Auth/plannerAuthCookies.js` is tested by
+`Functions/Auth/plannerAuthCookies.test.js` next to it, not from a separate tests tree.
+
+Anything reusable across tests — fixtures, harnesses, store seeding, the Vitest setup file — lives in
+[`frontend/src/tests/`](../../frontend/src/tests/). That folder is the SPA's counterpart to the
+repo-root [`testing/`](../../testing/) module: **look there before writing a helper inside a test
+file, and put a new reusable one there**. Helpers copied into each file that needs them are the
+failure this prevents.
+
 ## Frontend-specific bar (TBD)
 
 Design-system / visual / SPA-only conventions (component libraries, routing, styling) will be written

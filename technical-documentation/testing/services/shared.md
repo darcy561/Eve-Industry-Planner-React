@@ -34,8 +34,8 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 | `nats` (unit) | Retry attempts, backoff and the error classifier, including that a cancelled context ends a wait rather than sleeping it out; envelope trace and log-context enrichment; subject builders and tenant filters; consumer keep policy; task registry — every task registered under its own name, every subject ending in its task name, every task having a publish helper |
 | `nats` (live, embedded server) | Stream and durable reconcile; the three cleanup layers; bounded consume concurrency and that stop waits for in-flight handlers; the three handler outcomes (ack, terminate, redeliver) asserted from what the server still holds; batched publish and `Wait`; schedules — fire, replace-by-id, cancel, and read-back of the server's own fire time |
 | `logs` | Request ID/account identity; operation context; debug steps; access-log / handler detail; OTLP JSON export |
-| `mongo` (unit) | `IsRetryableMongoError` classifier (cancel / no-docs / disconnected / string fallback); groups membership-diff helper |
-| `mongo` (live, opt-in) | `TestLive_*` put/get/schema/load-filter/doc-shape parity against stack Mongo |
+| `mongo` (unit) | `IsRetryableMongoError` classifier (cancel / no-docs / disconnected / string fallback); groups membership-diff helper; which fields a row-scoped refresh-token write puts on the wire, so a row carrying only a bumped failure count cannot blank its own credential |
+| `mongo` (live, opt-in) | `TestLive_*` put/get/schema/load-filter/doc-shape parity against stack Mongo; the `users.refreshTokens` row helpers — a bulk write and a single-row write racing on one account with every rotation surviving, an unmatched row reported as an error, push adding then replacing without duplicating, pull removing only the named rows, and a control performing a whole-array write that still loses a concurrent rotation |
 | `mongo/writers` | Arg-validation / nil-bulk unit tests; exercised on live paths via group-templates / build-stats consumers |
 | `httpclient` | Retry classification and what is never repeated; gate refusals escaping the retry loop; wire-byte counting through gzip; conditional headers and validator parsing; h2 negotiation |
 | `esiclient` (unit) | Bucket keying and token cost against the protocol; allowance learned from headers, never written in code; the floating-window ledger; class floors and hand-off order; glide; the observed downtime gate, including source spread and the lone-source trip; operator reset dropping the allowance and keeping the ledger |
@@ -59,5 +59,6 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 ## Topic-only detail
 
 - Depth labels → [contents.md](./contents.md) § Depth labels.
+- The whole-array control in the live `users.refreshTokens` suite is the point of that suite: it is expected to lose a concurrent rotation, and if it ever starts passing, the row-scoped helpers are no longer what holds the invariant up.
 - Shared changes often affect multiple services — run the touched shared package plus the consuming service’s suite.
 - Live Mongo tests skip unless `EIP_MONGO_PARITY_LIVE=1`; they do not run in default CI unit jobs.

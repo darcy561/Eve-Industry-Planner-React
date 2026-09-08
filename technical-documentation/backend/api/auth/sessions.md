@@ -304,7 +304,7 @@ stateDiagram-v2
 
 Key implementation notes:
 
-- **`eve_token == ""` is only legal when `refreshFromCookie`** (cookie cloud resume). The handler then calls `RefreshStoredEsiFromMongoForCharacter` to mint a fresh ESI access from the encrypted Mongo refresh token. Errors map to `cloud_esi_not_found` / `cloud_stored_esi_internal` / `Stored ESI refresh invalid` etc.
+- **`eve_token == ""` is only legal when `refreshFromCookie`** (cookie cloud resume). The handler then calls `RefreshStoredEsiFromMongoForCharacter` to mint a fresh ESI access from the encrypted Mongo refresh token. A missing row or a refusal from EVE SSO is terminal for the client and answers `401 {"code":"session_revoked"}`; a keyring, decrypt or persist failure is ours and answers `500`.
 - **`eve_token != ""`**: validated with `auth.ValidateEveTokenAndExtractHash`; `tokenData.CharacterHash` **must** match `eveTokenInfo.CharacterHash`, else `401 Invalid token`.
 - **Session backfill**: legacy `refresh_token:` rows may lack `SessionID`. The handler mints one (`refresh_backfill` flow on rotate, `login_refresh` on bootstrap) and stamps `SessionStart`.
 - **Only the presented token is revoked** (`RevokeRefreshToken(refreshToken)`). Other devices' refresh-token rows are untouched — they each rotate themselves on their own cadence.
@@ -445,10 +445,10 @@ Every other private handler under `services/api/v1endpoints/**` is wrapped by `A
 | No `eip_session` cookie / Redis row missing | `401 {"code":"session_missing"}` |
 | `AccountSession.RevokedAt != nil` | `401 {"code":"session_revoked"}` |
 | `ReauthRequiredAt < now` (7d cap) | `401 {"code":"reauth_required"}` |
-| Refresh: `refresh_token:` row missing | `401 "Invalid token"` |
+| Refresh: `refresh_token:` row missing | `401 {"code":"session_revoked"}` |
 | Refresh: `eve_token` invalid / expired (text varies) | `401 <error message>` |
 | Refresh: `eve_token == ""` and `!refreshFromCookie` | `400 "eve_token is required …"` |
-| Refresh: cloud Mongo ESI missing | `401 "Invalid token"` (mapped) |
+| Refresh: cloud Mongo ESI missing, or stored ESI refused by SSO | `401 {"code":"session_revoked"}` |
 | Logout: presented refresh token's account does not match session account | `401 "Unauthorized"` |
 | Login: EVE JWT validation failure | `401 <auth.GetEveTokenErrorMessage(err)>` |
 | Login / refresh: Redis error | `500 "Internal server error"` |
@@ -490,41 +490,3 @@ stateDiagram-v2
 - **No public JWKS endpoint.** Anything that previously hit `/.well-known/jwks.json` for the planner's internal key has been removed; consumers should not exist.
 - **Cleanup**: `auth.RunAuthSessionMaintenance` (worker cron every 4h via `pruneExpiredAccountSessions`, core singleton `auth-session-maintenance` hourly) prunes expired `account_sessions` rows, deletes orphan `session_index:*` keys, and revokes `refresh_token:*` rows whose `session_id` is missing from `account_sessions`. Set `AUTH_SESSION_CLEANUP_DRY_RUN=true` to log counts without deleting. **Logout** revokes the presented planner refresh row immediately; maintenance still catches orphans from crashed tabs or partial failures. Bulk revoke per account remains **#21** (admin endpoint).
 - **Grants caching**: `custom_claims_corporations:<accountID>` and `custom_claims_alliances:<accountID>` are *advisory* — the websocket scope checks fall back to `identity.Session.Grants`, which `UpdateAccountSessionGrants` refreshes on every login / rotate / bootstrap.
-
----
-
-## 15. Files
-
-| Path | Role |
-|---|---|
-| `services/api/middleware/auth.go` | `AuthConstructor` |
-| `services/api/middleware/requestlogging.go` | `X-Request-ID`, Hijack/Flush for WS upgrade |
-| `services/api/helper/auth/auth_helpers.go` | Context keys, EVE JWT validation, `ExtractAccountSession` |
-| `services/api/helper/auth/refresh_token.go` | Redis types, key prefixes, TTLs, CRUD |
-| `services/api/helper/auth/session_persist.go` | Session verify helpers; `RevokeRefreshTokensForLogout` |
-| `services/api/helper/auth/session_persist_test.go` | Logout refresh revocation tests |
-| `services/api/helper/auth/session_cookie.go` | `eip_session` cookie |
-| `services/api/helper/auth/app_refresh_cookie.go` | `eip_app_refresh` cookie |
-| `services/api/helper/auth/esi_oauth_storage_cookie.go` | `eip_esi_oauth_storage` cookie |
-| `services/api/helper/headers.go` | `X-WS-Client-ID`, `X-Session-ID` constants |
-| `services/api/helper/httpGuards.go` | `RequireAccountID`, `RequireMethod` |
-| `services/api/helper/request_context.go` | `PopulateRequestMeta` for downstream logs/metrics |
-| `services/api/v1endpoints/authenticate.go` | `AuthHandler` |
-| `services/api/v1endpoints/refresh.go` | `RotateHandler` / `BootstrapHandler` / `refreshHandler` |
-| `services/api/v1endpoints/logout.go` | `LogoutHandler` |
-| `services/api/v1endpoints/session_types.go` | JSON contracts (`SessionBootstrapResponse`, `SessionRotateResponse`) |
-| `services/api/v1endpoints/sso/exchangeHandler.go` | `EveSSOExchangeHandler` |
-| `services/api/v1endpoints/sso/refreshHandler.go` | `EveSSORefreshHandler` |
-| `services/api/v1endpoints/sso/helpers.go` / `requestParsers.go` / `types.go` | SSO request/credential helpers, length caps |
-| `services/api/apiServer.go` | Route table; wires public vs private groups |
-| `services/websocket/server/handler.go` | `HandleWS` — shared cookie+Redis auth on upgrade |
-| `services/shared/core/config/config.go` | Env loader |
-| `services/shared/core/crypto/keyrings/refresh_token.go` | AES-GCM keyring for Mongo-stored ESI refresh |
-
-### Deleted (reference)
-
-- `services/api/v1endpoints/jwks.go`
-- `services/shared/core/internaljwt/{jwt,key_cache,rsa_keys}.go`
-- `services/websocket/sso/{jwks,jwt,types}.go`
-
-All replaced by the shared `helper/auth` package described above.

@@ -4,11 +4,10 @@ End-to-end documentation for the planner's authentication and session-handling s
 
 > Documentation is split into four files:
 >
-> - **README.md** (this file) — vocabulary, cross-stack architecture, the wire contract, end-to-end flows, environment, and a file index.
+> - **README.md** (this file) — vocabulary, cross-stack architecture, the wire contract, end-to-end flows, and environment.
 > - **[spa.md](../../../frontend/auth/spa.md)** — React app: bootstrap modes, Zustand actions, request-time auth, refresh cooldown, Tranquility gate, signout, realtime auth.
 > - **[sessions.md](./sessions.md)** — Go API: middleware, Redis key layout, handler-by-handler contracts, refresh state machine, websocket upgrade auth.
 > - **[roadmap.md](./roadmap.md)** — full-system backlog: EVE SSO, Redis sessions, HTTP/WS, ESI maintenance, SPA, tests, ops, and related rollouts (see system map there).
-> - **[Frontend lifecycles roadmap](../../../frontend/lifecycles/roadmap.md)** — move SPA auth/character maintenance clocks out of React `useEffect` into a boot-time supervisor.
 
 ---
 
@@ -194,8 +193,8 @@ sequenceDiagram
     participant A as API
     participant R as Redis
 
-    Note over S: any private fetch + 15m maintenance timer
-    S->>S: refreshServerToken()
+    Note over S: any private fetch, when the session is due
+    S->>S: ensurePlannerSession()
     S->>S: Tranquility cached offline? -> return
     S->>S: lastPlannerSessionValidatedAt within 20m? -> return
     S->>A: POST /api/v1/auth/sessions/rotate { eve_token? }\nCookie: eip_session, eip_app_refresh
@@ -380,62 +379,16 @@ See [BACKEND.md §3](./sessions.md#3-redis-key-layout) for the full struct defin
 
 ---
 
-## 10. File index
-
-### Backend (`services/`)
-
-- `api/middleware/auth.go` — `AuthConstructor` (cookie → Redis → context).
-- `api/helper/auth/auth_helpers.go` — context keys, EVE JWT validation, `ExtractAccountSession`.
-- `api/helper/auth/refresh_token.go` — Redis types, key prefixes, TTLs, CRUD.
-- `api/helper/auth/session_cookie.go` — `eip_session` cookie helpers.
-- `api/helper/auth/app_refresh_cookie.go` — `eip_app_refresh` cookie helpers.
-- `api/helper/auth/esi_oauth_storage_cookie.go` — `eip_esi_oauth_storage` cookie helpers.
-- `api/helper/httpGuards.go` — `RequireAccountID`, `RequireMethod`.
-- `api/helper/request_context.go` — `PopulateRequestMeta` (account + session id + WS client id).
-- `api/helper/headers.go` — `X-WS-Client-ID`, `X-Session-ID` constants.
-- `api/v1endpoints/authenticate.go` — `AuthHandler` (POST `/auth/sessions`).
-- `api/v1endpoints/refresh.go` — `RotateHandler` + `BootstrapHandler`.
-- `api/v1endpoints/logout.go` — `LogoutHandler`.
-- `api/v1endpoints/session_types.go` — `SessionBootstrapResponse`, `SessionRotateResponse`.
-- `api/v1endpoints/sso/exchangeHandler.go` — `EveSSOExchangeHandler`.
-- `api/v1endpoints/sso/refreshHandler.go` — `EveSSORefreshHandler`.
-- `api/v1endpoints/sso/helpers.go`, `requestParsers.go`, `types.go` — shared SSO parsing + length caps.
-- `websocket/server/handler.go` — WS upgrade auth via shared cookie + Redis.
-- `shared/core/config/config.go` — env-driven `Config` (EVE creds, Redis, refresh keyring).
-
-### Frontend (`frontend/src/`)
-
-- `App.jsx`, `AppWrapper.jsx` — root wiring (QueryClientProvider, refresh hooks, realtime).
-- `queryClient.js` — shared React Query client (60s default `staleTime`).
-- `routes/__root.jsx` — first-login redirect.
-- `routes/_protected.jsx` — `beforeLoad: requireAuth`.
-- `routes/signout.jsx` — orchestrated logout (realtime → API → store → cache → storage → client cookie clear).
-- `utils/authGuard.js` — `requireAuth`, `allowPublicAccess`, cloud-resume cookie hint.
-- `Functions/Auth/plannerAuthCookies.js` — cookie names/paths; client-side expiry on sign-out.
-- `Zustand/account/account.js` — account slice defaults / state shape.
-- `Zustand/account/tokenActions.js` — session merge / rotate / ESI maintenance.
-- `Functions/Auth/sessionClient.js` — raw `fetch` calls to session endpoints.
-- `Functions/Auth/serverTokens.js` — re-export aliases.
-- `Functions/Auth/appLoginFlow.js` — login mode resolvers + post-login hydration.
-- `Functions/Auth/authRefreshTranquilityGate.js` — refresh deferral helper.
-- `Functions/Endpoints/Private/applyPrivateHeaders.js` — pre-rotate + cookie + `X-WS-Client-ID` headers.
-- `Functions/EveESI/fetchTranquilityStatus.js` — `/status/` ESI fetch.
-- `Hooks/React Query/tranquilityServerStatus.js` — Tranquility query options + key.
-- `Hooks/App/useRefreshESITokens.js` — maintenance + stagger timers.
-- `Realtime/realtimeClient.js` — `/ws` singleton + session resume.
-- `Realtime/useAccountWebSocket.js` — connect/disconnect lifecycle.
-- `Components/Auth/Hooks/useAuthUrlLogin.js` — login mode chooser at startup.
-
----
-
-## 11. Failure modes & status codes
+## 10. Failure modes & status codes
 
 | Condition | API response | Notes |
 |---|---|---|
 | `eip_session` missing on private route | `401 { "code": "session_missing" }` | Middleware-level; the SPA does **not** auto-redirect on 401. The frontend `requireAuth` guard is purely state-based (`account.isLoggedIn`). |
 | Session row missing / `RevokedAt` set | `401 { "code": "session_revoked" }` | Cleaned up by logout or admin tooling. |
 | `ReauthRequiredAt` past now | `401 { "code": "reauth_required" }` | Hard 7-day cap; user must run the full SSO flow again. |
-| `refresh_token` Redis row missing on rotate/bootstrap/logout | `401 "Invalid token"` | Most often: the token was rotated by another tab/device. |
+| `refresh_token` Redis row missing on rotate / bootstrap | `401 { "code": "session_revoked" }` | Most often: the token was rotated by another tab or device. The SPA treats the code as terminal and starts a full EVE SSO login. |
+| `refresh_token` Redis row missing on logout | `401 "Invalid token"` | The client clears its cookies regardless. |
+| Cloud account with no stored ESI material, or stored ESI refused by EVE SSO, on rotate / bootstrap | `401 { "code": "session_revoked" }` | The account has to authorise its main character again. |
 | Wrong account on logout | `401 "Unauthorized"` | The presented refresh token's `account_id` must match the session-cookie account. |
 | Tranquility cached offline (frontend) | refresh path returns early | No HTTP issued; existing cookies remain valid until they expire. |
 

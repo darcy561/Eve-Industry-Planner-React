@@ -18,10 +18,10 @@ import {
   showSnackbarError,
   showSnackbarInfo,
 } from "../../Events/snackbarEvents";
-import checkUserClaims from "../../Functions/Auth/checkUserClaims";
+import refreshAccountSessionGrants from "../../Functions/Auth/refreshAccountSessionGrants.js";
 import useUsersStore from "../../Zustand/usersStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCharacterHooks } from "../../Hooks/React Query/useCharacterHooks";
+import { prefetchCharacterData } from "../../Functions/Character/prefetchCharacterData";
 import { buildCorporationObjectFromUserObject } from "../../Functions/Corporations/buildCorporationObject";
 import {
   flushPendingUserDocumentSaves,
@@ -81,7 +81,6 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
 
   const [skeletonVisible, toggleSkeleton] = useState(false);
   const queryClient = useQueryClient();
-  const { triggerCharacterDataPrefetch } = useCharacterHooks();
   const detachImportListenerRef = useRef(null);
 
   useEffect(
@@ -145,7 +144,7 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
       updateLocalRefreshTokens(toPersist);
     }
 
-    await checkUserClaims();
+    await refreshAccountSessionGrants();
     if (cloudNow) {
       scheduleDebouncedUserAccountDocumentSave();
       await flushPendingUserDocumentSaves();
@@ -155,7 +154,7 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
         ? AppEvent.ADD_ADDITIONAL_CHARACTER_CLOUD
         : AppEvent.ADD_ADDITIONAL_CHARACTER_LOCAL,
     );
-    triggerCharacterDataPrefetch(queryClient, newUser.CharacterHash);
+    prefetchCharacterData(queryClient, newUser.CharacterHash);
     showSnackbarSuccess(`${newUser.CharacterName} Imported`, 3);
   };
 

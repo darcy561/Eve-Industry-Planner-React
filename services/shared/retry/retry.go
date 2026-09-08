@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// unlimitedAttempts marks a budget bounded only by the context.
+const unlimitedAttempts = -1
+
 // Config defines retry behaviour for transient external failures.
 type Config struct {
 	MaxAttempts   int
@@ -15,12 +18,14 @@ type Config struct {
 	MaxDelay      time.Duration
 	OperationName string
 	Jitter        float64
+	FullJitter    bool
 }
 
 // Option overrides default retry behaviour. Pass zero or more to Do.
 type Option func(*Config)
 
-// AttemptContext includes metadata for retry callbacks.
+// AttemptContext includes metadata for retry callbacks. MaxAttempts is 0 when
+// the budget is unlimited, since there is no total to count towards.
 type AttemptContext struct {
 	Attempt     int
 	MaxAttempts int
@@ -39,6 +44,16 @@ func DefaultConfig() Config {
 func WithMaxAttempts(n int) Option {
 	return func(c *Config) {
 		c.MaxAttempts = n
+	}
+}
+
+// WithUnlimitedAttempts retries until the operation succeeds, the predicate
+// refuses, or the context ends — for waiting on something that will arrive
+// rather than for an operation that has to answer now. The context is then the
+// only bound, so the caller must have one that ends.
+func WithUnlimitedAttempts() Option {
+	return func(c *Config) {
+		c.MaxAttempts = unlimitedAttempts
 	}
 }
 
@@ -67,9 +82,22 @@ func WithOperationName(name string) Option {
 // WithJitter spreads each delay by up to fraction of itself in either direction,
 // so simultaneous losers of a contended operation do not retry in step. 0
 // (the default) keeps backoff exact; values above 1 are clamped to 1.
+//
+// For a heavily contended operation prefer [WithFullJitter], which spreads across
+// the whole interval rather than around its end.
 func WithJitter(fraction float64) Option {
 	return func(c *Config) {
 		c.Jitter = fraction
+		c.FullJitter = false
+	}
+}
+
+// WithFullJitter picks each delay uniformly from the whole interval up to the
+// backoff, rather than clustering around it. It is the stronger choice under
+// contention: losers spread across the window instead of bunching at its end.
+func WithFullJitter() Option {
+	return func(c *Config) {
+		c.FullJitter = true
 	}
 }
 
@@ -90,9 +118,10 @@ func Do(
 		opt(&cfg)
 	}
 
-	if cfg.MaxAttempts <= 0 {
+	if cfg.MaxAttempts <= 0 && cfg.MaxAttempts != unlimitedAttempts {
 		cfg.MaxAttempts = 3
 	}
+	unlimited := cfg.MaxAttempts == unlimitedAttempts
 	if cfg.InitialDelay <= 0 {
 		cfg.InitialDelay = 200 * time.Millisecond
 	}
@@ -100,7 +129,7 @@ func Do(
 		cfg.MaxDelay = 2 * time.Second
 	}
 
-	for attempt := 1; attempt <= cfg.MaxAttempts; attempt++ {
+	for attempt := 1; unlimited || attempt <= cfg.MaxAttempts; attempt++ {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -110,11 +139,11 @@ func Do(
 			return nil
 		}
 
-		attemptCtx := AttemptContext{
-			Attempt:     attempt,
-			MaxAttempts: cfg.MaxAttempts,
+		attemptCtx := AttemptContext{Attempt: attempt}
+		if !unlimited {
+			attemptCtx.MaxAttempts = cfg.MaxAttempts
 		}
-		if attempt == cfg.MaxAttempts || !shouldRetry(err, attemptCtx) {
+		if (!unlimited && attempt == cfg.MaxAttempts) || !shouldRetry(err, attemptCtx) {
 			return err
 		}
 
@@ -133,7 +162,14 @@ func Do(
 // per attempt, is capped at MaxDelay, and only then is jittered — so jitter
 // spreads the cap rather than being erased by it.
 func backoff(cfg Config, attempt int) time.Duration {
-	delay := min(cfg.InitialDelay<<(attempt-1), cfg.MaxDelay)
+	// Clamped so a long unbounded run cannot shift the delay into overflow.
+	delay := cfg.MaxDelay
+	if shift := attempt - 1; shift < 62 {
+		delay = min(cfg.InitialDelay<<shift, cfg.MaxDelay)
+	}
+	if cfg.FullJitter {
+		return time.Duration(rand.Int64N(int64(delay)) + 1)
+	}
 	if cfg.Jitter <= 0 {
 		return delay
 	}

@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"math/rand/v2"
 	"time"
+
+	"eve-industry-planner/shared/retry"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -43,12 +44,8 @@ func Update[T any](ctx context.Context, r *Redis, key string, ttl time.Duration,
 		return err
 	}
 
-	for attempt := range casAttempts {
-		if attempt > 0 && !casBackoff(ctx, attempt) {
-			return ctx.Err()
-		}
-
-		err := c.Watch(ctx, func(tx *redis.Tx) error {
+	err = retry.Do(ctx, func(ctx context.Context) error {
+		return c.Watch(ctx, func(tx *redis.Tx) error {
 			var doc T
 			found := true
 
@@ -81,25 +78,18 @@ func Update[T any](ctx context.Context, r *Redis, key string, ttl time.Duration,
 			})
 			return err
 		}, key)
+	}, func(err error, _ retry.AttemptContext) bool {
+		return errors.Is(err, redis.TxFailedErr)
+	},
+		retry.WithMaxAttempts(casAttempts),
+		retry.WithInitialDelay(casBackoffUnit),
+		retry.WithMaxDelay(casBackoffMax),
+		retry.WithFullJitter(),
+	)
 
-		if errors.Is(err, redis.TxFailedErr) {
-			continue
-		}
-		return err
+	// Losing every attempt is a conflict the caller can act on, not a Redis fault.
+	if errors.Is(err, redis.TxFailedErr) {
+		return ErrCASConflict
 	}
-
-	return ErrCASConflict
-}
-
-// casBackoff waits a randomised, growing interval. Returns false if ctx ended.
-func casBackoff(ctx context.Context, attempt int) bool {
-	window := min(casBackoffUnit*time.Duration(1<<min(attempt, 5)), casBackoffMax)
-	timer := time.NewTimer(time.Duration(rand.Int64N(int64(window)) + 1))
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
-		return false
-	case <-timer.C:
-		return true
-	}
+	return err
 }

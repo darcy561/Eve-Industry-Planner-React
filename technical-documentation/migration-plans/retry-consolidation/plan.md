@@ -25,12 +25,17 @@ similar files.
 
 ## Starting position
 
+This was the position when the project started; every "its own" below is now the engine.
+
 | Package | Loop | Attempts | Backoff | Predicate | Callers |
 |---------|------|----------|---------|-----------|---------|
 | `shared/retry` | the engine | 3 (default) | 200ms → 2s | supplied by the caller | object store, EVE SSO, SDE fetch |
 | `shared/redis` | uses the engine | 3 | 100ms → 2s | `IsRetryableError` | the handle's own operations |
 | `shared/mongo` | its own | 3 | 100ms → 2s | `IsRetryableMongoError` | ~30 call sites, plus `Docs` helpers and `writers` |
 | `shared/nats` | its own | per policy | per policy | `IsRetryable` | 4 call sites, two named policies |
+
+Four more were found while enforcing the goal at Stage D — the Redis CAS backoff, the Redis and Mongo
+connect loops, and the static-data cache warmer. See [overlay.md](./overlay.md) § Stage D.
 
 The three loops agree on structure — attempt, classify, back off, honour the context — and differ in
 their defaults, their logging, and small details of what they return. None of the differences needs a
@@ -116,25 +121,29 @@ backoff curve.
 
 What landed, and why each way: [overlay.md](./overlay.md) § Stage A.
 
-### Stage B — Mongo
+### Stage B — Mongo — **done**
 
-`mongo.Retry` keeps its signature and calls the engine. `IsRetryableMongoError` becomes the predicate;
-`RetryOption` maps to `WithOperationName`. The ~30 call sites and the `Docs` / `writers` helpers do
-not change.
+`mongo.Retry` keeps its signature and calls the engine; the ~30 call sites and the `Docs` / `writers`
+helpers did not change. The loop had no tests of its own and now has them.
 
-Done when: `shared/mongo` holds no loop, and its retry tests pass unchanged.
+What landed: [overlay.md](./overlay.md) § Stage B.
 
-### Stage C — NATS
+### Stage C — NATS — **done**
 
-`nats.Retry` keeps its signature; `RetryPolicy` becomes engine options at the call. `PublishRetry`
-and `AckRetry` stay as named values, with the reason acknowledgement backs off less kept where it is.
+`nats.Retry` keeps its signature and its log levels; `RetryPolicy` becomes engine options at the call,
+and `PublishRetry` / `AckRetry` stay as named values. The existing retry tests pass unchanged.
 
-Done when: `shared/nats` holds no loop, and its retry tests pass unchanged.
+What landed: [overlay.md](./overlay.md) § Stage C.
 
-### Stage D — Close
+### Stage D — Close — **code done, promotion pending**
 
-Confirm no package outside `shared/retry` implements a backoff loop, enforced by a test. Promote the
-retry flow into live documentation — it has no home today — and delete this folder.
+Enforcing the goal found four more loops outside the plan's original scope — the Redis CAS backoff, the
+Redis and Mongo connect loops, and the static-data cache warmer — and all four moved onto the engine.
+`TestRetry_isTheOnlyBackoffLoop` now fails on any function that both waits on a timer and bounds itself
+by an attempt count, and was checked against a reintroduced loop.
+
+Remaining: promote [overlay.md](./overlay.md) into live documentation under `backend/`, which has no
+home for the retry flow today, then delete this folder.
 
 Done when: one loop exists, the live docs describe it, and this folder is gone.
 
@@ -144,21 +153,19 @@ Done when: one loop exists, the live docs describe it, and this folder is gone.
 |-------|--------|
 | Phase 1 — project folder and docs | **done** |
 | Stage A — fix the engine | **done** |
-| Stage B — Mongo | not started |
-| Stage C — NATS | not started |
-| Stage D — close | not started |
+| Stage B — Mongo | **done** |
+| Stage C — NATS | **done** |
+| Stage D — close | code **done**; promotion pending |
 
 ## Pickup
 
-Start at Stage B. The engine's contract is settled and tested, so B and C are now mechanical: replace
-each loop with a `retry.Do` call that supplies the area's predicate and its policy as options.
+All the code is landed: one loop exists at `services/shared/retry`, seven areas supply a predicate and
+a budget, and `TestRetry_isTheOnlyBackoffLoop` keeps it that way.
 
-Two things the converted areas must account for, both recorded in [overlay.md](./overlay.md) § Stage A:
+What is left is **promotion**, which needs go-ahead. [overlay.md](./overlay.md) holds the finished
+description of the retry flow; live documentation has no home for it today, so promotion means writing
+it into a `backend/` topic doc, adding a row to that section's `contents.md`, and deleting this folder.
 
-- An exhausted retry returns the cause, so the `fmt.Errorf("… failed after %d attempts")` in each loop
-  goes rather than moving.
-- `shouldRetry` is not called on the last attempt, so a loop's "all retries exhausted" log line moves
-  to after `Do` returns.
-
-The Redis adoption is the reference for what a converted area looks like —
-`services/shared/redis/retry.go`, a predicate plus options and no loop of its own.
+The engine's own tests are the contract if any of this is revisited — `services/shared/retry`, which
+pins what a caller receives on exhaustion, that every wait honours the context, and both jitter
+shapes.

@@ -8,6 +8,7 @@ import (
 
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/retry"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -19,36 +20,44 @@ func connectMongo(mongoURL string, connectionName string, configureOpts func(*op
 	const retryDelay = 5 * time.Second
 	bg := context.Background()
 
-	var lastErr error
-	for attempt := 1; attempt <= retryCount; attempt++ {
+	var connected *mongo.Client
+	err := retry.Do(bg, func(context.Context) error {
 		opts := options.Client().ApplyURI(mongoURL)
 		configureOpts(opts)
 
 		client, err := mongo.Connect(opts)
-		if err == nil {
-			ctx, cancel := context.WithTimeout(bg, 5*time.Second)
-			err = client.Ping(ctx, nil)
-			cancel()
-			if err == nil {
-				logs.DebugCtx(bg, fmt.Sprintf("Connected to %s on attempt %d/%d", connectionName, attempt, retryCount))
-				go monitorMongoConnection(client)
-				return client, nil
-			}
+		if err != nil {
+			return err
+		}
+
+		ctx, cancel := context.WithTimeout(bg, 5*time.Second)
+		defer cancel()
+		if err := client.Ping(ctx, nil); err != nil {
 			_ = client.Disconnect(bg)
+			return err
 		}
-		lastErr = err
-		logs.ErrorCtx(bg, fmt.Sprintf("Failed to connect to %s. Attempt %d/%d. Error: %v", connectionName, attempt, retryCount, lastErr))
-		if attempt < retryCount {
-			time.Sleep(retryDelay)
-		}
+		connected = client
+		return nil
+	}, func(err error, at retry.AttemptContext) bool {
+		logs.ErrorCtx(bg, fmt.Sprintf("Failed to connect to %s. Attempt %d/%d. Error: %v",
+			connectionName, at.Attempt, at.MaxAttempts, err))
+		return true
+	},
+		retry.WithMaxAttempts(retryCount),
+		// A server that is still starting comes up on its own schedule, so the
+		// wait stays flat rather than growing away from it.
+		retry.WithInitialDelay(retryDelay),
+		retry.WithMaxDelay(retryDelay),
+	)
+	if err != nil {
+		message := fmt.Sprintf("Failed to connect to %s after %d attempts. Exiting...", connectionName, retryCount)
+		logs.ErrorCtx(bg, message)
+		return nil, fmt.Errorf("%s: %w", message, err)
 	}
 
-	message := fmt.Sprintf("Failed to connect to %s after %d attempts. Exiting...", connectionName, retryCount)
-	logs.ErrorCtx(bg, message)
-	if lastErr != nil {
-		return nil, fmt.Errorf("%s: %w", message, lastErr)
-	}
-	return nil, errors.New(message)
+	logs.DebugCtx(bg, fmt.Sprintf("Connected to %s", connectionName))
+	go monitorMongoConnection(connected)
+	return connected, nil
 }
 
 // applyBaseOpts sets the connection settings shared by every client.

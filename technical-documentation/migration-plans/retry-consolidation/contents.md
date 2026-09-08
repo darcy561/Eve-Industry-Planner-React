@@ -12,6 +12,7 @@ One retry engine for the whole backend, and the flow every retried operation fol
   Redis's — expressed as configuration of the one engine rather than as separate loops.
 - The **defects in the engine** found while adopting it, including the unreachable
   exhausted-attempts wrapper.
+- The **test that keeps the loop sole** — what counts as a backoff loop, and what is exempt.
 
 ## Does not own
 
@@ -21,7 +22,7 @@ One retry engine for the whole backend, and the flow every retried operation fol
 - The Redis handle and its keyspace → [backend/shared/redis.md](../../backend/shared/redis.md).
   Redis already calls the shared engine; this project does not revisit it.
 - HTTP-level retry and its budget → `services/shared/httpclient`, which retries a request rather
-  than an operation and is a different concern.
+  than an operation and is a different concern, and is exempt from the sole-loop test.
 - Live SoT under [backend/](../../backend/contents.md), promoted only when this project closes.
 
 ## Task map

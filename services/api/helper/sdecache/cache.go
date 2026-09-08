@@ -12,6 +12,7 @@ import (
 	sdecore "eve-industry-planner/shared/core/sde"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
+	"eve-industry-planner/shared/retry"
 )
 
 var (
@@ -96,20 +97,20 @@ func runCacheWarmer(ctx context.Context, rewarm <-chan struct{}) {
 		if ctx.Err() != nil {
 			return
 		}
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-			err := tryWarmOnce(ctx)
-			if err == nil {
-				break
-			}
+		// The static data arrives on its own schedule, so the warmer waits for it
+		// rather than giving up after a budget.
+		err := retry.Do(ctx, func(ctx context.Context) error {
+			return tryWarmOnce(ctx)
+		}, func(err error, _ retry.AttemptContext) bool {
 			logs.WarnCtx(ctx, "static data cache warm not ready yet", "error", err)
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(warmerRetryInterval):
-			}
+			return true
+		},
+			retry.WithUnlimitedAttempts(),
+			retry.WithInitialDelay(warmerRetryInterval),
+			retry.WithMaxDelay(warmerRetryInterval),
+		)
+		if err != nil {
+			return
 		}
 
 		select {

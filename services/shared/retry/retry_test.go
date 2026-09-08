@@ -242,3 +242,48 @@ func TestBackoff_jitterFractionClampedAndStaysPositive(t *testing.T) {
 		}
 	}
 }
+
+// Full jitter spreads across the whole interval rather than clustering at its
+// end, which is what a contended operation needs.
+func TestBackoff_fullJitterSpansTheInterval(t *testing.T) {
+	cfg := Config{InitialDelay: 100 * time.Millisecond, MaxDelay: time.Second, FullJitter: true}
+	var low, high int
+	for range 500 {
+		got := backoff(cfg, 1)
+		if got < 1 || got > 100*time.Millisecond {
+			t.Fatalf("backoff = %v, want within (0, 100ms]", got)
+		}
+		if got < 50*time.Millisecond {
+			low++
+		} else {
+			high++
+		}
+	}
+	if low == 0 || high == 0 {
+		t.Fatalf("full jitter produced %d low and %d high delays, want both halves of the interval", low, high)
+	}
+}
+
+func TestBackoff_fullJitterHonoursTheCap(t *testing.T) {
+	cfg := Config{InitialDelay: time.Second, MaxDelay: 10 * time.Millisecond, FullJitter: true}
+	for range 200 {
+		if got := backoff(cfg, 6); got < 1 || got > 10*time.Millisecond {
+			t.Fatalf("backoff = %v, want within (0, 10ms]", got)
+		}
+	}
+}
+
+// WithJitter after WithFullJitter is the caller changing their mind, and the
+// last option wins rather than both applying.
+func TestWithJitter_replacesFullJitter(t *testing.T) {
+	cfg := DefaultConfig()
+	WithFullJitter()(&cfg)
+	WithJitter(0.25)(&cfg)
+
+	if cfg.FullJitter {
+		t.Error("FullJitter still set after WithJitter, want it cleared")
+	}
+	if cfg.Jitter != 0.25 {
+		t.Errorf("Jitter = %v, want 0.25", cfg.Jitter)
+	}
+}

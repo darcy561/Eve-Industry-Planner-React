@@ -33,12 +33,14 @@ func (d *Docs) BulkUpsertJobs(ctx context.Context, owner models.Owner, accountID
 		job.MetaData.LastUpdatedBy = accountID
 		job.MetaData.Owner = owner
 		ApplyMetaSessionClient(&job.MetaData.MetaData, sessionID, wsClientID)
+		update, uerr := SetVersionedDocument(job, JobDocumentsUpsertUnset)
+		if uerr != nil {
+			failedCount++
+			continue
+		}
 		bulkOps = append(bulkOps, mongo.NewUpdateOneModel().
 			SetFilter(bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": job.JobID}).
-			SetUpdate(bson.M{
-				"$set":   job,
-				"$unset": JobDocumentsUpsertUnset,
-			}).
+			SetUpdate(update).
 			SetUpsert(true))
 	}
 	if len(bulkOps) == 0 {

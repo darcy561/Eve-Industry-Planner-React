@@ -13,4 +13,14 @@ const (
 
 	FieldMetaOwnerKind = "_meta.owner.kind"
 	FieldMetaOwnerID   = "_meta.owner.id"
+
+	// FieldMetaVersion is the write counter. Mongo refuses $set of `_meta` and
+	// $inc of a path inside it in one update, so a write that increments the
+	// version must set `_meta` by path — see [SetVersionedDocument].
+	FieldMetaVersion = "_meta.version"
+
+	// metaField is the `_meta` block's own key, and MetaFieldVersionKey the
+	// version's key within it.
+	metaField           = "_meta"
+	MetaFieldVersionKey = "version"
 )

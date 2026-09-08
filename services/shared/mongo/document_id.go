@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"eve-industry-planner/shared/models"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // documentIDSeparator divides the owner key from the id it scopes. The owner key
@@ -53,6 +55,57 @@ func BareDocumentID(storedID string) string {
 		return storedID
 	}
 	return bare
+}
+
+// SetVersionedDocument is the update for a write that replaces a document and
+// counts itself.
+//
+// Mongo refuses to $set a subdocument and $inc a path inside it in one update —
+// "would create a conflict at _meta" — and every scoped document carries its
+// version inside `_meta`. So the document is marshalled, `_meta` lifted out and
+// set field by field, and the version left to $inc alone.
+//
+// Setting `_meta` whole would also reset the counter to whatever the caller's
+// struct held, which for a decoded request body is zero.
+func SetVersionedDocument(doc any, unset bson.M) (bson.M, error) {
+	raw, err := bson.Marshal(doc)
+	if err != nil {
+		return nil, fmt.Errorf("marshal document: %w", err)
+	}
+	var fields bson.M
+	if err := bson.Unmarshal(raw, &fields); err != nil {
+		return nil, fmt.Errorf("decode document: %w", err)
+	}
+
+	set := bson.M{}
+	for key, value := range fields {
+		if key != metaField {
+			set[key] = value
+			continue
+		}
+		// Nested documents decode as bson.D, so the meta block is walked as one
+		// rather than asserted to a map.
+		meta, ok := value.(bson.D)
+		if !ok {
+			return nil, fmt.Errorf("document %s is not a subdocument", metaField)
+		}
+		// By path rather than whole, so the $inc below has no conflict to hit.
+		for _, element := range meta {
+			if element.Key == MetaFieldVersionKey {
+				continue
+			}
+			set[metaField+"."+element.Key] = element.Value
+		}
+	}
+
+	update := bson.M{
+		"$set": set,
+		"$inc": bson.M{FieldMetaVersion: 1},
+	}
+	if len(unset) > 0 {
+		update["$unset"] = unset
+	}
+	return update, nil
 }
 
 // OwnerFromDocumentID reads the owner out of a stored id.

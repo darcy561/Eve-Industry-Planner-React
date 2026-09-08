@@ -113,9 +113,13 @@ func (d *Docs) BulkUpsertGroups(ctx context.Context, owner models.Owner, account
 
 		bulkOps := make([]mongo.WriteModel, 0, len(valid))
 		for _, g := range valid {
+			update, uerr := SetVersionedDocument(g, nil)
+			if uerr != nil {
+				return uerr
+			}
 			bulkOps = append(bulkOps, mongo.NewUpdateOneModel().
 				SetFilter(bson.M{FieldMetaOwnerKind: owner.Kind, FieldMetaOwnerID: owner.ID, "_id": g.GroupID}).
-				SetUpdate(bson.M{"$set": g}).
+				SetUpdate(update).
 				SetUpsert(true))
 		}
 		var opErr error

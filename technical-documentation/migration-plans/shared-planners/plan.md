@@ -501,6 +501,13 @@ give it an owner; the id rewrite needs that same owner, so it happens in the sam
 second walk over the largest collection in the database. `_id` is immutable, so each row is written
 under its new id and the old one removed — which is why doing it in one pass rather than two matters.
 
+**The same pass seeds `_meta.version`.** A per-document write counter is owed by
+[document-write-granularity](../document-write-granularity/contents.md) § Stage A, and a field costs
+nothing in a pass already rewriting the row. Nothing here reads it; it is seeded so that stage never
+meets a document without one. Writes increment it through `SetVersionedDocument`, which sets `_meta`
+by path — Mongo refuses `$set` of a subdocument alongside `$inc` of a path inside it, and setting the
+block whole would reset the counter to whatever the caller's struct held.
+
 ### Collection size
 
 Putting every owner's documents in one collection does not make queries slower, and splitting by kind

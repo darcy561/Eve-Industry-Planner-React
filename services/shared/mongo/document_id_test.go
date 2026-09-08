@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"eve-industry-planner/shared/models"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func TestOwnerScopedDocumentIDCarriesTheOwner(t *testing.T) {
@@ -116,5 +118,73 @@ func TestOwnerFromDocumentIDRefusesAnUnknownKind(t *testing.T) {
 
 	if _, err := OwnerFromDocumentID("wizard:merlin|job-1"); err == nil {
 		t.Fatal("an unknown owner kind was accepted")
+	}
+}
+
+// Mongo refuses $set of a subdocument alongside $inc of a path inside it, so
+// `_meta` must be set field by field. Setting it whole would also reset the
+// counter to whatever the caller's struct held.
+func TestSetVersionedDocumentSetsMetaByPath(t *testing.T) {
+	t.Parallel()
+
+	job := models.Job{
+		JobID: "job-1",
+		MetaData: models.JobMetaData{
+			MetaData: models.MetaData{Owner: models.AccountOwner("acct-1")},
+		},
+	}
+
+	update, err := SetVersionedDocument(job, nil)
+	if err != nil {
+		t.Fatalf("SetVersionedDocument: %v", err)
+	}
+
+	set, ok := update["$set"].(bson.M)
+	if !ok {
+		t.Fatalf("$set = %T, want bson.M", update["$set"])
+	}
+	if _, whole := set["_meta"]; whole {
+		t.Error("_meta was set whole, which conflicts with the version increment")
+	}
+	if _, byPath := set["_meta.owner"]; !byPath {
+		t.Error("the owner was not set by path")
+	}
+	if _, versioned := set[FieldMetaVersion]; versioned {
+		t.Error("the version was set as well as incremented")
+	}
+
+	inc, ok := update["$inc"].(bson.M)
+	if !ok || inc[FieldMetaVersion] != 1 {
+		t.Errorf("$inc = %v, want the version incremented by one", update["$inc"])
+	}
+}
+
+// A write that also clears retired fields keeps its $unset.
+func TestSetVersionedDocumentKeepsTheUnset(t *testing.T) {
+	t.Parallel()
+
+	update, err := SetVersionedDocument(models.Job{JobID: "job-1"}, bson.M{"archived": ""})
+	if err != nil {
+		t.Fatalf("SetVersionedDocument: %v", err)
+	}
+	unset, ok := update["$unset"].(bson.M)
+	if !ok {
+		t.Fatalf("$unset = %T, want bson.M", update["$unset"])
+	}
+	if _, cleared := unset["archived"]; !cleared {
+		t.Error("the unset was dropped")
+	}
+}
+
+// No retired fields means no $unset key at all, rather than an empty one.
+func TestSetVersionedDocumentOmitsAnEmptyUnset(t *testing.T) {
+	t.Parallel()
+
+	update, err := SetVersionedDocument(models.Job{JobID: "job-1"}, nil)
+	if err != nil {
+		t.Fatalf("SetVersionedDocument: %v", err)
+	}
+	if _, present := update["$unset"]; present {
+		t.Error("an empty $unset was included")
 	}
 }

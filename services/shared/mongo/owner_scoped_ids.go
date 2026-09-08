@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"regexp"
+	"slices"
 
 	"eve-industry-planner/shared/models"
 
@@ -60,4 +61,33 @@ func BareDocumentIDFilter() bson.M {
 		"$type": "string",
 		"$not":  bson.Regex{Pattern: regexp.QuoteMeta(documentIDSeparator)},
 	}}
+}
+
+// StoredDocumentID is the _id a document is stored under: owner-scoped in the
+// collections that take one, bare everywhere else.
+//
+// For a writer that addresses documents across collections — schema maintenance,
+// the entity-ref sweep — so it cannot build a bare id for a scoped collection and
+// upsert a second copy of a document it meant to update.
+func StoredDocumentID(collection string, owner models.Owner, bareID string) string {
+	if slices.Contains(OwnerScopedIDCollections(), collection) {
+		return OwnerScopedDocumentID(owner, bareID)
+	}
+	return bareID
+}
+
+// SeedDocumentVersion gives a decoded document the write counter a conditional
+// write compares, leaving one it already has alone.
+//
+// A nested document decodes as bson.D, not bson.M, so the meta block is walked
+// as one — asserting a map here would silently seed nothing.
+func SeedDocumentVersion(doc bson.M) {
+	meta, ok := doc[metaField].(bson.D)
+	if !ok {
+		return
+	}
+	if slices.ContainsFunc(meta, func(e bson.E) bool { return e.Key == MetaFieldVersionKey }) {
+		return
+	}
+	doc[metaField] = append(meta, bson.E{Key: MetaFieldVersionKey, Value: models.InitialDocumentVersion})
 }

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -121,17 +122,9 @@ func stampMetaOwner(ctx context.Context, clients *stackservices.Clients, dryRun 
 // document with no owner and no later save adds one, so the check is what turns
 // that from silent loss into a failed release.
 func verifyMetaOwner(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
-	var offenders []string
-	var total int64
-	for _, name := range metaOwnerCollections {
-		count, err := clients.Mongo.Coll(name).CountDocuments(ctx, missingMetaOwner)
-		if err != nil {
-			return "", fmt.Errorf("count %s: %w", name, err)
-		}
-		if count > 0 {
-			offenders = append(offenders, fmt.Sprintf("%s: %d", name, count))
-			total += count
-		}
+	offenders, total, err := countAcross(ctx, clients, metaOwnerCollections, missingMetaOwner)
+	if err != nil {
+		return "", err
 	}
 	if total == 0 {
 		return "every document carries an owner", nil
@@ -140,6 +133,24 @@ func verifyMetaOwner(ctx context.Context, clients *stackservices.Clients, dryRun
 		return fmt.Sprintf("%d document(s) would still have no owner (%s)", total, strings.Join(offenders, ", ")), nil
 	}
 	return "", fmt.Errorf("%d document(s) have no owner and are unreachable: %s", total, strings.Join(offenders, ", "))
+}
+
+// countAcross counts the documents matching filter in each collection, naming
+// the collections that hold any.
+func countAcross(ctx context.Context, clients *stackservices.Clients, collections []string, filter bson.M) ([]string, int64, error) {
+	var offenders []string
+	var total int64
+	for _, name := range collections {
+		count, err := clients.Mongo.Coll(name).CountDocuments(ctx, filter)
+		if err != nil {
+			return nil, 0, fmt.Errorf("count %s: %w", name, err)
+		}
+		if count > 0 {
+			offenders = append(offenders, fmt.Sprintf("%s: %d", name, count))
+			total += count
+		}
+	}
+	return offenders, total, nil
 }
 
 // verifyOwnerScopedIDs fails the release if any planner-held document is still
@@ -151,19 +162,9 @@ func verifyMetaOwner(ctx context.Context, clients *stackservices.Clients, dryRun
 // would put the window at the mercy of how long it takes. What the release owes
 // is the check that it finished.
 func verifyOwnerScopedIDs(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
-	bareID := eipmongo.BareDocumentIDFilter()
-
-	var offenders []string
-	var total int64
-	for _, name := range eipmongo.OwnerScopedIDCollections() {
-		count, err := clients.Mongo.Coll(name).CountDocuments(ctx, bareID)
-		if err != nil {
-			return "", fmt.Errorf("count %s: %w", name, err)
-		}
-		if count > 0 {
-			offenders = append(offenders, fmt.Sprintf("%s: %d", name, count))
-			total += count
-		}
+	offenders, total, err := countAcross(ctx, clients, eipmongo.OwnerScopedIDCollections(), eipmongo.BareDocumentIDFilter())
+	if err != nil {
+		return "", err
 	}
 	if total == 0 {
 		return "every owner-scoped document id carries its owner", nil
@@ -173,5 +174,5 @@ func verifyOwnerScopedIDs(ctx context.Context, clients *stackservices.Clients, d
 	if dryRun {
 		return remaining, nil
 	}
-	return "", fmt.Errorf("%s", remaining)
+	return "", errors.New(remaining)
 }

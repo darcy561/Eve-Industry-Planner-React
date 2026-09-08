@@ -8,6 +8,7 @@ import (
 
 	"eve-industry-planner/shared/jobidentity"
 	"eve-industry-planner/shared/models"
+	eipmongo "eve-industry-planner/shared/mongo"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
@@ -160,8 +161,7 @@ func deleteArchivedJobs(ctx context.Context, scope archiveScope, jobIDs []string
 	if scope.jobs == nil {
 		return fmt.Errorf("archive collection is required")
 	}
-	filter := scope.filter()
-	filter["jobID"] = bson.M{"$in": jobIDs}
+	filter := bson.M{"_id": bson.M{"$in": eipmongo.OwnerScopedDocumentIDs(scope.Owner, jobIDs)}}
 	_, err := scope.jobs.DeleteManyAfterStampingMeta(ctx, filter, now, sessionID, wsClientID)
 	return err
 }

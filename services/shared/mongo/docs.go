@@ -7,7 +7,6 @@ import (
 	"maps"
 	"time"
 
-	"eve-industry-planner/shared/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -45,34 +44,6 @@ func (d *Docs) GetPublicByID(ctx context.Context, docID string) (bson.M, bool, e
 // GetPublicByIDs fetches public documents by _id in request order (missing skipped).
 func (d *Docs) GetPublicByIDs(ctx context.Context, docIDs []string) ([]bson.M, error) {
 	return d.getByIDs(ctx, docIDs, nil)
-}
-
-// OwnerOfDocument reads which owner holds a document, or the zero owner when no
-// document has that id.
-//
-// The owner is read rather than compared against a caller: a planner-held
-// document is not owned by everyone entitled to read it, so the entitlement is a
-// separate question asked of the membership rows.
-func (d *Docs) OwnerOfDocument(ctx context.Context, docID string) (models.Owner, error) {
-	coll, err := d.requireColl()
-	if err != nil {
-		return models.Owner{}, err
-	}
-	if docID == "" {
-		return models.Owner{}, fmt.Errorf("docID is required")
-	}
-	var held struct {
-		MetaData models.MetaData `bson:"_meta"`
-	}
-	err = coll.FindOne(ctx, bson.M{"_id": docID},
-		options.FindOne().SetProjection(bson.M{"_meta.owner": 1})).Decode(&held)
-	if errors.Is(err, mongo.ErrNoDocuments) {
-		return models.Owner{}, nil
-	}
-	if err != nil {
-		return models.Owner{}, err
-	}
-	return held.MetaData.Owner, nil
 }
 
 // UpsertStructPreservingMeta upserts by _id preserving existing _meta (bumps lastModified).

@@ -77,7 +77,7 @@ func EncodeJobIdentity(ctx context.Context, payload eipnats.EncodeJobIdentityReq
 			continue
 		}
 
-		docID := strings.TrimSpace(doc.JobID)
+		docID := eipmongo.StoredDocumentID(payload.Collection, doc.MetaData.Owner, strings.TrimSpace(doc.JobID))
 		if docID == "" {
 			skipped++
 			continue

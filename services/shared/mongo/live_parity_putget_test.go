@@ -109,7 +109,7 @@ func TestLive_putGetJobsGroupsRoundtrip(t *testing.T) {
 		g.IncludedJobIDs = []string{jobID, "delta-a", "delta-b"}
 		now4 := now.Add(3 * time.Second)
 		_, err = groupsColl.UpdateOne(ctx,
-			bson.M{"_id": groupID, "_meta.accountID": parityScratchAccount},
+			bson.M{"_id": eipmongo.OwnerScopedDocumentID(models.AccountOwner(parityScratchAccount), groupID)},
 			bson.M{"$set": bson.M{"includedJobIDs": []string{jobID}}},
 		)
 		if err != nil {

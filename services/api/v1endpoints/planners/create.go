@@ -41,7 +41,7 @@ func (h *Handlers) PutPlannerHandler(w http.ResponseWriter, r *http.Request, han
 
 	// Membership first: everything below reads EVE or writes a document, and
 	// neither should happen for a planner this account cannot reach.
-	owner, ok := h.reachableOwner(w, r, handle, metrics, "planner_create")
+	owner, ok := helper.PlannerOwnerFromHandle(w, r, handle, h.Mongo, h.EntityCipher, metrics, "planner_create")
 	if !ok {
 		return
 	}

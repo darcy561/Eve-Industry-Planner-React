@@ -408,9 +408,45 @@ mirror of `PlannerHeldCollections()`, so every planner-held collection is covere
 a call site remembered. This is a guard, not the fix: the fix is keying the store by owner, and until
 then the HTTP read path is pinned to the account's own owner and does not follow a switch.
 
-Owed here: creation limits, the invite token lifecycle as a Redis record, the join path, what a request
-for a planner without a membership row returns, the revocation path end to end, and the owner in every
-scoped query key.
+**A request names the planner it works in.** Every scoped read and write takes an `X-Planner-Owner`
+header carrying an owner handle; `helper.RequestPlannerOwner` parses it, refuses one the account holds
+no membership row for with 404, and resolves an absent header to the account's own planner. That
+default is scaffolding with an expiry: it exists while the SPA is wired around, and the cutover makes
+the header required. The account's own planner costs no membership read, and a membership read that
+fails refuses rather than falling back — falling back would write into the wrong planner on a Mongo
+blip. `helper.PlannerOwnerFromHandle` is the same guard for a handle in the path, with no default.
+
+**A document's owner is the planner named on the request**, never the writing account.
+`BulkUpsertJobs`, `BulkUpsertGroups` and the archive write take an `Owner` and stamp it;
+`LastUpdatedBy` keeps the writing account. Every read filter composes the same owner, and
+`LoadJobsByFilter` applies it last so a caller's filter cannot widen a read. The archive's scope holds
+the owner it addresses, and a restore names the acting account separately: the documents it writes are
+the planner's, the ESI ids it reclaims are the account's.
+
+**A planner-held document is stored under `{ownerKey}|{id}`.** `job_documents`, `job_groups` and
+`archived_jobs` — `OwnerScopedIDCollections()` — because `_id` is unique and a bare id could exist
+only once. The bare id is what a client sends, keys its store on and receives: filters compose the
+stored form through `OwnerScopedDocumentID`, the changestream splits it back through `BareDocumentID`
+before `docID` goes on the wire, and the document lock keys on the bare id with the owner as its own
+segment. A writer that addresses documents across collections builds the id through
+`StoredDocumentID`, so it cannot upsert a bare-id copy of a document it meant to update. The stored id
+also carries a deleted document's owner, so a delete with no preimage still routes to the planner.
+
+**Every user write counts itself.** `_meta.version` is incremented by `SetVersionedDocument`, which
+sets `_meta` by path — Mongo refuses `$set` of a subdocument alongside `$inc` of a path inside it, and
+setting the block whole would reset the counter to whatever the request body held. Server-side
+rewrites — schema maintenance, the statistics rebuild, the SDE import — do not count.
+
+**The id rewrite is a fan-out, and the release gates on it.** `eip cli -- rewriteOwnerScopedIDs`
+enumerates the owners holding bare-id documents and queues one worker task each; a task inserts each
+document under its new id, seeds `_meta.version`, then removes the old one, and a duplicate key on the
+insert means a previous run got that far. Re-running with `--dry-run` reports the work remaining,
+because the selector is the id's own shape. `prepareRelease` does not perform the rewrite; its last
+gate fails if any bare id is left.
+
+Owed here: creation limits, the invite token lifecycle as a Redis record, the join path, the
+revocation path end to end, the group template collections joining the id rewrite once they carry an
+owner block, and the owner in every scoped query key.
 
 ## Stage F — ESI providers
 

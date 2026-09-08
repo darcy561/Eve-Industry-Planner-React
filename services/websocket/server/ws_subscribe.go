@@ -37,7 +37,7 @@ func (s *Server) handleSubscribeWS(ctx context.Context, client *Client, msg []by
 		if docID == "" {
 			continue
 		}
-		if !s.docSubscribeAuthorized(ctx, docID, client.AccountID) {
+		if !s.docSubscribeAuthorized(docID, client) {
 			rejected = append(rejected, docID)
 			continue
 		}
@@ -134,7 +134,7 @@ func (s *Server) handleUnsubscribeWS(ctx context.Context, client *Client, msg []
 		if docID == "" {
 			continue
 		}
-		if !s.docSubscribeAuthorized(ctx, docID, client.AccountID) {
+		if !s.docSubscribeAuthorized(docID, client) {
 			rejected = append(rejected, docID)
 			continue
 		}

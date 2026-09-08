@@ -313,52 +313,6 @@ func TestLive_ownerKeysForAccount_areTheAccountsMemberships(t *testing.T) {
 	}
 }
 
-// A document names its owner, and the owner is read rather than assumed to be
-// whoever is asking — which is what lets a planner-held document be reached by a
-// member who did not write it. Requires EIP_MONGO_PARITY_LIVE=1.
-func TestLive_ownerOfDocument_readsTheStoredOwner(t *testing.T) {
-	mongo := mongolive.Require(t)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-
-	const docID = "eip-parity-doc-owner-job"
-	sharedPlanner := models.Owner{Kind: models.OwnerPlanner, ID: "01HZY6R3QK7T9V2M4N8P0XW5AC"}
-
-	t.Cleanup(func() {
-		cleanupCtx, cancelCleanup := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancelCleanup()
-		_, _ = mongo.JobDocuments.Collection().DeleteMany(cleanupCtx, bson.M{"_id": docID})
-	})
-
-	if _, err := mongo.JobDocuments.Collection().InsertOne(ctx, bson.M{
-		"_id": docID,
-		"_meta": bson.M{
-			"owner":        bson.M{"kind": string(sharedPlanner.Kind), "id": sharedPlanner.ID},
-			"lastModified": time.Now().UTC(),
-		},
-	}); err != nil {
-		t.Fatalf("write document: %v", err)
-	}
-
-	got, err := mongo.JobDocuments.OwnerOfDocument(ctx, docID)
-	if err != nil {
-		t.Fatalf("OwnerOfDocument: %v", err)
-	}
-	if got != sharedPlanner {
-		t.Fatalf("owner = %v, want %v — the planner that holds it, not the writer", got, sharedPlanner)
-	}
-
-	// A document that does not exist names no owner rather than erroring, so the
-	// caller refuses rather than treating a missing document as an error.
-	missing, err := mongo.JobDocuments.OwnerOfDocument(ctx, "eip-parity-doc-owner-absent")
-	if err != nil {
-		t.Fatalf("OwnerOfDocument for a missing document: %v", err)
-	}
-	if !missing.IsZero() {
-		t.Fatalf("missing document reported owner %v, want the zero owner", missing)
-	}
-}
-
 // A planner's settings are seeded from the account's own, so its planner starts
 // configured as that account already has it rather than on the shipped defaults.
 // Requires EIP_MONGO_PARITY_LIVE=1.

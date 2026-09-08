@@ -50,7 +50,7 @@ func Batch(ctx context.Context, docs *eipmongo.Docs, collection string, batchSiz
 		return runBatch(ctx, docs, batchSize, models.JobSchemaCurrent,
 			func(d *models.Job) { documentschema.Upgrader{}.Job(d) },
 			func(d models.Job) int { return d.SchemaVersion },
-			func(d models.Job) string { return d.JobID })
+			func(d models.Job) string { return eipmongo.StoredDocumentID(collection, d.MetaData.Owner, d.JobID) })
 	case eipmongo.CollectionPlanners:
 		return runBatch(ctx, docs, batchSize, planner.SchemaCurrent,
 			func(d *planner.Planner) { documentschema.Upgrader{}.Planner(d) },
@@ -70,7 +70,7 @@ func Batch(ctx context.Context, docs *eipmongo.Docs, collection string, batchSiz
 		return runBatch(ctx, docs, batchSize, models.GroupSchemaCurrent,
 			func(d *models.Group) { documentschema.Upgrader{}.Group(d) },
 			func(d models.Group) int { return d.SchemaVersion },
-			func(d models.Group) string { return d.GroupID })
+			func(d models.Group) string { return eipmongo.StoredDocumentID(collection, d.MetaData.Owner, d.GroupID) })
 	default:
 		return Summary{}, fmt.Errorf("schemamaint: unsupported collection %q", collection)
 	}

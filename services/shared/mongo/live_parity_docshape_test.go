@@ -61,7 +61,8 @@ func TestLive_docShape_jobUpsert(t *testing.T) {
 			"clientID":            "old-client",
 		},
 	}
-	if _, err := coll.ReplaceOne(ctx, bson.M{"_id": jobID}, seed, replaceUpsert()); err != nil {
+	storedID := eipmongo.OwnerScopedDocumentID(models.AccountOwner(parityScratchAccount), jobID)
+	if _, err := coll.ReplaceOne(ctx, bson.M{"_id": storedID}, seed, replaceUpsert()); err != nil {
 		t.Fatalf("seed job: %v", err)
 	}
 

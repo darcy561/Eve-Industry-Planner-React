@@ -1919,11 +1919,13 @@ immediately rather than dropped — ordering for that owner is preserved at the 
 onto intake. Live SoT names the shard workers in the drain sequence but never states the key or the
 full-queue behaviour; both belong in `backend/websocket/websocket.md` on promote.
 
-**Document-subscribe authorisation is fail-closed and now two reads.** An unknown collection is denied.
-An account-owned collection is authorised by id equality. A planner-held collection is authorised by
-reading the document's owner and then testing membership of that owner — two reads, because a
-planner-held document is no longer owned by whoever may read it. This is C4's rewrite of a rule the
-retired folder documented against `ExistsByAccountID`; the rule survived, the mechanism did not.
+**Document-subscribe authorisation is fail-closed and reads nothing.** An unknown collection is
+denied. An account-owned collection is authorised by id equality. A planner-held collection is
+authorised when the connection's scopes hold an owner whose kind delivers that collection — the scopes
+were derived from the grant ceiling at connect and narrowed by the active planner, so they already
+answer who the account may read for, and a bare id from a client is resolved within them rather than
+looked up. This is C4's rewrite of a rule the retired folder documented against `ExistsByAccountID`;
+the rule survived, the mechanism did not.
 
 ### Stage H — The document lock stops being account-shaped
 

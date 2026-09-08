@@ -174,7 +174,7 @@ func (s *Server) ApplySessionResume(ctx context.Context, client *Client, previou
 	res.HandoffApplied = true
 
 	for docID := range ent.Docs {
-		if !s.docSubscribeAuthorized(ctx, docID, client.AccountID) {
+		if !s.docSubscribeAuthorized(docID, client) {
 			res.UnauthorizedDocIDs = append(res.UnauthorizedDocIDs, docID)
 			continue
 		}

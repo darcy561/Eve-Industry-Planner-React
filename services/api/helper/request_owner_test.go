@@ -9,6 +9,7 @@ import (
 
 	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
+	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/keys"
 )
 
@@ -151,5 +152,21 @@ func TestRequestPlannerOwnerRefusesAnUnparseableHandle(t *testing.T) {
 	}
 	if rec.Code != http.StatusBadRequest {
 		t.Errorf("code = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+}
+
+// A nil *eipmongo.Mongo satisfies the interface while holding nothing to read
+// from, and must answer as missing rather than be dereferenced.
+func TestRequestPlannerOwnerTreatsANilMongoAsMissing(t *testing.T) {
+	t.Parallel()
+	rec := httptest.NewRecorder()
+	var mongo *eipmongo.Mongo
+
+	if _, ok := RequestPlannerOwner(rec, ownerRequest(t, "acct-1", "corporation:98000001"),
+		mongo, keys.EntityCipher(t), trackerFor(t), "job_documents"); ok {
+		t.Fatal("a nil mongo handle was treated as a membership reader")
+	}
+	if rec.Code != http.StatusServiceUnavailable {
+		t.Errorf("code = %d, want %d", rec.Code, http.StatusServiceUnavailable)
 	}
 }

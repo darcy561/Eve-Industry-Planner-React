@@ -117,7 +117,7 @@ func (s *Server) handleSubscribeRequest(clientID string, docID string) {
 		return
 	}
 	accountID := client.AccountID
-	if !s.docSubscribeAuthorized(context.Background(), docID, accountID) {
+	if !s.docSubscribeAuthorized(docID, client) {
 		s.ClientsMu.Unlock()
 		logs.WarnCtx(subCtx, "subscribe request rejected: docID not authorized for account",
 			"client_id", clientID,
@@ -150,7 +150,7 @@ func (s *Server) handleUnsubscribeRequest(clientID string, docID string) {
 		return
 	}
 	accountID := client.AccountID
-	if !s.docSubscribeAuthorized(context.Background(), docID, accountID) {
+	if !s.docSubscribeAuthorized(docID, client) {
 		s.ClientsMu.Unlock()
 		logs.WarnCtx(unsubCtx, "unsubscribe rejected: docID not authorized for account",
 			"client_id", clientID,

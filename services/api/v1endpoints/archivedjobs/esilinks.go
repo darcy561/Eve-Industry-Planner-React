@@ -230,7 +230,7 @@ func applyESILinks(ctx context.Context, m *eipmongo.Mongo, accountID string, fre
 
 	return eipmongo.Retry(ctx, "relink esi ids", func() error {
 		_, err := coll.UpdateOne(ctx,
-			bson.M{eipmongo.FieldMetaOwnerID: accountID},
+			bson.M{eipmongo.FieldMetaOwnerKind: models.OwnerAccount, eipmongo.FieldMetaOwnerID: accountID},
 			bson.M{
 				"$addToSet": addToSet,
 				// Clients drop realtime events older than their cursor, so the

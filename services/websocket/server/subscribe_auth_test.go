@@ -1,46 +1,45 @@
 package server
 
 import (
-	"context"
-	"eve-industry-planner/shared/models"
 	"slices"
 	"testing"
 
+	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
-	"eve-industry-planner/shared/stackservices"
 )
 
-func TestDocSubscribeAuthorized_singletonAccountDocs(t *testing.T) {
-	s := &Server{Stack: &stackservices.Clients{}}
+func clientWithScopes(accountID string, owners ...models.Owner) *Client {
+	return &Client{AccountID: accountID, Scopes: models.NewOwnerKeys().Add(owners...).Normalized()}
+}
 
-	if !s.docSubscribeAuthorized(context.Background(), "accounts.acc123", "acc123") {
+func TestDocSubscribeAuthorized_singletonAccountDocs(t *testing.T) {
+	t.Parallel()
+	s := &Server{}
+	client := clientWithScopes("acc123", models.AccountOwner("acc123"))
+
+	if !s.docSubscribeAuthorized("accounts.acc123", client) {
 		t.Fatal("expected accounts doc for same account")
 	}
-	if s.docSubscribeAuthorized(context.Background(), "accounts.other", "acc123") {
+	if s.docSubscribeAuthorized("accounts.other", client) {
 		t.Fatal("expected reject accounts doc for other account id")
 	}
-	if !s.docSubscribeAuthorized(context.Background(), "account_settings.acc123", "acc123") {
+	if !s.docSubscribeAuthorized("account_settings.acc123", client) {
 		t.Fatal("expected account_settings for same account")
 	}
-	if s.docSubscribeAuthorized(context.Background(), "account_settings.other", "acc123") {
+	if s.docSubscribeAuthorized("account_settings.other", client) {
 		t.Fatal("expected reject settings for other account")
 	}
 }
 
 func TestDocSubscribeAuthorized_unknownCollectionDenied(t *testing.T) {
-	s := &Server{Stack: &stackservices.Clients{}}
-	if s.docSubscribeAuthorized(context.Background(), "blueprints.123", "acc123") {
+	t.Parallel()
+	s := &Server{}
+	client := clientWithScopes("acc123", models.AccountOwner("acc123"), models.CorporationOwner("corp_ref"))
+	if s.docSubscribeAuthorized("blueprints.123", client) {
 		t.Fatal("expected deny unknown / public collection")
 	}
-	if s.docSubscribeAuthorized(context.Background(), "random.foo", "acc123") {
+	if s.docSubscribeAuthorized("random.foo", client) {
 		t.Fatal("expected deny unknown collection")
-	}
-}
-
-func TestDocSubscribeAuthorized_jobsRequiresMongo(t *testing.T) {
-	s := &Server{Stack: &stackservices.Clients{Mongo: nil}}
-	if s.docSubscribeAuthorized(context.Background(), "jobs.any-id", "acc123") {
-		t.Fatal("expected deny jobs when mongo unavailable")
 	}
 }
 
@@ -56,43 +55,54 @@ func TestDocSubscribeCollectionSetsMatchTheOwnerKinds(t *testing.T) {
 	if slices.Contains(account, eipmongo.CollectionJobDocuments) {
 		t.Fatalf("account kind = %v, must not carry planner-held documents", account)
 	}
-
-	// Every kind that names a planner receives the same set: the collections
-	// follow from the kind being a planner, not from which planner it is.
 	for _, kind := range []models.OwnerKind{models.OwnerPlanner, models.OwnerCorporation, models.OwnerAlliance} {
 		got := eipmongo.CollectionsForOwnerKind(kind)
 		if !slices.Equal(got, eipmongo.PlannerHeldCollections()) {
 			t.Fatalf("%s = %v, want the planner-held set", kind, got)
 		}
 	}
-
 	if got := eipmongo.CollectionsForOwnerKind(""); got != nil {
 		t.Fatalf("the empty kind = %v, want nothing", got)
 	}
 }
 
-// A planner-held document is authorised by membership, so a client with no Mongo
-// cannot be granted one — the lookup is the authorisation.
-func TestDocSubscribePlannerHeldNeedsAMembershipLookup(t *testing.T) {
+// A planner-held document is authorised by the connection's scopes, which
+// already say which planner it reads for. The id a client sends is bare and is
+// resolved within them; it never has to carry an owner.
+func TestDocSubscribePlannerHeldFollowsTheConnectionsScopes(t *testing.T) {
 	t.Parallel()
 	s := &Server{}
+
+	inPlanner := clientWithScopes("acct-1", models.AccountOwner("acct-1"), models.CorporationOwner("corp_ref"))
+	ownOnly := clientWithScopes("acct-1", models.AccountOwner("acct-1"))
+	noScopes := &Client{AccountID: "acct-1"}
+
 	for _, collection := range eipmongo.PlannerHeldCollections() {
-		if s.docSubscribeAuthorized(context.Background(), collection+".doc-1", "acct-1") {
-			t.Fatalf("%s was authorised without a membership lookup", collection)
+		docID := collection + ".job-1"
+		if !s.docSubscribeAuthorized(docID, inPlanner) {
+			t.Errorf("%s: refused for a connection whose scopes hold a planner", collection)
+		}
+		// The account kind's set holds no planner-held collection, so an
+		// account's own planner alone grants nothing here.
+		if s.docSubscribeAuthorized(docID, ownOnly) {
+			t.Errorf("%s: granted on the account's own scope alone", collection)
+		}
+		if s.docSubscribeAuthorized(docID, noScopes) {
+			t.Errorf("%s: granted with no scopes at all", collection)
 		}
 	}
 }
 
-// A planner-held id that names no owner is refused before Mongo is reached: the
-// stored id carries its owner, so one that does not is not a document this
-// service stores.
-func TestDocSubscribePlannerHeldRefusesAnIDWithNoOwner(t *testing.T) {
+func TestDocSubscribeRefusesAMalformedID(t *testing.T) {
 	t.Parallel()
-	s := &Server{Stack: &stackservices.Clients{Mongo: &eipmongo.Mongo{}}}
-
-	for _, collection := range eipmongo.PlannerHeldCollections() {
-		if s.docSubscribeAuthorized(context.Background(), collection+".job-1", "acct-1") {
-			t.Fatalf("%s authorised a bare id that names no owner", collection)
+	s := &Server{}
+	client := clientWithScopes("acct-1", models.CorporationOwner("corp_ref"))
+	for _, docID := range []string{"", "job_documents", ".job-1", "job_documents."} {
+		if s.docSubscribeAuthorized(docID, client) {
+			t.Errorf("%q was authorised", docID)
 		}
+	}
+	if s.docSubscribeAuthorized("job_documents.job-1", nil) {
+		t.Error("a nil client was authorised")
 	}
 }

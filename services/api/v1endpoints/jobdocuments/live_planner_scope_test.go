@@ -173,7 +173,7 @@ func TestLive_JobWrittenIntoAPlannerIsReadBackFromIt(t *testing.T) {
 	// Stored under the planner, not the account that wrote it.
 	var stored models.Job
 	if err := s.mongo.JobDocuments.Collection().
-		FindOne(context.Background(), bson.M{"_id": "planner-scope-1"}).Decode(&stored); err != nil {
+		FindOne(context.Background(), bson.M{"_id": eipmongo.OwnerScopedDocumentID(s.owner, "planner-scope-1")}).Decode(&stored); err != nil {
 		t.Fatalf("read the stored job: %v", err)
 	}
 	if stored.MetaData.Owner != s.owner {
@@ -255,7 +255,7 @@ func TestLive_AWriteIncrementsTheDocumentVersion(t *testing.T) {
 	version := func() int64 {
 		var stored models.Job
 		if err := s.mongo.JobDocuments.Collection().
-			FindOne(context.Background(), bson.M{"_id": job.JobID}).Decode(&stored); err != nil {
+			FindOne(context.Background(), bson.M{"_id": eipmongo.OwnerScopedDocumentID(s.owner, job.JobID)}).Decode(&stored); err != nil {
 			t.Fatalf("read the stored job: %v", err)
 		}
 		return stored.MetaData.Version

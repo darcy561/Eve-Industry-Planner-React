@@ -7,6 +7,7 @@ import (
 
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/models"
+	eipmongo "eve-industry-planner/shared/mongo"
 )
 
 // PlannerOwnerHeader carries the planner a request is working in, as an owner
@@ -49,6 +50,21 @@ func RequestPlannerOwner(w http.ResponseWriter, r *http.Request, memberships Mem
 	if handle == "" {
 		return models.AccountOwner(accountID), true
 	}
+	return PlannerOwnerFromHandle(w, r, handle, memberships, cipher, metrics, route)
+}
+
+// PlannerOwnerFromHandle resolves a handle a request named to a planner the
+// account may work in, answering the request itself when it may not. Unlike
+// [RequestPlannerOwner] there is no default: the handle is required.
+func PlannerOwnerFromHandle(w http.ResponseWriter, r *http.Request, handle string, memberships MembershipReader,
+	cipher *entityid.Cipher, metrics *RequestMetricsTracker, route string) (models.Owner, bool) {
+	accountID := AuthenticatedAccountID(r)
+	if accountID == "" {
+		metrics.Error("auth_error")
+		RespondEndpointError(w, r, http.StatusUnauthorized, "Unauthorized",
+			route+": missing account", route+"_missing_account", route, nil, nil)
+		return models.Owner{}, false
+	}
 
 	owner, err := models.ParseOwnerHandle(handle, cipher)
 	if err != nil {
@@ -61,7 +77,7 @@ func RequestPlannerOwner(w http.ResponseWriter, r *http.Request, memberships Mem
 		return owner, true
 	}
 
-	if memberships == nil {
+	if membershipReaderMissing(memberships) {
 		metrics.Error("mongo_client_missing")
 		RespondEndpointError(w, r, http.StatusServiceUnavailable, "Service unavailable",
 			route+": membership reader missing", route+"_membership_unavailable", route, nil, nil)
@@ -84,4 +100,14 @@ func RequestPlannerOwner(w http.ResponseWriter, r *http.Request, memberships Mem
 		return models.Owner{}, false
 	}
 	return owner, true
+}
+
+// membershipReaderMissing is true for no reader and for a nil *eipmongo.Mongo,
+// which satisfies the interface while holding nothing to read from.
+func membershipReaderMissing(memberships MembershipReader) bool {
+	if memberships == nil {
+		return true
+	}
+	m, isMongo := memberships.(*eipmongo.Mongo)
+	return isMongo && m == nil
 }

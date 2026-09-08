@@ -45,7 +45,7 @@ func TestLive_savingAJob_keepsTheOwnerOnItsMeta(t *testing.T) {
 
 	owner := models.AccountOwner(metaOwnerScratchAccount)
 	if _, err := mongo.JobDocuments.Collection().UpdateOne(ctx,
-		bson.M{"_id": jobID},
+		bson.M{"_id": eipmongo.OwnerScopedDocumentID(owner, jobID)},
 		bson.M{"$set": bson.M{eipmongo.FieldMetaOwner: mongolive.OwnerDoc(owner)}},
 	); err != nil {
 		t.Fatalf("stamp the owner: %v", err)
@@ -74,7 +74,8 @@ func storedOwner(t *testing.T, ctx context.Context, mongo *eipmongo.Mongo, jobID
 			Owner models.Owner `bson:"owner"`
 		} `bson:"_meta"`
 	}
-	if err := mongo.JobDocuments.Collection().FindOne(ctx, bson.M{"_id": jobID}).Decode(&doc); err != nil {
+	storedID := eipmongo.OwnerScopedDocumentID(models.AccountOwner(metaOwnerScratchAccount), jobID)
+	if err := mongo.JobDocuments.Collection().FindOne(ctx, bson.M{"_id": storedID}).Decode(&doc); err != nil {
 		t.Fatalf("read back the job: %v", err)
 	}
 	return doc.Meta.Owner

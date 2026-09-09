@@ -13,16 +13,16 @@ import (
 const AutoGenerateSentinel = "auto-generate-me"
 
 const (
-	passwordMinLen = 32
-	hmacMinLen     = 43 // url-safe base64; gen uses 48 raw → 64 chars
-	passwordGenRaw = 36 // openssl rand -base64 36
-	hmacGenRaw     = 48 // openssl rand -base64 48
-	aesGenRaw      = 32 // AES-256
+	passwordMinLen  = 32
+	secretKeyMinLen = 43 // url-safe base64; gen uses 48 raw → 64 chars
+	passwordGenRaw  = 36 // openssl rand -base64 36
+	secretKeyGenRaw = 48 // openssl rand -base64 48
+	aesGenRaw       = 32 // AES-256
 )
 
 var (
-	passwordCharsetRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
-	hmacCharsetRe     = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+	passwordCharsetRe  = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+	secretKeyCharsetRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 )
 
 // IsSetSecret reports a real stored secret (not empty / not sentinel).
@@ -37,7 +37,7 @@ func IsLockedInFile(f EnvField, fileValue string) bool {
 	if !f.Locked {
 		return false
 	}
-	if f.Autogen || f.Type == FieldPassword || f.Type == FieldHMAC || f.Type == FieldAES {
+	if f.Autogen || f.Type == FieldPassword || f.Type == FieldSecretKey || f.Type == FieldAES {
 		return IsSetSecret(fileValue)
 	}
 	return strings.TrimSpace(fileValue) != ""
@@ -64,8 +64,8 @@ func RuleHelp(t FieldType) string {
 	switch t {
 	case FieldPassword:
 		return fmt.Sprintf("Password: at least %d characters; A–Z a–z 0–9 _ - only (no $).", passwordMinLen)
-	case FieldHMAC:
-		return fmt.Sprintf("HMAC key: url-safe base64 alphabet (A–Z a–z 0–9 _ -), min %d chars.", hmacMinLen)
+	case FieldSecretKey:
+		return fmt.Sprintf("Secret key: url-safe base64 alphabet (A–Z a–z 0–9 _ -), min %d chars.", secretKeyMinLen)
 	case FieldAES:
 		return "AES key: standard base64 decoding to 16, 24, or 32 bytes (AES-128/192/256)."
 	default:
@@ -78,8 +78,8 @@ func Generate(t FieldType) (string, error) {
 	switch t {
 	case FieldPassword:
 		return generateURLSafe(passwordGenRaw)
-	case FieldHMAC:
-		return generateURLSafe(hmacGenRaw)
+	case FieldSecretKey:
+		return generateURLSafe(secretKeyGenRaw)
 	case FieldAES:
 		raw := make([]byte, aesGenRaw)
 		if _, err := rand.Read(raw); err != nil {
@@ -117,12 +117,12 @@ func Validate(t FieldType, value string) error {
 			return fmt.Errorf("password may only contain A–Z, a–z, 0–9, _ and - (no $ or other symbols)")
 		}
 		return nil
-	case FieldHMAC:
-		if len(value) < hmacMinLen {
-			return fmt.Errorf("HMAC key must be at least %d characters (got %d)", hmacMinLen, len(value))
+	case FieldSecretKey:
+		if len(value) < secretKeyMinLen {
+			return fmt.Errorf("secret key must be at least %d characters (got %d)", secretKeyMinLen, len(value))
 		}
-		if !hmacCharsetRe.MatchString(value) {
-			return fmt.Errorf("HMAC key must use url-safe base64 alphabet (A–Z, a–z, 0–9, _, -)")
+		if !secretKeyCharsetRe.MatchString(value) {
+			return fmt.Errorf("secret key must use url-safe base64 alphabet (A–Z, a–z, 0–9, _, -)")
 		}
 		return nil
 	case FieldAES:

@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-func TestGeneratePasswordHMACCharset(t *testing.T) {
+func TestGeneratePasswordSecretKeyCharset(t *testing.T) {
 	t.Parallel()
-	for _, typ := range []FieldType{FieldPassword, FieldHMAC} {
+	for _, typ := range []FieldType{FieldPassword, FieldSecretKey} {
 		for range 5 {
 			s, err := Generate(typ)
 			if err != nil {
@@ -90,7 +90,7 @@ func TestIsLockedInFile(t *testing.T) {
 func TestShowAutogenAndRollCheckboxes(t *testing.T) {
 	t.Parallel()
 	locked := EnvField{Key: "MONGO_PASSWORD", Autogen: true, Locked: true, Type: FieldPassword}
-	authz := EnvField{Key: "ENTITY_ID_KEY", Autogen: true, Locked: true, Type: FieldHMAC}
+	entityKey := EnvField{Key: "ENTITY_ID_KEY", Autogen: true, Locked: true, Type: FieldSecretKey}
 	rollable := EnvField{Key: "S3_SECRET_KEY", Autogen: true, Locked: false, Type: FieldPassword}
 	user := EnvField{Key: "MONGO_USERNAME", Locked: true, Type: FieldText}
 	set := "already-set-secret-value-here-ok"
@@ -105,8 +105,8 @@ func TestShowAutogenAndRollCheckboxes(t *testing.T) {
 		t.Fatal("set Locked field must be read-only")
 	}
 
-	if ShowAutogenCheckbox(authz, set) || ShowRollCheckbox(authz, set) || !IsLockedInFile(authz, set) {
-		t.Fatal("set Authz HMAC: locked, no Roll")
+	if ShowAutogenCheckbox(entityKey, set) || ShowRollCheckbox(entityKey, set) || !IsLockedInFile(entityKey, set) {
+		t.Fatal("set entity id key: locked, no Roll")
 	}
 
 	if !ShowAutogenCheckbox(rollable, "") || ShowRollCheckbox(rollable, "") {
@@ -184,7 +184,7 @@ func TestClassifyAutogenCheckbox(t *testing.T) {
 
 func TestRuleHelpNonEmpty(t *testing.T) {
 	t.Parallel()
-	for _, typ := range []FieldType{FieldPassword, FieldHMAC, FieldAES} {
+	for _, typ := range []FieldType{FieldPassword, FieldSecretKey, FieldAES} {
 		if RuleHelp(typ) == "" {
 			t.Fatalf("empty RuleHelp for %v", typ)
 		}
@@ -203,6 +203,6 @@ func TestEnvFieldsAutogenFlags(t *testing.T) {
 		}
 	}
 	if lockedSecrets < 5 {
-		t.Fatalf("expected locked Autogen secrets (mongo/redis/grafana/authz), got %d", lockedSecrets)
+		t.Fatalf("expected locked Autogen secrets (mongo/redis/grafana/entity id key), got %d", lockedSecrets)
 	}
 }

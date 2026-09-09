@@ -19,7 +19,7 @@ var rejectedPlaceholders = map[string]string{
 
 // CheckUsable verifies .env can be loaded and required keys have usable values.
 //
-// It does NOT run Autogen material Validate (password/HMAC/AES charset or length).
+// It does NOT run Autogen material Validate (password/secret key/AES charset or length).
 // Strength checks belong with generate / Roll, not ensure / first-up gates.
 //
 // Operator-provided secrets (EVE SSO) are blank after WriteMissing until Setup / edit;

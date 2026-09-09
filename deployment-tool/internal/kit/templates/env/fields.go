@@ -7,7 +7,7 @@ type FieldType int
 const (
 	FieldText FieldType = iota
 	FieldPassword
-	FieldHMAC
+	FieldSecretKey
 	FieldAES
 )
 
@@ -113,7 +113,7 @@ var envFields = []EnvField{
 			"every document, lock and routing lane is matched on, so rolling it would orphan " +
 			"them. Keep it out of database backups — it is the only thing standing between a " +
 			"leaked database and readable ids.",
-		Type: FieldHMAC, Required: true, Default: "", Autogen: true, Locked: true,
+		Type: FieldSecretKey, Required: true, Default: "", Autogen: true, Locked: true,
 	},
 	{
 		Key: "REFRESH_TOKEN_AES_KEY", Section: "Encryption", Label: "Refresh token AES key",

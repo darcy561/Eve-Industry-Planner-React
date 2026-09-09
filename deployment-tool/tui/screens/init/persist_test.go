@@ -63,7 +63,7 @@ func TestPersistWritesEnvAndConfig(t *testing.T) {
 	t.Chdir(home)
 
 	s := NewSession()
-	// Force autogen on for HMAC so Resolve generates a real key.
+	// Force autogen on for the entity id key so Resolve generates a real key.
 	secs := s.Sections()
 	for si := range secs {
 		for fi := range secs[si].Fields {
@@ -91,7 +91,7 @@ func TestPersistWritesEnvAndConfig(t *testing.T) {
 		t.Fatalf("missing APP_VERSION in:\n%s", body)
 	}
 	if strings.Contains(body, "ENTITY_ID_KEY="+env.AutoGenerateSentinel) {
-		t.Fatal("HMAC still sentinel after Persist")
+		t.Fatal("entity id key still sentinel after Persist")
 	}
 	cfg, err := config.LoadYAML(filepath.Join(home, kit.ConfigFile))
 	if err != nil {

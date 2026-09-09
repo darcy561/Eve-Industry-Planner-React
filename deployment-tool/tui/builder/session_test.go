@@ -271,7 +271,7 @@ func TestCtrlRPendingRollKeepsBuffer(t *testing.T) {
 	secs := []Section{{
 		ID: "secrets", Title: "Secrets",
 		Fields: []Field{{
-			ID: "ENTITY_ID_KEY", Label: "HMAC", Kind: KindReadonly,
+			ID: "ENTITY_ID_KEY", Label: "Entity id key", Kind: KindReadonly,
 			Value: "keep-this-until-save", AllowRoll: true,
 		}},
 	}}

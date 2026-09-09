@@ -244,7 +244,7 @@ func formatEnvValue(v string) string {
 	if v == "" {
 		return ""
 	}
-	// Prefer unquoted when safe (HMAC, AES base64, empty JSON {}).
+	// Prefer unquoted when safe (url-safe base64, AES base64, empty JSON {}).
 	// JSON with "…" uses single quotes so the file stays readable:
 	//   REFRESH_TOKEN_AES_LEGACY_KEYS='{"v1":"<base64>"}'
 	// godotenv: single quotes are literal; double quotes expand $ and need \" escapes.

@@ -27,7 +27,7 @@ func TestBuilderFieldFromEnvFirstCreateVsDay2(t *testing.T) {
 		Autogen: true, Locked: true, Required: true,
 	}
 	hmac := env.EnvField{
-		Key: "ENTITY_ID_KEY", Label: "HMAC", Type: env.FieldHMAC,
+		Key: "ENTITY_ID_KEY", Label: "Entity id key", Type: env.FieldSecretKey,
 		Autogen: true, Required: true,
 	}
 	set := "already-set-secret-value-here-ok"

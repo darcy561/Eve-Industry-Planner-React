@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	apihelperauth "eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 
 	"go.uber.org/zap"
 )
@@ -255,7 +255,7 @@ func wsUpgradeRejectAuthSession(
 	start time.Time,
 	err error,
 ) {
-	detail := apihelperauth.AuthSessionFailureDetailFromError(err, r)
+	detail := sessionreq.FailureDetailFromError(err, r)
 	extra := detail.ClientFailureDetail(nil)
 	failureClass, _ := extra["failure_class"].(string)
 	wsUpgradeRejectClient(

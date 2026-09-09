@@ -1,4 +1,8 @@
-package middleware
+// Package httpmiddleware holds the HTTP middleware two services share: the
+// constructor type they both speak, the combinators that compose a chain, and
+// the request logging and start-time middleware that every served request goes
+// through.
+package httpmiddleware
 
 import (
 	"net/http"

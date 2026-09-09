@@ -321,20 +321,6 @@ func (s *Store) SaveAccountRecord(ctx context.Context, rec *AccountRecord) error
 	})
 }
 
-// DeleteAccountRecord removes an account's whole record.
-func (s *Store) DeleteAccountRecord(ctx context.Context, accountID string) error {
-	r, err := s.handle()
-	if err != nil {
-		return err
-	}
-	acc := strings.TrimSpace(accountID)
-	if acc == "" {
-		return nil
-	}
-	_, err = r.Delete(ctx, accountKey(acc))
-	return err
-}
-
 // PutSession adds or replaces one session in an account's record, and points
 // the session index at that account.
 //
@@ -615,20 +601,10 @@ func (s *Store) FindTokenForSession(ctx context.Context, sessionID string) (stri
 	}
 
 	var match string
-	err := s.EachRefreshTokenKey(ctx, func(tokens []string) error {
-		for _, token := range tokens {
-			data, found, err := s.RefreshToken(ctx, token)
-			if err != nil || !found {
-				continue
-			}
-			if strings.TrimSpace(data.SessionID) == sid {
-				match = token
-				return errStopScan
-			}
-		}
-		return nil
-	})
-	if err != nil && !errors.Is(err, errStopScan) {
+	if err := s.eachTokenNaming(ctx, sid, func(token string) bool {
+		match = token
+		return false
+	}); err != nil {
 		return "", false, err
 	}
 	if match == "" {
@@ -645,11 +621,38 @@ func (s *Store) FindTokenForSession(ctx context.Context, sessionID string) (stri
 // a caller.
 var errStopScan = errors.New("plannersession: stop scan")
 
+// eachTokenNaming visits every stored refresh token whose data names this
+// session. visit stops the scan by returning false, so a caller wanting only the
+// first match does not read the whole keyspace.
+func (s *Store) eachTokenNaming(ctx context.Context, sessionID string, visit func(token string) bool) error {
+	err := s.EachRefreshTokenKey(ctx, func(tokens []string) error {
+		for _, token := range tokens {
+			data, found, err := s.RefreshToken(ctx, token)
+			if err != nil || !found {
+				continue
+			}
+			if strings.TrimSpace(data.SessionID) != sessionID {
+				continue
+			}
+			if !visit(token) {
+				return errStopScan
+			}
+		}
+		return nil
+	})
+	if err != nil && !errors.Is(err, errStopScan) {
+		return err
+	}
+	return nil
+}
+
 // RevokeSessionTokens revokes every refresh token a session can be reached by:
-// the one presented, the one its index names, and one found by scanning.
+// the one presented, the one its index names, and any the index has lost track
+// of.
 //
-// Three sources because a session that is being logged out must not remain
-// usable through a token the index has lost track of.
+// All of them, not the first found: a session being logged out must not stay
+// usable through a token nothing is tracking, and an index holds one value while
+// a session can have outlived several.
 func (s *Store) RevokeSessionTokens(ctx context.Context, presentedToken, sessionID string) error {
 	presented := strings.TrimSpace(presentedToken)
 	if presented == "" {
@@ -663,14 +666,46 @@ func (s *Store) RevokeSessionTokens(ctx context.Context, presentedToken, session
 	if sid == "" {
 		return nil
 	}
-	other, found, err := s.FindTokenForSession(ctx, sid)
+	tokens, err := s.tokensForSession(ctx, sid)
 	if err != nil {
 		return err
 	}
-	if !found || other == presented {
-		return nil
+	for _, token := range tokens {
+		if token == presented {
+			continue
+		}
+		if err := s.DeleteRefreshToken(ctx, token); err != nil {
+			return err
+		}
 	}
-	return s.DeleteRefreshToken(ctx, other)
+	return nil
+}
+
+// tokensForSession collects every token naming a session: the one its index
+// points at, and any the index does not know about.
+func (s *Store) tokensForSession(ctx context.Context, sessionID string) ([]string, error) {
+	seen := map[string]struct{}{}
+	var tokens []string
+
+	token, found, err := s.TokenForSession(ctx, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	if found {
+		seen[token] = struct{}{}
+		tokens = append(tokens, token)
+	}
+
+	if err := s.eachTokenNaming(ctx, sessionID, func(token string) bool {
+		if _, ok := seen[token]; !ok {
+			seen[token] = struct{}{}
+			tokens = append(tokens, token)
+		}
+		return true
+	}); err != nil {
+		return nil, err
+	}
+	return tokens, nil
 }
 
 // PutCorporations caches the corporation ids ESI reported for an account.

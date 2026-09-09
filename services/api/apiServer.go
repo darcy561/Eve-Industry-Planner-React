@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"eve-industry-planner/api/apideps"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/api/helper/sdecache"
 	"eve-industry-planner/api/middleware"
 	"eve-industry-planner/api/staticdata"
@@ -28,8 +27,10 @@ import (
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/esiclient"
+	"eve-industry-planner/shared/httpmiddleware"
 	"eve-industry-planner/shared/lifecycle"
 	"eve-industry-planner/shared/logs"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/ulule/limiter/v3"
@@ -44,7 +45,7 @@ type route struct {
 
 func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esiclient.API) (lifecycle.Runner, error) {
 	logs.SetDebugIdentityResolver(func(ctx context.Context) (string, string) {
-		return auth.AccountIDFromContext(ctx), auth.SessionIDFromContext(ctx)
+		return sessionreq.AccountIDFromContext(ctx), sessionreq.SessionIDFromContext(ctx)
 	})
 
 	//creates rate limits for routes and setups up redis store to store them
@@ -78,9 +79,9 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 	// Outermost: RequestStartTimeConstructor (before otelhttp) so duration includes tracing.
 	// Under otelhttp: deadline, logging, maintenance, compression, then mux (unregistered-route logging).
 	// Per-route middleware (rate limit, auth) is applied only to registered handlers via groups.
-	apiHandler := middleware.Chain(
+	apiHandler := httpmiddleware.Chain(
 		middleware.RequestTimeoutConstructor(),
-		middleware.RequestLoggingConstructor(),
+		httpmiddleware.RequestLoggingConstructor(),
 		middleware.MaintenanceModeConstructor(maintenanceFlag),
 		middleware.CompressionConstructor(),
 		middleware.UnregisteredRoutesMuxConstructor(mux),
@@ -89,16 +90,16 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 	// Per-ID citadel name GETs are cacheable (browser + CDN); a single page can request many
 	// structure IDs in parallel on a cold cache. Exempt that prefix from the default public
 	// rate limit so we do not need a non-cacheable batch lookup.
-	publicGroup := middleware.NewGroup(mux,
+	publicGroup := httpmiddleware.NewGroup(mux,
 		middleware.OptionalAccountLogConstructor(clients.Redis),
-		middleware.ApplyIf(
+		httpmiddleware.ApplyIf(
 			func(r *http.Request) bool {
 				return !strings.HasPrefix(r.URL.Path, "/api/v1/citadel-names")
 			},
 			middleware.RateLimiterConstructor(store, publicRateLimit, "public"),
 		),
 	)
-	privateGroup := middleware.NewGroup(mux,
+	privateGroup := httpmiddleware.NewGroup(mux,
 		middleware.RateLimiterConstructor(store, privateRateLimit, "private"),
 		middleware.AuthConstructor(clients.Redis),
 	)
@@ -311,7 +312,7 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 		privateGroup.HandleFunc(route.Path, route.Handler)
 	}
 
-	baseHandler := middleware.RequestStartTimeConstructor()(
+	baseHandler := httpmiddleware.RequestStartTimeConstructor()(
 		otelhttp.NewHandler(
 			apiHandler,
 			"api",

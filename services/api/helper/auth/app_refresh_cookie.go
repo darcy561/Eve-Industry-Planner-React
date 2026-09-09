@@ -3,6 +3,8 @@ package auth
 import (
 	"net/http"
 	"strings"
+
+	"eve-industry-planner/shared/plannersession"
 )
 
 // AppRefreshCookieName is the legacy HttpOnly refresh cookie (unused for per-tab sessions).
@@ -11,9 +13,9 @@ const AppRefreshCookieName = "eip_app_refresh"
 // appRefreshCookiePath scopes the cookie to auth endpoints only.
 const appRefreshCookiePath = "/api/v1/auth"
 
-// AppRefreshCookieMaxAgeSeconds matches RefreshTokenTTL.
+// AppRefreshCookieMaxAgeSeconds matches the planner session refresh lifetime.
 func AppRefreshCookieMaxAgeSeconds() int {
-	return int(RefreshTokenTTL.Seconds())
+	return int(plannersession.RefreshTokenTTL.Seconds())
 }
 
 // SetAppRefreshCookie sets the HttpOnly app refresh cookie.

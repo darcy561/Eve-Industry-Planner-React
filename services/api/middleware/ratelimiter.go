@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"eve-industry-planner/shared/httpmiddleware"
 	"net/http"
 	"strconv"
 	"time"
@@ -39,7 +40,7 @@ func setFixedWindowRetryAfter(w http.ResponseWriter, now time.Time) {
 	}
 }
 
-func RateLimiterConstructor(store limiter.Store, rateLimit limiter.Rate, scope string) MiddlewareConstructor {
+func RateLimiterConstructor(store limiter.Store, rateLimit limiter.Rate, scope string) httpmiddleware.MiddlewareConstructor {
 	return func(next http.Handler) http.Handler {
 		l := limiter.New(store, rateLimit, limiter.WithTrustForwardHeader(true))
 		mw := lstdlib.NewMiddleware(l,

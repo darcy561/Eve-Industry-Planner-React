@@ -17,8 +17,9 @@ import (
 	"sync"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/core/documentlock"
+	"eve-industry-planner/shared/plannersession"
+	"eve-industry-planner/shared/plannersession/maintenance"
 	"eve-industry-planner/shared/stackservices"
 )
 
@@ -55,7 +56,7 @@ func AuthSessionMaintenanceJob(clients *stackservices.Clients) Job {
 			if clients == nil || clients.Redis.Driver() == nil {
 				return nil
 			}
-			return auth.RunAuthSessionMaintenanceLoop(ctx, clients.Redis, authSessionMaintenanceLoopInterval, auth.SessionCleanupOptionsFromEnv())
+			return maintenance.RunLoop(ctx, plannersession.NewStore(clients.Redis), authSessionMaintenanceLoopInterval, maintenance.OptionsFromEnv())
 		},
 	}
 }

@@ -3,13 +3,15 @@ package auth
 import (
 	"net/http"
 	"testing"
+
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 func TestBuildRefreshCredentialLogDetail(t *testing.T) {
 	t.Parallel()
 
 	req, _ := http.NewRequest(http.MethodPost, "/api/v1/auth/sessions/rotate", nil)
-	req.AddCookie(&http.Cookie{Name: AppSessionCookieName, Value: "sess-abc"})
+	req.AddCookie(&http.Cookie{Name: sessionreq.SessionCookieName, Value: "sess-abc"})
 	req.AddCookie(&http.Cookie{Name: AppRefreshCookieName, Value: "00000000-0000-4000-8000-00000000abcd"})
 
 	d := BuildRefreshCredentialLogDetail(req, "sessions_rotate", "00000000-0000-4000-8000-00000000abcd", true, "")

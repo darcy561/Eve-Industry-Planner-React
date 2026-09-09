@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	apihelperauth "eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/plannersession"
 	"eve-industry-planner/testing/wait"
 )
 
@@ -23,7 +23,7 @@ import (
 // a session record holds when a release finds it.
 func (f *integFixture) seedLegacyGrants(accountID string, corpRefs, allianceRefs []string) {
 	f.t.Helper()
-	key := apihelperauth.AccountSessionsKeyPrefix + accountID
+	key := plannersession.AccountSessionsKeyPrefix + accountID
 	var record map[string]any
 	existing, err := f.Redis.Driver().Get(context.Background(), key).Bytes()
 	if err == nil {
@@ -41,7 +41,7 @@ func (f *integFixture) seedLegacyGrants(accountID string, corpRefs, allianceRefs
 	if err != nil {
 		f.t.Fatalf("seedLegacyGrants marshal: %v", err)
 	}
-	if err := f.Redis.Driver().Set(context.Background(), key, payload, apihelperauth.SessionTTL).Err(); err != nil {
+	if err := f.Redis.Driver().Set(context.Background(), key, payload, plannersession.SessionTTL).Err(); err != nil {
 		f.t.Fatalf("seedLegacyGrants: %v", err)
 	}
 }
@@ -49,7 +49,7 @@ func (f *integFixture) seedLegacyGrants(accountID string, corpRefs, allianceRefs
 // grantedOwners reads back what a session record now holds.
 func (f *integFixture) grantedOwners(accountID string) models.OwnerKeys {
 	f.t.Helper()
-	rec, err := apihelperauth.GetAccountSessionsRecord(context.Background(), f.Redis, accountID)
+	rec, err := plannersession.NewStore(f.Redis).LiveAccountRecord(context.Background(), accountID)
 	if err != nil {
 		f.t.Fatalf("grantedOwners: %v", err)
 	}
@@ -135,7 +135,7 @@ func TestIntegrationRepairedGrantsRestoreScopeOnReconnect(t *testing.T) {
 		t.Fatalf("grants before repair = %v, want none readable", held)
 	}
 
-	report, err := apihelperauth.RepairSessionGrants(context.Background(), f.Redis, false)
+	report, err := plannersession.NewStore(f.Redis).RepairGrants(context.Background(), false)
 	if err != nil {
 		t.Fatalf("RepairSessionGrants: %v", err)
 	}

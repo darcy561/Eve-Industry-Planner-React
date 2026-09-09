@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"eve-industry-planner/api/apideps"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/testing/mongolive"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -37,7 +37,7 @@ func scopeHandlers(mongo *eipmongo.Mongo) *Handlers {
 func asAccount(t *testing.T, accountID, path string) *http.Request {
 	t.Helper()
 	r := httptest.NewRequest(http.MethodGet, path, nil)
-	return r.WithContext(auth.WithAuthIdentity(r.Context(), accountID, "sess-scope"))
+	return r.WithContext(sessionreq.WithIdentity(r.Context(), accountID, "sess-scope"))
 }
 
 // seedFigures gives an account one month and one lifetime row, with the money

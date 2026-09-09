@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"eve-industry-planner/api/apideps"
-	"eve-industry-planner/api/helper/auth"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/testing/keys"
 )
 
@@ -15,7 +15,7 @@ const routerAccount = "acct-router"
 // A request as the auth middleware leaves it, naming the session's own owner.
 func signedIn(path string) *http.Request {
 	r := httptest.NewRequest(http.MethodGet, path, nil)
-	return r.WithContext(auth.WithAuthIdentity(r.Context(), routerAccount, "sess-router"))
+	return r.WithContext(sessionreq.WithIdentity(r.Context(), routerAccount, "sess-router"))
 }
 
 // The router is the only thing that makes a handler reachable. A view that is
@@ -102,7 +102,7 @@ func TestTimelineViewsRejectNonGET(t *testing.T) {
 		for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodDelete} {
 			rec := httptest.NewRecorder()
 			r := httptest.NewRequest(method, path, nil)
-			h.Router(rec, r.WithContext(auth.WithAuthIdentity(r.Context(), routerAccount, "sess-router")))
+			h.Router(rec, r.WithContext(sessionreq.WithIdentity(r.Context(), routerAccount, "sess-router")))
 			if rec.Code != http.StatusMethodNotAllowed {
 				t.Fatalf("%s %s = %d, want 405", method, path, rec.Code)
 			}

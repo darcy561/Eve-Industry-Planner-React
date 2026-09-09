@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"eve-industry-planner/shared/httpmiddleware"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,7 +11,7 @@ import (
 
 // UnregisteredRoutesMuxConstructor must be the last entry in [Chain]: it serves the mux and
 // does not delegate to the inner handler passed to Chain.
-func UnregisteredRoutesMuxConstructor(mux *http.ServeMux) MiddlewareConstructor {
+func UnregisteredRoutesMuxConstructor(mux *http.ServeMux) httpmiddleware.MiddlewareConstructor {
 	return func(_ http.Handler) http.Handler {
 		return WrapServeMuxUnregisteredRoutes(mux)
 	}

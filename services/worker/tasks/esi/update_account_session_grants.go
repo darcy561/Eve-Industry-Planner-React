@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/esiclient"
@@ -19,6 +18,7 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
 	eipnats "eve-industry-planner/shared/nats"
+	"eve-industry-planner/shared/plannersession"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -130,14 +130,15 @@ func RefreshAccountSessionGrants(ctx context.Context, request eipnats.AccountSes
 		allAlliances = append(allAlliances, aid)
 	}
 
-	if err := auth.StoreCorporations(ctx, deps.Redis, request.AccountID, allCorporations); err != nil {
+	sessions := plannersession.NewStore(deps.Redis)
+	if err := sessions.PutCorporations(ctx, request.AccountID, allCorporations); err != nil {
 		logs.ErrorCtx(ctx, "failed to store corporation IDs in Redis",
 			"account_id", request.AccountID,
 			"corporation_count", len(allCorporations),
 			"error", err)
 		return fmt.Errorf("failed to store corporations: %w", err)
 	}
-	if err := auth.StoreAlliances(ctx, deps.Redis, request.AccountID, allAlliances); err != nil {
+	if err := sessions.PutAlliances(ctx, request.AccountID, allAlliances); err != nil {
 		logs.ErrorCtx(ctx, "failed to store alliance IDs in Redis",
 			"account_id", request.AccountID,
 			"alliance_count", len(allAlliances),
@@ -167,7 +168,7 @@ func RefreshAccountSessionGrants(ctx context.Context, request eipnats.AccountSes
 		logs.WarnCtx(ctx, "failed to resolve owners for session grants",
 			"account_id", request.AccountID,
 			"error", err)
-	} else if err := auth.UpdateAccountSessionGrants(ctx, deps.Redis, request.AccountID, granted); err != nil {
+	} else if err := sessions.SetGrants(ctx, request.AccountID, granted); err != nil {
 		logs.WarnCtx(ctx, "failed to update account session grants from affiliation lookup",
 			"account_id", request.AccountID,
 			"error", err)

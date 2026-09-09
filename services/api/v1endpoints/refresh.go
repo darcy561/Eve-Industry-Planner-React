@@ -14,6 +14,9 @@ import (
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/plannersession"
+	sessionmaint "eve-industry-planner/shared/plannersession/maintenance"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -58,6 +61,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	sessionMetrics := apimetrics.GetAPIAuthSessionLifecycle()
 	mongo := a.Mongo
 	rdb := a.Redis
+	sessions := plannersession.NewStore(rdb)
 	h := user.New(a.Deps)
 	appVersion := extractAppVersion(r)
 	sessionEndpoint := "sessions_rotate"
@@ -124,7 +128,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	refreshToken = resolved.Token
 	tokenData := resolved.Data
 	if err != nil {
-		if errors.Is(err, auth.ErrRefreshTokenNotFound) {
+		if errors.Is(err, plannersession.ErrRefreshTokenNotFound) {
 			m.Errors.WithLabelValues("refresh_token_not_found").Inc(ctx)
 			respondSessionRefreshClientError(w, r, credLog, http.StatusUnauthorized, "Invalid token", "planner refresh token not found in Redis", "auth_refresh_token_not_found", map[string]any{
 				"metric":                     "session_refresh",
@@ -145,13 +149,13 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	})
 
 	now := time.Now().UTC()
-	if strings.TrimSpace(tokenData.SessionID) != "" && auth.IsRefreshTokenDataReauthExpired(ctx, rdb, tokenData, now) {
+	if strings.TrimSpace(tokenData.SessionID) != "" && sessions.RefreshTokenReauthExpired(ctx, tokenData, now) {
 		m.Errors.WithLabelValues("reauth_required").Inc(ctx)
 		attachSessionRefreshClientFailure(r, credLog, "planner session reauth window elapsed", "auth_reauth_required", map[string]any{
 			"metric":        "session_refresh",
 			"session_start": tokenData.SessionStart,
 		})
-		auth.ClearAppSessionCookie(w)
+		sessionreq.ClearSessionCookie(w)
 		auth.ClearAppRefreshCookie(w, r)
 		writeRefreshAuthError(w, http.StatusUnauthorized, "reauth_required")
 		return
@@ -234,8 +238,8 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	}
 
 	// Load corporation/alliance caches from Redis (aggregated from all characters on the account)
-	corporations := auth.GetCorporations(ctx, rdb, tokenData.AccountID)
-	alliances := auth.GetAlliances(ctx, rdb, tokenData.AccountID)
+	corporations := sessions.Corporations(ctx, tokenData.AccountID)
+	alliances := sessions.Alliances(ctx, tokenData.AccountID)
 
 	// Update token data with fresh corporation/alliance lists from Redis
 	updatedTokenData := *tokenData
@@ -245,7 +249,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	startedSession := false
 	needNewSessionID := strings.TrimSpace(updatedTokenData.SessionID) == ""
 	if needNewSessionID {
-		sessionID, err := auth.GenerateSessionID()
+		sessionID, err := plannersession.GenerateSessionID()
 		if err != nil {
 			m.Errors.WithLabelValues("session_generation_error").Inc(ctx)
 			respondRefreshServerError(w, r, sessionEndpoint, "failed to generate session id", "auth_session_id_gen", err, map[string]any{
@@ -288,15 +292,14 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		})
 		return
 	}
-	if err := auth.UpsertSessionRecord(ctx, rdb, auth.SessionRecord{
+	if err := sessions.PutSession(ctx, tokenData.AccountID, plannersession.Session{
 		SessionID:     updatedTokenData.SessionID,
-		AccountID:     tokenData.AccountID,
 		CharacterHash: tokenData.CharacterHash,
 		AppVersion:    updatedTokenData.AppVersion,
 		StartedAt:     updatedTokenData.SessionStart,
 		LastSeenAt:    updatedTokenData.SessionSeenAt,
 	}); err != nil {
-		auth.RevokeRefreshTokenBestEffort(ctx, rdb, newRefreshToken)
+		sessionmaint.RevokeTokenBestEffort(ctx, sessions, newRefreshToken)
 		m.Errors.WithLabelValues("session_store_error").Inc(ctx)
 		sessionMetrics.StoreErrors.WithLabelValues(sessionFlow).Inc(ctx)
 		respondRefreshServerError(w, r, sessionEndpoint, "failed to store session record", "auth_redis_session_record", err, map[string]any{
@@ -310,8 +313,8 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		"started_session":  startedSession,
 		"session_endpoint": sessionEndpoint,
 	})
-	if err := auth.VerifyAccountSessionPersisted(ctx, rdb, tokenData.AccountID, updatedTokenData.SessionID); err != nil {
-		auth.RevokeRefreshTokenBestEffort(ctx, rdb, newRefreshToken)
+	if err := sessionmaint.VerifySessionPersisted(ctx, sessions, tokenData.AccountID, updatedTokenData.SessionID); err != nil {
+		sessionmaint.RevokeTokenBestEffort(ctx, sessions, newRefreshToken)
 		m.Errors.WithLabelValues("session_verify_error").Inc(ctx)
 		sessionMetrics.StoreErrors.WithLabelValues(sessionFlow).Inc(ctx)
 		respondRefreshServerError(w, r, sessionEndpoint, "account_sessions row missing after upsert", "auth_session_verify", err, map[string]any{
@@ -339,13 +342,13 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
 			"error": err.Error(),
 		})
-	} else if err := auth.UpdateAccountSessionGrants(ctx, rdb, tokenData.AccountID, granted); err != nil {
+	} else if err := sessions.SetGrants(ctx, tokenData.AccountID, granted); err != nil {
 		logs.AttachHandlerCaveat(r, "account_session_grants_update_failed", "failed to update account session grants", map[string]any{
 			"error": err.Error(),
 		})
 	}
-	if err := auth.VerifyAccountSessionPersisted(ctx, rdb, tokenData.AccountID, updatedTokenData.SessionID); err != nil {
-		auth.RevokeRefreshTokenBestEffort(ctx, rdb, newRefreshToken)
+	if err := sessionmaint.VerifySessionPersisted(ctx, sessions, tokenData.AccountID, updatedTokenData.SessionID); err != nil {
+		sessionmaint.RevokeTokenBestEffort(ctx, sessions, newRefreshToken)
 		m.Errors.WithLabelValues("session_verify_error").Inc(ctx)
 		sessionMetrics.StoreErrors.WithLabelValues(sessionFlow).Inc(ctx)
 		respondRefreshServerError(w, r, sessionEndpoint, "account_sessions row missing before issuing session cookies", "auth_session_verify", err, map[string]any{
@@ -394,7 +397,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 			AccountID:           tokenData.AccountID,
 			SessionID:           updatedTokenData.SessionID,
 			MainCharacterHash:   tokenData.CharacterHash,
-			ReauthRequiredAt:    auth.ReauthRequiredAtUnix(updatedTokenData.SessionStart, time.Time{}),
+			ReauthRequiredAt:    plannersession.ReauthRequiredAtUnix(updatedTokenData.SessionStart, time.Time{}),
 			FirstLogin:          loginDocs.FirstLogin,
 			UserDocument:        userOut,
 			ApplicationSettings: loginDocs.Settings,
@@ -427,7 +430,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		AccountID:         tokenData.AccountID,
 		SessionID:         updatedTokenData.SessionID,
 		MainCharacterHash: tokenData.CharacterHash,
-		ReauthRequiredAt:  auth.ReauthRequiredAtUnix(updatedTokenData.SessionStart, time.Time{}),
+		ReauthRequiredAt:  plannersession.ReauthRequiredAtUnix(updatedTokenData.SessionStart, time.Time{}),
 	}
 	rotate.RefreshToken = newRefreshToken
 	auth.ApplyRotatedSessionCookies(w, r, updatedTokenData.SessionID, newRefreshToken, refreshFromCookie, recoveredViaSession)
@@ -453,7 +456,7 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	logSessionRefreshSuccess(r, sessionEndpoint, tokenData, auth.ResolveSessionRefreshAccountStorage(r, nil, refreshFromCookie, eveToken), refreshFromCookie, recoveredViaSession, duration)
 }
 
-func logSessionRefreshSuccess(r *http.Request, sessionEndpoint string, tokenData *auth.RefreshTokenData, accountStorage string, refreshFromCookie, recoveredViaSession bool, duration time.Duration) {
+func logSessionRefreshSuccess(r *http.Request, sessionEndpoint string, tokenData *plannersession.RefreshTokenData, accountStorage string, refreshFromCookie, recoveredViaSession bool, duration time.Duration) {
 	if tokenData == nil || r == nil {
 		return
 	}

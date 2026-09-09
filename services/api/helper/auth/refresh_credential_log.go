@@ -4,6 +4,8 @@ import (
 	"maps"
 	"net/http"
 	"strings"
+
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 // RefreshCredentialLogDetail is safe diagnostic context for refresh/bootstrap/rotate (no full secrets).
@@ -34,7 +36,7 @@ func BuildRefreshCredentialLogDetail(r *http.Request, sessionEndpoint, refreshTo
 		CredentialSource:       source,
 		RefreshTokenLen:        len(strings.TrimSpace(refreshToken)),
 		RefreshTokenIDHint:     refreshTokenIDHint(refreshToken),
-		HasEipSessionCookie:    strings.TrimSpace(ReadAppSessionCookie(r)) != "",
+		HasEipSessionCookie:    strings.TrimSpace(sessionreq.ReadSessionCookie(r)) != "",
 		HasEipAppRefreshCookie: strings.TrimSpace(ReadAppRefreshCookie(r)) != "",
 		HasEveTokenBody:        strings.TrimSpace(eveToken) != "",
 		LikelyCause:            likelyRefreshTokenNotFoundCause(refreshFromCookie, source),

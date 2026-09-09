@@ -11,10 +11,10 @@ import (
 
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/helper"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/testing/mongolive"
 	"eve-industry-planner/testing/redisfake"
@@ -55,7 +55,7 @@ func asAccountJSON(t *testing.T, accountID, method, path string, body any) *http
 		r = httptest.NewRequest(method, path, bytes.NewReader(encoded))
 		r.Header.Set("Content-Type", "application/json")
 	}
-	return r.WithContext(auth.WithAuthIdentity(r.Context(), accountID, "sess-invite"))
+	return r.WithContext(sessionreq.WithIdentity(r.Context(), accountID, "sess-invite"))
 }
 
 // seedInvitePlanner writes a custom planner with accountID as its creator. It is

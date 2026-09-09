@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	eipredis "eve-industry-planner/shared/redis"
 )
 
@@ -16,7 +18,7 @@ var ErrRefreshTokenGenerate = errors.New("refresh token generate failed")
 // PresentedRefreshResult is the resolved planner refresh credential for rotate/bootstrap.
 type PresentedRefreshResult struct {
 	Token               string
-	Data                *RefreshTokenData
+	Data                *plannersession.RefreshTokenData
 	RecoveredViaSession bool
 }
 
@@ -26,20 +28,21 @@ func ResolvePresentedRefreshToken(ctx context.Context, redisClient *eipredis.Red
 	presentedToken = strings.TrimSpace(presentedToken)
 	out := PresentedRefreshResult{Token: presentedToken}
 
-	data, err := GetRefreshTokenData(ctx, redisClient, presentedToken)
-	if err == nil {
+	store := plannersession.NewStore(redisClient)
+	data, found, err := store.RefreshToken(ctx, presentedToken)
+	if err != nil {
+		return PresentedRefreshResult{}, err
+	}
+	if found {
 		out.Data = data
 		return out, nil
-	}
-	if !errors.Is(err, ErrRefreshTokenNotFound) {
-		return PresentedRefreshResult{}, err
 	}
 
 	sid := strings.TrimSpace(sessionID)
 	if sid == "" {
-		return PresentedRefreshResult{}, ErrRefreshTokenNotFound
+		return PresentedRefreshResult{}, plannersession.ErrRefreshTokenNotFound
 	}
-	resolvedToken, resolvedData, recErr := ResolveRefreshTokenForValidSession(ctx, redisClient, sid)
+	resolvedToken, resolvedData, recErr := store.ResolveTokenForValidSession(ctx, sid)
 	if recErr != nil {
 		return PresentedRefreshResult{}, recErr
 	}
@@ -54,18 +57,18 @@ func ResolvePresentedRefreshToken(ctx context.Context, redisClient *eipredis.Red
 func ResolvePresentedRefreshTokenFromRequest(ctx context.Context, redisClient *eipredis.Redis, presentedToken string, r *http.Request) (PresentedRefreshResult, error) {
 	sessionID := ""
 	if r != nil {
-		sessionID = ResolvePlannerSessionID(r)
+		sessionID = sessionreq.SessionID(r)
 	}
 	return ResolvePresentedRefreshToken(ctx, redisClient, presentedToken, sessionID)
 }
 
 // MintAndStoreRefreshToken generates a new opaque planner refresh token and persists it in Redis.
-func MintAndStoreRefreshToken(ctx context.Context, redisClient *eipredis.Redis, data RefreshTokenData) (string, error) {
-	token, err := GenerateRefreshToken()
+func MintAndStoreRefreshToken(ctx context.Context, redisClient *eipredis.Redis, data plannersession.RefreshTokenData) (string, error) {
+	token, err := plannersession.GenerateRefreshToken()
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrRefreshTokenGenerate, err)
 	}
-	if err := StoreRefreshToken(ctx, redisClient, token, data); err != nil {
+	if err := plannersession.NewStore(redisClient).PutRefreshToken(ctx, token, data); err != nil {
 		return "", err
 	}
 	return token, nil
@@ -73,7 +76,7 @@ func MintAndStoreRefreshToken(ctx context.Context, redisClient *eipredis.Redis, 
 
 // RevokeSupersededRefreshToken removes the refresh token that was presented or recovered for rotation.
 func RevokeSupersededRefreshToken(ctx context.Context, redisClient *eipredis.Redis, supersededToken string) error {
-	return RevokeRefreshToken(ctx, redisClient, supersededToken)
+	return plannersession.NewStore(redisClient).DeleteRefreshToken(ctx, supersededToken)
 }
 
 // UseAppRefreshCookieOnResponse reports whether rotate/bootstrap should set eip_app_refresh.

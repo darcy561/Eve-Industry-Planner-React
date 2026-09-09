@@ -17,11 +17,11 @@ import (
 	"testing"
 
 	"eve-industry-planner/api/apideps"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/api/v1endpoints"
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/models/planner"
 	eipmongo "eve-industry-planner/shared/mongo"
+	"eve-industry-planner/shared/plannersession"
 	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/esifake"
@@ -37,7 +37,7 @@ import (
 const liveScratchHash = "eip-live-session-lifecycle"
 
 func liveScratchAccount() string {
-	return auth.GetAccountIDFromCharacterHash(liveScratchHash)
+	return plannersession.AccountIDFromCharacterHash(liveScratchHash)
 }
 
 // liveSession is the session harness with real Mongo behind it. Redis stays a
@@ -144,13 +144,13 @@ func TestLive_loginMintsASessionTheBrowserCanUse(t *testing.T) {
 	}
 
 	// What the browser was handed is what is stored, or the next request fails.
-	if !s.stored(auth.RefreshTokenKeyPrefix + body.RefreshToken) {
+	if !s.stored(plannersession.RefreshTokenKeyPrefix + body.RefreshToken) {
 		t.Error("the refresh token handed to the browser is not stored")
 	}
-	if !s.stored(auth.SessionIndexKeyPrefix + body.SessionID) {
+	if !s.stored(plannersession.SessionIndexKeyPrefix + body.SessionID) {
 		t.Error("the session id handed to the browser has no index")
 	}
-	if !s.stored(auth.AccountSessionsKeyPrefix + liveScratchAccount()) {
+	if !s.stored(plannersession.AccountSessionsKeyPrefix + liveScratchAccount()) {
 		t.Error("the account has no sessions record")
 	}
 }
@@ -182,7 +182,7 @@ func TestLive_loginReportsTheFirstLoginOnce(t *testing.T) {
 		t.Error("the second login reused the first session id")
 	}
 	for _, token := range []string{first.RefreshToken, second.RefreshToken} {
-		if !s.stored(auth.RefreshTokenKeyPrefix + token) {
+		if !s.stored(plannersession.RefreshTokenKeyPrefix + token) {
 			t.Errorf("token %q is not stored", token)
 		}
 	}
@@ -209,10 +209,10 @@ func TestLive_loginThenLogoutEndsOnlyThatSession(t *testing.T) {
 		t.Fatalf("logout = %d, body %s", rec.Code, rec.Body.String())
 	}
 
-	if s.stored(auth.RefreshTokenKeyPrefix + ending.RefreshToken) {
+	if s.stored(plannersession.RefreshTokenKeyPrefix + ending.RefreshToken) {
 		t.Error("the logged-out token is still stored")
 	}
-	if !s.stored(auth.RefreshTokenKeyPrefix + keep.RefreshToken) {
+	if !s.stored(plannersession.RefreshTokenKeyPrefix + keep.RefreshToken) {
 		t.Error("logging out of one session ended another")
 	}
 }

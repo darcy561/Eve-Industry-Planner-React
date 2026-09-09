@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/core/changestream"
 	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/lifecycle"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
+	"eve-industry-planner/shared/plannersession"
 	"eve-industry-planner/shared/stackservices"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -164,7 +164,7 @@ func runPrepareRelease(ctx context.Context, args []string) error {
 }
 
 func repairSessionGrants(ctx context.Context, clients *stackservices.Clients, dryRun bool) (string, error) {
-	report, err := auth.RepairSessionGrants(ctx, clients.Redis, dryRun)
+	report, err := plannersession.NewStore(clients.Redis).RepairGrants(ctx, dryRun)
 	if err != nil {
 		return "", err
 	}

@@ -19,10 +19,10 @@ import (
 
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/helper"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/crypto/entityid"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/keys"
 	"eve-industry-planner/testing/mongolive"
@@ -119,7 +119,7 @@ func (s *plannerScope) request(method, path string, body any, accountID, planner
 	if plannerHandle != "" {
 		r.Header.Set(helper.PlannerOwnerHeader, plannerHandle)
 	}
-	return r.WithContext(auth.WithAuthIdentity(r.Context(), accountID, "sess-planner-scope"))
+	return r.WithContext(sessionreq.WithIdentity(r.Context(), accountID, "sess-planner-scope"))
 }
 
 func (s *plannerScope) putJobs(jobs []models.Job, accountID, plannerHandle string) *httptest.ResponseRecorder {

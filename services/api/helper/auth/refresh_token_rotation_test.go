@@ -5,15 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"eve-industry-planner/testing/redisfake"
-
-	eipredis "eve-industry-planner/shared/redis"
+	"eve-industry-planner/shared/plannersession"
+	"eve-industry-planner/testing/redisfixture"
 )
 
 func TestResolvePresentedRefreshToken_RecoversFromSession(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := eipredis.NewRedis(redisfake.New(t).Client)
+	rdb := redisfixture.New(t).Handle
+	sessions := plannersession.NewStore(rdb)
 
 	const (
 		accountID    = "acct-presented-resolve"
@@ -22,33 +22,33 @@ func TestResolvePresentedRefreshToken_RecoversFromSession(t *testing.T) {
 		currentToken = "33333333-3333-4333-8333-333333333333"
 	)
 	now := time.Now().UTC()
-	rec := &AccountSessionsRecord{
+	rec := &plannersession.AccountRecord{
 		AccountID: accountID,
-		Sessions: map[string]AccountSession{
+		Sessions: map[string]plannersession.Session{
 			sessionID: {
 				SessionID:        sessionID,
 				CharacterHash:    "hash3",
 				StartedAt:        now,
 				LastSeenAt:       now,
-				ReauthRequiredAt: ReauthDeadlineFromSessionStart(now),
+				ReauthRequiredAt: plannersession.ReauthDeadlineFromSessionStart(now),
 			},
 		},
 	}
-	if err := SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
-		t.Fatalf("SaveAccountSessionsRecord: %v", err)
+	if err := sessions.SaveAccountRecord(ctx, rec); err != nil {
+		t.Fatalf("SaveAccountRecord: %v", err)
 	}
-	if err := rdb.Driver().Set(ctx, sessionIndexKey(sessionID), accountID, SessionTTL).Err(); err != nil {
-		t.Fatalf("set session index: %v", err)
+	if err := sessions.PutSessionIndex(ctx, sessionID, accountID); err != nil {
+		t.Fatalf("put session index: %v", err)
 	}
-	data := RefreshTokenData{
+	data := plannersession.RefreshTokenData{
 		AccountID:     accountID,
 		CharacterHash: "hash3",
 		SessionID:     sessionID,
 		SessionStart:  now,
 		SessionSeenAt: now,
 	}
-	if err := StoreRefreshToken(ctx, rdb, currentToken, data); err != nil {
-		t.Fatalf("StoreRefreshToken: %v", err)
+	if err := sessions.PutRefreshToken(ctx, currentToken, data); err != nil {
+		t.Fatalf("PutRefreshToken: %v", err)
 	}
 
 	got, err := ResolvePresentedRefreshToken(ctx, rdb, staleToken, sessionID)
@@ -69,11 +69,12 @@ func TestResolvePresentedRefreshToken_RecoversFromSession(t *testing.T) {
 func TestMintAndStoreRefreshToken(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	rdb := eipredis.NewRedis(redisfake.New(t).Client)
+	rdb := redisfixture.New(t).Handle
+	sessions := plannersession.NewStore(rdb)
 
 	const sessionID = "sess-mint-store"
 	now := time.Now().UTC()
-	data := RefreshTokenData{
+	data := plannersession.RefreshTokenData{
 		AccountID:     "acct-mint",
 		CharacterHash: "hash-mint",
 		SessionID:     sessionID,
@@ -87,9 +88,9 @@ func TestMintAndStoreRefreshToken(t *testing.T) {
 	if token == "" {
 		t.Fatal("expected non-empty token")
 	}
-	loaded, err := GetRefreshTokenData(ctx, rdb, token)
-	if err != nil {
-		t.Fatalf("GetRefreshTokenData: %v", err)
+	loaded, found, err := sessions.RefreshToken(ctx, token)
+	if err != nil || !found {
+		t.Fatalf("read back minted token: found=%v err=%v", found, err)
 	}
 	if loaded.SessionID != sessionID {
 		t.Fatalf("SessionID = %q, want %q", loaded.SessionID, sessionID)

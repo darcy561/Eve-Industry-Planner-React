@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/shared/statistics"
 	"eve-industry-planner/testing/mongolive"
 
@@ -26,7 +26,7 @@ const filingScratchAccount = "eip-parity-filing-account"
 func filingRequestFor(t *testing.T, path, body string) *http.Request {
 	t.Helper()
 	r := httptest.NewRequest(http.MethodPatch, path, strings.NewReader(body))
-	return r.WithContext(auth.WithAuthIdentity(r.Context(), filingScratchAccount, "sess-filing"))
+	return r.WithContext(sessionreq.WithIdentity(r.Context(), filingScratchAccount, "sess-filing"))
 }
 
 // A job with one hand-entered sale: its months are the user's to choose, which

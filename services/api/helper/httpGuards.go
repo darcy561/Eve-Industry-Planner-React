@@ -3,7 +3,7 @@ package helper
 import (
 	"net/http"
 
-	"eve-industry-planner/api/helper/auth"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 // RequireMethod enforces a specific HTTP method and writes 405 when mismatched.
@@ -20,12 +20,12 @@ func RequireMethod(w http.ResponseWriter, r *http.Request, expected string) bool
 
 // AuthenticatedAccountID returns the account id bound by auth middleware on private routes.
 func AuthenticatedAccountID(r *http.Request) string {
-	return auth.AccountIDFromContext(r.Context())
+	return sessionreq.AccountIDFromContext(r.Context())
 }
 
 // AuthenticatedSessionID returns the session id bound by auth middleware on private routes.
 func AuthenticatedSessionID(r *http.Request) string {
-	return auth.SessionIDFromContext(r.Context())
+	return sessionreq.SessionIDFromContext(r.Context())
 }
 
 // RequireAccountID extracts accountID set by auth middleware and writes 401 when unavailable.

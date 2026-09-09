@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/testing/keys"
 )
 
@@ -31,7 +31,7 @@ func ownerRequest(t *testing.T, accountID, handle string) *http.Request {
 		r.Header.Set(PlannerOwnerHeader, handle)
 	}
 	if accountID != "" {
-		r = r.WithContext(auth.WithAuthIdentity(r.Context(), accountID, "sess-1"))
+		r = r.WithContext(sessionreq.WithIdentity(r.Context(), accountID, "sess-1"))
 	}
 	return r
 }

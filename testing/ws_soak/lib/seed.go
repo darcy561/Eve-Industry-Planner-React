@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	apihelperauth "eve-industry-planner/api/helper/auth"
+	"eve-industry-planner/shared/plannersession"
 
 	"eve-industry-planner/shared/crypto/entityid"
+	eipredis "eve-industry-planner/shared/redis"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -88,14 +89,15 @@ func seedSessions(ctx context.Context, rdb *redis.Client, ids []clientIdentity) 
 		return fmt.Errorf("load authz hmac key for seeded session grants: %w", err)
 	}
 
+	store := plannersession.NewStore(eipredis.NewRedis(rdb))
 	now := time.Now().UTC()
 	for _, id := range ids {
-		if err := apihelperauth.UpsertAccountSession(ctx, rdb, id.AccountID, apihelperauth.AccountSession{
+		if err := store.PutSession(ctx, id.AccountID, plannersession.Session{
 			SessionID:        id.SessionID,
 			CharacterHash:    "soak-hash",
 			StartedAt:        now,
 			LastSeenAt:       now,
-			ReauthRequiredAt: apihelperauth.ReauthDeadlineFromSessionStart(now),
+			ReauthRequiredAt: plannersession.ReauthDeadlineFromSessionStart(now),
 		}); err != nil {
 			return fmt.Errorf("seed session %s: %w", id.SessionID, err)
 		}
@@ -118,7 +120,7 @@ func seedSessions(ctx context.Context, rdb *redis.Client, ids []clientIdentity) 
 				}
 				granted = granted.Add(models.AllianceOwner(ref))
 			}
-			if err := apihelperauth.UpdateAccountSessionGrants(ctx, rdb, id.AccountID, granted); err != nil {
+			if err := store.SetGrants(ctx, id.AccountID, granted); err != nil {
 				return fmt.Errorf("seed grants %s: %w", id.AccountID, err)
 			}
 		}

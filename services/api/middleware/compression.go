@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"eve-industry-planner/shared/httpmiddleware"
 	"fmt"
 	"io"
 	"net/http"
@@ -65,7 +66,7 @@ func withContentEncodingOnLogger(r *http.Request, encoding string) *http.Request
 // CompressionConstructor negotiates Accept-Encoding and wraps the response writer when brotli or gzip applies.
 // It attaches content_encoding on the scoped logger before the mux; r.Context() is already enriched by
 // RequestTimeoutConstructor and RequestLoggingConstructor upstream.
-func CompressionConstructor() MiddlewareConstructor {
+func CompressionConstructor() httpmiddleware.MiddlewareConstructor {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			decodedRequest, err := decodeRequestBody(r)

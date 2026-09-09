@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 // RequestStartOrNow returns middleware request start time or current time.
@@ -29,7 +29,7 @@ func PopulateRequestMeta(r *http.Request, meta *models.MetaData, owner models.Ow
 		return
 	}
 	meta.Owner = owner
-	if sessionID := auth.SessionIDFromContext(r.Context()); sessionID != "" {
+	if sessionID := sessionreq.SessionIDFromContext(r.Context()); sessionID != "" {
 		meta.SessionID = sessionID
 	}
 	if wsClientID := ExtractWSClientID(r); wsClientID != "" {

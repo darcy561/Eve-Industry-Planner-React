@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
-	apihelperauth "eve-industry-planner/api/helper/auth"
 	sharedcompression "eve-industry-planner/shared/compression"
 	"eve-industry-planner/shared/container"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/shared/telemetry"
 	"eve-industry-planner/websocket/server/config"
 
@@ -73,14 +74,14 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if apihelperauth.ResolvePlannerSessionID(r) == "" {
+	if sessionreq.SessionID(r) == "" {
 		wsUpgradeRejectClient(w, r, s, upgradeStart, "session_missing", http.StatusUnauthorized,
 			"websocket upgrade rejected: missing planner session",
 			"Unauthorized: session_missing",
 			"ws_upgrade_session_missing",
 			map[string]any{
-				"has_eip_session_cookie":       apihelperauth.ReadAppSessionCookie(r) != "",
-				"has_planner_session_id_query": strings.TrimSpace(r.URL.Query().Get(apihelperauth.PlannerSessionIDQueryParam)) != "",
+				"has_eip_session_cookie":       sessionreq.ReadSessionCookie(r) != "",
+				"has_planner_session_id_query": strings.TrimSpace(r.URL.Query().Get(sessionreq.SessionIDQueryParam)) != "",
 			},
 		)
 		return
@@ -101,14 +102,15 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	identity, err := apihelperauth.ExtractAccountSession(reqCtx, r, s.Stack.Redis)
+	sessions := plannersession.NewStore(s.Stack.Redis)
+	identity, err := sessionreq.ExtractSession(reqCtx, r, sessions)
 	if err != nil {
 		wsUpgradeRejectAuthSession(w, r, s, upgradeStart, err)
 		return
 	}
 	r = logs.BindRequestIdentityToRequest(r, identity.AccountID, identity.SessionID)
 
-	if err := apihelperauth.TouchAccountSession(reqCtx, s.Stack.Redis, identity.AccountID, identity.SessionID, identity.Session.AppVersion); err != nil {
+	if err := sessions.Touch(reqCtx, identity.AccountID, identity.SessionID, identity.Session.AppVersion); err != nil {
 		wsUpgradeRejectClient(w, r, s, upgradeStart, "session_missing", http.StatusUnauthorized,
 			"websocket upgrade rejected: failed session touch",
 			"Unauthorized: session_missing",

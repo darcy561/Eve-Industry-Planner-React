@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"eve-industry-planner/shared/httpmiddleware"
 	"net/http"
 
 	"eve-industry-planner/shared/logs"
@@ -23,7 +24,7 @@ type MaintenanceFlag interface {
 
 // MaintenanceModeConstructor blocks API traffic while maintenance is on, except
 // for paths in maintenanceBypassPaths. A nil flag blocks nothing.
-func MaintenanceModeConstructor(flag MaintenanceFlag) MiddlewareConstructor {
+func MaintenanceModeConstructor(flag MaintenanceFlag) httpmiddleware.MiddlewareConstructor {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if flag == nil || !flag.Enabled(r.Context()) {

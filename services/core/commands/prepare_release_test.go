@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/core/changestream"
 	"eve-industry-planner/core/primaryhandoff"
 	"eve-industry-planner/shared/models"
 	eipmongo "eve-industry-planner/shared/mongo"
+	"eve-industry-planner/shared/plannersession"
 	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/redisfake"
@@ -300,7 +300,7 @@ func TestRepairSessionGrantsReportsWhatItWouldRewrite(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
-	if err := rdb.Client.Set(ctx, auth.AccountSessionsKeyPrefix+"acct-1", legacy, time.Hour).Err(); err != nil {
+	if err := rdb.Client.Set(ctx, plannersession.AccountSessionsKeyPrefix+"acct-1", legacy, time.Hour).Err(); err != nil {
 		t.Fatalf("seed: %v", err)
 	}
 

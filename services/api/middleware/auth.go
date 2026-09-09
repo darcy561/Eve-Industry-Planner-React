@@ -2,12 +2,14 @@ package middleware
 
 import (
 	"encoding/json"
+	"eve-industry-planner/shared/httpmiddleware"
 	"net/http"
 
 	"eve-industry-planner/api/helper"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/dependency"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 
 	eipredis "eve-industry-planner/shared/redis"
 )
@@ -31,18 +33,19 @@ func respondAuthDependencyUnavailable(w http.ResponseWriter, r *http.Request, lo
 }
 
 // AuthConstructor validates the shared session cookie against account session state.
-func AuthConstructor(redisClient *eipredis.Redis) MiddlewareConstructor {
+func AuthConstructor(redisClient *eipredis.Redis) httpmiddleware.MiddlewareConstructor {
+	sessions := plannersession.NewStore(redisClient)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			identity, err := auth.ExtractAccountSession(r.Context(), r, redisClient)
+			identity, err := sessionreq.ExtractSession(r.Context(), r, sessions)
 			if err != nil {
-				if auth.IsInfrastructureError(err) || dependency.IsUnavailable(err) {
-					detail := auth.AuthSessionFailureDetailFromError(err, r)
+				if sessionreq.IsInfrastructureError(err) || dependency.IsUnavailable(err) {
+					detail := sessionreq.FailureDetailFromError(err, r)
 					extra := detail.ClientFailureDetail(map[string]any{"error": err.Error()})
 					respondAuthDependencyUnavailable(w, r, "auth session validation failed: dependency unavailable", err, extra)
 					return
 				}
-				detail := auth.AuthSessionFailureDetailFromError(err, r)
+				detail := sessionreq.FailureDetailFromError(err, r)
 				switch detail.Code {
 				case "session_missing", "session_revoked", "reauth_required":
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(nil))
@@ -55,7 +58,7 @@ func AuthConstructor(redisClient *eipredis.Redis) MiddlewareConstructor {
 				}
 				return
 			}
-			if err := auth.TouchAccountSession(r.Context(), redisClient, identity.AccountID, identity.SessionID, identity.Session.AppVersion); err != nil {
+			if err := sessions.Touch(r.Context(), identity.AccountID, identity.SessionID, identity.Session.AppVersion); err != nil {
 				if dependency.IsUnavailable(err) {
 					respondAuthDependencyUnavailable(w, r, "failed to touch account session: dependency unavailable", err, map[string]any{
 						"account_id": identity.AccountID,
@@ -73,7 +76,7 @@ func AuthConstructor(redisClient *eipredis.Redis) MiddlewareConstructor {
 				writeAuthError(w, http.StatusUnauthorized, "session_missing")
 				return
 			}
-			ctx := auth.WithAuthIdentity(r.Context(), identity.AccountID, identity.SessionID)
+			ctx := sessionreq.WithIdentity(r.Context(), identity.AccountID, identity.SessionID)
 			ctx = logs.BindRequestIdentity(ctx, identity.AccountID, identity.SessionID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

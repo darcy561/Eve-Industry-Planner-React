@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	apihelperauth "eve-industry-planner/api/helper/auth"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/shared/wsplacement"
 
 	"github.com/gorilla/websocket"
@@ -36,7 +36,7 @@ func wsURLForSession(base, sessionID string) (string, error) {
 		return "", err
 	}
 	q := u.Query()
-	q.Set(apihelperauth.PlannerSessionIDQueryParam, sessionID)
+	q.Set(sessionreq.SessionIDQueryParam, sessionID)
 	u.RawQuery = q.Encode()
 	return u.String(), nil
 }

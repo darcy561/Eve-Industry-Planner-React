@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"eve-industry-planner/api/helper/auth"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 // RequireMethodAndAccountID validates request method and extracts accountID.
@@ -21,7 +21,7 @@ func RequireMethodAndAccountID(
 		}
 		return "", false
 	}
-	return auth.AccountIDFromContext(r.Context()), true
+	return sessionreq.AccountIDFromContext(r.Context()), true
 }
 
 // DecodeJSONOrBadRequest decodes JSON body into target and writes standardised 400 on failure.

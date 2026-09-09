@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"eve-industry-planner/api/helper"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -64,7 +65,7 @@ const maxFrontendBatchEvents = 60
 
 func (a *Handlers) frontendAnalyticsAudience(ctx context.Context, r *http.Request) string {
 	if a.Redis != nil {
-		if _, ok := auth.TryExtractAccountSession(ctx, r, a.Redis); ok {
+		if _, ok := sessionreq.TryExtractSession(ctx, r, plannersession.NewStore(a.Redis)); ok {
 			return apimetrics.FrontendAudienceAuthenticated
 		}
 	}

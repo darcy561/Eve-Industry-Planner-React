@@ -2,18 +2,14 @@ package maintenance
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"eve-industry-planner/shared/plannersession"
 	eipredis "eve-industry-planner/shared/redis"
-	"eve-industry-planner/testing/redisfake"
+	"eve-industry-planner/testing/redisfixture"
 )
-
-func newStore(t *testing.T, fake *redisfake.Redis) *plannersession.Store {
-	t.Helper()
-	return plannersession.NewStore(eipredis.NewRedis(fake.Client))
-}
 
 func TestOptionsFromEnvReadsTheDryRunSwitch(t *testing.T) {
 	for _, v := range []string{"true", "1", "yes", "YES"} {
@@ -30,8 +26,8 @@ func TestOptionsFromEnvReadsTheDryRunSwitch(t *testing.T) {
 
 func TestPruneAccountRecordsDropsExpiredSessions(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	stale := time.Now().UTC().Add(-2 * plannersession.RefreshTokenTTL)
 	if err := store.PutSession(ctx, "acct", plannersession.Session{SessionID: "old", StartedAt: stale, LastSeenAt: stale}); err != nil {
@@ -56,8 +52,8 @@ func TestPruneAccountRecordsDropsExpiredSessions(t *testing.T) {
 
 func TestCleanupOrphanIndexesRemovesIndexesNoRecordHolds(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutSessionIndex(ctx, "orphan", "acct"); err != nil {
 		t.Fatalf("put index: %v", err)
@@ -77,8 +73,8 @@ func TestCleanupOrphanIndexesRemovesIndexesNoRecordHolds(t *testing.T) {
 
 func TestDryRunCountsWithoutDeleting(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutSessionIndex(ctx, "orphan", "acct"); err != nil {
 		t.Fatalf("put index: %v", err)
@@ -98,8 +94,8 @@ func TestDryRunCountsWithoutDeleting(t *testing.T) {
 
 func TestCleanupOrphanRefreshTokensRemovesTokensNoSessionHolds(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutRefreshToken(ctx, "tok", plannersession.RefreshTokenData{AccountID: "acct", SessionID: "gone"}); err != nil {
 		t.Fatalf("put token: %v", err)
@@ -119,8 +115,8 @@ func TestCleanupOrphanRefreshTokensRemovesTokensNoSessionHolds(t *testing.T) {
 
 func TestCleanupKeepsATokenItsSessionStillHolds(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutSession(ctx, "acct", plannersession.Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -140,8 +136,8 @@ func TestCleanupKeepsATokenItsSessionStillHolds(t *testing.T) {
 
 func TestRunReportsWhatItRemoved(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutSessionIndex(ctx, "orphan", "acct"); err != nil {
 		t.Fatalf("put index: %v", err)
@@ -164,8 +160,8 @@ func TestRunReportsWhatItRemoved(t *testing.T) {
 
 func TestRunReportsNothingRemovedOnADryRun(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutSessionIndex(ctx, "orphan", "acct"); err != nil {
 		t.Fatalf("put index: %v", err)
@@ -217,8 +213,8 @@ func TestSweepsWithoutRedisAreNoOps(t *testing.T) {
 
 func TestVerifySessionPersistedChecksTheAccountMatches(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	r := redisfixture.New(t)
+	store := plannersession.NewStore(r.Handle)
 
 	if err := store.PutSession(ctx, "acct", plannersession.Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -231,5 +227,45 @@ func TestVerifySessionPersistedChecksTheAccountMatches(t *testing.T) {
 	}
 	if err := VerifySessionPersisted(ctx, store, "acct", ""); err == nil {
 		t.Fatal("an empty session id must not verify")
+	}
+}
+
+// The loop is what makes the sweep actually happen in a running service, so it
+// has to run a pass before its first tick and stop when the context is done.
+func TestRunLoopSweepsImmediatelyAndStopsOnCancel(t *testing.T) {
+	fake := redisfixture.New(t)
+	store := plannersession.NewStore(fake.Handle)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	if err := store.PutSessionIndex(ctx, "orphan", "acct"); err != nil {
+		t.Fatalf("seed orphan index: %v", err)
+	}
+
+	done := make(chan error, 1)
+	go func() { done <- RunLoop(ctx, store, time.Hour, Options{}) }()
+
+	// The first pass runs before the ticker, so the orphan goes without waiting
+	// an interval.
+	deadline := time.After(2 * time.Second)
+	for {
+		if _, found, _ := store.AccountForSession(context.Background(), "orphan"); !found {
+			break
+		}
+		select {
+		case <-deadline:
+			cancel()
+			t.Fatal("the loop did not sweep before its first tick")
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+
+	cancel()
+	select {
+	case err := <-done:
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("loop returned %v, want context.Canceled", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("the loop did not stop when its context was cancelled")
 	}
 }

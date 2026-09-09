@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/models/planner"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 // The invite routes sit under a planner handle, and the handle is the rest of
@@ -147,7 +147,7 @@ func TestJoinRefusesAnIncompleteRedemption(t *testing.T) {
 	for _, tc := range cases {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, "/api/v1/planners/join", strings.NewReader(tc.body))
-		r = r.WithContext(auth.WithAuthIdentity(r.Context(), "acct-1", "sess-1"))
+		r = r.WithContext(sessionreq.WithIdentity(r.Context(), "acct-1", "sess-1"))
 		h.PostPlannerJoinHandler(w, r)
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("%s = %d, want 400: %s", tc.name, w.Code, w.Body.String())
@@ -221,7 +221,7 @@ func TestInviteRoutesRefuseAPlannerThatTakesNoInvites(t *testing.T) {
 	for name, run := range calls {
 		w := httptest.NewRecorder()
 		r := httptest.NewRequest(http.MethodPost, "/api/v1/planners/"+handle+"/invites", nil)
-		r = r.WithContext(auth.WithAuthIdentity(r.Context(), "acct-1", "sess-1"))
+		r = r.WithContext(sessionreq.WithIdentity(r.Context(), "acct-1", "sess-1"))
 		run(w, r)
 		if w.Code != http.StatusConflict {
 			t.Errorf("%s for an account planner = %d, want 409: %s", name, w.Code, w.Body.String())

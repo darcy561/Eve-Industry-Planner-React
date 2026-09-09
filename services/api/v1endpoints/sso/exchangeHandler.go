@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"eve-industry-planner/api/helper"
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/evesso"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/plannersession"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -123,7 +123,7 @@ func (h *Handlers) EveSSOExchangeHandler(w http.ResponseWriter, r *http.Request)
 	m.RequestsCount.Inc(ctx)
 	m.Successes.Inc(ctx)
 
-	accountID := auth.GetAccountIDFromCharacterHash(characterHash)
+	accountID := plannersession.AccountIDFromCharacterHash(characterHash)
 	r = logs.BindRequestAccountIDToRequest(r, accountID)
 	ctx = r.Context()
 	if duration > time.Second {

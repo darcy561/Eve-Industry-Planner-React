@@ -2,6 +2,7 @@ package request
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,13 +11,8 @@ import (
 	"eve-industry-planner/shared/dependency"
 	"eve-industry-planner/shared/plannersession"
 	eipredis "eve-industry-planner/shared/redis"
-	"eve-industry-planner/testing/redisfake"
+	"eve-industry-planner/testing/redisfixture"
 )
-
-func newStore(t *testing.T, fake *redisfake.Redis) *plannersession.Store {
-	t.Helper()
-	return plannersession.NewStore(eipredis.NewRedis(fake.Client))
-}
 
 func TestSessionIDPrefersTheHeaderThenTheQueryThenTheCookie(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/?"+SessionIDQueryParam+"=from-query", nil)
@@ -68,8 +64,8 @@ func TestClearSessionCookieExpiresIt(t *testing.T) {
 
 func TestExtractSessionReportsWhyItFailed(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	fakeRedis := redisfixture.New(t)
+	store := plannersession.NewStore(fakeRedis.Handle)
 
 	withID := func(sid string) *http.Request {
 		r := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -98,8 +94,8 @@ func TestExtractSessionReportsWhyItFailed(t *testing.T) {
 
 func TestExtractSessionRejectsRevokedAndExpiredSessions(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	fakeRedis := redisfixture.New(t)
+	store := plannersession.NewStore(fakeRedis.Handle)
 
 	revokedAt := time.Now().UTC()
 	if err := store.PutSession(ctx, "acct", plannersession.Session{SessionID: "revoked", RevokedAt: &revokedAt}); err != nil {
@@ -113,8 +109,8 @@ func TestExtractSessionRejectsRevokedAndExpiredSessions(t *testing.T) {
 
 func TestExtractSessionReturnsTheIdentity(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	store := newStore(t, fake)
+	fakeRedis := redisfixture.New(t)
+	store := plannersession.NewStore(fakeRedis.Handle)
 
 	if err := store.PutSession(ctx, "acct", plannersession.Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -212,5 +208,38 @@ func TestExtractSessionReportsAnOutageRatherThanAMissingSession(t *testing.T) {
 		if !IsInfrastructureError(err) && !dependency.IsUnavailable(err) {
 			t.Errorf("%s: error %v is neither infrastructure nor unavailable", name, err)
 		}
+	}
+}
+
+// Every code a client can be told, and the message and class logged beside it.
+// These are what an operator greps for and what the SPA switches on, so each
+// branch is pinned rather than only the one a passing request happens to take.
+func TestEveryFailureCodeHasItsMessageAndClass(t *testing.T) {
+	for _, tc := range []struct{ code, message, class string }{
+		{"session_missing", "auth session missing or invalid", "auth_session_missing"},
+		{"session_revoked", "auth session revoked", "auth_session_revoked"},
+		{"reauth_required", "auth session reauth required", "auth_reauth_required"},
+		{"", "auth session validation failed", "auth_session_invalid"},
+		{"something_else", "auth session validation failed", "auth_session_invalid"},
+	} {
+		d := FailureDetail{Code: tc.code}
+		if got := d.ClientFailureMessage(); got != tc.message {
+			t.Errorf("code %q message = %q, want %q", tc.code, got, tc.message)
+		}
+		if got := d.ClientFailureDetail(nil)["failure_class"]; got != tc.class {
+			t.Errorf("code %q class = %v, want %q", tc.code, got, tc.class)
+		}
+	}
+}
+
+// A nil error carries no code, and a plain error carries its text — the
+// middleware still has to log something a reader can act on.
+func TestFailureDetailFromAPlainError(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	if got := FailureDetailFromError(errors.New("redis exploded"), r).Code; got != "redis exploded" {
+		t.Errorf("code = %q", got)
+	}
+	if got := FailureDetailFromError(nil, r).Code; got != "" {
+		t.Errorf("code = %q, want empty for no error", got)
 	}
 }

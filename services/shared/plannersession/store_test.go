@@ -9,18 +9,13 @@ import (
 
 	"eve-industry-planner/shared/dependency"
 	eipredis "eve-industry-planner/shared/redis"
-	"eve-industry-planner/testing/redisfake"
+	"eve-industry-planner/testing/redisfixture"
 )
-
-func newStore(t *testing.T, fake *redisfake.Redis) *Store {
-	t.Helper()
-	return NewStore(eipredis.NewRedis(fake.Client))
-}
 
 func TestPutRefreshTokenPointsTheSessionAtIt(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	data := RefreshTokenData{AccountID: "acct", SessionID: "sess"}
 	if err := s.PutRefreshToken(ctx, "tok", data); err != nil {
@@ -44,8 +39,8 @@ func TestPutRefreshTokenPointsTheSessionAtIt(t *testing.T) {
 // deleting the superseded token must not clear the pointer to its replacement.
 func TestDeleteRefreshTokenLeavesANewerTokensIndexAlone(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	old := RefreshTokenData{AccountID: "acct", SessionID: "sess"}
 	if err := s.PutRefreshToken(ctx, "old", old); err != nil {
@@ -66,8 +61,8 @@ func TestDeleteRefreshTokenLeavesANewerTokensIndexAlone(t *testing.T) {
 
 func TestDeleteRefreshTokenClearsItsOwnIndex(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutRefreshToken(ctx, "tok", RefreshTokenData{SessionID: "sess"}); err != nil {
 		t.Fatalf("put: %v", err)
@@ -85,8 +80,8 @@ func TestDeleteRefreshTokenClearsItsOwnIndex(t *testing.T) {
 // prevent.
 func TestPutSessionWritesTheRecordAndTheIndex(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutSession(ctx, "acct", Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -107,8 +102,8 @@ func TestPutSessionWritesTheRecordAndTheIndex(t *testing.T) {
 
 func TestRemoveSessionClearsBothIndexes(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutSession(ctx, "acct", Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -130,8 +125,8 @@ func TestRemoveSessionClearsBothIndexes(t *testing.T) {
 
 func TestPutSessionStampsTheDefaultsASessionNeeds(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutSession(ctx, "acct", Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -151,8 +146,8 @@ func TestPutSessionStampsTheDefaultsASessionNeeds(t *testing.T) {
 
 func TestConcurrentRecordUpdatesAreNotLost(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	const writers = 8
 	var wg sync.WaitGroup
@@ -180,8 +175,8 @@ func TestConcurrentRecordUpdatesAreNotLost(t *testing.T) {
 
 func TestUpdateAbandonsOnMutateError(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	sentinel := errors.New("no")
 	if err := s.UpdateAccountRecord(ctx, "acct", func(*AccountRecord) error { return sentinel }); !errors.Is(err, sentinel) {
@@ -196,8 +191,8 @@ func TestUpdateAbandonsOnMutateError(t *testing.T) {
 // deadline goes on the next read or write, and its indexes go with it.
 func TestExpiredSessionsArePrunedAndTheirIndexesDeleted(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	stale := time.Now().UTC().Add(-2 * RefreshTokenTTL)
 	if err := s.PutSession(ctx, "acct", Session{SessionID: "old", StartedAt: stale, LastSeenAt: stale}); err != nil {
@@ -221,8 +216,8 @@ func TestExpiredSessionsArePrunedAndTheirIndexesDeleted(t *testing.T) {
 
 func TestResolveSessionReportsAnUnknownIDNotFound(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	account, session, err := s.ResolveSession(ctx, "nope")
 	if !errors.Is(err, ErrSessionNotFound) {
@@ -238,8 +233,8 @@ func TestResolveSessionReportsAnUnknownIDNotFound(t *testing.T) {
 // from an id nothing indexes, and the index is cleaned up.
 func TestResolveSessionClearsAStrandedIndex(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutSessionIndex(ctx, "sess", "acct"); err != nil {
 		t.Fatalf("put index: %v", err)
@@ -261,13 +256,13 @@ func TestResolveSessionClearsAStrandedIndex(t *testing.T) {
 // session usable, and it repoints the index so the next lookup is cheap.
 func TestFindTokenForSessionFallsBackToAScanAndRepoints(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutRefreshToken(ctx, "tok", RefreshTokenData{SessionID: "sess"}); err != nil {
 		t.Fatalf("put: %v", err)
 	}
-	if _, err := fake.Client.Del(ctx, SessionRefreshIndexKeyPrefix+"sess").Result(); err != nil {
+	if _, err := r.Client.Del(ctx, SessionRefreshIndexKeyPrefix+"sess").Result(); err != nil {
 		t.Fatalf("drop index: %v", err)
 	}
 
@@ -282,8 +277,8 @@ func TestFindTokenForSessionFallsBackToAScanAndRepoints(t *testing.T) {
 
 func TestRevokeSessionTokensRevokesTheIndexedOneToo(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutRefreshToken(ctx, "current", RefreshTokenData{SessionID: "sess"}); err != nil {
 		t.Fatalf("put current: %v", err)
@@ -304,10 +299,30 @@ func TestRevokeSessionTokensRevokesTheIndexedOneToo(t *testing.T) {
 	}
 }
 
+// Pinned against literals, not against the constants: a lifetime asserted
+// against the constant that set it cannot catch the constant itself being wrong,
+// and these bound how long a planner session survives.
+func TestSessionKeyLifetimes(t *testing.T) {
+	for name, tc := range map[string]struct {
+		got  time.Duration
+		want time.Duration
+	}{
+		"refresh token": {RefreshTokenTTL, 7 * 24 * time.Hour},
+		"session":       {SessionTTL, 7 * 24 * time.Hour},
+		"org id cache":  {CorporationTTL, 30 * 24 * time.Hour},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if tc.got != tc.want {
+				t.Errorf("ttl = %v, want %v", tc.got, tc.want)
+			}
+		})
+	}
+}
+
 func TestKeysCarryTheirLifetimes(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutRefreshToken(ctx, "tok", RefreshTokenData{SessionID: "sess"}); err != nil {
 		t.Fatalf("put token: %v", err)
@@ -326,7 +341,7 @@ func TestKeysCarryTheirLifetimes(t *testing.T) {
 		SessionIndexKeyPrefix + "sess":        SessionTTL,
 		CorporationKeyPrefix + "acct":         CorporationTTL,
 	} {
-		if got := fake.Server.TTL(key); got != want {
+		if got := r.Server.TTL(key); got != want {
 			t.Errorf("%s ttl = %v, want %v", key, got, want)
 		}
 	}
@@ -334,17 +349,27 @@ func TestKeysCarryTheirLifetimes(t *testing.T) {
 
 func TestIdsAreTrimmedEverywhere(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutSession(ctx, "  acct  ", Session{SessionID: "  sess  "}); err != nil {
 		t.Fatalf("put session: %v", err)
 	}
-	if !fake.Server.Exists(AccountSessionsKeyPrefix + "acct") {
+	if !r.Server.Exists(AccountSessionsKeyPrefix + "acct") {
 		t.Fatal("account key should be written trimmed")
 	}
-	if !fake.Server.Exists(SessionIndexKeyPrefix + "sess") {
+	if !r.Server.Exists(SessionIndexKeyPrefix + "sess") {
 		t.Fatal("session index should be written trimmed")
+	}
+
+	if err := s.PutRefreshToken(ctx, "  tok  ", RefreshTokenData{SessionID: "  sess  "}); err != nil {
+		t.Fatalf("put token: %v", err)
+	}
+	if !r.Server.Exists(RefreshTokenKeyPrefix + "tok") {
+		t.Fatal("refresh token should be written trimmed")
+	}
+	if _, found, err := s.RefreshToken(ctx, "  tok  "); err != nil || !found {
+		t.Fatalf("an untrimmed token should read back: found=%v err=%v", found, err)
 	}
 }
 
@@ -362,8 +387,8 @@ func TestAStoreWithoutRedisReportsItself(t *testing.T) {
 
 func TestOrgIDsNeverReportNil(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if got := s.Corporations(ctx, "unknown"); got == nil {
 		t.Fatal("a cache miss must still be rangeable")
@@ -384,8 +409,8 @@ func TestAccountIDFromCharacterHashKeepsOnlyAlphanumerics(t *testing.T) {
 
 func TestTouchStampsLastSeenAndAppVersion(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	if err := s.PutSession(ctx, "acct", Session{SessionID: "sess"}); err != nil {
 		t.Fatalf("put session: %v", err)
@@ -410,8 +435,8 @@ func TestTouchStampsLastSeenAndAppVersion(t *testing.T) {
 // recognised rather than silently forgotten.
 func TestSessionRowReadsWithoutPruning(t *testing.T) {
 	ctx := context.Background()
-	fake := redisfake.New(t)
-	s := newStore(t, fake)
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
 
 	stale := time.Now().UTC().Add(-2 * RefreshTokenTTL)
 	if err := s.PutSession(ctx, "acct", Session{SessionID: "old", StartedAt: stale, LastSeenAt: stale}); err != nil {
@@ -442,8 +467,8 @@ func TestErrNoStoreIsADependencyOutage(t *testing.T) {
 	if err := NewStore(eipredis.NewRedis(nil)).Available(); !errors.Is(err, ErrNoStore) {
 		t.Fatalf("Available() = %v, want ErrNoStore", err)
 	}
-	fake := redisfake.New(t)
-	if err := newStore(t, fake).Available(); err != nil {
+	r := redisfixture.New(t)
+	if err := NewStore(r.Handle).Available(); err != nil {
 		t.Fatalf("a connected store should be available: %v", err)
 	}
 }
@@ -464,6 +489,55 @@ func TestOperationsReportAMissingConnection(t *testing.T) {
 	} {
 		if err := call(); err == nil {
 			t.Errorf("%s with no connection reported success", name)
+		}
+	}
+}
+
+// The index holds one token while a session can have outlived several, so a
+// logout that stopped at the indexed one would leave the session usable through
+// a token nothing is tracking.
+func TestRevokeSessionTokensReachesTokensNoIndexNames(t *testing.T) {
+	ctx := context.Background()
+	r := redisfixture.New(t)
+	s := NewStore(r.Handle)
+
+	for _, token := range []string{"presented", "a", "b"} {
+		if err := s.PutRefreshToken(ctx, token, RefreshTokenData{SessionID: "sess"}); err != nil {
+			t.Fatalf("put %s: %v", token, err)
+		}
+	}
+	if err := s.RevokeSessionTokens(ctx, "presented", "sess"); err != nil {
+		t.Fatalf("revoke: %v", err)
+	}
+
+	for _, token := range []string{"presented", "a", "b"} {
+		if _, found, _ := s.RefreshToken(ctx, token); found {
+			t.Errorf("token %q survived the revoke", token)
+		}
+	}
+}
+
+// These mint the credentials a planner session is identified by, so distinctness
+// is the property that matters — a repeat would hand two browsers the same
+// session.
+func TestGeneratedIdentifiersAreDistinct(t *testing.T) {
+	seen := map[string]bool{}
+	for range 100 {
+		for name, generate := range map[string]func() (string, error){
+			"refresh token": GenerateRefreshToken,
+			"session id":    GenerateSessionID,
+		} {
+			got, err := generate()
+			if err != nil {
+				t.Fatalf("%s: %v", name, err)
+			}
+			if got == "" {
+				t.Fatalf("%s returned an empty value", name)
+			}
+			if seen[got] {
+				t.Fatalf("%s repeated %q", name, got)
+			}
+			seen[got] = true
 		}
 	}
 }

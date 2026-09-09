@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/logs"
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	"eve-industry-planner/testing/redisfake"
 
 	eipredis "eve-industry-planner/shared/redis"
@@ -17,22 +18,22 @@ func seedValidAccountSession(t *testing.T, rdb *eipredis.Redis, accountID, sessi
 	t.Helper()
 	ctx := t.Context()
 	now := time.Now().UTC()
-	rec := &auth.AccountSessionsRecord{
+	rec := &plannersession.AccountRecord{
 		AccountID: accountID,
-		Sessions: map[string]auth.AccountSession{
+		Sessions: map[string]plannersession.Session{
 			sessionID: {
 				SessionID:        sessionID,
 				CharacterHash:    "hash-test",
 				StartedAt:        now,
 				LastSeenAt:       now,
-				ReauthRequiredAt: auth.ReauthDeadlineFromSessionStart(now),
+				ReauthRequiredAt: plannersession.ReauthDeadlineFromSessionStart(now),
 			},
 		},
 	}
-	if err := auth.SaveAccountSessionsRecord(ctx, rdb, rec); err != nil {
+	if err := plannersession.NewStore(rdb).SaveAccountRecord(ctx, rec); err != nil {
 		t.Fatalf("SaveAccountSessionsRecord: %v", err)
 	}
-	if err := rdb.Driver().Set(ctx, auth.SessionIndexKeyPrefix+sessionID, accountID, auth.SessionTTL).Err(); err != nil {
+	if err := rdb.Driver().Set(ctx, plannersession.SessionIndexKeyPrefix+sessionID, accountID, plannersession.SessionTTL).Err(); err != nil {
 		t.Fatalf("set session index: %v", err)
 	}
 }
@@ -56,7 +57,7 @@ func TestOptionalAccountLogConstructor_BindsValidSession(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/feedback", nil)
-	req.AddCookie(&http.Cookie{Name: auth.AppSessionCookieName, Value: sessionID})
+	req.AddCookie(&http.Cookie{Name: sessionreq.SessionCookieName, Value: sessionID})
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -90,7 +91,7 @@ func TestAuthConstructor_BindsRequestIdentityOnSuccess(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/corporation-claims", nil)
-	req.AddCookie(&http.Cookie{Name: auth.AppSessionCookieName, Value: sessionID})
+	req.AddCookie(&http.Cookie{Name: sessionreq.SessionCookieName, Value: sessionID})
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 

@@ -14,6 +14,7 @@ import (
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
+	"eve-industry-planner/shared/plannersession"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -91,16 +92,17 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		"character_hash": characterHash,
 		"scope_count":    len(scopes),
 	})
-	accountID := auth.GetAccountIDFromCharacterHash(characterHash)
+	accountID := plannersession.AccountIDFromCharacterHash(characterHash)
 	r = logs.BindRequestAccountIDToRequest(r, accountID)
 	ctx = r.Context()
 	appVersion := extractAppVersion(r)
 
 	// Load corporation/alliance ID caches from Redis if available (keyed by AccountID)
-	corporations := auth.GetCorporations(ctx, rdb, accountID)
-	alliances := auth.GetAlliances(ctx, rdb, accountID)
+	sessions := plannersession.NewStore(rdb)
+	corporations := sessions.Corporations(ctx, accountID)
+	alliances := sessions.Alliances(ctx, accountID)
 
-	sessionID, err := auth.GenerateSessionID()
+	sessionID, err := plannersession.GenerateSessionID()
 	if err != nil {
 		duration := time.Since(start)
 		m.Errors.WithLabelValues("session_generation_error").Inc(ctx)
@@ -116,7 +118,7 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 
 	// Store refresh token in Redis with user data (including corporations)
-	refreshTokenData := auth.RefreshTokenData{
+	refreshTokenData := plannersession.RefreshTokenData{
 		CharacterHash: characterHash,
 		AccountID:     accountID,
 		Scopes:        scopes,
@@ -143,9 +145,8 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	if err := auth.UpsertSessionRecord(ctx, rdb, auth.SessionRecord{
+	if err := sessions.PutSession(ctx, accountID, plannersession.Session{
 		SessionID:     sessionID,
-		AccountID:     accountID,
 		CharacterHash: characterHash,
 		AppVersion:    appVersion,
 		StartedAt:     sessionNow,
@@ -184,13 +185,13 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		logs.AttachHandlerCaveat(r, "account_session_grants_resolve_failed", "failed to resolve owners for session grants", map[string]any{
 			"error": err.Error(),
 		})
-	} else if err := auth.UpdateAccountSessionGrants(ctx, rdb, accountID, granted); err != nil {
+	} else if err := sessions.SetGrants(ctx, accountID, granted); err != nil {
 		logs.AttachHandlerCaveat(r, "account_session_grants_update_failed", "failed to update account session grants", map[string]any{
 			"error": err.Error(),
 		})
 	}
 
-	reauthRequiredAt := auth.ReauthRequiredAtUnix(sessionNow, time.Time{})
+	reauthRequiredAt := plannersession.ReauthRequiredAtUnix(sessionNow, time.Time{})
 
 	userOut := loginDocs.User
 	logs.AttachDebugStep(r, "login_docs_loaded", map[string]any{

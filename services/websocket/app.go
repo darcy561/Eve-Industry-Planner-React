@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"eve-industry-planner/api/middleware"
 	"eve-industry-planner/shared/container"
 	"eve-industry-planner/shared/core/config"
+	"eve-industry-planner/shared/httpmiddleware"
 	"eve-industry-planner/shared/lifecycle"
 	"eve-industry-planner/shared/logs"
 	eipnats "eve-industry-planner/shared/nats"
@@ -94,8 +94,8 @@ func (a *app) startServer(ctx context.Context) error {
 
 	// Do not wrap with otelhttp: gorilla/websocket Upgrade requires Hijacker.
 	core := http.HandlerFunc(a.ws.HandleWS)
-	h := middleware.RequestStartTimeConstructor()(
-		middleware.RequestLoggingConstructor()(core),
+	h := httpmiddleware.RequestStartTimeConstructor()(
+		httpmiddleware.RequestLoggingConstructor()(core),
 	)
 
 	mux := http.NewServeMux()

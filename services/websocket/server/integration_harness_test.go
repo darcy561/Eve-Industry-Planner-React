@@ -20,9 +20,10 @@ import (
 	"testing"
 	"time"
 
-	apihelperauth "eve-industry-planner/api/helper/auth"
 	eipnats "eve-industry-planner/shared/nats"
 	"eve-industry-planner/shared/orchestrationprobes"
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/shared/wsplacement"
@@ -146,12 +147,12 @@ func (f *integFixture) setPlacementLimits(targetClients, clientCutoff int) {
 func (f *integFixture) seedSession(accountID, sessionID string) {
 	f.t.Helper()
 	now := time.Now().UTC()
-	if err := apihelperauth.UpsertAccountSession(context.Background(), f.Redis, accountID, apihelperauth.AccountSession{
+	if err := plannersession.NewStore(f.Redis).PutSession(context.Background(), accountID, plannersession.Session{
 		SessionID:        sessionID,
 		CharacterHash:    "integ-hash",
 		StartedAt:        now,
 		LastSeenAt:       now,
-		ReauthRequiredAt: apihelperauth.ReauthDeadlineFromSessionStart(now),
+		ReauthRequiredAt: plannersession.ReauthDeadlineFromSessionStart(now),
 	}); err != nil {
 		f.t.Fatalf("seedSession: %v", err)
 	}
@@ -164,14 +165,14 @@ func (f *integFixture) seedSessionWithGrants(accountID, sessionID string, corps,
 	for _, ref := range wsTestOrgRefs(f.t, corps, alliances) {
 		granted = append(granted, ref)
 	}
-	if err := apihelperauth.UpdateAccountSessionGrants(context.Background(), f.Redis, accountID, granted); err != nil {
+	if err := plannersession.NewStore(f.Redis).SetGrants(context.Background(), accountID, granted); err != nil {
 		f.t.Fatalf("seedSession grants: %v", err)
 	}
 }
 
 func (f *integFixture) wsURL(sessionID string) string {
 	base := "ws" + strings.TrimPrefix(f.HTTP.URL, "http")
-	return base + "/ws?" + apihelperauth.PlannerSessionIDQueryParam + "=" + sessionID
+	return base + "/ws?" + sessionreq.SessionIDQueryParam + "=" + sessionID
 }
 
 func (f *integFixture) dial(sessionID string) *websocket.Conn {

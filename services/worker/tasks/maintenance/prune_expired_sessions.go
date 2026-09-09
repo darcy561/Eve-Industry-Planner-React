@@ -4,21 +4,21 @@ import (
 	"context"
 	"time"
 
-	"eve-industry-planner/api/helper/auth"
+	"eve-industry-planner/shared/plannersession"
+	sessionmaint "eve-industry-planner/shared/plannersession/maintenance"
 	"eve-industry-planner/worker/taskrun"
 
 	"eve-industry-planner/shared/logs"
 )
 
-// PruneExpiredAccountSessions runs auth session maintenance: prune expired rows in
+// PruneExpiredAccountSessions runs planner session maintenance: prune expired rows in
 // account_sessions, remove orphan session_index keys, and revoke refresh_token rows
 // whose session_id is missing from account_sessions.
 func PruneExpiredAccountSessions(ctx context.Context, deps *taskrun.Dependencies) error {
 	if deps == nil || deps.Redis == nil {
 		return nil
 	}
-	opts := auth.SessionCleanupOptionsFromEnv()
-	stats, err := auth.RunAuthSessionMaintenance(ctx, deps.Redis, opts)
+	stats, err := sessionmaint.Run(ctx, plannersession.NewStore(deps.Redis), sessionmaint.OptionsFromEnv())
 	if err != nil {
 		return err
 	}

@@ -21,6 +21,8 @@ import (
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/api/v1endpoints"
+	"eve-industry-planner/shared/plannersession"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 	eipredis "eve-industry-planner/shared/redis"
 	"eve-industry-planner/shared/stackservices"
 	"eve-industry-planner/testing/esifake"
@@ -76,7 +78,7 @@ func (s *session) post(t *testing.T, handler http.HandlerFunc, path string, body
 	req := httptest.NewRequest(http.MethodPost, path, bytes.NewReader(payload))
 	req.Header.Set("Content-Type", "application/json")
 	if as != nil {
-		req = req.WithContext(auth.WithAuthIdentity(req.Context(), as.accountID, as.sessionID))
+		req = req.WithContext(sessionreq.WithIdentity(req.Context(), as.accountID, as.sessionID))
 	}
 
 	rec := httptest.NewRecorder()
@@ -91,12 +93,12 @@ func (s *session) seedSession(t *testing.T, accountID, characterHash string) (se
 	t.Helper()
 	ctx := context.Background()
 
-	sessionID, err := auth.GenerateSessionID()
+	sessionID, err := plannersession.GenerateSessionID()
 	if err != nil {
 		t.Fatalf("session id: %v", err)
 	}
 
-	refreshToken, err = auth.MintAndStoreRefreshToken(ctx, s.redis, auth.RefreshTokenData{
+	refreshToken, err = auth.MintAndStoreRefreshToken(ctx, s.redis, plannersession.RefreshTokenData{
 		CharacterHash: characterHash,
 		AccountID:     accountID,
 		SessionID:     sessionID,
@@ -105,9 +107,8 @@ func (s *session) seedSession(t *testing.T, accountID, characterHash string) (se
 		t.Fatalf("mint refresh token: %v", err)
 	}
 
-	if err := auth.UpsertSessionRecord(ctx, s.redis, auth.SessionRecord{
+	if err := plannersession.NewStore(s.redis).PutSession(ctx, accountID, plannersession.Session{
 		SessionID:     sessionID,
-		AccountID:     accountID,
 		CharacterHash: characterHash,
 	}); err != nil {
 		t.Fatalf("upsert session: %v", err)
@@ -145,9 +146,9 @@ func TestLogoutRevokesTheSession(t *testing.T) {
 
 	// The credentials are in Redis before logout.
 	for _, key := range []string{
-		auth.RefreshTokenKeyPrefix + refreshToken,
-		auth.SessionRefreshIndexKeyPrefix + sessionID,
-		auth.AccountSessionsKeyPrefix + accountID,
+		plannersession.RefreshTokenKeyPrefix + refreshToken,
+		plannersession.SessionRefreshIndexKeyPrefix + sessionID,
+		plannersession.AccountSessionsKeyPrefix + accountID,
 	} {
 		if !s.stored(key) {
 			t.Fatalf("%q was not stored before logout; keys = %v", key, s.fake.Server.Keys())
@@ -162,15 +163,15 @@ func TestLogoutRevokesTheSession(t *testing.T) {
 	}
 
 	// The stored token is gone, so it cannot be replayed.
-	if s.stored(auth.RefreshTokenKeyPrefix + refreshToken) {
+	if s.stored(plannersession.RefreshTokenKeyPrefix + refreshToken) {
 		t.Error("the refresh token is still stored after logout")
 	}
 
 	// Nothing is left under the token or index prefixes for this session.
-	if keys := s.keysUnder(auth.RefreshTokenKeyPrefix); len(keys) != 0 {
+	if keys := s.keysUnder(plannersession.RefreshTokenKeyPrefix); len(keys) != 0 {
 		t.Errorf("logout left refresh tokens behind: %v", keys)
 	}
-	if keys := s.keysUnder(auth.SessionRefreshIndexKeyPrefix); len(keys) != 0 {
+	if keys := s.keysUnder(plannersession.SessionRefreshIndexKeyPrefix); len(keys) != 0 {
 		t.Errorf("logout left session-refresh indexes behind: %v", keys)
 	}
 }
@@ -206,7 +207,7 @@ func TestLogoutWithAnUnknownTokenLeavesOtherSessionsAlone(t *testing.T) {
 
 	_, keep := s.seedSession(t, "acct-keep", "hash-keep")
 
-	unknown, err := auth.GenerateRefreshToken()
+	unknown, err := plannersession.GenerateRefreshToken()
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}
@@ -214,7 +215,7 @@ func TestLogoutWithAnUnknownTokenLeavesOtherSessionsAlone(t *testing.T) {
 		v1endpoints.LogoutRequest{RefreshToken: unknown},
 		&identity{accountID: "acct-keep"})
 
-	if !s.stored(auth.RefreshTokenKeyPrefix + keep) {
+	if !s.stored(plannersession.RefreshTokenKeyPrefix + keep) {
 		t.Fatal("an unrelated session was revoked")
 	}
 }
@@ -256,16 +257,16 @@ func (s *session) seedExpiredSession(t *testing.T, accountID, characterHash stri
 	t.Helper()
 	ctx := context.Background()
 
-	sessionID, err := auth.GenerateSessionID()
+	sessionID, err := plannersession.GenerateSessionID()
 	if err != nil {
 		t.Fatalf("session id: %v", err)
 	}
 
 	// Started longer ago than the refresh-token window, so the deadline derived
 	// from session start has passed.
-	startedAt := time.Now().UTC().Add(-auth.RefreshTokenTTL - time.Hour)
+	startedAt := time.Now().UTC().Add(-plannersession.RefreshTokenTTL - time.Hour)
 
-	refreshToken, err = auth.MintAndStoreRefreshToken(ctx, s.redis, auth.RefreshTokenData{
+	refreshToken, err = auth.MintAndStoreRefreshToken(ctx, s.redis, plannersession.RefreshTokenData{
 		CharacterHash: characterHash,
 		AccountID:     accountID,
 		SessionID:     sessionID,
@@ -275,9 +276,8 @@ func (s *session) seedExpiredSession(t *testing.T, accountID, characterHash stri
 		t.Fatalf("mint refresh token: %v", err)
 	}
 
-	if err := auth.UpsertSessionRecord(ctx, s.redis, auth.SessionRecord{
+	if err := plannersession.NewStore(s.redis).PutSession(ctx, accountID, plannersession.Session{
 		SessionID:     sessionID,
-		AccountID:     accountID,
 		CharacterHash: characterHash,
 		StartedAt:     startedAt,
 		LastSeenAt:    startedAt,
@@ -292,7 +292,7 @@ func (s *session) seedExpiredSession(t *testing.T, accountID, characterHash stri
 func TestRefreshRejectsAnUnknownToken(t *testing.T) {
 	s := newSession(t)
 
-	unknown, err := auth.GenerateRefreshToken()
+	unknown, err := plannersession.GenerateRefreshToken()
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}
@@ -392,7 +392,7 @@ func TestRefreshLeavesTheTokenStoredWhenItDoesNotComplete(t *testing.T) {
 	s.post(t, s.handlers.RotateHandler, "/api/v1/auth/sessions/rotate",
 		v1endpoints.RefreshRequest{RefreshToken: refreshToken}, nil)
 
-	if !s.stored(auth.RefreshTokenKeyPrefix + refreshToken) {
+	if !s.stored(plannersession.RefreshTokenKeyPrefix + refreshToken) {
 		t.Fatal("an incomplete refresh consumed the token it was given")
 	}
 }
@@ -432,10 +432,10 @@ func TestLoginRejectsATokenSignedByAnother(t *testing.T) {
 	if rec.Code != http.StatusUnauthorized {
 		t.Fatalf("status = %d, want 401; body %s", rec.Code, rec.Body.String())
 	}
-	if keys := s.keysUnder(auth.RefreshTokenKeyPrefix); len(keys) != 0 {
+	if keys := s.keysUnder(plannersession.RefreshTokenKeyPrefix); len(keys) != 0 {
 		t.Fatalf("a forged token minted credentials: %v", keys)
 	}
-	if keys := s.keysUnder(auth.AccountSessionsKeyPrefix); len(keys) != 0 {
+	if keys := s.keysUnder(plannersession.AccountSessionsKeyPrefix); len(keys) != 0 {
 		t.Fatalf("a forged token created a session: %v", keys)
 	}
 }
@@ -452,7 +452,7 @@ func TestLoginRejectsAnExpiredToken(t *testing.T) {
 	if rec.Code != http.StatusUnauthorized {
 		t.Fatalf("status = %d, want 401; body %s", rec.Code, rec.Body.String())
 	}
-	if keys := s.keysUnder(auth.RefreshTokenKeyPrefix); len(keys) != 0 {
+	if keys := s.keysUnder(plannersession.RefreshTokenKeyPrefix); len(keys) != 0 {
 		t.Fatalf("an expired token minted credentials: %v", keys)
 	}
 }

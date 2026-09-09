@@ -10,7 +10,7 @@ import (
 
 	"eve-industry-planner/shared/esiclient"
 	esisoak "eve-industry-planner/testing/esi_soak/lib"
-	"eve-industry-planner/testing/redisfake"
+	"eve-industry-planner/testing/redisfixture"
 )
 
 // An outage is when a rate limiter can do the most damage. Every response is a
@@ -35,7 +35,7 @@ func newOutageFleet(t *testing.T, replicas int) *outageFleet {
 	t.Cleanup(origin.Close)
 
 	// One Redis for the fleet: the gate is shared, which is the point.
-	rdb := redisfake.New(t).Client
+	rdb := redisfixture.New(t).Handle
 
 	fleet := &outageFleet{origin: origin}
 	for range replicas {

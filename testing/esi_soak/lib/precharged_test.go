@@ -33,6 +33,13 @@ func TestTheFleetRespectsAnAllowanceItDidNotStartFresh(t *testing.T) {
 		result.Succeeded+result.NotModified, result.Refused429,
 		result.Origin.PeakSpend, result.Origin.Allowance, result.RedisPerServed())
 
+	// A soak that measured nothing is not a soak that found nothing: the meter
+	// hooks the Redis client, so a zero here means it was never attached rather
+	// than that the run stayed off Redis.
+	if result.RedisCommands == 0 {
+		t.Error("the run recorded no Redis commands; the meter is detached from the client the client uses")
+	}
+
 	if result.Overspend > 0 {
 		t.Errorf("drove the origin %d tokens past its allowance; the preloaded spend was ignored",
 			result.Overspend)

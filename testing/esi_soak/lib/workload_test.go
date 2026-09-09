@@ -10,7 +10,7 @@ import (
 
 	"eve-industry-planner/shared/esiclient"
 	esisoak "eve-industry-planner/testing/esi_soak/lib"
-	"eve-industry-planner/testing/redisfake"
+	"eve-industry-planner/testing/redisfixture"
 )
 
 // The shape production actually has, which "N identical callers looping" is not:
@@ -42,7 +42,7 @@ func TestPagedWalkWithInteractiveBursts(t *testing.T) {
 		esiclient.ClassUserRequested: 2 * time.Second,
 	}
 
-	client, stop, err := esiclient.New(redisfake.New(t).Client, cfg)
+	client, stop, err := esiclient.New(redisfixture.New(t).Handle, cfg)
 	if err != nil {
 		t.Fatalf("New: %v", err)
 	}

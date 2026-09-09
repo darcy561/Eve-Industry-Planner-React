@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"eve-industry-planner/shared/esiclient"
+	eipredis "eve-industry-planner/shared/redis"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -191,7 +192,9 @@ func buildReplica(cfg Config, origin *Origin, rdb *redis.Client) (*esiclient.Cli
 	if cfg.Adjust != nil {
 		cfg.Adjust(&clientCfg)
 	}
-	return esiclient.New(rdb, clientCfg)
+	// The meter hooks the client itself, so the handle built here carries the
+	// instrumentation with it.
+	return esiclient.New(eipredis.NewRedis(rdb), clientCfg)
 }
 
 func driveReplica(ctx context.Context, cfg Config, client *esiclient.Client, c *counters) {

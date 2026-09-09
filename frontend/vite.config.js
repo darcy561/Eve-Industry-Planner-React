@@ -8,7 +8,7 @@ import path from "path";
 
 export default defineConfig(({ command, mode }) => {
   // Repo root `.env` (monorepo) then app dir (`frontend/`) — same keys in `frontend/.env*` override root.
-  const envFromRoot = loadEnv(mode, path.resolve(__dirname, ".."), "");
+  const envFromRoot = loadEnv(mode, path.resolve(import.meta.dirname, ".."), "");
   const envFromAppDir = loadEnv(mode, process.cwd(), "");
   const env = { ...envFromRoot, ...envFromAppDir };
 
@@ -112,7 +112,10 @@ export default defineConfig(({ command, mode }) => {
     test: {
       environment: "jsdom",
       globals: true,
-      clearMocks: true,
+      // Each worker builds its own jsdom realm, so workers past the handful that saturate the
+      // suite add memory without shortening the run.
+      pool: "vmThreads",
+      maxWorkers: 4,
       setupFiles: ["src/tests/setup.js"],
       coverage: {
         provider: 'v8',

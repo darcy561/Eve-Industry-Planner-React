@@ -37,11 +37,11 @@ describe("additional account import handshake", () => {
 
   beforeEach(() => {
     closeWindow = vi.fn();
-    vi.stubGlobal("window", { ...globalThis.window, close: closeWindow });
+    vi.spyOn(window, "close").mockImplementation(closeWindow);
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 

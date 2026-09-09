@@ -12,6 +12,7 @@ node_modules
 .vite
 # testing
 coverage/
+.vitest/
 
 # production
 dist/

@@ -9,7 +9,6 @@ another, and for the shared homes the moved code needs.
 
 - Live behaviour of the code being moved — sessions, SSO validation, request middleware → [backend/contents.md](../../backend/contents.md)
 - The `services` ↔ `deployment-tool` no-cross rule, which is separate and already documented → [technical-rules.md](../../technical-rules.md)
-- Splitting `shared/` into local modules → [service-library-modules/contents.md](../service-library-modules/contents.md)
 
 ## Task map
 

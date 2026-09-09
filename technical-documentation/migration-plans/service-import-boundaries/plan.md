@@ -203,10 +203,8 @@ neither depends on the other, so there is no cycle to design around.
   have invented a sixth term for a concept that already has five.
 - **Under `shared/core/`.** `shared/core/documentlock` is the nearest precedent — Redis-backed state
   with product behaviour of its own — and it argued for `shared/core/plannersession`. Placement at
-  the top level of `shared/` was chosen instead. That also runs with, rather than against,
-  [`service-library-modules`](../service-library-modules/plan.md), whose open question 5 asks
-  whether the `shared/core/` prefix flattens; a new package added at the top level is one fewer
-  path for that project to move.
+  the top level of `shared/` was chosen instead, beside the other infrastructure packages that carry
+  no `core/` prefix (`shared/mongo`, `shared/nats`, `shared/redis`, `shared/telemetry`).
 - **Reshape in place, then move.** No duplicated code and no throwaway harness, and the existing
   tests stay put to prove each step. Rejected: it destroys the thing the new store would be compared
   against, exactly when the change is a rewrite of code whose guarantee is about resulting Redis

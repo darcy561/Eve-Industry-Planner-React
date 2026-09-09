@@ -23,7 +23,7 @@ test gap, by tests that exist and run.
 |--------|------|----------|
 | #40, #41 | SSO exchange and refresh handler tests | `services/api/v1endpoints/sso/refresh_route_test.go` — ten tests covering both routes: a token the app can use, a code traded for a token, bodies the handler cannot use, a refused token reported as the server answering, silence reported as an outage, and both routes still serving while the limiter gate is closed. `sso/helpers_test.go` covers the `isSSOGrantClientError` mapping the roadmap asked for. |
 | #15 | Refresh state machine tests | `services/api/v1endpoints/session_lifecycle_test.go` — unknown token, revoked token, reauth required once the window elapses, still refused afterwards, token left stored when the rotate does not complete, malformed body, non-POST. |
-| #43 | Login handler tests | Same file — a token signed by another issuer, an expired token, a malformed request, a non-POST request. `live_session_lifecycle_test.go` covers minting a session the browser can use, reporting first login exactly once, and logout ending only that session. One narrow piece is still unproven; see § What is still open. |
+| #43 | Login handler tests | Same file — a token signed by another issuer, an expired token, a malformed request, a non-POST request. `live_session_lifecycle_test.go` covers minting a session the browser can use, reporting first login exactly once, logout ending only that session, and a cloud login handing back the linked-character roster without the stored ESI material. |
 | #44 | Logout handler tests | `session_lifecycle_test.go` — revokes the session, clears its cookies, leaves other sessions alone on an unknown token, rejects a malformed request and a non-POST request. |
 | #46 | `Store.Touch` failure semantics | `services/api/middleware/auth.go` classifies through `dependency.IsUnavailable` and answers `503` rather than folding a dependency outage into `session_missing`. Documented in [sessions.md](../../backend/api/auth/sessions.md) § 11. |
 | #8 | The SPA parses the auth code out of a response | `parsePlannerAuthCodeFromText` in `frontend/src/Functions/Auth/sessionClient.js`, attached to the thrown error as `err.code`. |
@@ -31,6 +31,8 @@ test gap, by tests that exist and run.
 | #10 | A private fetch that returns a terminal auth code resets auth | `handleTerminalPlannerAuthResponse` in `frontend/src/Functions/Endpoints/Private/applyPrivateHeaders.js` redirects to a full EVE login. |
 | #16 | Frontend auth tests | Five files: `Functions/Auth/plannerSessionRedirect.test.js`, `hasResumablePlannerSession.test.js`, `plannerAuthCookies.test.js`, `Components/Auth/additionalAccountImport.test.js`, `oauthUrlParams.test.js`. |
 | #51 | Additional account import window | `tryCompleteAdditionalAccountImportWindow` has regression coverage in `Components/Auth/additionalAccountImport.test.js`. |
+| #45 | A login that fails after minting leaves nothing behind | `authenticate.go` discards the refresh token, the session record and its index at both failure points between the mint and the response, through `sessionmaint.DiscardMintedSessionBestEffort`. `TestLoginLeavesNothingBehindWhenTheDocumentsCannotBeRead` and `TestLoginLeavesNothingBehindWhenTheSessionCannotBeStored` pin it. Bootstrap deliberately keeps its material — see [plan.md](./plan.md) § Stage E. |
+| #43 (residual) | A cloud login does not hand back the stored ESI secret | `TestLive_loginDoesNotHandBackTheStoredEsiSecret` asserts every `refreshTokens` row in the login response carries `characterHash` and nothing else. |
 | #48 | Session resume does not depend on the planner session id | `services/websocket/server/ws_session_resume.go` resumes on `previousClientID`, and `integration_scopes_resume_test.go` exercises it. |
 
 The consequence for the retired roadmap's test coverage matrix is that every row it marked as a gap
@@ -51,8 +53,6 @@ Each of these was checked directly, not inferred from the roadmap's own status c
 | #14 | Rejection and contention are not measured | Session lifecycle metrics exist and are good — `api.auth_sessions.started_total`, `continued_total`, `ended_total`, `stored_total`, `store_errors_total` and the `api.session_refresh.*` family in `services/shared/telemetry/apimetrics/instruments.go`. What is missing is a counter for rejections keyed by code, a counter for the optimistic-locking retries in `shared/plannersession`, and counts from the maintenance sweep. |
 | #56 | Auth failure logs are not uniformly shaped | The middleware and the WebSocket upgrade both attach structured detail, and `refresh.go` attaches caveats; whether every auth handler failure carries `session_id`, `account_id` and the flow has not been checked handler by handler. |
 | #22 | No Redis outage runbook | The code half is done — the `503` split landed with #46 — but there is no operator document saying what a `503` on an auth route means or what to do about it. |
-| #45 | The half-success path leaves minted material behind | In `refresh.go` and in `authenticate.go` the Redis writes complete before `ResolveUserDocumentsForLogin` is called, and neither revokes what it minted when that read fails. Bootstrap recovers on the SPA's retry through session-id recovery; login does not, and it has already counted the session. Decided at [plan.md](./plan.md) § Stage E, not yet written. |
-| #43 (residual) | Cloud login stripping the ESI refresh secret from the response body is unproven | The policy is stated in the retired roadmap and nothing asserts it. |
 | #49 | Cloud ESI credential errors have no user-facing copy | `refresh.go` maps the whole `user.ErrMongoStoredEsi*` family to status codes; none of it reaches the user as an explanation. |
 | #50 | Linked-character hydration on cloud bootstrap is untested | The bootstrap response carries `LinkedCharacters`; nothing asserts the per-character tokens survive into the store. |
 | #42 | CCP outage behaviour is undocumented | The limiter gate is exercised by `sso/refresh_route_test.go`, but how deferral is meant to line up with the SPA's Tranquility gate is written down nowhere. |
@@ -96,8 +96,9 @@ the file could not simply be pruned.
 `shared/telemetry/apimetrics`. Three files carry suggestions, and they are not all free:
 
 - `api/v1endpoints/authenticate.go` and `refresh.go` — composite literal tidying, folding a trailing
-  field assignment into the literal. Cosmetic, safe, and worth taking with Stage E, which edits both
-  files anyway.
+  field assignment into the literal. **Declined.** Read as a diff rather than as a description, the
+  rewrite moves the per-tab cookie comment inside the struct literal and leaves
+  `RefreshToken: refreshToken}` on the closing brace. The trailing assignment is the clearer form.
 - `api/v1endpoints/session_types.go` — the fixer wants `omitempty` removed from the `UserDocument`
   and `ApplicationSettings` fields of the bootstrap response. **This one changes the wire.** Dropping
   `omitempty` makes both fields always present in the JSON, where today an empty document is omitted

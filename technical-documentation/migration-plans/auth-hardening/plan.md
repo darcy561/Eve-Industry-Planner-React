@@ -38,10 +38,18 @@ those, it says what it consumes.
 ## Stages
 
 The stages are ordered by what unblocks what, not by size. A, C and D are independent of each other
-and can run in any order. B waits on shared-planners. E is small but touches the two files everything
-else in `v1endpoints` touches, so it is worth landing before A's middleware work if both are in
-flight. F is a set of decisions, not a set of changes, and should be taken deliberately rather than
-drifting.
+and can run in any order. B waits on shared-planners. E has landed, which settles the two handlers
+everything else in `v1endpoints` edits. F is a set of decisions, not a set of changes, and should be
+taken deliberately rather than drifting.
+
+| Stage | Status |
+|-------|--------|
+| A — one shape for a rejected session | **Not started.** The largest single inconsistency, and the one a user can actually hit |
+| B — revoking more than one session | **Not started, and further out than its position suggests.** Waits on [shared-planners](../shared-planners/plan.md) Stage E, whose revocation path may itself be reshaped by that project's Stage I |
+| C — what an operator sees when auth fails | **Not started.** The Redis outage runbook is owed regardless of the counters |
+| D — what a user sees when a cloud credential dies | **Not started.** Independent of everything else here |
+| E — bootstrap that half-succeeds | **Landed.** The login handler discards what it minted at both failure points, the lifecycle counters moved below the document read, the ESI secret strip is asserted, and the no-op cookie helpers are deleted. #52 closed unchanged and #53 moved to shared-planners § Stage I. Behaviour: [overlay.md](./overlay.md) § Stage E |
+| F — the security decisions that were never taken | **Not started.** Three decisions, each of which may legitimately close as declined |
 
 ---
 
@@ -87,7 +95,9 @@ way for a user to see what sessions exist. `sessions.md` § 14 names the gap dir
 
 This stage **waits on** [shared-planners](../shared-planners/plan.md) Stage E, whose one outstanding
 item is the membership revocation path, described there as waiting on "the session-record work that
-owns the grants ceiling". Those two are the same work seen from opposite ends: revoking a membership
+owns the grants ceiling". It also waits on that project's § Stage I, which decides whether the ceiling
+remains a stored snapshot at all — a revocation that no longer writes one reaches a live session by a
+different route, and this stage consumes whichever route it turns out to be. Those two are the same work seen from opposite ends: revoking a membership
 has to reach every session that membership granted, and revoking every session an account holds has
 to reach the same records. Building an account-wide revoke here before that lands would produce a
 second sweep over the same keys.
@@ -194,12 +204,16 @@ it, and the two are not equally exposed.
 
 **Decisions taken**
 
-- **#45 — revoke, then fail.** When the document read fails after the material exists, the handler
-  revokes the refresh token and the session record best-effort before returning `500`, and the
-  `Started` and distinct-account metrics move to after the read succeeds. The alternative orderings
-  were considered and rejected: moving the Mongo read ahead of the Redis writes reorders both handlers
-  for a failure that is already recoverable on one of them, and declaring the orphan acceptable leaves
-  a Mongo outage silently inflating the session counters.
+- **#45 — revoke, then fail, on the login handler only.** `AuthHandler` discards the refresh token,
+  the session record and its index at both failure points between the mint and the response, and its `Started`, `Stored` and
+  distinct-account metrics move to after the document read succeeds. Bootstrap is deliberately left
+  alone: it revokes the presented token before the read, so the row it minted is the only thing a
+  retry can recover through its session id, and discarding it would turn a failure the SPA already
+  recovers from into a forced EVE login. The distinction is the whole of the difference between the
+  two handlers — the login response is the only place a session id reaches the browser. The
+  alternative orderings were considered and rejected: moving the Mongo read ahead of the Redis writes
+  reorders both handlers for a failure that is already recoverable on one of them, and declaring the
+  orphan acceptable leaves a Mongo outage silently inflating the session counters.
 - **#52 — closed, no change.** The worker's `update_account_session_grants` task is not a duplicate of
   the handler's inline resolve. The task is the only thing that calls ESI affiliation, writes the
   corporation and alliance caches and reconciles membership rows; the handler only projects rows that
@@ -215,19 +229,35 @@ it, and the two are not equally exposed.
 
 **Still owed here**
 
-- Asserting that a cloud login strips the ESI refresh secret from the response body (#43 residual).
-  `StripRefreshTokensFromUserDocumentForClient` is called on both paths and nothing proves it.
-- Deleting `ApplyRotatedSessionCookies` and its two call sites.
-- The composite-literal `go fix` suggestions in `authenticate.go` and `refresh.go`, which this stage
-  edits anyway. The `omitempty` suggestion in `session_types.go` is **not** taken — see
-  [current-state.md](./current-state.md) § Go modernisation in the touch surface.
-- `EnsureAccountPlanner` runs twice on bootstrap — warn-only in `refresh.go`, then fatally inside
-  `ResolveUserDocumentsForLogin`. The `refresh.go` call is still needed by the rotate path, so this is
-  a question of which path owns the repair rather than a straight deletion.
+Nothing. The remaining items closed as follows.
 
-**Done when** the half-success path revokes what it minted and has a test on both handlers, the
-lifecycle counters only count sessions a client received, the strip is asserted, and the dead cookie
-wrapper is gone.
+- **The ESI refresh-secret strip is asserted** (#43 residual), in a live test. The assertion is on the
+  shape of each `refreshTokens` row rather than on a planted secret string: the login re-encrypts
+  what it refreshes, so a plaintext sentinel disappears whether or not anything strips it — the first
+  version of this test passed with the strip removed and proved nothing. Without the strip the row now
+  carries `rTokenCiphertext`, `rTokenNonce` and `rTokenKeyVersion` into the response, which is what
+  fails.
+- **The dead cookie helpers are gone.** `ApplyRotatedSessionCookies` and its two call sites, plus
+  `UseAppRefreshCookieOnResponse`, which had no caller outside its own test.
+- **`EnsureAccountPlanner` keeps both calls.** It looked like a duplicate and is not: `refresh.go`
+  must ensure before it resolves grants, and on a bootstrap the fatal ensure inside
+  `ResolveUserDocumentsForLogin` runs *after* that resolve. Dropping the earlier call would hand an
+  account with a missing planner row an empty grant list on exactly the bootstrap that repaired it —
+  the failure the existing comment was written to prevent. The comment now says so, so the call is not
+  deleted as redundant later.
+- **`auth.SetAppRefreshCookie` is now dead and was left alone.** Nothing calls it; `ReadAppRefreshCookie`
+  and `ClearAppRefreshCookie` still have callers, because the server reads and clears a cookie an older
+  client may still be carrying. Deleting the setter is a decision about how long that is tolerated
+  rather than a cleanup, so it is not taken here.
+- **Nothing from `go fix` in this package.** Re-running it against the tree shows all three
+  suggestions are refusals, not just the `omitempty` one: the two composite-literal rewrites fold the
+  per-tab cookie comment inside the struct literal and weld `RefreshToken: …}` onto the closing brace,
+  which is worse than what is there. See [current-state.md](./current-state.md) § Go modernisation in
+  the touch surface.
+
+**Done when** the login half-success leaves nothing behind and has a test, the lifecycle counters
+only count sessions a client received, bootstrap's recovery is stated rather than assumed, the strip
+is asserted, and the dead cookie wrapper is gone.
 
 ---
 
@@ -287,14 +317,21 @@ keeping is held in [overlay.md](./overlay.md) and promotes as follows.
    testing documentation rules prescribe.
 3. The Redis outage runbook produced by Stage C → wherever backend operational guidance lands; it is
    operator-facing, so it does not stay in this folder.
+4. **The cookie story in live SoT is out of date and this project owes the correction.**
+   [overview.md](../../backend/api/auth/overview.md) and
+   [sessions.md](../../backend/api/auth/sessions.md) both describe rotate and bootstrap as setting or
+   rotating `eip_app_refresh`, and the browser as holding it. Nothing has issued that cookie since
+   per-tab sessions landed, and Stage E removed the no-op that pretended to. The corrected picture is
+   § Session window invariants in [overlay.md](./overlay.md).
 
 Then delete this folder and its row in [`../contents.md`](../contents.md).
 
 ## Recommended pickup order
 
-1. **Stage E** — smallest, and it settles the two handlers everything else edits.
-2. **Stage A** — the largest single inconsistency, and the one a user can actually hit.
-3. **Stage C** — makes the rest measurable, and the runbook is owed regardless.
-4. **Stage D** — independent; can run alongside any of the above.
-5. **Stage B** — once shared-planners Stage E lands.
-6. **Stage F** — decisions, whenever there is appetite to take them.
+1. **Stage A** — the largest single inconsistency, and the one a user can actually hit.
+2. **Stage C** — makes the rest measurable, and the runbook is owed regardless.
+3. **Stage D** — independent; can run alongside any of the above.
+4. **Stage B** — once shared-planners Stage E lands, and once its Stage I has said whether the grants
+   ceiling stays a stored snapshot. A revocation that no longer writes that snapshot reaches live
+   sessions by a different route, which is the half this stage consumes.
+5. **Stage F** — decisions, whenever there is appetite to take them.

@@ -33,9 +33,12 @@ Two supporting facts belong with it when this promotes:
 - After the deadline, the only way back is `POST /auth/sessions` with a fresh EVE access token. A
   cookie-only bootstrap is refused, and refusing it is what `TestRefreshRequiresReauthOnceTheWindowElapses`
   and `TestRefreshStaysRefusedAfterReauthRequired` pin.
-- A cloud account's ESI refresh secret does not reach the SPA for storage. It lives in Mongo, the
-  browser holds `eip_app_refresh`, and the login response strips it. This is stated policy that
-  nothing asserts — see [plan.md](./plan.md) Stage E.
+- A cloud account's ESI refresh secret does not reach the SPA for storage. It lives in Mongo, and the
+  login response carries the linked-character roster without it. Asserted since Stage E — see
+  § Stage E below.
+- The browser holds no session cookie on these routes. Identity is the `X-Session-ID` header and the
+  refresh token in the request body, per tab. Nothing issues `eip_app_refresh` any more; the server
+  still reads one a client may be carrying, and clears it on logout and on `reauth_required`.
 
 ## Auth test coverage
 
@@ -117,9 +120,39 @@ Not started.
 
 ### Stage E — bootstrap that half-succeeds
 
-No code landed. The investigation and the decisions it produced — including #52 closing unchanged and #53 moving to
-[shared-planners](../shared-planners/plan.md) § Stage I — are recorded in [plan.md](./plan.md) § Stage E.
-This section fills in when the change lands.
+The decisions, and the two items that closed or moved rather than shipping, are in
+[plan.md](./plan.md) § Stage E. What has landed so far:
+
+**A login that fails after minting leaves nothing behind.** `AuthHandler` mints a refresh token,
+writes a session record, and only then reads Mongo. Both failure points between the mint and the
+response now discard what exists, through `sessionmaint.DiscardMintedSessionBestEffort`, which removes
+the refresh row, the session from the account record and the session index — the session write is not
+atomic either, so a record that landed without its index is cleaned by the same call. The `Started`,
+`Stored` and distinct-account metrics moved below the document read, so they count sessions a browser
+actually received.
+
+**Bootstrap does the opposite, and that is deliberate.** It revokes the presented refresh token before
+the document read, so the row it minted is what the SPA's retry recovers through its `X-Session-ID`
+header — `ResolveTokenForValidSession` finds it, and the retry supersedes it. Discarding there would
+turn a failure the client already recovers from into a forced EVE login. `DiscardMintedSessionBestEffort`
+carries that rule on itself so a later reader does not reach for it on a rotate.
+
+**A cloud login hands back the roster, not the material.** The login response's `refreshTokens` rows
+carry `characterHash` and nothing else. `TestLive_loginDoesNotHandBackTheStoredEsiSecret` asserts the
+shape of the row rather than the absence of a planted string, because the login re-encrypts what it
+refreshes and a plaintext sentinel would vanish on its own; without the strip the row carries
+`rTokenCiphertext`, `rTokenNonce` and `rTokenKeyVersion`.
+
+**Rotate and bootstrap set no cookies, and no longer pretend to.** `ApplyRotatedSessionCookies` was a
+no-op taking six arguments and discarding all of them; it and `UseAppRefreshCookieOnResponse`, whose
+only caller was its own test, are deleted. Identity on these routes is the `X-Session-ID` header and
+the refresh token in the body. `SetEsiOAuthStorageCookieFromUserCloud` and
+`SetTenantAffinityCookieAccount` are unaffected — those are not session material.
+
+**The account planner is ensured twice on a bootstrap, deliberately.** `refresh.go` ensures before it
+resolves grants, and the fatal ensure inside `ResolveUserDocumentsForLogin` runs after that resolve —
+so the earlier call is what stops an account with a missing planner row receiving an empty grant list
+on the very bootstrap that repaired it.
 
 ### Stage F — the security decisions that were never taken
 

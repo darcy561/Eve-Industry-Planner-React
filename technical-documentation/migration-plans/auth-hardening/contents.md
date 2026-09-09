@@ -51,6 +51,7 @@ it — and the investigation that has to happen before each piece can be scoped.
 | Find out where the grants ceiling question went | [plan.md](./plan.md) § Stage E, [shared-planners/plan.md](../shared-planners/plan.md) § Stage I |
 | Take a decision on refresh-token encryption, CSRF, or a variable reauth window | [plan.md](./plan.md) § Stage F |
 | Check whether a change breaks a client | [plan.md](./plan.md) § Wire compatibility |
+| See which stages have landed | [plan.md](./plan.md) § Stages |
 | Find the auth invariants that no live document states yet | [overlay.md](./overlay.md) § Session window invariants |
 | Find the corrected picture of what auth tests cover | [overlay.md](./overlay.md) § Auth test coverage |
 | Promote this project and fix what pointed at the retired roadmap | [plan.md](./plan.md) § Promote |

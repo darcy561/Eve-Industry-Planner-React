@@ -1,0 +1,17 @@
+{
+  "why": "Which map keys name an instance rather than a field. A parity census walks stored documents by path, and a map keyed by job id or type id would otherwise report one path per stored key instead of one per field. Read by the Go sweep and by the SPA parity test, so a key shape added on one side without the other makes the two disagree about what they are counting.",
+  "patterns": [
+    {
+      "shape": "-?\\d+",
+      "why": "A numeric id used as a key: type ids in material price overrides, system ids in the predefined index map. Negative because a sale entered by hand is minted with a negative transaction id."
+    },
+    {
+      "shape": "job-[0-9a-fA-F-]{8,}",
+      "why": "A job id, as the SPA mints them: the literal prefix then a uuid."
+    },
+    {
+      "shape": "[0-9a-fA-F]{8}-[0-9a-fA-F-]{20,}",
+      "why": "A bare uuid, which is how a setup keys itself inside build.setup."
+    }
+  ]
+}

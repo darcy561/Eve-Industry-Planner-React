@@ -6,6 +6,7 @@
  */
 
 import { canonicalCharacterHashKey } from "../../Functions/Auth/characterHashCanonical.js";
+import esiCredentials from "../../Functions/Auth/esiCredentials/provider.js";
 
 /**
  * Appends characters, replacing any existing row with the same canonical CharacterHash.
@@ -103,6 +104,7 @@ export const characterActions = (set, get) => ({
     if (!drop) {
       return;
     }
+    esiCredentials.forget(character.CharacterHash);
     set(
       (state) => ({
         ...state,

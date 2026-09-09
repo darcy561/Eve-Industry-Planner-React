@@ -66,13 +66,13 @@ func ExtractSession(ctx context.Context, r *http.Request, store *plannersession.
 
 	sessionID := SessionID(r)
 	if sessionID == "" {
-		return nil, &SessionError{Code: "session_missing", Reason: reasonSessionAbsent}
+		return nil, &SessionError{Code: CodeSessionMissing, Reason: reasonSessionAbsent}
 	}
 
 	accountID, session, err := store.ResolveSession(ctx, sessionID)
 	if err != nil || session == nil {
 		sessErr := &SessionError{
-			Code:      "session_missing",
+			Code:      CodeSessionMissing,
 			SessionID: sessionID,
 			AccountID: strings.TrimSpace(accountID),
 		}
@@ -91,7 +91,7 @@ func ExtractSession(ctx context.Context, r *http.Request, store *plannersession.
 	// session_missing. Pruning is the single enforcement point: a change that
 	// stops it removing expired sessions has to put a check back here.
 	if session.RevokedAt != nil {
-		return nil, &SessionError{Code: "session_revoked", AccountID: accountID, SessionID: sessionID}
+		return nil, &SessionError{Code: CodeSessionRevoked, AccountID: accountID, SessionID: sessionID}
 	}
 	return &Identity{AccountID: accountID, SessionID: sessionID, Session: *session}, nil
 }

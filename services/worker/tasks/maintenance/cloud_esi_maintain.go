@@ -98,7 +98,9 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 	defer cancel()
 
 	dirty := false
-	out := make([]models.RefreshToken, 0, len(userDoc.RefreshTokens))
+	// Only the rows this pass actually altered; a row it merely read is left alone.
+	changed := make([]models.RefreshToken, 0, len(userDoc.RefreshTokens))
+	removed := make([]string, 0)
 
 	recordFailure := func(row *models.RefreshToken, phase string, logWarn error, countRetry bool) bool {
 		stats.RowsFailed++
@@ -109,6 +111,7 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 		row.CloudMaintRefreshFailures++
 		if row.CloudMaintRefreshFailures >= 2 {
 			stats.RowsRemoved++
+			removed = append(removed, row.CharacterHash)
 			logs.WarnCtx(callCtx, "cloud esi maintenance: removing row after repeated failures",
 				"account_id", accountID, "character_hash", row.CharacterHash, "phase", phase,
 				"failures", row.CloudMaintRefreshFailures)
@@ -127,19 +130,17 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 		row := rt
 		if strings.TrimSpace(row.CharacterHash) == "" {
 			stats.RowsSkipped++
-			out = append(out, row)
 			continue
 		}
 		if strings.TrimSpace(row.RTokenCiphertext) == "" && strings.TrimSpace(row.RToken) == "" {
 			stats.RowsSkipped++
-			out = append(out, row)
 			continue
 		}
 
 		if rotated, err := row.ReencryptTowardActiveVersion(cfg.Keys.Keyring, true); err != nil {
 			if keep := recordFailure(&row, "key_reencrypt", err, true); keep {
 				dirty = true
-				out = append(out, row)
+				changed = append(changed, row)
 			} else {
 				dirty = true
 			}
@@ -153,7 +154,7 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 		if err != nil {
 			if keep := recordFailure(&row, "decrypt", err, true); keep {
 				dirty = true
-				out = append(out, row)
+				changed = append(changed, row)
 			} else {
 				dirty = true
 			}
@@ -170,13 +171,14 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 			if evesso.IsPermanentRefreshFailure(err) {
 				stats.RowsRemoved++
 				dirty = true
+				removed = append(removed, row.CharacterHash)
 				logs.WarnCtx(callCtx, "cloud esi maintenance: removing row after permanent OAuth failure",
 					"account_id", accountID, "character_hash", row.CharacterHash, "error", err)
 				continue
 			}
 			if keep := recordFailure(&row, "sso_refresh", err, true); keep {
 				dirty = true
-				out = append(out, row)
+				changed = append(changed, row)
 			} else {
 				dirty = true
 			}
@@ -190,7 +192,7 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 		if err := row.EncryptRefreshAtRest(newRefresh, cfg.Keys.Keyring); err != nil {
 			if keep := recordFailure(&row, "encrypt_after_refresh", err, true); keep {
 				dirty = true
-				out = append(out, row)
+				changed = append(changed, row)
 			} else {
 				dirty = true
 			}
@@ -202,7 +204,7 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 			stats.AccessTokens = append(stats.AccessTokens, tok.AccessToken)
 		}
 		dirty = true
-		out = append(out, row)
+		changed = append(changed, row)
 	}
 	// A removed row does not block the reconcile: EVE refused the grant outright,
 	// which says the character is gone for good rather than that it could not be
@@ -217,16 +219,17 @@ func maintainAccountCloudRefreshTokens(ctx context.Context, users *eipmongo.Docs
 	// it was exchanged recently enough that its token is still good.
 	stats.Complete = stats.knowsWhatTheAccountCanProve()
 
-	userDoc.RefreshTokens = out
-
 	if !dirty {
 		return stats, nil
 	}
 
-	if err := users.PatchUserAccountFields(callCtx, accountID, bson.M{
-		"refreshTokens":      userDoc.RefreshTokens,
-		"_meta.lastModified": time.Now().UTC(),
-	}, eipmongo.WithOpName(fmt.Sprintf("cloud esi maintenance persist %s", accountID))); err != nil {
+	// Row-scoped and change-scoped: a character the SPA rotates while this pass runs keeps its own
+	// material, and a row this pass only read is not written back at all.
+	opName := eipmongo.WithOpName(fmt.Sprintf("cloud esi maintenance persist %s", accountID))
+	if err := users.PullUserRefreshTokenRows(callCtx, accountID, removed, opName); err != nil {
+		return stats, fmt.Errorf("%w: %v", errCloudEsiMaintPersist, err)
+	}
+	if err := users.PatchUserRefreshTokenRows(callCtx, accountID, changed, opName); err != nil {
 		return stats, fmt.Errorf("%w: %v", errCloudEsiMaintPersist, err)
 	}
 

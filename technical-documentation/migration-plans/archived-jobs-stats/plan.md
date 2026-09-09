@@ -2763,7 +2763,7 @@ Both were confirmed to bite by breaking the code they cover.
 against mocked endpoints — the statistics page and its tabs, the item tab, the jobs list, its search,
 sort and paging, and the eight chart panels' own contract with the primitives they draw through — and
 they were confirmed to catch the regression that prompted them by reverting the fix and watching them
-fail. Shared scaffolding rather than per-file copies: `frontend/tests/archiveHarness.jsx` holds the
+fail. Shared scaffolding rather than per-file copies: `frontend/src/tests/archiveHarness.jsx` holds the
 store mocks, chart capture and render helpers, and `testing/mongolive` holds the live-Mongo gate and
 the scratch-account cleanup the Go live tests share. Browser-level coverage (Playwright) is a
 deliberate later decision, not an oversight.

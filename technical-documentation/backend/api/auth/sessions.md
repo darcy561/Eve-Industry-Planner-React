@@ -2,7 +2,7 @@
 
 How the Go API and websocket services authenticate every request, how the EVE SSO and planner session endpoints work, what lives in Redis, and how the deprecated internal JWT layer was replaced with cookie + Redis session lookup.
 
-> Companion docs: **[overview.md](./overview.md)** for overview / wire contracts, **[spa.md](../../../frontend/auth/spa.md)** for SPA detail, **[roadmap.md](./roadmap.md)** for full-stack backlog and test matrix.
+> Companion docs: **[overview.md](./overview.md)** for overview / wire contracts, **[spa.md](../../../frontend/auth/spa.md)** for SPA detail.
 
 ---
 
@@ -291,7 +291,7 @@ File: `services/api/v1endpoints/refresh.go`. `RotateHandler` and `BootstrapHandl
 
 Key implementation notes:
 
-- **`eve_token == ""` is only legal when `refreshFromCookie`** (cookie cloud resume). The handler then calls `RefreshStoredEsiFromMongoForCharacter` to mint a fresh ESI access from the encrypted Mongo refresh token. Errors map to `cloud_esi_not_found` / `cloud_stored_esi_internal` / `Stored ESI refresh invalid` etc.
+- **`eve_token == ""` is only legal when `refreshFromCookie`** (cookie cloud resume). The handler then calls `RefreshStoredEsiFromMongoForCharacter` to mint a fresh ESI access from the encrypted Mongo refresh token. A missing row or a refusal from EVE SSO is terminal for the client and answers `401 {"code":"session_revoked"}`; a keyring, decrypt or persist failure is ours and answers `500`.
 - **`eve_token != ""`**: validated with `auth.ValidateEveTokenAndExtractHash`; `tokenData.CharacterHash` **must** match `eveTokenInfo.CharacterHash`, else `401 Invalid token`.
 - **Session backfill**: legacy `refresh_token:` rows may lack `SessionID`. The handler mints one (`refresh_backfill` flow on rotate, `login_refresh` on bootstrap) and stamps `SessionStart`.
 - **Missing token**: `sessions.RefreshToken` reports a missing row as `found == false` rather than an error; the handler turns that back into `plannersession.ErrRefreshTokenNotFound` so its `401` and log fields are unchanged from before the move.
@@ -331,7 +331,7 @@ sequenceDiagram
     end
 ```
 
-**Revocation order**: `Store.RevokeSessionTokens` runs **before** `Store.RemoveSession`. It revokes the presented token and every other refresh token a scan attributes to the same session — not just the one the session-refresh index names — so a token minted by an earlier rotate that fell out of the index cannot outlive logout. Subsequent `POST /auth/sessions/rotate` or `/bootstrap` with a captured refresh value returns `401 Invalid token`.
+**Revocation order**: `Store.RevokeSessionTokens` runs **before** `Store.RemoveSession`. It revokes the presented token and every other refresh token a scan attributes to the same session — not just the one the session-refresh index names — so a token minted by an earlier rotate that fell out of the index cannot outlive logout. Subsequent `POST /auth/sessions/rotate` or `/bootstrap` with a captured refresh value returns `401 {"code":"session_revoked"}`, which the SPA treats as terminal.
 
 **Mongo ESI refresh secrets** (`users.refreshTokens`) are unchanged on logout — only planner session material in Redis and auth cookies are cleared.
 
@@ -362,6 +362,10 @@ File: `services/api/v1endpoints/sso/refreshHandler.go`. Same shape as exchange, 
 ## 7. WebSocket upgrade auth
 
 File: `services/websocket/server/handler.go` → `HandleWS`.
+
+The upgrade refuses through `sessionreq.WriteCodedError`, the same writer the API middleware and the
+rotate handler use, so a rejected upgrade answers the `{"code","message"}` JSON body rather than plain
+text.
 
 **Pre-upgrade auth steps** (mirrors API middleware):
 
@@ -435,10 +439,10 @@ Every other private handler under `services/api/v1endpoints/**` is wrapped by `A
 | `Session.RevokedAt != nil` | `401 {"code":"session_revoked"}` |
 | `ReauthRequiredAt < now` (7d cap) | `401 {"code":"reauth_required"}` |
 | Redis unreachable while resolving or touching a session | `503 "Service temporarily unavailable"` — classified through `dependency.IsUnavailable`, not folded into `session_missing` |
-| Refresh: `refresh_token:` row missing | `401 "Invalid token"` |
+| Refresh: `refresh_token:` row missing | `401 {"code":"session_revoked"}` |
 | Refresh: `eve_token` invalid / expired (text varies) | `401 <error message>` |
 | Refresh: `eve_token == ""` and `!refreshFromCookie` | `400 "eve_token is required …"` |
-| Refresh: cloud Mongo ESI missing | `401 "Invalid token"` (mapped) |
+| Refresh: cloud Mongo ESI missing, or stored ESI refused by SSO | `401 {"code":"session_revoked"}` |
 | Logout: presented refresh token missing, or its account does not match the session account | `401 "Unauthorized"` |
 | Login: EVE JWT validation failure | `401 <auth.GetEveTokenErrorMessage(err)>` |
 | Login / refresh: Redis error | `500 "Internal server error"` |
@@ -493,6 +497,7 @@ stateDiagram-v2
 |---|---|
 | `services/api/middleware/auth.go` | `AuthConstructor` |
 | `services/shared/httpmiddleware/requestlogging.go` | `X-Request-ID`, Hijack/Flush for WS upgrade |
+| `services/shared/httpmiddleware/requeststarttime.go` | Request start time on the context, composed outside `otelhttp` |
 | `services/shared/plannersession/keys.go` | Redis key prefixes and TTLs |
 | `services/shared/plannersession/types.go` | `RefreshTokenData`, `Session`, `AccountRecord` |
 | `services/shared/plannersession/reauth.go` | Reauth deadline math (pure — no I/O) |
@@ -500,7 +505,8 @@ stateDiagram-v2
 | `services/shared/plannersession/store.go` | `Store` — owns the keyspace |
 | `services/shared/plannersession/grants.go` | `SetGrants`, `RepairGrants` |
 | `services/shared/plannersession/request/cookie.go` | `eip_session` cookie + per-tab header/query resolution |
-| `services/shared/plannersession/request/failure.go` | Failure classification and log fields |
+| `services/shared/plannersession/request/failure.go` | Client-facing code constants, failure classification and log fields |
+| `services/shared/plannersession/request/response.go` | `WriteCodedError` — the only writer of a planner auth refusal |
 | `services/shared/plannersession/request/extract.go` | Context identity, `ExtractSession` / `TryExtractSession` |
 | `services/shared/plannersession/maintenance/sweep.go` | Orphan refresh-token sweep, `RunLoop` |
 | `services/shared/plannersession/maintenance/verify.go` | `VerifySessionPersisted`, `RevokeTokenBestEffort` |

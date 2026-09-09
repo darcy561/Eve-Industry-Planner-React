@@ -1,5 +1,6 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCharacterJournal({
   character,
@@ -8,11 +9,12 @@ async function getCharacterJournal({
   config = {}
 }) {
   try {
-    if (!character || !character.esiAccessToken || !character.CharacterID) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/wallet/journal/?datasource=tranquility&page=${page}`;
     const refTypes = new Set([
       "brokers_fee",
@@ -37,7 +39,7 @@ async function getCharacterJournal({
       {
         headers: {
           "If-None-Match": existingData?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

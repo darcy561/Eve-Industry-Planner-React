@@ -1,19 +1,20 @@
 import skillsReference from "../../../RawData/bpSkills.json";
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Fetches character skills from EVE ESI API and maps them to skill reference data.
  * Returns a skills map with both active and trained skill levels for all blueprint skills.
  * 
  * @param {Object} params - Parameters object
- * @param {Object} params.character - Character object with esiAccessToken and CharacterID
+ * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {Object} [params.existingData={}] - Existing data for caching
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to skills map with etag
  * 
  * @example
  * const skills = await getCharacterSkills({
- *   character: { esiAccessToken: "token", CharacterID: 123456 },
+ *   character: { CharacterHash: "hash", CharacterID: 123456 },
  *   config: { characterHash: "hash" }
  * });
  * console.log(skills.data[3385].activeLevel); // Active skill level
@@ -24,11 +25,12 @@ async function getCharacterSkills({
   config = {}
 }) {
   try {
-    if (!character || !character.esiAccessToken || !character.CharacterID) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/skills/?datasource=tranquility`;
 
     // Enhanced configuration for rate limiting
@@ -47,7 +49,7 @@ async function getCharacterSkills({
       {
         headers: {
           "If-None-Match": existingData?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

@@ -1,5 +1,5 @@
 import useUsersStore from "../../Zustand/usersStore";
-import checkUserClaims from "../../Functions/Auth/checkUserClaims";
+import refreshAccountSessionGrants from "../../Functions/Auth/refreshAccountSessionGrants.js";
 import { canonicalCharacterHashKey } from "../../Functions/Auth/characterHashCanonical.js";
 import {
   enqueueReconcile,
@@ -11,6 +11,7 @@ import {
   getSystemIndexDataFromUserStructures,
 } from "../../Functions/Auth/buildAccountData";
 import { clearQueryTimings } from "../../Functions/Debugging/queryWaterfallLogger";
+import { prefetchMultipleCharacters } from "../../Functions/Character/prefetchCharacterData";
 import {
   emitLoginError,
   emitLoginStepComplete,
@@ -52,13 +53,11 @@ function buildShimUserDataFromMongo(userDocument) {
  *
  * @param {object} options
  * @param {import("@tanstack/react-query").QueryClient} options.queryClient
- * @param {Function} options.prefetchMultipleCharacters
  * @param {object|null|undefined} [options.userDocument] - `user_document` from the same login response (not read from the store)
  * @param {object[]|null|undefined} [options.linkedCharacters] - `linked_characters` from auth/login when cloud mode
  */
 export async function runPostLoginAccountSync({
   queryClient,
-  prefetchMultipleCharacters,
   userDocument,
   linkedCharacters,
 }) {
@@ -118,7 +117,7 @@ export async function runPostLoginAccountSync({
       console.error("Error during character data prefetch:", error);
     });
 
-    await checkUserClaims();
+    await refreshAccountSessionGrants();
 
     emitLoginStepComplete(LOGIN_STEPS.CHARACTER_DATA);
   } catch (err) {

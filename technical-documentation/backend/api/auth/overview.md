@@ -2,13 +2,11 @@
 
 End-to-end documentation for the planner's authentication and session-handling subsystem after the migration **off** of internal API-issued JWTs and **onto** Redis-backed session cookies + EVE SSO.
 
-> Documentation is split into four files:
+> Documentation is split into three files:
 >
-> - **README.md** (this file) — vocabulary, cross-stack architecture, the wire contract, end-to-end flows, environment, and a file index.
+> - **README.md** (this file) — vocabulary, cross-stack architecture, the wire contract, end-to-end flows, and environment.
 > - **[spa.md](../../../frontend/auth/spa.md)** — React app: bootstrap modes, Zustand actions, request-time auth, refresh cooldown, Tranquility gate, signout, realtime auth.
 > - **[sessions.md](./sessions.md)** — Go API: middleware, Redis key layout, handler-by-handler contracts, refresh state machine, websocket upgrade auth.
-> - **[roadmap.md](./roadmap.md)** — full-system backlog: EVE SSO, Redis sessions, HTTP/WS, ESI maintenance, SPA, tests, ops, and related rollouts (see system map there).
-> - **[Frontend lifecycles roadmap](../../../frontend/lifecycles/roadmap.md)** — move SPA auth/character maintenance clocks out of React `useEffect` into a boot-time supervisor.
 
 ---
 
@@ -194,8 +192,8 @@ sequenceDiagram
     participant A as API
     participant R as Redis
 
-    Note over S: any private fetch + 15m maintenance timer
-    S->>S: refreshServerToken()
+    Note over S: any private fetch, when the session is due
+    S->>S: ensurePlannerSession()
     S->>S: Tranquility cached offline? -> return
     S->>S: lastPlannerSessionValidatedAt within 20m? -> return
     S->>A: POST /api/v1/auth/sessions/rotate { eve_token? }\nCookie: eip_session, eip_app_refresh
@@ -382,59 +380,7 @@ See [sessions.md §3](./sessions.md#3-redis-key-layout) for the full struct defi
 
 ---
 
-## 10. File index
-
-### Backend (`services/`)
-
-- `api/middleware/auth.go` — `AuthConstructor` (cookie/header → Redis → context).
-- `shared/plannersession/keys.go`, `types.go`, `reauth.go`, `record.go`, `store.go`, `grants.go` — session kernel: Redis key contract, stored shapes, reauth math, `Store`.
-- `shared/plannersession/request/cookie.go`, `failure.go`, `extract.go` — session cookie/header/query reading, failure classification, `ExtractSession`.
-- `shared/plannersession/maintenance/sweep.go`, `verify.go` — orphan refresh-token sweep.
-- `shared/httpmiddleware/middleware.go`, `requestlogging.go`, `requeststarttime.go` — the composition kit and constructors both `api` and `websocket` use.
-- `api/helper/auth/app_refresh_cookie.go` — `eip_app_refresh` cookie helpers.
-- `api/helper/auth/esi_oauth_storage_cookie.go` — `eip_esi_oauth_storage` cookie helpers.
-- `api/helper/auth/tenant_affinity_cookie.go`, `refresh_credential_log.go`, `refresh_token_rotation.go` — the rest of the browser auth flow.
-- `api/helper/auth/evetoken.go` — EVE SSO token validation and error messages.
-- `api/helper/httpGuards.go` — `AuthenticatedAccountID`, `AuthenticatedSessionID`, `RequireAccountID`, `RequireMethod`.
-- `api/helper/request_context.go` — `PopulateRequestMeta` (account + session id + WS client id).
-- `api/helper/headers.go` — `X-WS-Client-ID`, `X-Session-ID` constants.
-- `api/v1endpoints/authenticate.go` — `AuthHandler` (POST `/auth/sessions`).
-- `api/v1endpoints/refresh.go` — `RotateHandler` + `BootstrapHandler`.
-- `api/v1endpoints/logout.go` — `LogoutHandler`.
-- `api/v1endpoints/session_types.go` — `SessionBootstrapResponse`, `SessionRotateResponse`.
-- `api/v1endpoints/sso/exchangeHandler.go` — `EveSSOExchangeHandler`.
-- `api/v1endpoints/sso/refreshHandler.go` — `EveSSORefreshHandler`.
-- `api/v1endpoints/sso/helpers.go`, `requestParsers.go`, `types.go` — shared SSO parsing + length caps.
-- `websocket/server/handler.go` — WS upgrade auth via shared `plannersession` + `plannersession/request`.
-- `core/singleton/jobs.go` — `AuthSessionMaintenanceJob`, the hourly sweep singleton.
-- `shared/core/config/config.go` — env-driven `Config` (EVE creds, Redis, refresh keyring).
-
-### Frontend (`frontend/src/`)
-
-- `App.jsx`, `AppWrapper.jsx` — root wiring (QueryClientProvider, refresh hooks, realtime).
-- `queryClient.js` — shared React Query client (60s default `staleTime`).
-- `routes/__root.jsx` — first-login redirect.
-- `routes/_protected.jsx` — `beforeLoad: requireAuth`.
-- `routes/signout.jsx` — orchestrated logout (realtime → API → store → cache → storage → client cookie clear).
-- `utils/authGuard.js` — `requireAuth`, `allowPublicAccess`, cloud-resume cookie hint.
-- `Functions/Auth/plannerAuthCookies.js` — cookie names/paths; client-side expiry on sign-out.
-- `Zustand/account/account.js` — account slice defaults / state shape.
-- `Zustand/account/tokenActions.js` — session merge / rotate / ESI maintenance.
-- `Functions/Auth/sessionClient.js` — raw `fetch` calls to session endpoints.
-- `Functions/Auth/serverTokens.js` — re-export aliases.
-- `Functions/Auth/appLoginFlow.js` — login mode resolvers + post-login hydration.
-- `Functions/Auth/authRefreshTranquilityGate.js` — refresh deferral helper.
-- `Functions/Endpoints/Private/applyPrivateHeaders.js` — pre-rotate + cookie + `X-WS-Client-ID` headers.
-- `Functions/EveESI/fetchTranquilityStatus.js` — `/status/` ESI fetch.
-- `Hooks/React Query/tranquilityServerStatus.js` — Tranquility query options + key.
-- `Hooks/App/useRefreshESITokens.js` — maintenance + stagger timers.
-- `Realtime/realtimeClient.js` — `/ws` singleton + session resume.
-- `Realtime/useAccountWebSocket.js` — connect/disconnect lifecycle.
-- `Components/Auth/Hooks/useAuthUrlLogin.js` — login mode chooser at startup.
-
----
-
-## 11. Failure modes & status codes
+## 10. Failure modes & status codes
 
 | Condition | API response | Notes |
 |---|---|---|
@@ -442,7 +388,9 @@ See [sessions.md §3](./sessions.md#3-redis-key-layout) for the full struct defi
 | Session row missing / `RevokedAt` set | `401 { "code": "session_revoked" }` | Cleaned up by logout or admin tooling. |
 | `ReauthRequiredAt` past now | `401 { "code": "reauth_required" }` | Hard 7-day cap; user must run the full SSO flow again. |
 | Redis unreachable while resolving or touching a session | `503 { "code": "service_unavailable" }` | Classified through `dependency.IsUnavailable`; distinct from `session_missing`. |
-| `refresh_token` Redis row missing on rotate/bootstrap/logout | `401 "Invalid token"` | Most often: the token was rotated by another tab/device. |
+| `refresh_token` Redis row missing on rotate / bootstrap | `401 { "code": "session_revoked" }` | Most often: the token was rotated by another tab or device. The SPA treats the code as terminal and starts a full EVE SSO login. |
+| `refresh_token` Redis row missing on logout | `401 "Invalid token"` | The client clears its cookies regardless. |
+| Cloud account with no stored ESI material, or stored ESI refused by EVE SSO, on rotate / bootstrap | `401 { "code": "session_revoked" }` | The account has to authorise its main character again. |
 | Wrong account on logout | `401 "Unauthorized"` | The presented refresh token's `account_id` must match the session-cookie account. |
 | Tranquility cached offline (frontend) | refresh path returns early | No HTTP issued; existing cookies remain valid until they expire. |
 
@@ -452,4 +400,3 @@ For implementation detail, jump to:
 
 - **[spa.md](../../../frontend/auth/spa.md)** — how the SPA orchestrates these flows.
 - **[sessions.md](./sessions.md)** — how the API and websocket service enforce identity.
-- **[roadmap.md](./roadmap.md)** — open issues, pickup order, and links to encryption/authz rollouts.

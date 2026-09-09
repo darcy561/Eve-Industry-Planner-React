@@ -226,6 +226,10 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 			Handler: userH.ServerStoredEsiAccessTokenHandler,
 		},
 		{
+			Path:    "/api/v1/esi/characters/access-tokens/server",
+			Handler: userH.ServerStoredEsiAccessTokensHandler,
+		},
+		{
 			Path:    "/api/v1/corporation-claims",
 			Handler: v1.CorporationsHandler,
 		},

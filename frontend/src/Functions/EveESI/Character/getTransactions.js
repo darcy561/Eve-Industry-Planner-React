@@ -1,5 +1,6 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCharacterTransactions({
   character,
@@ -7,17 +8,18 @@ async function getCharacterTransactions({
   existingData = {},
 }) {
   try {
-    if (!character || !character.esiAccessToken || !character.CharacterID) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
         const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/wallet/transactions/?datasource=tranquility&page=${page}`;
 
     const response = await fetchWithCustomHeaders(endpointURL, {
       headers: {
         "If-None-Match": existingData?.etag || "",
-        Authorization: `Bearer ${esiAccessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     });
 

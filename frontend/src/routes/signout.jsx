@@ -1,11 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { queryClient } from "../queryClient.js";
-import { logoutServerSession } from "../Functions/Auth/serverTokens";
+import { logoutPlannerSession } from "../Functions/Auth/sessionClient.js";
 import { getTabPlannerRefreshToken } from "../Functions/Auth/tabSessionStorage.js";
 import { clearPlannerAuthCookiesClientSide } from "../Functions/Auth/plannerAuthCookies.js";
 import { disconnectRealtime } from "../Realtime/realtimeClient.js";
 import { clearInboundJobDocumentCoalesce } from "../Functions/Debounce/inboundJobDocumentsCoalesce.js";
 import useUsersStore from "../Zustand/usersStore";
+import esiCredentials from "../Functions/Auth/esiCredentials/provider.js";
 
 function clearClientSessionState() {
   const { resetJobDataStore } = useUsersStore.getState().jobData.actions;
@@ -30,6 +31,8 @@ function clearClientSessionState() {
   resetActivePlannerStore();
   resetWorldDataStore();
   clearPlannerAuthCookiesClientSide();
+  // Held ESI access tokens live outside the store, so no slice reset drops them.
+  esiCredentials.reset();
 }
 
 function clearBrowserStorage() {
@@ -45,7 +48,7 @@ export const Route = createFileRoute("/signout")({
     let serverLogoutFailed = false;
     try {
       disconnectRealtime();
-      await logoutServerSession(getTabPlannerRefreshToken());
+      await logoutPlannerSession(getTabPlannerRefreshToken());
     } catch (error) {
       console.error("Signout error:", error);
       serverLogoutFailed = true;

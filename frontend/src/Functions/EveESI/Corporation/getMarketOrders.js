@@ -1,4 +1,5 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCorpMarketOrders({
   character,
@@ -7,11 +8,12 @@ async function getCorpMarketOrders({
   config = {}
 }) {
   try {
-    if (!character || !character.CharacterID || !character.esiAccessToken || !character.corporation_id) {
+    if (!character || !character.CharacterID || !character.CharacterHash || !character.corporation_id) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID, corporation_id } = character;
+    const { CharacterID, corporation_id } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/corporations/${corporation_id}/orders/?datasource=tranquility&page=${page}`;
 
     // Enhanced configuration for rate limiting
@@ -30,7 +32,7 @@ async function getCorpMarketOrders({
       {
         headers: {
           "If-None-Match": existingData?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

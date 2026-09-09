@@ -1,4 +1,5 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getAssetLocationNames(
   character,
@@ -20,7 +21,8 @@ async function getAssetLocationNames(
       return new Map();
     }
 
-    const { CharacterID, corporation_id, esiAccessToken } = character;
+    const { CharacterID, corporation_id } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
 
     const chunkSize = 1000;
     const namesMap = new Map();
@@ -37,7 +39,7 @@ async function getAssetLocationNames(
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${esiAccessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(chunk),
         }

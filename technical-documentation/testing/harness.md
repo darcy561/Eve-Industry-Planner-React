@@ -21,7 +21,8 @@ Live SoT for cross-cutting **ops soak / harness packages** under [`testing/`](..
 |---------|-------|----------------|
 | `testing/harness` | **Tested** (unit) | Shared `ConnectNATS`, `AsynqRedisOpt` / `CapacitySoakNoop` |
 | `testing/mongolive` | **ops** (live stack) | The gate (`EIP_MONGO_PARITY_LIVE`), the two connections a live test can want — `Require` for ordinary work and `RequireWatch` for change streams — `ScratchAccount`, and the `OwnerMeta` / `OwnerDoc` fixture builders |
-| `testing/keys` | **Tested** (unit) | Shared test key material: `EntityID` plus `EntityCipher` / `SetEntityID` for entity refs |
+| `testing/cloudaccount` | **ops** (live stack) | A seeded cloud account for the live tests that refresh and rewrite `users.refreshTokens`: rows with material derived from their own hash so a read-back says plainly whether a value changed, a signed SSO stand-in, a keyring from `testing/keys`, and cleanup at both ends of the run. `Rows` and `Material` read the stored state back |
+| `testing/keys` | **Tested** (unit) | Shared test key material: `EntityID` plus `EntityCipher` / `SetEntityID` for entity refs; `RefreshTokenAES` / `SetRefreshTokenAES` for the refresh-token keyring, so a fixture that seeds encrypted rows and the code reading them back agree on one key |
 | `testing/wait` | **Tested** (unit) | `For` (test form, fails with the last detail) and `Until` (long-running form, returns an error and reports progress) |
 | `testing/httpfake` | **Tested** (unit) | In-memory stand-in for an HTTP dependency a package calls out to: canned and queued replies, custom handlers, recorded calls |
 | `testing/redisfake` | **Tested** (unit) | Per-test miniredis plus a wired client, both closed on cleanup; `Server` for direct store access (TTL, FastForward, Exists) |

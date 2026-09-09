@@ -20,6 +20,7 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Collection naming (**promoted** — kept only because archived-jobs-stats cites its renames; live SoT in [backend/shared/mongo.md](../backend/shared/mongo.md)) | [collection-naming/contents.md](./collection-naming/contents.md) |
 | Go 1.27 adoption (json/v2, simulated-time tests, `go fix` sweep) | [go-127-adoption/contents.md](./go-127-adoption/contents.md) |
 | Task dispatch (task type authority, envelope collapse, operator CLI) | [task-dispatch/contents.md](./task-dispatch/contents.md) |
+| Maintenance mode (stack-wide gate: router/websocket rejection, scheduler pause, runtime toggle) | [maintenance-mode/contents.md](./maintenance-mode/contents.md) |
 | ESI collections (one normalised row shape from the query layer for assets and blueprints; tree, search, quantity, library and location consumers) | [esi-collections/contents.md](./esi-collections/contents.md) |
 | ESI limiter maintainability (slot-hash ledger overlay, benchmark data, property testing and ledger diagnostics) | [esi-limiter-maintainability/contents.md](./esi-limiter-maintainability/contents.md) |
 | Mongo test database (a database of the tests' own, dropped between runs, and the live suite in CI) | [mongo-test-database/contents.md](./mongo-test-database/contents.md) |
@@ -28,4 +29,3 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Planning stage panels (splitting the Edit Job market panel; selling costs at plan time; speculative child jobs) | [planning-stage-panels/contents.md](./planning-stage-panels/contents.md) |
 | Auth hardening (session rejection shape, account-wide revocation, auth observability and the outage runbook, cloud ESI credential failures, bootstrap half-success) | [auth-hardening/contents.md](./auth-hardening/contents.md) |
 | SPA token landing (reconciling the finished `spa-token-acquisition` branch with the planner session move; merge order, conflict resolutions, what to re-verify) | [spa-token-landing/contents.md](./spa-token-landing/contents.md) |
-| SPA token acquisition (auth tokens acquired at the point of use; React-lifecycle refresh clocks deleted, cloud/local split confined to one module) | [spa-token-acquisition/contents.md](./spa-token-acquisition/contents.md) |

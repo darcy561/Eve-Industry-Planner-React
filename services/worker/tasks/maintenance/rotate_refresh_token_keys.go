@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"eve-industry-planner/shared/core/config"
 	"eve-industry-planner/shared/logs"
@@ -51,7 +50,9 @@ func RotateRefreshTokenKeys(ctx context.Context, p eipnats.RotateRefreshTokenKey
 		rowsFailed  int
 	)
 
-	changed := false
+	// Only the rows this pass re-wrapped; writing one it merely read would carry a stale copy over
+	// a rotation another caller made in the meantime.
+	changed := make([]models.RefreshToken, 0, len(userDoc.RefreshTokens))
 	for i := range userDoc.RefreshTokens {
 		rt := &userDoc.RefreshTokens[i]
 		if strings.TrimSpace(rt.RTokenCiphertext) == "" {
@@ -81,15 +82,13 @@ func RotateRefreshTokenKeys(ctx context.Context, p eipnats.RotateRefreshTokenKey
 		}
 		if rotated {
 			rowsRotated++
-			changed = true
+			changed = append(changed, *rt)
 		}
 	}
 
-	if changed && !p.DryRun {
-		if err := mongo.Users.PatchUserAccountFields(ctx, p.AccountID, bson.M{
-			"refreshTokens":      userDoc.RefreshTokens,
-			"_meta.lastModified": time.Now().UTC(),
-		}, eipmongo.WithOpName(fmt.Sprintf("rotate refresh token keys %s", p.AccountID))); err != nil {
+	if len(changed) > 0 && !p.DryRun {
+		if err := mongo.Users.PatchUserRefreshTokenRows(ctx, p.AccountID, changed,
+			eipmongo.WithOpName(fmt.Sprintf("rotate refresh token keys %s", p.AccountID))); err != nil {
 			return fmt.Errorf("persist rotated refresh tokens for %s: %w", p.AccountID, err)
 		}
 	}

@@ -6,6 +6,7 @@ import (
 
 	"eve-industry-planner/api/helper/auth"
 	"eve-industry-planner/shared/logs"
+	sessionreq "eve-industry-planner/shared/plannersession/request"
 )
 
 func authClientFailureDetail(metric, failureClass string, extra map[string]any) map[string]any {
@@ -37,6 +38,14 @@ func respondAuthLoginClientError(w http.ResponseWriter, r *http.Request, statusC
 func respondSessionRefreshClientError(w http.ResponseWriter, r *http.Request, credLog auth.RefreshCredentialLogDetail, statusCode int, publicMsg, logMsg, failureClass string, extra map[string]any) {
 	attachSessionRefreshClientFailure(r, credLog, logMsg, failureClass, extra)
 	http.Error(w, publicMsg, statusCode)
+}
+
+// respondSessionRefreshTerminalAuthError answers a rotate/bootstrap failure the client cannot recover
+// from by retrying. The coded body is what makes the SPA clear its session and start a full EVE SSO
+// login; an uncoded 401 leaves it retrying the same dead credential on every request.
+func respondSessionRefreshTerminalAuthError(w http.ResponseWriter, r *http.Request, credLog auth.RefreshCredentialLogDetail, code, logMsg, failureClass string, extra map[string]any) {
+	attachSessionRefreshClientFailure(r, credLog, logMsg, failureClass, extra)
+	sessionreq.WriteCodedError(w, http.StatusUnauthorized, code, "Unauthorized")
 }
 
 func respondLogoutClientError(w http.ResponseWriter, r *http.Request, credLog auth.RefreshCredentialLogDetail, statusCode int, publicMsg, logMsg, failureClass string, extra map[string]any) {

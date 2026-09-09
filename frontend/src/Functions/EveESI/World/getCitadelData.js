@@ -9,6 +9,7 @@ import {
   queueCitadelStructureSubmission,
   resolveCitadelName,
 } from "../../Endpoints/Private/citadelNames";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCitadelData(citadelID, character, config = {}) {
   try {
@@ -19,7 +20,7 @@ async function getCitadelData(citadelID, character, config = {}) {
       throw new Error("Input information is incomplete");
     }
 
-    const { esiAccessToken } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
@@ -36,7 +37,7 @@ async function getCitadelData(citadelID, character, config = {}) {
       `https://esi.evetech.net/universe/structures/${citadelID}/?datasource=tranquility`,
       {
         headers: {
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

@@ -1,10 +1,11 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Fetches character blueprints from EVE ESI API with pagination and caching support.
  * 
  * @param {Object} params - Parameters object
- * @param {Object} params.character - Character object with esiAccessToken, CharacterID, and CharacterHash
+ * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {number} [params.page=1] - Page number for pagination
  * @param {Object} [params.existingData={}] - Existing data for caching
  * @param {Object} [params.config={}] - Additional configuration options
@@ -12,7 +13,7 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
  * 
  * @example
  * const blueprints = await getCharacterBlueprints({
- *   character: { esiAccessToken: "token", CharacterID: 123456, CharacterHash: "hash" },
+ *   character: { CharacterID: 123456, CharacterHash: "hash" },
  *   page: 1,
  *   config: { characterHash: "hash" }
  * });
@@ -24,16 +25,12 @@ async function getCharacterBlueprints({
   config = {}
 }) {
   try {
-    if (
-      !character ||
-      !character.esiAccessToken ||
-      !character.CharacterID ||
-      !character.CharacterHash
-    ) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID, CharacterHash } = character;
+    const { CharacterID, CharacterHash } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/blueprints/?datasource=tranquility&page=${page}`;
 
     // Enhanced configuration for rate limiting
@@ -52,7 +49,7 @@ async function getCharacterBlueprints({
       {
         headers: {
           "If-None-Match": existingData?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

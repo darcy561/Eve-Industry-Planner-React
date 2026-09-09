@@ -46,13 +46,17 @@ meet, and it is settled below.
 
 ### Stage A — land it on `Development`
 
-Merge `spa-token-acquisition` into `Development` and push. The trial merge was clean; nothing here
-needs a decision.
+**Open.** The merge is a fast-forward — `Development`'s tip is the branch's own base — but it is
+eleven commits of code, and code reaches `Development` through a pull request here rather than a
+direct push. Open one from `spa-token-acquisition` into `Development`.
+
+Compare: <https://github.com/darcy561/eve-industry-planner/compare/Development...spa-token-acquisition>
 
 Done when: `Development` contains `eb7e6d29`, `origin/Development` matches, and the branch is deleted
-locally and on origin.
+locally and on origin. Keep the branch until then — Stage B is already merged on
+`feature/shared-planners`, so nothing depends on the ref, but it is the pull request's head.
 
-### Stage B — reconcile the session code
+### Stage B — reconcile the session code — **landed**
 
 The three code conflicts that carry meaning, in order of difficulty.
 
@@ -69,8 +73,10 @@ with it, exactly as the branch deleted them.
 
 **`signout.jsx` and the shared test fixtures.** Both sides edited these for unrelated reasons — realtime
 work on one, colocated tests on the other. These are unions, read rather than picked. `vite.config.js`
-is the one to watch: taking either side whole silently drops something the other has, and one of those
-is `clearMocks: true` — see [current-state.md](./current-state.md) § The conflict surface.
+is **not** one of them: this branch's version is already correct, and the settings the incoming side
+appears to add have either landed here under another name or were deliberately removed — check what
+removed a line before restoring it, and see [current-state.md](./current-state.md) § The conflict
+surface.
 
 Then read the four files that auto-merged: `middleware/auth.go`, `v1endpoints/refresh.go`,
 `applyPrivateHeaders.js` and `cloud_esi_maintain.go`. A clean textual merge of two independent edits to
@@ -79,7 +85,7 @@ one handler is where a semantic break hides, and all four are on the auth path.
 Done when: the merged tree builds, `services` tests pass, the SPA test suite passes, and `go fix -diff`
 on the touched packages is empty.
 
-### Stage C — reconcile the documentation
+### Stage C — reconcile the documentation — **landed**
 
 Eight documentation files conflict, none of which is a disagreement about fact — each side promoted a
 real project into the same files without seeing the other's rows.
@@ -127,9 +133,9 @@ coded body, so the API must not be rolled back beneath a deployed SPA that relie
 
 ## Done when
 
-- `Development` carries the SPA token work and the branch is gone.
-- `feature/shared-planners` has reconciled with it, on the terms in Stage B and Stage C.
-- auth-hardening reflects the merged tree.
+- `Development` carries the SPA token work and the branch is gone. **Open** — Stage A.
+- `feature/shared-planners` has reconciled with it, on the terms in Stage B and Stage C. **Done.**
+- auth-hardening reflects the merged tree. **Open** — Stage D.
 
 ## Promote
 

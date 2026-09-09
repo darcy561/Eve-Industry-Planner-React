@@ -32,14 +32,14 @@ func AuthConstructor(redisClient *eipredis.Redis) httpmiddleware.MiddlewareConst
 				}
 				detail := sessionreq.FailureDetailFromError(err, r)
 				switch detail.Code {
-				case "session_missing", "session_revoked", "reauth_required":
+				case sessionreq.CodeSessionMissing, sessionreq.CodeSessionRevoked, sessionreq.CodeReauthRequired:
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(nil))
 					sessionreq.WriteCodedError(w, http.StatusUnauthorized, detail.Code, "Unauthorized")
 				default:
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(map[string]any{
 						"error": err.Error(),
 					}))
-					sessionreq.WriteCodedError(w, http.StatusUnauthorized, "session_missing", "Unauthorized")
+					sessionreq.WriteCodedError(w, http.StatusUnauthorized, sessionreq.CodeSessionMissing, "Unauthorized")
 				}
 				return
 			}
@@ -53,12 +53,12 @@ func AuthConstructor(redisClient *eipredis.Redis) httpmiddleware.MiddlewareConst
 				}
 				logs.AttachClientFailureDetail(r, "failed to touch account session", map[string]any{
 					"failure_class": "auth_session_touch_failed",
-					"code":          "session_missing",
+					"code":          sessionreq.CodeSessionMissing,
 					"account_id":    identity.AccountID,
 					"session_id":    identity.SessionID,
 					"error":         err.Error(),
 				})
-				sessionreq.WriteCodedError(w, http.StatusUnauthorized, "session_missing", "Unauthorized")
+				sessionreq.WriteCodedError(w, http.StatusUnauthorized, sessionreq.CodeSessionMissing, "Unauthorized")
 				return
 			}
 			ctx := sessionreq.WithIdentity(r.Context(), identity.AccountID, identity.SessionID)

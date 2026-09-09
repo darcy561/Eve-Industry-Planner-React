@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCharacterHooks } from "../../../Hooks/React Query/useCharacterHooks";
 import { runAppLogin } from "../../../Functions/Auth/appLoginFlow.js";
 import {
   redirectToFullEveLogin,
@@ -22,8 +21,6 @@ import { hasCloudOAuthStorageServerHint } from "../../../Functions/Auth/plannerA
  */
 export function useAuthUrlLogin() {
   const queryClient = useQueryClient();
-  const { triggerCharacterDataPrefetch, prefetchMultipleCharacters } =
-    useCharacterHooks();
   const loginStartedRef = useRef(false);
 
   useEffect(() => {
@@ -38,8 +35,6 @@ export function useAuthUrlLogin() {
       }
       await runAppLogin({
         queryClient,
-        prefetchMultipleCharacters,
-        triggerCharacterDataPrefetch,
         mode: { type: "cookieCloudResume" },
       });
       return true;
@@ -48,8 +43,6 @@ export function useAuthUrlLogin() {
     async function tryEveClientRefresh(eveClientRefreshToken) {
       await runAppLogin({
         queryClient,
-        prefetchMultipleCharacters,
-        triggerCharacterDataPrefetch,
         mode: {
           type: "eveClientRefresh",
           eveClientRefreshToken,
@@ -69,8 +62,6 @@ export function useAuthUrlLogin() {
         try {
           await runAppLogin({
             queryClient,
-            prefetchMultipleCharacters,
-            triggerCharacterDataPrefetch,
             mode: { type: "oauthCode", authCode },
           });
         } catch (err) {

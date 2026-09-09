@@ -1,5 +1,6 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import GLOBAL_CONFIG from "../../../global-config-app";
+import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 async function getCharacterHistoricMarketOrders({
   character,
@@ -8,11 +9,12 @@ async function getCharacterHistoricMarketOrders({
   config = {}
 }) {
   try {
-    if (!character || !character.esiAccessToken || !character.CharacterID) {
+    if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
     }
 
-    const { esiAccessToken, CharacterID } = character;
+    const { CharacterID } = character;
+    const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/orders/history/?datasource=tranquility&page=${page}`;
 
     // Enhanced configuration for rate limiting
@@ -31,7 +33,7 @@ async function getCharacterHistoricMarketOrders({
       {
         headers: {
           "If-None-Match": existingData?.etag || "",
-          Authorization: `Bearer ${esiAccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
       enhancedConfig

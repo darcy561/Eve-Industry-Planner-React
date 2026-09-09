@@ -12,12 +12,12 @@ import DefaultPageLayout from "./Styled Components/defaultPageLayout";
 import PageTransition, { usePageKey } from "./Components/pageTransition";
 import { ThemeProvider } from "./Context/ThemeContext";
 import ErrorBoundary from "./Components/ErrorBoundary";
-import useRefreshESITokens from "./Hooks/App/useRefreshESITokens";
 import { useTranquilityServerStatusQuery } from "./Hooks/React Query/tranquilityServerStatus.js";
 import useFetchStaticDataFiles from "./Hooks/App/useFetchStaticDataFiles";
 import useAppConfig from "./Hooks/App/useAppConfig";
 import useMaintenanceRealtimePark from "./Hooks/App/useMaintenanceRealtimePark.js";
 import { useAccountWebSocket } from "./Realtime/useAccountWebSocket.js";
+import { useAccountAffiliationQuery } from "./Hooks/React Query/accountAffiliation.js";
 const { ENABLE_FEEDBACK_ICON } = GLOBAL_CONFIG;
 
 export default function App() {
@@ -29,9 +29,9 @@ export default function App() {
   const pageKey = usePageKey(isMaintenanceMode);
 
   useMaintenanceRealtimePark(isMaintenanceMode);
-  useRefreshESITokens();
   useAccountWebSocket();
   useTranquilityServerStatusQuery();
+  useAccountAffiliationQuery();
   useFetchStaticDataFiles();
 
   return (

@@ -3,6 +3,13 @@
 Measured on 2026-09-09 by trial-merging `spa-token-acquisition` into each target in a throwaway
 worktree. The numbers below are what git actually reported, not an estimate.
 
+**The merge into `feature/shared-planners` has since been taken**, and reported **19** conflicting
+files rather than 15. Two were described below but never counted — `frontend/auth/spa.md` and
+`frontend/lifecycles/roadmap.md`, both modify/delete. The other two are new:
+`services/api/middleware/auth.go` and `services/api/v1endpoints/refresh.go` auto-merged when this was
+measured and stopped doing so once auth-hardening Stage A rewrote them. What each resolution was, and
+why, is in [overlay.md](./overlay.md) § Stage records.
+
 ## Where the work is
 
 | Branch | Tip | Carries the SPA token work |
@@ -11,7 +18,7 @@ worktree. The numbers below are what git actually reported, not an estimate.
 | `Development` (local) | `21b5af25` Add the SPA token acquisition plan | no |
 | `origin/Development` | `1dfaf0a3` Add the maintenance mode plan | no |
 | `Public` / `origin/Public` | — | no |
-| `feature/shared-planners` (local and `origin/`, identical) | `4a2772b3` Promote the planner session move | no |
+| `feature/shared-planners` (local and `origin/`, identical) | `4a2772b3` Promote the planner session move | no — carries it since the merge |
 
 The branch is pushed, so nothing is at risk. `Development` is one commit ahead of `origin/Development`.
 
@@ -39,7 +46,7 @@ and editing the same auth code from opposite directions.
 | `frontend/src/App.jsx` | content | **spa-token.** It removes the `useRefreshESITokens()` call that shared-planners still has. |
 | `frontend/src/routes/signout.jsx` | content | **spa-token**, checked against shared-planners' realtime changes. |
 | `frontend/src/tests/utils.js` | content | **Both** — shared test helpers grew on each side. |
-| `frontend/vite.config.js` | content | **Both**, and the union matters. Each side independently made the same `tests/` → `src/tests/` colocation change, so those hunks agree. What differs: shared-planners has `import.meta.dirname` in place of `__dirname` and adds `pool: "vmThreads"` / `maxWorkers: 4`, and in doing so **drops `clearMocks: true`**, which spa-token still carries. Resolving by taking either side whole loses something; keep all four. |
+| `frontend/vite.config.js` | content | **shared-planners.** Each side independently made the same `tests/` → `src/tests/` colocation change, so those hunks agree. What differs is shared-planners' own later work: `import.meta.dirname` in place of `__dirname`, `pool: "vmThreads"` / `maxWorkers: 4`, and no `clearMocks: true`. That last absence is **deliberate** — `4db5f180` dropped the line because Vitest 5 makes `true` the default, so restoring it from the incoming side reintroduces dead configuration. Take this side whole. |
 | `frontend/src/Components/Archived Jobs/ArchivedJobsList.integration.test.jsx` | content | **shared-planners.** spa-token's edit is only the import-path depth fix from `ad1eb8ed`, which shared-planners already carries alongside an added test — so taking its side whole loses nothing. |
 
 `services/api/middleware/auth.go`, `services/api/v1endpoints/refresh.go`,

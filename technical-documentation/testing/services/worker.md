@@ -6,11 +6,12 @@ Live SoT for test depth under [`services/worker`](../../../services/worker). Beh
 
 | Check | Where | Notes |
 |-------|--------|--------|
-| Service tree | From `services/`: `go test ./worker/...` | No Docker |
+| Service tree | From `services/`: `go test ./worker/...` | No Docker; live Mongo tests skip unless gated |
 | ESI tasks | `go test ./worker/tasks/esi/` | Market / indexes / grants |
 | SDE update | `go test ./worker/tasks/sde/...` | Update + conversion + publish |
 | Rate limiter | `go test ./worker/ratelimiter/` | Bucket / ESI client Do |
 | Worker end to end | `go test ./worker/` | In-process NATS + Redis; no Docker |
+| Live Mongo, cloud ESI (opt-in) | `bash scripts/testing/live-mongo.sh ./worker/tasks/maintenance` | Runs in a container on the stack network — [harness.md](../harness.md) § Live Mongo |
 
 ```bash
 go test ./worker/...
@@ -18,7 +19,7 @@ go test ./worker/...
 
 ## Coverage map
 
-**Depth:** Strong on ESI refresh tasks, SDE update/conversion, and rate limiter. Asynq wiring, migration tasks, SDE rollback, and most maintenance **execution** are thin or missing.
+**Depth:** Strong on ESI refresh tasks, SDE update/conversion, and rate limiter. Asynq wiring, migration tasks, SDE rollback, and the remaining maintenance **execution** are thin or missing.
 
 ### Tested
 
@@ -39,12 +40,13 @@ go test ./worker/...
 | `taskrun` | A run is unreadable outside a task and readable through the mux's context wrapping; final-attempt arithmetic |
 | `tasks/archivedjobs` — terminal paths | Requests that cannot be served are terminal across all three owner tasks, and a servable owner is not |
 | `esi` | Past ESI compatibility-date integration check |
+| `tasks/maintenance` — cloud ESI (live Mongo, opt-in) | The maintenance pass itself: a row with no material is skipped and left standing, a row with no character hash does not break the pass, a refused grant removes its row, two consecutive failures remove a row on the second pass, and a recovered row stores new material with its failure count cleared |
 
 ### Thin
 
 | Area | Gap |
 |------|-----|
-| `tasks/maintenance` | Payload validation only — not cloud-ESI maintain / schema batch execution |
+| `tasks/maintenance` | Payload validation, plus the cloud-ESI maintain pass under the live gate — not schema batch execution |
 | `tasks/esi` region market orders | Percentile maths and payload validation only — not the pagination pass, 304 page replay, or station filtering |
 | `tasks/sde/publish` | Single ordering test |
 | `tasks/sde/update/conversion` | Output writers / index stages largely untested |

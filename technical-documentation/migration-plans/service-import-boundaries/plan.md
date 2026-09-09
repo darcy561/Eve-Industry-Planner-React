@@ -98,7 +98,7 @@ shared/plannersession/
   reauth.go    deadline / expiry math                      → types, keys
   record.go    normalize + prune rules                     → types, reauth
   store.go     Store — owns the keyspace                   → keys, types, record, reauth
-  grants.go    RepairSessionGrants                         → store, types
+  grants.go    SetGrants, RepairGrants                     → store, types
 
 shared/plannersession/request/                             → plannersession
   cookie.go    session cookie + planner session id
@@ -617,6 +617,34 @@ Two places where that bites, given § Naming:
 remains needs an explicit go-ahead: fold this project's content into live SoT, add the rule itself to
 [`../../technical-rules.md`](../../technical-rules.md) — it still states only the
 `services` ↔ `deployment-tool` no-cross rule — and delete this folder.
+
+**Live docs the promote must correct.** Two are already wrong, and for two different reasons:
+
+- [`backend/api/auth/sessions.md`](../../backend/api/auth/sessions.md) § Cleanup names
+  `auth.RunAuthSessionMaintenance` and `session_cleanup.go`, neither of which exists — stale from this
+  project. It also describes the sweep as pruning expired rows and deleting orphan session indexes on
+  a worker cron every 4 hours plus an hourly core singleton. That is stale for a *different* reason:
+  the sweep was since reduced to revoking orphan refresh tokens only, on the hourly core singleton
+  alone. Expired sessions are dropped by every read and write of a record, a stranded index is
+  deleted the moment anything tries to resolve it, and every key carries a TTL — so those two passes
+  were scanning the whole keyspace to do what already happens. An orphaned refresh token has none of
+  that, which is why its sweep stayed.
+- [`backend/api/auth/roadmap.md`](../../backend/api/auth/roadmap.md) states the same 4-hourly cadence
+  at its operational-cleanup line and in its architecture sketch.
+
+- [`backend/core/scheduler.md`](../../backend/core/scheduler.md) still lists
+  `cron.pruneExpiredAccountSessions` in its cron table; that cron no longer exists.
+
+The scheduler row was briefly deleted on the reasoning that a cron table has nothing to do with this
+project's renames. That reasoning was wrong: § Hard rule — do not edit live SoT during project work
+makes no exception for a mechanical edit, and deferring two docs while editing a third drew a
+distinction the rule does not. The row was restored and belongs with the other two at promote.
+
+**Wire compatibility of the sweep reduction: additive.** Removing the
+`task.maintenance.pruneExpiredAccountSessions` subject leaves nothing dangling. During a rolling
+deploy an old `core` can still publish it at a new `worker` that no longer registers it, and the
+JetStream consumer terminates an unregistered subject rather than hanging or leaking — the message
+becomes a logged no-op. No consumer reads the `Stats` fields that were removed.
 
 **Known context:**
 

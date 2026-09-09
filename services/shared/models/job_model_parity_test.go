@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -486,7 +487,8 @@ func TestJob_JSON_DisallowUnknownFields_representativePlannerDocument(t *testing
 			"localOrderDisplay": null,
 			"esiJobTab": null,
 			"setupToEdit": "a21b4ade-8312-0ebf-eccb-4146e2cec909",
-			"resourceDisplayType": null
+			"resourceDisplayType": null,
+			"materialPriceOverrides": {"34": {"marketDisplay": "amarr", "orderDisplay": null}}
 		},
 		"_meta": {
 			"lastModified": "2026-04-05T08:26:44.017Z",
@@ -500,6 +502,9 @@ func TestJob_JSON_DisallowUnknownFields_representativePlannerDocument(t *testing
 	var job Job
 	if err := dec.Decode(&job); err != nil {
 		t.Fatal(err)
+	}
+	if got := job.Layout.MaterialPriceOverrides["34"].MarketDisplay; got != "amarr" {
+		t.Fatalf("layout.materialPriceOverrides: got %q", got)
 	}
 	if job.MetaLevel != nil {
 		t.Fatalf("metaLevel: want nil got %v", *job.MetaLevel)
@@ -583,5 +588,186 @@ func TestJob_JSON_DisallowUnknownFields_marketOrderRangeESIString(t *testing.T) 
 	}
 	if len(job.Build.Sale.MarketOrders) != 1 || job.Build.Sale.MarketOrders[0].Range != "region" {
 		t.Fatalf("market order range: %+v", job.Build.Sale.MarketOrders)
+	}
+}
+
+// The label a category had when the cost was filed lives on the row, because a
+// job's statistics row is derived from the job alone and cannot reach settings.
+// A decoder that drops it writes an empty label back over a stamped one.
+func TestExtraCost_categoryLabelSurvivesJSON(t *testing.T) {
+	const raw = `{"id":"r1","category":"3","categoryLabel":"Blueprint Copies","extraText":"t","extraValue":1}`
+	var e ExtraCost
+	if err := json.Unmarshal([]byte(raw), &e); err != nil {
+		t.Fatal(err)
+	}
+	if e.CategoryLabel != "Blueprint Copies" {
+		t.Fatalf("CategoryLabel: got %q", e.CategoryLabel)
+	}
+}
+
+func TestExtraCost_categoryLabelSurvivesBSON(t *testing.T) {
+	b, err := bson.Marshal(bson.M{"id": "r1", "category": "3", "categoryLabel": "Blueprint Copies", "extraText": "t", "extraValue": 1.0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var e ExtraCost
+	if err := bson.Unmarshal(b, &e); err != nil {
+		t.Fatal(err)
+	}
+	if e.CategoryLabel != "Blueprint Copies" {
+		t.Fatalf("CategoryLabel: got %q", e.CategoryLabel)
+	}
+}
+
+// A stored row round-trips unchanged, which is what stops a read-modify-write —
+// the schema sweep, an archive restore, an ordinary save — from erasing a label.
+func TestExtraCost_BSONRoundTripKeepsEveryField(t *testing.T) {
+	stored := bson.M{"id": "r1", "category": "3", "categoryLabel": "Blueprint Copies", "extraText": "Fuel", "extraValue": 125000.5}
+	b, err := bson.Marshal(stored)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var e ExtraCost
+	if err := bson.Unmarshal(b, &e); err != nil {
+		t.Fatal(err)
+	}
+	back, err := bson.Marshal(e)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var written bson.M
+	if err := bson.Unmarshal(back, &written); err != nil {
+		t.Fatal(err)
+	}
+	for key, want := range stored {
+		got, ok := written[key]
+		if !ok {
+			t.Errorf("%s was dropped on the round trip", key)
+			continue
+		}
+		if fmt.Sprintf("%v", got) != fmt.Sprintf("%v", want) {
+			t.Errorf("%s: got %v want %v", key, got, want)
+		}
+	}
+}
+
+func TestExtraCost_unfiledCategorySettlesToUnassigned(t *testing.T) {
+	var fromJSON ExtraCost
+	if err := json.Unmarshal([]byte(`{"id":"r1","category":"","extraText":"t","extraValue":1}`), &fromJSON); err != nil {
+		t.Fatal(err)
+	}
+	if fromJSON.Category != ExtrasCategoryUnassigned {
+		t.Errorf("JSON: got %q want %q", fromJSON.Category, ExtrasCategoryUnassigned)
+	}
+
+	b, err := bson.Marshal(bson.M{"id": "r1", "category": "", "extraText": "t", "extraValue": 1.0})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fromBSON ExtraCost
+	if err := bson.Unmarshal(b, &fromBSON); err != nil {
+		t.Fatal(err)
+	}
+	if fromBSON.Category != ExtrasCategoryUnassigned {
+		t.Errorf("BSON: got %q want %q", fromBSON.Category, ExtrasCategoryUnassigned)
+	}
+
+	var absent ExtraCost
+	if err := json.Unmarshal([]byte(`{"id":"r1","extraText":"t","extraValue":1}`), &absent); err != nil {
+		t.Fatal(err)
+	}
+	if absent.Category != ExtrasCategoryUnassigned {
+		t.Errorf("absent category: got %q", absent.Category)
+	}
+}
+
+func TestExtrasCategoryOrUnassigned(t *testing.T) {
+	for in, want := range map[string]string{
+		"":                                     ExtrasCategoryUnassigned,
+		"   ":                                  ExtrasCategoryUnassigned,
+		"3":                                    "3",
+		"56394da3-e194-3062-4ae7-c01245a32cd7": "56394da3-e194-3062-4ae7-c01245a32cd7",
+	} {
+		if got := ExtrasCategoryOrUnassigned(in); got != want {
+			t.Errorf("ExtrasCategoryOrUnassigned(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+// The SPA sends a per-material market override on every save. A decoder that
+// does not assign it drops it, and the next save writes the absence back.
+func TestJobLayout_materialPriceOverridesSurviveJSON(t *testing.T) {
+	const raw = `{"localMarketDisplay":"jita","localOrderDisplay":"sell","materialPriceOverrides":{"34":{"marketDisplay":"amarr","orderDisplay":null},"35":{"marketDisplay":null,"orderDisplay":"buy"}}}`
+	var l JobLayout
+	if err := json.Unmarshal([]byte(raw), &l); err != nil {
+		t.Fatal(err)
+	}
+	if got := l.MaterialPriceOverrides["34"].MarketDisplay; got != "amarr" {
+		t.Errorf(`overrides["34"].MarketDisplay: got %q want "amarr"`, got)
+	}
+	if got := l.MaterialPriceOverrides["35"].OrderDisplay; got != "buy" {
+		t.Errorf(`overrides["35"].OrderDisplay: got %q want "buy"`, got)
+	}
+	// A side the client left null falls back to the job's own choice.
+	if got := l.MaterialPriceOverrides["34"].OrderDisplay; got != "" {
+		t.Errorf(`overrides["34"].OrderDisplay: got %q want ""`, got)
+	}
+}
+
+func TestJobLayout_materialPriceOverridesSurviveBSON(t *testing.T) {
+	stored := bson.M{
+		"localMarketDisplay":     "jita",
+		"materialPriceOverrides": bson.M{"34": bson.M{"marketDisplay": "amarr"}},
+	}
+	b, err := bson.Marshal(stored)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var l JobLayout
+	if err := bson.Unmarshal(b, &l); err != nil {
+		t.Fatal(err)
+	}
+	if got := l.MaterialPriceOverrides["34"].MarketDisplay; got != "amarr" {
+		t.Errorf(`overrides["34"].MarketDisplay: got %q want "amarr"`, got)
+	}
+}
+
+// JobLayout assigns each field by hand in both decoders, so a field added to the
+// struct alone is dropped without any build error to say so.
+func TestJobLayout_BSONRoundTripKeepsEveryField(t *testing.T) {
+	stored := bson.M{
+		"localMarketDisplay":  "jita",
+		"localOrderDisplay":   "sell",
+		"esiJobTab":           "1",
+		"setupToEdit":         "setup-1",
+		"resourceDisplayType": "grid",
+		"materialPriceOverrides": bson.M{
+			"34": bson.M{"marketDisplay": "amarr", "orderDisplay": "buy"},
+		},
+	}
+	b, err := bson.Marshal(stored)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var l JobLayout
+	if err := bson.Unmarshal(b, &l); err != nil {
+		t.Fatal(err)
+	}
+	back, err := bson.Marshal(l)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var written bson.M
+	if err := bson.Unmarshal(back, &written); err != nil {
+		t.Fatal(err)
+	}
+	for key := range stored {
+		if _, ok := written[key]; !ok {
+			t.Errorf("%s was dropped on the round trip", key)
+		}
+	}
+	overrides, ok := written["materialPriceOverrides"].(bson.D)
+	if !ok || len(overrides) != 1 {
+		t.Fatalf("materialPriceOverrides came back as %T", written["materialPriceOverrides"])
 	}
 }

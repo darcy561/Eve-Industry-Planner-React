@@ -32,9 +32,6 @@ func parseLineDate(raw string, fallback time.Time) time.Time {
 	return fallback.UTC()
 }
 
-// extraCategoryTotals folds a job's extra costs by category. An extra with no
-// category is counted under "0" rather than dropped, so the categories always sum
-// to the job's extras total.
 // extraCategories sums a job's extras per category, carrying the name each was
 // added under.
 //
@@ -49,10 +46,9 @@ func extraCategories(extras []models.ExtraCost) []models.ArchivedExtraCategory {
 	out := make([]models.ArchivedExtraCategory, 0, len(extras))
 	at := make(map[string]int, len(extras))
 	for _, e := range extras {
-		category := strings.TrimSpace(e.Category)
-		if category == "" {
-			category = "0"
-		}
+		// Settled rather than taken as given: a row built in code has not been
+		// through a decoder, and an unfiled extra must still sum into the total.
+		category := models.ExtrasCategoryOrUnassigned(e.Category)
 		i, seen := at[category]
 		if !seen {
 			at[category] = len(out)

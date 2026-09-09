@@ -350,6 +350,23 @@ type ExtraCost struct {
 	ExtraValue    float64 `json:"extraValue" bson:"extraValue"` // ISK amount
 }
 
+// ExtrasCategoryUnassigned is the category an extra cost carries when the user
+// filed it under none. It is a real row in DefaultExtrasCategories, not a
+// sentinel, so a reader resolves it to a name like any other.
+const ExtrasCategoryUnassigned = "0"
+
+// ExtrasCategoryOrUnassigned settles a stored category id.
+//
+// Rows exist carrying "" for unfiled, which names no category the account lists
+// and so can never be given a label. Every reader has to agree on one value or
+// the same cost counts twice; this is where that is decided.
+func ExtrasCategoryOrUnassigned(category string) string {
+	if strings.TrimSpace(category) == "" {
+		return ExtrasCategoryUnassigned
+	}
+	return category
+}
+
 func isJSONNullOrEmpty(raw json.RawMessage) bool {
 	b := bytes.TrimSpace(raw)
 	return len(b) == 0 || string(b) == "null"
@@ -409,6 +426,10 @@ func extraCostScalarFloat64(raw json.RawMessage) float64 {
 }
 
 // UnmarshalJSON accepts legacy numeric category, type→category, label→extraText, cost→extraValue, and string extraValue.
+//
+// categoryLabel is read here rather than left to the struct tags: a decoder that
+// misses it writes an empty label back over a stamped one, and the name a deleted
+// category had is only recoverable from the row that carries it.
 func (e *ExtraCost) UnmarshalJSON(data []byte) error {
 	var m map[string]json.RawMessage
 	if err := json.Unmarshal(data, &m); err != nil {
@@ -421,7 +442,8 @@ func (e *ExtraCost) UnmarshalJSON(data []byte) error {
 	if !catOK || isJSONNullOrEmpty(catRaw) {
 		catRaw = m["type"]
 	}
-	e.Category = extraCostScalarString(catRaw)
+	e.Category = ExtrasCategoryOrUnassigned(extraCostScalarString(catRaw))
+	e.CategoryLabel = extraCostScalarString(m["categoryLabel"])
 	txtRaw, txtOK := m["extraText"]
 	if !txtOK || isJSONNullOrEmpty(txtRaw) {
 		txtRaw = m["label"]
@@ -500,7 +522,8 @@ func (e *ExtraCost) UnmarshalBSON(data []byte) error {
 	if !ok || cat == nil {
 		cat = m["type"]
 	}
-	e.Category = extraCostCategoryFromBSON(cat)
+	e.Category = ExtrasCategoryOrUnassigned(extraCostCategoryFromBSON(cat))
+	e.CategoryLabel = extraCostCategoryFromBSON(m["categoryLabel"])
 	txt, ok := m["extraText"]
 	if !ok || txt == nil {
 		txt = m["label"]
@@ -665,12 +688,27 @@ type Skill struct {
 
 // JobLayout contains UI layout preferences. Per-job market/order overrides use `local*` names;
 // application-wide defaults live on ApplicationSettings as defaultMarketLocation/defaultOrderType.
+//
+// Both decoders below assign every field by hand, so a field added here and
+// nowhere else compiles, decodes to its zero value, and is written back empty by
+// the next save.
 type JobLayout struct {
 	LocalMarketDisplay  string `json:"localMarketDisplay,omitempty" bson:"localMarketDisplay,omitempty"`
 	LocalOrderDisplay   string `json:"localOrderDisplay,omitempty" bson:"localOrderDisplay,omitempty"`
 	ESIJobTab           string `json:"esiJobTab,omitempty" bson:"esiJobTab,omitempty"`
 	SetupToEdit         string `json:"setupToEdit,omitempty" bson:"setupToEdit,omitempty"`
 	ResourceDisplayType string `json:"resourceDisplayType,omitempty" bson:"resourceDisplayType,omitempty"`
+	// MaterialPriceOverrides is keyed by material type id. An entry names the
+	// market or order type that one material is priced from, standing in for the
+	// job's own choice above.
+	MaterialPriceOverrides map[string]MaterialPriceOverride `json:"materialPriceOverrides,omitempty" bson:"materialPriceOverrides,omitempty"`
+}
+
+// MaterialPriceOverride is one material's departure from the job's market and
+// order type. A side left empty falls back to the job's.
+type MaterialPriceOverride struct {
+	MarketDisplay string `json:"marketDisplay,omitempty" bson:"marketDisplay,omitempty"`
+	OrderDisplay  string `json:"orderDisplay,omitempty" bson:"orderDisplay,omitempty"`
 }
 
 // UnmarshalBSON prefers local*; if empty, accepts short-lived marketLocation/orderType keys into local* fields.
@@ -683,6 +721,8 @@ func (l *JobLayout) UnmarshalBSON(data []byte) error {
 		ESIJobTab           string `bson:"esiJobTab"`
 		SetupToEdit         string `bson:"setupToEdit"`
 		ResourceDisplayType string `bson:"resourceDisplayType"`
+
+		MaterialPriceOverrides map[string]MaterialPriceOverride `bson:"materialPriceOverrides"`
 	}
 	if err := bson.Unmarshal(data, &aux); err != nil {
 		return err
@@ -698,6 +738,7 @@ func (l *JobLayout) UnmarshalBSON(data []byte) error {
 	l.ESIJobTab = aux.ESIJobTab
 	l.SetupToEdit = aux.SetupToEdit
 	l.ResourceDisplayType = aux.ResourceDisplayType
+	l.MaterialPriceOverrides = aux.MaterialPriceOverrides
 	return nil
 }
 
@@ -711,6 +752,8 @@ func (l *JobLayout) UnmarshalJSON(data []byte) error {
 		ESIJobTab           string `json:"esiJobTab"`
 		SetupToEdit         string `json:"setupToEdit"`
 		ResourceDisplayType string `json:"resourceDisplayType"`
+
+		MaterialPriceOverrides map[string]MaterialPriceOverride `json:"materialPriceOverrides"`
 	}
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
@@ -726,6 +769,7 @@ func (l *JobLayout) UnmarshalJSON(data []byte) error {
 	l.ESIJobTab = aux.ESIJobTab
 	l.SetupToEdit = aux.SetupToEdit
 	l.ResourceDisplayType = aux.ResourceDisplayType
+	l.MaterialPriceOverrides = aux.MaterialPriceOverrides
 	return nil
 }
 

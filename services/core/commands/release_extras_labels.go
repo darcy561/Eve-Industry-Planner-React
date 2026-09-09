@@ -155,9 +155,10 @@ func stampAccountExtras(
 				continue
 			}
 			id := fmt.Sprintf("%v", row["category"])
-			if id == "" || id == "<nil>" {
-				id = "0"
+			if id == "<nil>" {
+				id = ""
 			}
+			id = models.ExtrasCategoryOrUnassigned(id)
 			label, known := labels[id]
 			if !known {
 				unnamed++

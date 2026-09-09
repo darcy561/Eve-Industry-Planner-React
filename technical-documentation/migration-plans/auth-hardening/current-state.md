@@ -9,10 +9,11 @@ over.
 The evidence is recorded here rather than summarised, so that a later reader can tell whether a
 verdict still holds without repeating the sweep.
 
-**Taken against `feature/shared-planners`.** The finished `spa-token-acquisition` branch has not
-landed on this lineage, and it rewrites much of `Functions/Auth/` and gives the REST session endpoints
-a coded refusal. Several verdicts below change when it merges — which items, and what to re-check, is
-[spa-token-landing/plan.md](../spa-token-landing/plan.md) § Stage D.
+**Re-checked after the SPA token acquisition work landed.** That branch rewrote much of
+`Functions/Auth/`, so the verdicts it could have moved were taken again against the merged tree rather
+than assumed. Three changed: #8's evidence moved file, #16 grew from five test files to fifteen, and
+#11 narrowed. #54 did **not** close, though it was expected to — `signout.jsx` gained no test on the
+incoming side.
 
 ## What has shipped
 
@@ -26,10 +27,10 @@ test gap, by tests that exist and run.
 | #43 | Login handler tests | Same file — a token signed by another issuer, an expired token, a malformed request, a non-POST request. `live_session_lifecycle_test.go` covers minting a session the browser can use, reporting first login exactly once, logout ending only that session, and a cloud login handing back the linked-character roster without the stored ESI material. |
 | #44 | Logout handler tests | `session_lifecycle_test.go` — revokes the session, clears its cookies, leaves other sessions alone on an unknown token, rejects a malformed request and a non-POST request. |
 | #46 | `Store.Touch` failure semantics | `services/api/middleware/auth.go` classifies through `dependency.IsUnavailable` and answers `503` rather than folding a dependency outage into `session_missing`. Documented in [sessions.md](../../backend/api/auth/sessions.md) § 11. |
-| #8 | The SPA parses the auth code out of a response | `parsePlannerAuthCodeFromText` in `frontend/src/Functions/Auth/sessionClient.js`, attached to the thrown error as `err.code`. |
+| #8 | The SPA parses the auth code out of a response | `parsePlannerAuthCodeFromText` in `frontend/src/Functions/Auth/plannerSessionRedirect.js`, which reads `code` off the JSON body; `sessionClient.js` calls it and attaches the result to the thrown error as `err.code`. |
 | #9 | Explicit `reauth_required` / `session_missing` handling | `frontend/src/Functions/Auth/plannerSessionRedirect.js` parses the code from a JSON body and classifies which codes are terminal; `plannerSessionRedirect.test.js` pins both. |
 | #10 | A private fetch that returns a terminal auth code resets auth | `handleTerminalPlannerAuthResponse` in `frontend/src/Functions/Endpoints/Private/applyPrivateHeaders.js` redirects to a full EVE login. |
-| #16 | Frontend auth tests | Five files: `Functions/Auth/plannerSessionRedirect.test.js`, `hasResumablePlannerSession.test.js`, `plannerAuthCookies.test.js`, `Components/Auth/additionalAccountImport.test.js`, `oauthUrlParams.test.js`. |
+| #16 | Frontend auth tests | Fifteen files across `Functions/Auth/` (including `esiCredentials/`), `Components/Auth/` and `Zustand/account/`, covering the credential provider and both storage strategies, planner session recovery, the terminal-code classification, cloud session handling, token lifetime, and that a rotation renders nothing. Depth is inventoried in [testing/frontend/auth.md](../../testing/frontend/auth.md). |
 | #51 | Additional account import window | `tryCompleteAdditionalAccountImportWindow` has regression coverage in `Components/Auth/additionalAccountImport.test.js`. |
 | #12 | Every planner auth refusal answers one envelope | `sessionreq.WriteCodedError` is the single writer for the REST middleware, the rotate refusal and both websocket upgrade paths. The upgrade body serves logs and proxies: a browser cannot read a refused handshake. |
 | #47 | The upgrade's auth cases are exercised | `integration_connect_test.go` adds a revoked session, an elapsed reauth window, the shared envelope itself, and a Redis outage answering `503` rather than `401`. |
@@ -49,8 +50,8 @@ Each of these was checked directly, not inferred from the roadmap's own status c
 
 | Old id | Item | Evidence that it is still open |
 |--------|------|-------------------------------|
-| #11 | The reauth deadline is not surfaced anywhere in the SPA | `reauth_required_at` is stored by `frontend/src/Functions/Auth/tabSessionStorage.js` and read by nothing that renders. |
-| #54 | Signout orchestration is untested | `frontend/src/routes/signout.jsx` has no test file; the disconnect → logout → cache clear ordering is unpinned. |
+| #11 | The reauth deadline is never shown to the user | Narrowed. It is no longer inert: `isPlannerReauthDeadlinePassed` gates `ensurePlannerSession`, so a session past its deadline goes to a full EVE login instead of attempting a rotate that would be refused. What is still missing is any warning before that happens — the deadline is acted on, never displayed, so the redirect arrives without notice. |
+| #54 | Signout orchestration is untested | `frontend/src/routes/signout.jsx` has no test file; the disconnect → logout → cache clear ordering is unpinned. It now also drops the held ESI access tokens, which nothing pins either. |
 | #14 | Rejection and contention are not measured | Session lifecycle metrics exist and are good — `api.auth_sessions.started_total`, `continued_total`, `ended_total`, `stored_total`, `store_errors_total` and the `api.session_refresh.*` family in `services/shared/telemetry/apimetrics/instruments.go`. What is missing is a counter for rejections keyed by code, a counter for the optimistic-locking retries in `shared/plannersession`, and counts from the maintenance sweep. |
 | #56 | Auth failure logs are not uniformly shaped | The middleware and the WebSocket upgrade both attach structured detail, and `refresh.go` attaches caveats; whether every auth handler failure carries `session_id`, `account_id` and the flow has not been checked handler by handler. |
 | #22 | No Redis outage runbook | The code half is done — the `503` split landed with #46 — but there is no operator document saying what a `503` on an auth route means or what to do about it. |

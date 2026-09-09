@@ -22,8 +22,8 @@ it — and the investigation that has to happen before each piece can be scoped.
 - Current SPA auth behaviour → [frontend/auth/spa.md](../../frontend/auth/spa.md).
 - How the SPA acquires ESI tokens → [frontend/auth/spa.md](../../frontend/auth/spa.md). Token
   acquisition was rebuilt around a credential provider and the React-mounted refresh clocks were
-  deleted; this project owns nothing about it. Landing that work on this lineage, and the audit
-  verdicts it changes, → [spa-token-landing/contents.md](../spa-token-landing/contents.md).
+  deleted; this project owns nothing about it. That work has landed on this lineage, and the audit
+  verdicts it moved are re-checked in [current-state.md](./current-state.md).
 - Entity refs and refresh-token encryption at rest in Mongo →
   [entity-id-encryption/contents.md](../entity-id-encryption/contents.md). Encryption of the planner's
   own `refresh_token:*` rows in Redis is a separate question and is Stage F here.

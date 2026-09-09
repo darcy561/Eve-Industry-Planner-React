@@ -28,4 +28,3 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Document defaults (the defaults a job and a group are born with, the schema upgrader on their read path, and the extras category id space; **found by the model parity sweep**) | [document-defaults/contents.md](./document-defaults/contents.md) |
 | Planning stage panels (splitting the Edit Job market panel; selling costs at plan time; speculative child jobs) | [planning-stage-panels/contents.md](./planning-stage-panels/contents.md) |
 | Auth hardening (session rejection shape, account-wide revocation, auth observability and the outage runbook, cloud ESI credential failures, bootstrap half-success) | [auth-hardening/contents.md](./auth-hardening/contents.md) |
-| SPA token landing (reconciling the finished `spa-token-acquisition` branch with the planner session move; merge order, conflict resolutions, what to re-verify) | [spa-token-landing/contents.md](./spa-token-landing/contents.md) |

@@ -42,11 +42,12 @@ Two supporting facts belong with it when this promotes:
 
 ## Auth test coverage
 
-[testing/services/api.md](../../testing/services/api.md) currently describes `v1endpoints` as
-carrying "type/JSON tests only — not full HTTP handler behaviour", and lists `authenticate`,
-`refresh`, `logout` and the SSO exchange handlers among the untested. That was true when it was
-written and is not true now. This is the corrected picture, in the coverage-map shape the testing
-documentation rules prescribe.
+The backend half of this correction has since been promoted:
+[testing/services/api.md](../../testing/services/api.md) no longer claims `v1endpoints` carries
+"type/JSON tests only", and now names the rotate coverage and the live gates it runs behind. The SPA
+half has a home of its own in [testing/frontend/auth.md](../../testing/frontend/auth.md). What
+remains below is this project's own reading of depth, kept because it is what the still-open items
+are argued from — not because the live documents disagree with it.
 
 **Tested**
 

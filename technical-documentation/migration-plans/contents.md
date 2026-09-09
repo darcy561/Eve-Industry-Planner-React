@@ -25,4 +25,6 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Mongo test database (a database of the tests' own, dropped between runs, and the live suite in CI) | [mongo-test-database/contents.md](./mongo-test-database/contents.md) |
 | Document write granularity (whole-document writes to field-scoped ones, and how broad the document lock has to be; **found by shared-planners Stage G**) | [document-write-granularity/contents.md](./document-write-granularity/contents.md) |
 | Planning stage panels (splitting the Edit Job market panel; selling costs at plan time; speculative child jobs) | [planning-stage-panels/contents.md](./planning-stage-panels/contents.md) |
+| Auth hardening (session rejection shape, account-wide revocation, auth observability and the outage runbook, cloud ESI credential failures, bootstrap half-success) | [auth-hardening/contents.md](./auth-hardening/contents.md) |
+| SPA token landing (reconciling the finished `spa-token-acquisition` branch with the planner session move; merge order, conflict resolutions, what to re-verify) | [spa-token-landing/contents.md](./spa-token-landing/contents.md) |
 | SPA token acquisition (auth tokens acquired at the point of use; React-lifecycle refresh clocks deleted, cloud/local split confined to one module) | [spa-token-acquisition/contents.md](./spa-token-acquisition/contents.md) |

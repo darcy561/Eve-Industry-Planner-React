@@ -5,7 +5,7 @@ Move **session / character maintenance clocks** out of the React mount lifecycle
 Companion docs:
 
 - [Auth FRONTEND](../auth/spa.md) — current SPA bootstrap, rotate, timers
-- [Auth ROADMAP](../../backend/api/auth/roadmap.md) — full-stack auth backlog (SPA items in §H)
+- [Auth hardening](../../migration-plans/auth-hardening/contents.md) — the outstanding auth work, and the audit behind it
 - [Auth README](../../backend/api/auth/overview.md) — vocabulary and wire contracts
 
 > Per item: **status** · **size** (S/M/L) · **where** · **why** · **how** · optional **acceptance**.  
@@ -162,7 +162,7 @@ flowchart TD
 ### #4 — Update auth frontend docs
 
 - **Status**: open · **Size**: S  
-- **Where**: [spa.md](../auth/spa.md) §§2 / maintenance; [overview.md](../../backend/api/auth/overview.md) file index; [roadmap.md](../../backend/api/auth/roadmap.md) §H SPA maintenance row  
+- **Where**: [spa.md](../auth/spa.md) §§2 / maintenance; [overview.md](../../backend/api/auth/overview.md) file index  
 - **Why**: docs currently describe `useRefreshESITokens` as the timer host.  
 - **How**: point SPA maintenance at `Lifecycles/*`; keep action names in `tokenActions.js`. Link this roadmap.  
 - **Acceptance**: file index and bootstrap diagram match the new boot path.

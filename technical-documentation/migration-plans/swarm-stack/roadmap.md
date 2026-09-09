@@ -42,7 +42,7 @@ Later, Swarm’s fixed replica counts are driven by a **capacity controller** (n
 
 4. **Auth** rolls **in parallel** - account-key cookie now; widen when corp/alliance claims exist.
 
-5. **Related roadmaps:** [document-lock](../../backend/api/document-lock/roadmap.md) (multi-tenant locks — separate project), [auth](../../backend/api/auth/roadmap.md), [guide.md](../../deployment/guide.md), [cli/contents.md](../../deployment/deployment-tool/cli/contents.md), stack YAML in project home / kit.
+5. **Related roadmaps:** [document-lock](../../backend/api/document-lock/roadmap.md) (multi-tenant locks — separate project), [auth hardening](../auth-hardening/contents.md), [guide.md](../../deployment/guide.md), [cli/contents.md](../../deployment/deployment-tool/cli/contents.md), stack YAML in project home / kit.
 
 6. **Code anchors already in tree:** `services/shared/container` (`container.ID()`), `services/core/singleton` + `redis/lease`, websocket JetStream durables, `tenant_affinity_cookie.go`, `services/ws-router/` (memory place + NATS placement), stack Traefik `/ws` → `eip_ws_router` labels, **`deployment-tool/`** (deploy/sync/secrets/rebuild/update/cli).
 

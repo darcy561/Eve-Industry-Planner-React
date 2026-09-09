@@ -44,7 +44,7 @@ taken deliberately rather than drifting.
 
 | Stage | Status |
 |-------|--------|
-| A — one shape for a rejected session | **Not started.** The largest single inconsistency, and the one a user can actually hit |
+| A — one shape for a rejected session | **Landed.** One shared refusal envelope across REST and the upgrade, the dependency split extended to the upgrade, and the upgrade's auth cases tested. The stage's premise was corrected on the way: a browser cannot read a refused handshake, so the envelope serves operators and the rotate path is what detects a terminal session. `Session.RevokedAt` has no writer, which passes to Stage B |
 | B — revoking more than one session | **Not started, and further out than its position suggests.** Waits on [shared-planners](../shared-planners/plan.md) Stage E, whose revocation path may itself be reshaped by that project's Stage I |
 | C — what an operator sees when auth fails | **Not started.** The Redis outage runbook is owed regardless of the counters |
 | D — what a user sees when a cloud credential dies | **Not started.** Independent of everything else here |
@@ -57,31 +57,59 @@ taken deliberately rather than drifting.
 
 **Carries:** #12, #13, #47, #55.
 
-The API and the WebSocket share one identity check — `shared/plannersession/request` — and then
-disagree about how to report its failure. REST answers `{"code","message"}` with a machine-readable
-code the SPA already parses and acts on. The WebSocket upgrade answers a bare string through
-`http.Error`, so the browser learns that the upgrade failed but not why, and the SPA's terminal-code
-redirect cannot fire on it. Separately, when REST rejects with `reauth_required` it leaves the
-session cookies in place, so the browser keeps presenting material that is guaranteed to be refused
-until something else clears it.
+**Landed.** Behaviour: [overlay.md](./overlay.md) § Stage A.
 
-**What this stage has to answer**
+The stage was scoped on a premise that did not survive reading the code: that making the upgrade
+rejection a JSON envelope would let the SPA's terminal-code redirect fire on a failed handshake. A
+browser cannot read the status or body of a refused WebSocket upgrade — the SPA says so in its own
+comments and reacts by rechecking app-config and reconnecting. The envelope was still worth taking,
+for logs and proxy traces, but it is not what tells a user their session is dead.
 
-- Does the WebSocket upgrade rejection become the same JSON envelope as REST, or is the right answer
-  a close frame after a successful upgrade? The handshake failing before the socket exists is what
-  makes this a real question rather than a formatting choice.
-- Which rejection codes should clear cookies, and which should not. `reauth_required` is the obvious
-  one. `session_revoked` looks identical from the browser's side. `session_missing` may be a
-  transient state during a rotate and clearing on it could turn a recoverable moment into a forced
-  login.
-- What the SPA does differently once the WebSocket tells it the code — and whether that duplicates
-  what the private-fetch path already does.
-- Whether the route guard's view of "logged in" and an API 401 are meant to agree (#55). They
-  deliberately do not today; the split needs stating before anyone changes it by accident.
+**Decisions taken**
 
-**Done when** the two surfaces answer with the same shape, cookie clearing has a stated rule per
-code, and `websocket/server` has upgrade tests for a revoked session, an elapsed reauth window and a
-failing `Touch` — not just the missing-session case it has now.
+- **The socket is not an auth-signalling channel** and is not being made into one. Accepting the
+  upgrade in order to send a readable close frame was considered and declined: it allocates a real
+  connection for an unauthenticated request and inverts rejecting before the socket exists. What
+  detects a terminal session is the rotate path, which answers the coded 401 the SPA already acts on.
+- **One writer, not one per surface** (#12). `sessionreq.WriteCodedError` replaced three copies of the
+  same envelope struct. Three copies drifting is how the upgrade came to answer plain text.
+- **The dependency split reaches the upgrade too.** Not in the stage as written, found while testing
+  it: the upgrade answered `401 session_missing` when Redis was unreachable, on both the session read
+  and the `Touch`. Both now answer `503 redis_unavailable`.
+- **The unreachable reauth check is removed** rather than left as defence. Pruning deletes an elapsed
+  session before the reader sees it, so the branch could not fire; `ExtractSession` now records that
+  pruning is the single enforcement point and that a change there has to restore a check.
+- **#13 closes as moot.** Nothing issues `eip_session`; only the clears in logout and rotate remain,
+  for a cookie an older client may carry.
+- **#55 closes as documentation.** The guard answers "render or rebuild", the 401 answers "serve or
+  refuse", and they are allowed to disagree — see [overlay.md](./overlay.md) § Stage A.
+
+**Owed to Stage B**
+
+`Session.RevokedAt` has no writer. Revocation removes the row, so `session_revoked` never reaches a
+client, and the reader that would produce it is exercised only by a test that seeds the field. Stage
+B's account-wide revoke is where a tombstone would come from — either it writes one, or the code
+should go.
+
+**Done when** the two surfaces answer with the same shape, cookie clearing has a stated rule per code,
+and `websocket/server` has upgrade tests for a revoked session, an elapsed reauth window and a failing
+`Touch`. Met, with two honest qualifications: the elapsed-window test pins `session_missing` rather
+than the `reauth_required` the stage assumed, and the `Touch` dependency branch is **not**
+independently exercised — the outage test fails the session read first, so the request never reaches
+`Touch`. Isolating it needs a store that fails only the second call, which the miniredis fixture
+cannot express. The branch is the same three lines as the read branch above it.
+
+**Two things deliberately not changed**
+
+- **`Pragma: no-cache` is not carried into the shared writer.** The rotate handler's own refusal used
+  to set it, and its success responses still do, as do three other credential-bearing responses.
+  `Cache-Control: no-store` is what actually binds; spreading a request header used as a response
+  header to a fourth place is not worth the consistency.
+- **The dependency branches are duplicated per surface.** REST and the upgrade both run "if the
+  dependency is unavailable answer 503, else answer the coded 401", against different response and
+  logging plumbing. Forcing a shared helper across `helper.RespondEndpointError` and
+  `wsUpgradeRejectServer` would hide more than it saves — but this is the shape that drifted last
+  time, so Stage C should look at it before adding more branching here.
 
 ---
 
@@ -324,14 +352,19 @@ keeping is held in [overlay.md](./overlay.md) and promotes as follows.
    per-tab sessions landed, and Stage E removed the no-op that pretended to. The corrected picture is
    § Session window invariants in [overlay.md](./overlay.md).
 
+5. **[sessions.md](../../backend/api/auth/sessions.md) is stale on four counts** after Stage A. It
+   names `writeAuthError`, which no longer exists; it documents `ExtractSession`, the middleware and
+   the websocket upgrade as able to answer `reauth_required`, which only the rotate endpoint now does;
+   its § 7 upgrade walkthrough has no `503` dependency split; and it lists `Pragma: no-cache` on the
+   middleware's error response, which the shared writer does not set.
+
 Then delete this folder and its row in [`../contents.md`](../contents.md).
 
 ## Recommended pickup order
 
-1. **Stage A** — the largest single inconsistency, and the one a user can actually hit.
-2. **Stage C** — makes the rest measurable, and the runbook is owed regardless.
-3. **Stage D** — independent; can run alongside any of the above.
-4. **Stage B** — once shared-planners Stage E lands, and once its Stage I has said whether the grants
+1. **Stage C** — makes the rest measurable, and the runbook is owed regardless.
+2. **Stage D** — independent; can run alongside any of the above.
+3. **Stage B** — once shared-planners Stage E lands, and once its Stage I has said whether the grants
    ceiling stays a stored snapshot. A revocation that no longer writes that snapshot reaches live
    sessions by a different route, which is the half this stage consumes.
-5. **Stage F** — decisions, whenever there is appetite to take them.
+4. **Stage F** — decisions, whenever there is appetite to take them.

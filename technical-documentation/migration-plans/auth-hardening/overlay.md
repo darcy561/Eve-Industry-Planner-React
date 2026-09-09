@@ -104,7 +104,56 @@ surface behaves afterwards.
 
 ### Stage A — one shape for a rejected session
 
-Not started.
+**One writer answers every planner auth refusal.** `sessionreq.WriteCodedError` writes
+`{"code","message"}` with `Content-Type: application/json` and `Cache-Control: no-store`. The REST
+middleware, the rotate endpoint's `reauth_required` refusal and both websocket upgrade rejection
+paths call it; the three separately maintained copies of that struct are gone, which is what let the
+upgrade drift into plain text in the first place.
+
+**The upgrade body is for operators, not browsers.** A refused handshake reaches a browser as a close
+with no status and no body — the SPA states this in `realtimeClient.js` and reacts by rechecking
+app-config and reconnecting on backoff. So the envelope buys one vocabulary in logs and proxy traces,
+and nothing more. What actually detects a terminal session is the rotate path: `runScheduledTokenRefresh`
+and `runTabVisibleAuthRefresh` call rotate, which answers the coded 401 that
+`redirectToFullEveLoginIfTerminal` acts on. The socket is not an auth-signalling channel and is not
+being made into one.
+
+**A Redis outage on the upgrade is a 503.** Both the session read and the `Touch` classify through
+`dependency.IsUnavailable` and answer `503 redis_unavailable`, matching what the REST middleware has
+done since the dependency split. Before this the upgrade answered `401 session_missing` for an
+unreachable Redis, which sent a browser to a login it did not need.
+
+**Two of the three terminal codes cannot be produced by the record path.**
+
+- `reauth_required` — reading an account record prunes every session past its reauth deadline, so an
+  elapsed session is gone before anything classifies it and the reader answers `session_missing`. The
+  unreachable check in `ExtractSession` is removed and the reason recorded there: pruning is the
+  single enforcement point, and a change that stops it removing expired sessions has to put a check
+  back. The code still reaches clients from the rotate endpoint, which reads the deadline off the
+  refresh-token row rather than the pruned record.
+- `session_revoked` — nothing sets `Session.RevokedAt`. Revocation removes the row, which reads as
+  `session_missing`. The reader is correct and now tested by seeding the field directly; the writer is
+  Stage B's account-wide revoke, which wants exactly this tombstone.
+
+**The failure-code vocabulary keeps `reauth_required`, though `ExtractSession` no longer raises it.**
+`ClientFailureMessage` and `failureClass` in `shared/plannersession/request` name all three codes,
+because they are the vocabulary an operator greps and the SPA switches on — not a list of what one
+function returns. `reauth_required` is still live on the wire from the rotate endpoint, so its message
+and class have to exist. `TestEveryFailureCodeHasItsMessageAndClass` pins every branch for exactly
+this reason; the `SessionError` doc comment now says which codes the extract path produces and where
+the third comes from, so the switches are not read as dead.
+
+**Cookie clearing on a rejection code is moot** (#13). `sessionreq.SetSessionCookie` has no callers —
+nothing issues `eip_session`. Only the clears remain, on logout and on `reauth_required` in the rotate
+handler, for a cookie an older client may still be carrying. There is nothing for the middleware to
+clear that those two do not already reach.
+
+**The route guard and an API 401 answer different questions, deliberately** (#55). The guard
+(`utils/authGuard.js`) reads client state — `account.isLoggedIn`, and for public routes
+`hasResumablePlannerSession()` — and decides whether to render or send the tab to `/auth` to rebuild.
+The 401 reflects the session record in Redis and decides whether a request is served. A tab can be
+logged in by the guard while every request is refused, which is the window a rotate closes; the guard
+is not a security boundary and must not be read as one.
 
 ### Stage B — revoking more than one session
 

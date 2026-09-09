@@ -31,6 +31,10 @@ test gap, by tests that exist and run.
 | #10 | A private fetch that returns a terminal auth code resets auth | `handleTerminalPlannerAuthResponse` in `frontend/src/Functions/Endpoints/Private/applyPrivateHeaders.js` redirects to a full EVE login. |
 | #16 | Frontend auth tests | Five files: `Functions/Auth/plannerSessionRedirect.test.js`, `hasResumablePlannerSession.test.js`, `plannerAuthCookies.test.js`, `Components/Auth/additionalAccountImport.test.js`, `oauthUrlParams.test.js`. |
 | #51 | Additional account import window | `tryCompleteAdditionalAccountImportWindow` has regression coverage in `Components/Auth/additionalAccountImport.test.js`. |
+| #12 | Every planner auth refusal answers one envelope | `sessionreq.WriteCodedError` is the single writer for the REST middleware, the rotate refusal and both websocket upgrade paths. The upgrade body serves logs and proxies: a browser cannot read a refused handshake. |
+| #47 | The upgrade's auth cases are exercised | `integration_connect_test.go` adds a revoked session, an elapsed reauth window, the shared envelope itself, and a Redis outage answering `503` rather than `401`. |
+| #13 | Cookie clearing on a rejection code is moot | `sessionreq.SetSessionCookie` has no callers; only the clears in logout and rotate remain, for a cookie an older client may carry. |
+| #55 | The guard and the 401 answer different questions | Documented in [overlay.md](./overlay.md) § Stage A: the guard decides render-or-rebuild from client state, the 401 decides serve-or-refuse from the session record, and they may disagree. |
 | #45 | A login that fails after minting leaves nothing behind | `authenticate.go` discards the refresh token, the session record and its index at both failure points between the mint and the response, through `sessionmaint.DiscardMintedSessionBestEffort`. `TestLoginLeavesNothingBehindWhenTheDocumentsCannotBeRead` and `TestLoginLeavesNothingBehindWhenTheSessionCannotBeStored` pin it. Bootstrap deliberately keeps its material — see [plan.md](./plan.md) § Stage E. |
 | #43 (residual) | A cloud login does not hand back the stored ESI secret | `TestLive_loginDoesNotHandBackTheStoredEsiSecret` asserts every `refreshTokens` row in the login response carries `characterHash` and nothing else. |
 | #48 | Session resume does not depend on the planner session id | `services/websocket/server/ws_session_resume.go` resumes on `previousClientID`, and `integration_scopes_resume_test.go` exercises it. |
@@ -45,9 +49,6 @@ Each of these was checked directly, not inferred from the roadmap's own status c
 
 | Old id | Item | Evidence that it is still open |
 |--------|------|-------------------------------|
-| #13 | Middleware does not clear cookies on `reauth_required` | `services/api/middleware/auth.go` writes the error body and returns; nothing touches the response's cookies on any of the three terminal codes. |
-| #12 | The WebSocket upgrade rejects in plain text | `wsUpgradeRejectClient` and `wsUpgradeRejectServer` in `services/websocket/server/logging.go` both end in `http.Error`, so the body is a bare string while every REST auth rejection is `{"code","message"}`. |
-| #47 | WebSocket upgrade auth is barely tested | `integration_connect_test.go` covers a missing session and a refusal while draining. Nothing exercises an upgrade carrying a revoked session, an elapsed reauth window, or a `Touch` that fails. |
 | #11 | The reauth deadline is not surfaced anywhere in the SPA | `reauth_required_at` is stored by `frontend/src/Functions/Auth/tabSessionStorage.js` and read by nothing that renders. |
 | #54 | Signout orchestration is untested | `frontend/src/routes/signout.jsx` has no test file; the disconnect → logout → cache clear ordering is unpinned. |
 | #14 | Rejection and contention are not measured | Session lifecycle metrics exist and are good — `api.auth_sessions.started_total`, `continued_total`, `ended_total`, `stored_total`, `store_errors_total` and the `api.session_refresh.*` family in `services/shared/telemetry/apimetrics/instruments.go`. What is missing is a counter for rejections keyed by code, a counter for the optimistic-locking retries in `shared/plannersession`, and counts from the maintenance sweep. |
@@ -56,7 +57,6 @@ Each of these was checked directly, not inferred from the roadmap's own status c
 | #49 | Cloud ESI credential errors have no user-facing copy | `refresh.go` maps the whole `user.ErrMongoStoredEsi*` family to status codes; none of it reaches the user as an explanation. |
 | #50 | Linked-character hydration on cloud bootstrap is untested | The bootstrap response carries `LinkedCharacters`; nothing asserts the per-character tokens survive into the store. |
 | #42 | CCP outage behaviour is undocumented | The limiter gate is exercised by `sso/refresh_route_test.go`, but how deferral is meant to line up with the SPA's Tranquility gate is written down nowhere. |
-| #55 | The split between the route guard and an API 401 is undocumented | `frontend/src/utils/authGuard.js` and the private-fetch path decide independently; the split is deliberate and unstated. |
 | #19 | Planner refresh tokens are plaintext in Redis | [sessions.md](../../backend/api/auth/sessions.md) § 8 states it as current behaviour: Redis is the trust boundary. Never revisited. |
 | #32 | No CSRF defence | `grep -rni csrf services/ frontend/src` returns nothing. |
 | #30, #31 | Logout everywhere, device list, configurable reauth window | Nothing exists. |

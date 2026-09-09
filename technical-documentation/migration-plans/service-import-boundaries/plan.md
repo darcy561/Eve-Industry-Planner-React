@@ -111,7 +111,7 @@ shared/plannersession/maintenance/                         → plannersession
 
 api/helper/auth/  (browser auth flow, stays)               → plannersession (RefreshTokenTTL)
   app_refresh_cookie.go, esi_oauth_storage_cookie.go, refresh_credential_log.go,
-  refresh_token_rotation.go, tenant_affinity_cookie.go, RevokeRefreshTokensForLogout,
+  refresh_token_rotation.go, tenant_affinity_cookie.go,
   and the EVE SSO token helpers from auth_helpers.go (ValidateEveTokenAndExtractHash,
   GetEveTokenErrorMessage, EveTokenValidationResult, the ErrMsg* constants)
 ```
@@ -303,9 +303,9 @@ Six things the build settled that the plan had not:
   "session missing" instead of reporting the outage; `Store.Available` restores it. Both are pinned
   by tests.
 - **`RevokeRefreshTokensForLogout` stays in `api`** with the browser flow, and it is *not* equivalent
-  to `Store.RevokeSessionTokens`: logout checks the refresh index and the scan separately, while the
-  store consults the index first and only scans on a miss. Whether those can diverge is a case for
-  Stage A2 to answer rather than something to assume.
+  to `Store.RevokeSessionTokens` as first written: logout checks the refresh index and the scan
+  separately, while the store consulted the index first and only scanned on a miss. Stage A2 showed
+  they do diverge, and the store now reaches every token; see its note below.
 
 ### Stage A2 — Differential harness
 
@@ -331,6 +331,28 @@ a dependency outage or as the caller's fault — which is what the middleware ab
 implementations agree on all of them, and the errors they return classify the same way under
 `dependency.IsUnavailable`.
 
+**Landed.** `testing/plannersessionparity` — 16 cases, each replaying a sequence against two isolated
+fake Redis instances and comparing every key, value and TTL, plus the returned values rendered as
+JSON so the two type sets compare on their shared wire shape. Volatile fields stamped at write time
+are blanked by name. Green under `-race` and repeated runs.
+
+The state comparison agreed everywhere. Both differences it found were in the error and revocation
+behaviour, which is what the recheck predicted:
+
+- **`auth.GetRefreshTokenData` does not report a missing connection as a dependency outage.** The old
+  `ErrNoStore` does not wrap `eipredis.ErrNoClient`, and this is the one wrapper with no connection
+  guard in front of it, so the unwrapped sentinel escapes and `dependency.IsUnavailable` reads false.
+  Its only caller is the logout endpoint. The replacement wraps, so it classifies. Recorded in the
+  harness as an expected difference rather than fixed in the surface being replaced.
+- **The store reached fewer refresh tokens than logout.** `Store.RevokeSessionTokens` was ported from
+  `SessionStore.RevokeSessionTokens`, which has **no callers anywhere in the old code** and whose doc
+  comment claims it reaches "the one presented, the one its index names, and one found by scanning"
+  while it actually stops at the first. Logout — the method that is used — reaches all of them. With
+  three tokens alive for one session the store left one behind, which would leave a logged-out
+  session usable through a token nothing tracks. `Store.RevokeSessionTokens` now collects the indexed
+  token and every token a scan attributes to the session, and revokes all of them; the two are at
+  parity and the case is a keyspace comparison like the rest.
+
 ### Stage A3 — Cut the call sites over
 
 Service by service, and **not** in size order — the point of the project is the boundary, so the
@@ -341,10 +363,61 @@ services that break it go first:
 3. **websocket** (2 crossings, 4 wrapper calls; the `apihelperauth` alias goes).
 4. **`testing/ws_soak/lib`** (2 calls).
 5. **api** (14 wrapper calls) — last, and the only one that is not a boundary fix. The four
-   `SessionRecord` call sites build a `Session` directly instead.
+   `SessionRecord` call sites build a `Session` directly instead, and the logout endpoint calls
+   `Store.RevokeSessionTokens`, so `RevokeRefreshTokensForLogout` goes rather than staying with the
+   browser flow.
 
 Six of the seven crossings are closed after step 3, before `api` is touched at all. That is the main
 practical gain of building alongside: the goal is reached without waiting on the largest rewrite.
+
+**Landed.** `core`, `worker`, `websocket` and `testing/ws_soak/lib` now reach sessions
+through `shared/plannersession`. The cross-service scan reports exactly one crossing left in the
+fleet — `websocket/app.go` importing `api/middleware`, which is Stage B — so every session crossing
+is closed. Build, vet, the service suites and the parity harness are all green.
+
+Step 5 (`api`) is done too. It closed no crossing — it is what unblocks Stage A4, because
+`api/helper/auth` cannot lose the moved files while `api` still calls them. Nothing under `api/`
+names a moved symbol any more.
+
+Three things it turned up:
+
+- **The files staying in `api/helper/auth` were themselves callers.** `refresh_token_rotation.go`
+  now takes and returns `plannersession` types and reaches sessions through the store, so
+  `MintAndStoreRefreshToken` and the presented-token resolution work against the new package while
+  staying with the browser flow.
+- **The logout endpoint changed shape slightly.** `GetRefreshTokenData` reported a missing token as
+  `ErrRefreshTokenNotFound`; `Store.RefreshToken` reports it as `found == false`. Logout turns that
+  back into the sentinel so its 401 and its log fields are unchanged.
+- **`go fix -diff` flags modernisations in packages this project touched but did not write.**
+  `errors.As` → `errors.AsType` in `api/helper/endpointHelpers.go` and `api/helper/json.go`, and
+  composite-literal and `slices.Contains` suggestions in `api/v1endpoints/{authenticate,refresh,session_types}.go`
+  and a sibling test. Every one of those lines predates this work, so all are left alone; the rule is
+  not to modernise untouched code on the back of the check. The list is illustrative rather than
+  exhaustive — the debt is pre-existing and belongs to whoever next works those packages. `testing/ws_soak/lib/profile_test.go` is
+  unformatted at HEAD for the same reason — not this project's to fix.
+- `testing/esi_soak/lib` does not compile at HEAD — `esi_soak/lib/run.go:194` passes a raw
+  `*redis.Client` where `esiclient.New` wants `*eipredis.Redis`. Confirmed against a clean worktree,
+  so it predates this work and belongs to whoever changed that signature. `ws_soak/lib` had the same
+  fault and is fixed here because this project rewrote those call sites anyway.
+
+**Shared test fixture.** Rechecking steps 1–4 surfaced a duplication far wider than this project:
+**73 files** across `services/` and `testing/` hand-roll the same bridge from the fake Redis to the
+handle the services take — `eipredis.NewRedis(fake.Client)` — several of them a dozen times over.
+
+`testing/redisfixture` now owns it: `redisfixture.New(t)` returns the fake with a `Handle` already
+bound, embedding `redisfake.Redis` so `Server` and `Client` still work. It is a package beside
+`redisfake` rather than a method on it because `shared/redis` tests the handle itself and reaches for
+`redisfake` to do so — `redisfake` reaching back is an import cycle in those tests, confirmed by
+building it.
+
+The packages this project owns use it, which removed three copies of the same `newStore` test helper.
+**The other ~70 files were left alone** — converting them is a repo-wide sweep touching packages this
+project has no business in, and this working tree is shared with other sessions. It is a standalone
+piece of work for whoever wants it.
+
+Also removed inside the store: `FindTokenForSession` and `tokensForSession` carried the same scan
+loop. Both now go through `eachTokenNaming`, whose visitor returns false to stop, so the hot path
+still stops at the first match rather than reading the whole keyspace.
 
 ### Stage A4 — Delete the old implementation
 
@@ -356,8 +429,55 @@ Remove the moved parts of `api/helper/auth`, leaving the browser auth flow: `app
 Delete the differential harness with it — it has no second subject once the old package is gone — and
 fold any case it covers that the new package's own tests do not into `shared/plannersession`.
 
+Stage A3 left a precise worklist. Three files that stay still reach for symbols the deletion removes,
+and one file is now dead:
+
+| File | What A4 does |
+|------|--------------|
+| `app_refresh_cookie.go` | `RefreshTokenTTL` → `plannersession.RefreshTokenTTL` |
+| `refresh_credential_log.go` | `ReadAppSessionCookie` → `request.ReadSessionCookie`; the failure detail's `ClientFailureDetail` comes from `request.FailureDetail` |
+| `refresh_token_rotation.go` | Already converted — nothing left |
+| `esi_oauth_storage_cookie.go`, `tenant_affinity_cookie.go` | Already clean |
+| `auth_helpers.go` | Keep the EVE SSO token half (`ValidateEveTokenAndExtractHash`, `GetEveTokenErrorMessage`, `EveTokenValidationResult`, the `ErrMsg*` constants); the session half goes with the deletion |
+| `session_persist.go` | **Delete whole.** Two of its three functions moved to `maintenance`, and `RevokeRefreshTokensForLogout` has no product caller left — the logout endpoint calls `Store.RevokeSessionTokens` |
+
 **Done when:** `api/helper/auth` holds only the browser auth flow and the EVE SSO token helpers, and
 nothing outside `shared/plannersession` names `*eipredis.Redis` to reach a session.
+
+**Landed.** `api/helper/auth` is now six files: `app_refresh_cookie.go`,
+`esi_oauth_storage_cookie.go`, `refresh_credential_log.go`, `refresh_token_rotation.go`,
+`tenant_affinity_cookie.go`, and `evetoken.go` — the EVE SSO token half of the old
+`auth_helpers.go`, renamed for what it holds now that the session half has gone. Ten implementation
+files and eleven test files were deleted, along with `testing/plannersessionparity`.
+
+`session_persist.go` went whole, as predicted: two of its functions had moved to `maintenance` and
+`RevokeRefreshTokensForLogout` had no caller left once logout moved to `Store.RevokeSessionTokens`.
+
+**The deletion was a coverage cliff, and closing it was most of the work.** The old package carried
+about 2,240 lines of tests over the moved surface against roughly 1,000 in the new one. Comparing
+case by case rather than trusting the totals found real gaps, and they were ported before anything
+was deleted:
+
+- **The whole grants surface was untested in the new package** — five shape cases (grants store refs
+  and never raw entity ids, the account's own key is always granted, a corporation ref does not grant
+  the alliance of the same id, and two concurrency cases) and five repair cases (legacy rewrite,
+  sessions survive, idempotence, dry run writes nothing, an account already on the new shape gains
+  its own key), plus a sixth for a record stored under an untrimmed key.
+- **`Store.ResolveTokenForValidSession` and `Store.RefreshTokenReauthExpired` had no unit test at
+  all** — only the differential harness exercised them, and that was about to be deleted.
+- **The strongest single test in the old package was the table of keys each operation owes.** It
+  states the multi-key invariant as a whole rather than reading back what was just written, and it is
+  now `TestOperationsLeaveTheKeysTheyOwe`.
+- Also ported: the persisted record shape and version behaviour, pruning reaching every entry point,
+  the version not rewinding under `SaveAccountRecord`, absent reads not being errors, scans reporting
+  ids rather than keys, and the index-delete leaving the record alone.
+- **The TTL constants are pinned against literals, not against themselves.** The first pass asserted
+  that stored keys carry `RefreshTokenTTL` and friends, which cannot catch the constant itself being
+  wrong — the old suite had a separate test saying exactly that, and it was missed on the first
+  comparison. `TestSessionKeyLifetimes` restores it, and a wrong constant was confirmed to fail it.
+  Refresh-token key trimming was the other case the first pass dropped.
+
+`shared/plannersession` now carries 69 test functions across six files.
 
 ### Stage B — HTTP middleware
 
@@ -367,12 +487,53 @@ and `websocket/app.go`. The seventh crossing closes here.
 Done in place rather than alongside: 208 lines, no stored state, two call sites, and nothing a
 differential test could observe that the compiler does not.
 
+**Landed.** `shared/httpmiddleware` holds `MiddlewareConstructor` and the combinators (`Chain`,
+`Wrap`, `Group`, `ApplyIf`, `Paths`, `Prefixes`) plus `RequestLoggingConstructor` and
+`RequestStartTimeConstructor` with the response writer they wrap. `api/middleware` keeps its seven
+API-specific constructors and returns the shared type. `api/apiServer.go` and `websocket/app.go`
+compose chains from `httpmiddleware`; `websocket` no longer imports `api` at all.
+
+The combinators had no test before the move and now do — order of composition, `Wrap`, `Group`
+routing, and `ApplyIf` skipping rather than no-op'ing on a non-match. They were API-internal before;
+two services depend on them now.
+
+**Every crossing in the fleet is closed.** The scan in Stage C reports nothing.
+
 ### Stage C — Guard
 
 A test that fails when a service imports another service, so the rule stops depending on someone
 noticing. `services/` is a single Go module, so the test can walk the package graph directly.
 
 Home: the repo-root `testing` module, which may import service packages.
+
+**Landed.** `testing/serviceboundaries` parses the imports of every Go file under each service and
+fails when one names another service's package. It **discovers** the services by reading `services/`
+rather than listing them, so a new deployable is guarded from the day it exists; `shared`, `cmd` and
+the empty `services/services` directory are the named exceptions.
+
+**Shared code is scanned too, not only the services.** A package under `services/shared/` that
+imports a service makes every consumer of that shared package depend on the service — the same
+coupling wearing the label the guard would otherwise trust. Scanning the services alone cannot see
+it: the first version of this test could not, and a probe under `services/shared/` passed clean until
+that was fixed. Shared code importing a service is reported with its own message.
+
+Test files count, and so do build-tagged ones. A test that reaches across the boundary couples the
+two as surely as a non-test file, and a crossing behind a build tag is still a crossing — the earlier
+shell scan skipped `_test.go`, which is why two crossings in test files survived until Stage A3 went
+looking.
+
+It was confirmed to fail rather than pass vacuously, on all three shapes at once — a service
+importing another service, a service importing one behind a `//go:build never` tag, and a package
+under `services/shared/` importing a service:
+
+```
+core/zz_probe.go imports "eve-industry-planner/worker/taskrun" —
+core must not reach into worker; shared code belongs in services/shared/
+websocket/zz_tagged_probe.go imports "eve-industry-planner/api/middleware" —
+websocket must not reach into api; shared code belongs in services/shared/
+shared/zzprobe/probe.go imports "eve-industry-planner/api/helper/auth" —
+services/shared is shared by every service and must not depend on api
+```
 
 **Done when:** the cross-service scan below reports nothing, and Stage C fails if that changes.
 
@@ -385,6 +546,41 @@ for svc in api core worker websocket ws-router capacity-controller; do
 done
 ```
 
+
+## Coverage and cross-service testing
+
+Measured after the stages closed, because line counts do not answer the question. `plannersession`
+80.3%, `request` 88.3%, `maintenance` 84.2%, `httpmiddleware` 77.7% of statements; most of the
+remainder is Redis error branches a fake cannot easily provoke.
+
+Four things came out of that measurement:
+
+- **`Store.DeleteAccountRecord` was dead** — carried across from the old store and referenced by
+  nothing in either module. Deleted rather than given a test, which would only have kept it alive.
+- **`RunLoop` had no test**, and it is what makes the sweep happen at all in `core`. It now has one
+  that proves a pass runs before the first tick and that the loop stops when its context is
+  cancelled.
+- **`GenerateRefreshToken` / `GenerateSessionID` had no test.** They mint the credentials a session
+  is identified by, so distinctness is pinned.
+- **The failure-code switches were 40% covered**, meaning one branch of each. Every code a client can
+  be told now has its message and log class pinned.
+
+### The gap this project created
+
+Every session test lived inside a single service. That was safe while the services reached sessions
+by importing the API's code — agreement was guaranteed by construction. Calling one shared package
+is a better arrangement but makes agreement an *assumption*, and it is the kind unit tests cannot
+check: each side passes its own tests while disagreeing about what a stored session means.
+
+`testing/sessionhandover` closes it. One session is driven through the path each service actually
+uses — the API's login write and its auth middleware, the websocket's upgrade read by query
+parameter, the worker's grants update, the core's maintenance sweep — asserting that each sees what
+the last one wrote, that the API sees the worker's grants rather than login's, and that the sweep
+removes only what no session holds. It was confirmed to fail rather than pass vacuously: stopping
+`SetGrants` from propagating onto the sessions themselves makes it fail.
+
+Importing `api/middleware` added three indirect dependencies to `testing/go.mod` (brotli,
+`pkg/errors`, `ulule/limiter`), all transitive from the compression and rate-limiter constructors.
 
 ## Wire compatibility
 
@@ -409,16 +605,18 @@ Two places where that bites, given § Naming:
 |-------|--------|
 | Phase 1 — project folder and docs | Done |
 | A1 — build the new package | Done |
-| A2 — differential harness | Not started |
-| A3 — cut the call sites over | Not started |
-| A4 — delete the old implementation | Not started |
-| B — HTTP middleware | Not started |
-| C — guard test | Not started |
+| A2 — differential harness | Done |
+| A3 — cut the call sites over | Done |
+| A4 — delete the old implementation | Done |
+| B — HTTP middleware | Done |
+| C — guard test | Done |
 
 ## Handoff
 
-**Start here:** Stage A2 — the differential harness. `shared/plannersession` exists and is green,
-and `api/helper/auth` still runs everything, so both sides of the comparison are in place.
+**Start here:** promotion. Every stage is done and the fleet has no cross-service imports. What
+remains needs an explicit go-ahead: fold this project's content into live SoT, add the rule itself to
+[`../../technical-rules.md`](../../technical-rules.md) — it still states only the
+`services` ↔ `deployment-tool` no-cross rule — and delete this folder.
 
 **Known context:**
 
@@ -429,5 +627,8 @@ and `api/helper/auth` still runs everything, so both sides of the comparison are
   `api/middleware` and on the calling packages, scoped to those paths, before Stage A3 edits them.
 - `testing/ws_soak/lib` is in the rewrite. The repo-root `testing` module may import service
   packages, so this is a repoint like any other, not a boundary problem.
+- `testing/wait`'s `TestUntil_timeoutCarriesDetail` is flaky — it failed once in three runs on an
+  untouched file. Not this project's, but it is shared test infrastructure and a flaky guard there
+  weakens every suite that relies on `wait`.
 - `services/services/` is an empty stray directory — local litter, untracked (git cannot hold an
   empty directory). Not this project's work, but it sits in the scan path.

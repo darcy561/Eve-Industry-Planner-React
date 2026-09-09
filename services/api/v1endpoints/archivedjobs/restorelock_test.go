@@ -12,7 +12,6 @@ import (
 	eipmongo "eve-industry-planner/shared/mongo"
 	"eve-industry-planner/testing/redisfake"
 
-
 	eipredis "eve-industry-planner/shared/redis"
 )
 

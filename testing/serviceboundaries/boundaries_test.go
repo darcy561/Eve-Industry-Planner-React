@@ -23,12 +23,7 @@ const modulePath = "eve-industry-planner"
 // libraries are the directories under services/ that are not deployables:
 // shared code and the one-off commands. Anything may import them, and they may
 // import nothing that is a service.
-//
-// "services" is neither — it is a stray empty directory (git cannot track one),
-// and it is listed so it is not mistaken for a deployable.
 var libraries = []string{"shared", "cmd"}
-
-var notAService = append(slices.Clone(libraries), "services")
 
 func TestNoServiceImportsAnotherService(t *testing.T) {
 	root := servicesRoot(t)
@@ -102,7 +97,7 @@ func discoverServices(t *testing.T, root string) []string {
 	}
 	var services []string
 	for _, entry := range entries {
-		if !entry.IsDir() || slices.Contains(notAService, entry.Name()) {
+		if !entry.IsDir() || slices.Contains(libraries, entry.Name()) {
 			continue
 		}
 		services = append(services, entry.Name())

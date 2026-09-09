@@ -113,7 +113,7 @@ func TestLimitsEvidenceAssertDivert(t *testing.T) {
 func TestAssertNoColocSplits(t *testing.T) {
 	ok := map[string]map[string]uint64{
 		"corporation:corp_56_JxK": {"c1": 10},
-		"account:a":     {"c2": 2},
+		"account:a":               {"c2": 2},
 	}
 	if err := assertSharedOrgAffinityColoc(map[string]map[string]uint64{
 		"corporation:corp_56_JxK": {"a": 3, "b": 1},
@@ -122,8 +122,8 @@ func TestAssertNoColocSplits(t *testing.T) {
 	}
 	if err := assertSharedOrgAffinityColoc(map[string]map[string]uint64{
 		"corporation:corp_56_JxK": {"a": 4},
-		"alliance:alliance_9_Qm":    {"a": 2},
-		"account:solo":  {"a": 1, "b": 1}, // ignored — not org key
+		"alliance:alliance_9_Qm":  {"a": 2},
+		"account:solo":            {"a": 1, "b": 1}, // ignored — not org key
 	}); err != nil {
 		t.Fatalf("shared org coloc ok: %v", err)
 	}

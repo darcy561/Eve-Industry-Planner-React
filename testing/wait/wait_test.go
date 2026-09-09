@@ -2,6 +2,7 @@ package wait_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -121,5 +122,26 @@ func TestUntil_timeoutCarriesDetail(t *testing.T) {
 	})
 	if err == nil || !strings.Contains(err.Error(), "desired=3 running=1") {
 		t.Fatalf("err = %v; want it to carry the detail", err)
+	}
+}
+
+// A cancelled wait is not a timeout. Both end the loop through the same channel,
+// so the detail that a timeout carries must not be attached to a caller that
+// simply stopped waiting.
+func TestUntil_cancelIsNotReportedAsATimeout(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		time.Sleep(20 * time.Millisecond)
+		cancel()
+	}()
+
+	err := wait.Until(ctx, wait.Options{Every: 5 * time.Millisecond}, func(context.Context) (bool, string, error) {
+		return false, "desired=3 running=1", nil
+	})
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("err = %v, want context.Canceled", err)
+	}
+	if strings.Contains(err.Error(), "timeout") {
+		t.Fatalf("err = %v; a cancel must not read as a timeout", err)
 	}
 }

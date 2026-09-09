@@ -10,6 +10,7 @@ package wait
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -90,6 +91,14 @@ func Until(ctx context.Context, opts Options, try func(context.Context) (bool, s
 		select {
 		case <-ctx.Done():
 			t.Stop()
+			// A deadline reaches this loop by two doors: the check above, and
+			// this one. When the poll interval divides the timeout they come
+			// ready in the same instant and the select picks between them at
+			// random, so both have to report the same way or the detail the
+			// caller is waiting to be told is lost half the time.
+			if msg != "" && errors.Is(ctx.Err(), context.DeadlineExceeded) {
+				return fmt.Errorf("timeout: %s", msg)
+			}
 			return ctx.Err()
 		case <-t.C:
 		}

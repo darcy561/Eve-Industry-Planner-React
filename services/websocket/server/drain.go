@@ -206,21 +206,21 @@ func (s *Server) rejectUpgradeBlocked(w http.ResponseWriter, r *http.Request, up
 	case "draining":
 		wsUpgradeRejectServer(w, r, s, upgradeStart, "draining", http.StatusServiceUnavailable,
 			"websocket upgrade rejected: process draining",
-			"Service unavailable: draining",
+			"Service unavailable",
 			"ws_upgrade_draining",
 			nil, nil)
 		return true
 	case "maintenance":
 		wsUpgradeRejectServer(w, r, s, upgradeStart, "maintenance", http.StatusServiceUnavailable,
 			"websocket upgrade rejected: maintenance mode",
-			"Service unavailable: maintenance",
+			"Service unavailable",
 			"ws_upgrade_maintenance",
 			nil, nil)
 		return true
 	case "at_cutoff":
 		wsUpgradeRejectServer(w, r, s, upgradeStart, "at_cutoff", http.StatusServiceUnavailable,
 			"websocket upgrade rejected: at client_cutoff",
-			"Service unavailable: at_cutoff",
+			"Service unavailable",
 			"ws_upgrade_at_cutoff",
 			nil, nil)
 		return true

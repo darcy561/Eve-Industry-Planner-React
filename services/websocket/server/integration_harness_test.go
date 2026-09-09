@@ -158,6 +158,41 @@ func (f *integFixture) seedSession(accountID, sessionID string) {
 	}
 }
 
+// seedRevokedSession seeds a session the reader must refuse as revoked. Nothing
+// in production sets RevokedAt yet — revocation removes the row — so this pins
+// the reader ahead of the writer that account-wide revocation will add.
+func (f *integFixture) seedRevokedSession(accountID, sessionID string) {
+	f.t.Helper()
+	now := time.Now().UTC()
+	revoked := now.Add(-time.Minute)
+	if err := plannersession.NewStore(f.Redis).PutSession(context.Background(), accountID, plannersession.Session{
+		SessionID:        sessionID,
+		CharacterHash:    "integ-hash",
+		StartedAt:        now,
+		LastSeenAt:       now,
+		ReauthRequiredAt: plannersession.ReauthDeadlineFromSessionStart(now),
+		RevokedAt:        &revoked,
+	}); err != nil {
+		f.t.Fatalf("seedRevokedSession: %v", err)
+	}
+}
+
+// seedElapsedSession seeds a session whose reauth window closed while it was
+// connected, which is the state a full EVE login is the only way out of.
+func (f *integFixture) seedElapsedSession(accountID, sessionID string) {
+	f.t.Helper()
+	started := time.Now().UTC().Add(-plannersession.RefreshTokenTTL - time.Hour)
+	if err := plannersession.NewStore(f.Redis).PutSession(context.Background(), accountID, plannersession.Session{
+		SessionID:        sessionID,
+		CharacterHash:    "integ-hash",
+		StartedAt:        started,
+		LastSeenAt:       started,
+		ReauthRequiredAt: plannersession.ReauthDeadlineFromSessionStart(started),
+	}); err != nil {
+		f.t.Fatalf("seedElapsedSession: %v", err)
+	}
+}
+
 func (f *integFixture) seedSessionWithGrants(accountID, sessionID string, corps, alliances []int64) {
 	f.t.Helper()
 	f.seedSession(accountID, sessionID)

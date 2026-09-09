@@ -10,6 +10,7 @@ import (
 
 	sharedcompression "eve-industry-planner/shared/compression"
 	"eve-industry-planner/shared/container"
+	"eve-industry-planner/shared/dependency"
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/plannersession"
 	sessionreq "eve-industry-planner/shared/plannersession/request"
@@ -77,7 +78,7 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 	if sessionreq.SessionID(r) == "" {
 		wsUpgradeRejectClient(w, r, s, upgradeStart, "session_missing", http.StatusUnauthorized,
 			"websocket upgrade rejected: missing planner session",
-			"Unauthorized: session_missing",
+			"Unauthorized",
 			"ws_upgrade_session_missing",
 			map[string]any{
 				"has_eip_session_cookie":       sessionreq.ReadSessionCookie(r) != "",
@@ -105,15 +106,38 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 	sessions := plannersession.NewStore(s.Stack.Redis)
 	identity, err := sessionreq.ExtractSession(reqCtx, r, sessions)
 	if err != nil {
+		if sessionreq.IsInfrastructureError(err) || dependency.IsUnavailable(err) {
+			wsUpgradeRejectServer(w, r, s, upgradeStart, "redis_unavailable", http.StatusServiceUnavailable,
+				"websocket upgrade rejected: session read dependency unavailable",
+				"Service unavailable",
+				"ws_upgrade_session_dependency_unavailable",
+				err,
+				nil,
+			)
+			return
+		}
 		wsUpgradeRejectAuthSession(w, r, s, upgradeStart, err)
 		return
 	}
 	r = logs.BindRequestIdentityToRequest(r, identity.AccountID, identity.SessionID)
 
 	if err := sessions.Touch(reqCtx, identity.AccountID, identity.SessionID, identity.Session.AppVersion); err != nil {
+		if dependency.IsUnavailable(err) {
+			wsUpgradeRejectServer(w, r, s, upgradeStart, "redis_unavailable", http.StatusServiceUnavailable,
+				"websocket upgrade rejected: session touch dependency unavailable",
+				"Service unavailable",
+				"ws_upgrade_session_touch_dependency_unavailable",
+				err,
+				map[string]any{
+					"account_id": identity.AccountID,
+					"session_id": identity.SessionID,
+				},
+			)
+			return
+		}
 		wsUpgradeRejectClient(w, r, s, upgradeStart, "session_missing", http.StatusUnauthorized,
 			"websocket upgrade rejected: failed session touch",
-			"Unauthorized: session_missing",
+			"Unauthorized",
 			"ws_upgrade_session_touch_failed",
 			map[string]any{
 				"account_id": identity.AccountID,

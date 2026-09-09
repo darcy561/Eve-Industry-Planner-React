@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"encoding/json"
 	"eve-industry-planner/shared/httpmiddleware"
 	"net/http"
 
@@ -13,20 +12,6 @@ import (
 
 	eipredis "eve-industry-planner/shared/redis"
 )
-
-type authErrorResponse struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
-
-func writeAuthError(w http.ResponseWriter, status int, code string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(authErrorResponse{
-		Code:    code,
-		Message: "Unauthorized",
-	})
-}
 
 func respondAuthDependencyUnavailable(w http.ResponseWriter, r *http.Request, logMsg string, err error, extra map[string]any) {
 	helper.RespondEndpointError(w, r, http.StatusServiceUnavailable, "Service temporarily unavailable", logMsg, "auth_dependency_unavailable", "auth", err, extra)
@@ -49,12 +34,12 @@ func AuthConstructor(redisClient *eipredis.Redis) httpmiddleware.MiddlewareConst
 				switch detail.Code {
 				case "session_missing", "session_revoked", "reauth_required":
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(nil))
-					writeAuthError(w, http.StatusUnauthorized, detail.Code)
+					sessionreq.WriteCodedError(w, http.StatusUnauthorized, detail.Code, "Unauthorized")
 				default:
 					logs.AttachClientFailureDetail(r, detail.ClientFailureMessage(), detail.ClientFailureDetail(map[string]any{
 						"error": err.Error(),
 					}))
-					writeAuthError(w, http.StatusUnauthorized, "session_missing")
+					sessionreq.WriteCodedError(w, http.StatusUnauthorized, "session_missing", "Unauthorized")
 				}
 				return
 			}
@@ -73,7 +58,7 @@ func AuthConstructor(redisClient *eipredis.Redis) httpmiddleware.MiddlewareConst
 					"session_id":    identity.SessionID,
 					"error":         err.Error(),
 				})
-				writeAuthError(w, http.StatusUnauthorized, "session_missing")
+				sessionreq.WriteCodedError(w, http.StatusUnauthorized, "session_missing", "Unauthorized")
 				return
 			}
 			ctx := sessionreq.WithIdentity(r.Context(), identity.AccountID, identity.SessionID)

@@ -10,7 +10,9 @@ import (
 )
 
 // SessionError carries the client-facing auth failure code from ExtractSession.
-// Error() returns the API code (session_missing, session_revoked, reauth_required).
+// Error() returns the API code. ExtractSession produces session_missing and
+// session_revoked; reauth_required belongs to the same vocabulary but is raised
+// by the rotate endpoint, which reads the deadline off the refresh-token row.
 type SessionError struct {
 	Code      string
 	AccountID string

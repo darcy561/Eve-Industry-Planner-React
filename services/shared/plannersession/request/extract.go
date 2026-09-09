@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"time"
 
 	"net/http"
 
@@ -87,11 +86,12 @@ func ExtractSession(ctx context.Context, r *http.Request, store *plannersession.
 		}
 		return nil, sessErr
 	}
+	// No reauth-deadline check here. Reading the record prunes every session past
+	// its deadline, so an elapsed one is gone before this point and arrives as
+	// session_missing. Pruning is the single enforcement point: a change that
+	// stops it removing expired sessions has to put a check back here.
 	if session.RevokedAt != nil {
 		return nil, &SessionError{Code: "session_revoked", AccountID: accountID, SessionID: sessionID}
-	}
-	if plannersession.IsReauthExpired(session.StartedAt, session.ReauthRequiredAt, time.Now().UTC()) {
-		return nil, &SessionError{Code: "reauth_required", AccountID: accountID, SessionID: sessionID}
 	}
 	return &Identity{AccountID: accountID, SessionID: sessionID, Session: *session}, nil
 }

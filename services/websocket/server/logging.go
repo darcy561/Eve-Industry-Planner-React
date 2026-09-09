@@ -154,7 +154,7 @@ func wsUpgradeRejectClient(
 	if responseBody == "" {
 		responseBody = logMsg
 	}
-	http.Error(w, responseBody, status)
+	sessionreq.WriteCodedError(w, status, reasonCode, responseBody)
 }
 
 func wsUpgradeRejectServer(
@@ -188,7 +188,7 @@ func wsUpgradeRejectServer(
 	if responseBody == "" {
 		responseBody = logMsg
 	}
-	http.Error(w, responseBody, status)
+	sessionreq.WriteCodedError(w, status, reasonCode, responseBody)
 }
 
 func wsUpgradeAttachSessionValidated(r *http.Request, accountID, sessionID string) {

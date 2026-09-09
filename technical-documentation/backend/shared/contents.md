@@ -11,6 +11,7 @@ ESI rate limiter.
 
 - Feature contracts exposed via HTTP → [api/](../api/contents.md)
 - EVE SSO token exchange and JWT validation → `services/shared/evesso`, documented with sessions in [api/auth/sessions.md](../api/auth/sessions.md)
+- Planner session state and HTTP auth middleware → `services/shared/plannersession`, `services/shared/httpmiddleware`, documented with sessions in [api/auth/sessions.md](../api/auth/sessions.md)
 - Stack topology / EnsureMongo → [stack/](../../stack/contents.md), [deploy.md](../../deployment/deployment-tool/cli/deploy.md)
 - Test depth for shared packages → [testing/services/shared.md](../../testing/services/shared.md)
 - Recurring cron jobs and what each one does → [core/](../core/contents.md) (this section owns schedules, not the crons that use them)

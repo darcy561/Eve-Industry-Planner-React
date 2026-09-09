@@ -17,13 +17,13 @@ EIP_MONGO_PARITY_LIVE=1 go test ./api/helper/ -run Live -count=1
 
 ## Coverage map
 
-**Depth:** Strong around auth/session helpers and some middleware. Most HTTP handlers and app wiring are untested. Opt-in live Mongo covers the main account Docs call paths handlers use after auth/lock.
+**Depth:** Strong around the browser auth flow and some middleware. Most HTTP handlers and app wiring are untested. Opt-in live Mongo covers the main account Docs call paths handlers use after auth/lock. Planner session and refresh-token lifecycle tests live with the package that owns them now — `services/shared/plannersession` — not here; see [shared.md](./shared.md).
 
 ### Tested
 
 | Area | What the tests cover |
 |------|----------------------|
-| `helper/auth` | Session / refresh-token lifecycle (resolve, persist, rotate, reauth deadlines, CAS, orphan cleanup, ESI OAuth storage labels, tenant-affinity key format) |
+| `helper/auth` | Browser auth flow: refresh-cookie rotation and its logging, ESI OAuth storage cookie labels, tenant-affinity key format, EVE SSO token validation and error messages |
 | `middleware` | Auth failure detail, optional-account binding, request logging, rate-limiter 503 / Retry-After, unregistered-route wrapping |
 | `helper/sdecache` | SDE cache warm / rewarm, readiness gating, signal-driven rewarm |
 | `helper` (root) | Endpoint error mapping (context cancel / Redis / Mongo → non-500) |
@@ -47,7 +47,7 @@ EIP_MONGO_PARITY_LIVE=1 go test ./api/helper/ -run Live -count=1
 ## Topic-only detail
 
 - Depth labels → [contents.md](./contents.md) § Depth labels.
-- Prefer package-scoped runs under `api/helper/auth` when iterating session work.
+- Prefer package-scoped runs under `api/helper/auth` when iterating the browser auth flow; prefer `services/shared/plannersession` (and its `request` / `maintenance` subpackages) when iterating session state — see [shared.md](./shared.md).
 - Live Mongo tests skip unless `EIP_MONGO_PARITY_LIVE=1`; they do not run in default CI unit jobs.
 - Production API ready = SDE cache warm **and** Mongo Ping (`services/api/app.go`). Package `api/tests` keeps the SDE-only mux so warm/not-warm behaviour stays deterministic without a live Mongo.
 - Handler wiring behaviour → [deps.md](../../backend/api/deps.md); Mongo package → [mongo.md](../../backend/shared/mongo.md).

@@ -28,7 +28,7 @@ go test ./worker/...
 | `tasks/esi` — system indexes | Stream industry systems (304, gzip, JSON errors, retry, rate-limit); task paths (lock, ETag, not-modified) |
 | `tasks/esi` — region market orders | Payload validation; percentile maths (sample floor, nearest rank, outlier trimming, empty book sides) |
 | `tasks/esi` — adjusted prices | Stream + task paths |
-| `tasks/esi` — session grants | JSON/token validation; ESI errors; corp dedupe; Redis storage |
+| `tasks/esi` — session grants | JSON/token validation; ESI errors; corp dedupe; Redis storage through `shared/plannersession` |
 | `tasks/esi` — helpers | Retry / ESI verb helpers |
 | `tasks/sde/update` | checkUpdates orchestration (nil task, version error, no-update skip, diff+prune); persist-stage labels; integration workflow (build latest SDE, version files, recipe-list types) |
 | `tasks/sde/update/conversion` | Full conversion vs published reference; reaction blueprint merge; invention modifier rows/exclusions; blueprint published-formula preference |
@@ -44,7 +44,7 @@ go test ./worker/...
 
 | Area | Gap |
 |------|-----|
-| `tasks/maintenance` | Payload validation only — not cloud-ESI maintain / prune sessions / schema batch execution |
+| `tasks/maintenance` | Payload validation only — not cloud-ESI maintain / schema batch execution |
 | `tasks/esi` region market orders | Percentile maths and payload validation only — not the pagination pass, 304 page replay, or station filtering |
 | `tasks/sde/publish` | Single ordering test |
 | `tasks/sde/update/conversion` | Output writers / index stages largely untested |
@@ -59,3 +59,4 @@ go test ./worker/...
 
 - Depth labels → [contents.md](./contents.md) § Depth labels.
 - When changing a task family, run that package tree (`./worker/tasks/esi/`, `./worker/tasks/sde/...`) before the full `./worker/...` suite.
+- Planner session upkeep is not the worker's: the orphan refresh-token sweep runs on a `core` singleton lease — see [core.md](./core.md) and [shared.md](./shared.md).

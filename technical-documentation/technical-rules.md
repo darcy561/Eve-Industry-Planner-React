@@ -177,6 +177,15 @@ Exact wrap / sentinel / operator-facing error practices are **not locked** yet. 
 
 Applies to `services/**` (Go) and `deployment-tool/**`. Complements the shared section above. Package map / Docker client naming → [`deployment/deployment-tool/cli/engineering.md`](./deployment/deployment-tool/cli/engineering.md).
 
+### Service boundaries (`services/`)
+
+Each service under `services/` — `api`, `core`, `worker`, `websocket`, `ws-router`, `capacity-controller` — is its own deployable, and the fleet's import graph must say so:
+
+- **A service must not import another service's packages.** Code two or more services need lives in `services/shared/`, not in whichever service's package happened to write it first.
+- **`services/shared/` must not import a service.** A shared package that reaches into `api`, `core`, `worker`, `websocket`, `ws-router` or `capacity-controller` couples every one of its consumers to that service, which breaks the boundary as surely as a direct service-to-service import.
+- Guarded by `testing/serviceboundaries`, which **discovers** services by reading `services/` (so a new deployable is covered from the day it exists) rather than listing them, and parses every Go file's imports, including `_test.go` and files behind a build tag.
+- `services/` and `deployment-tool/` are separate Go modules; neither imports the other.
+
 ### Prefer modern Go (and say when you don’t)
 
 - Prefer **newer stdlib / idioms over older** when both work: `slices` / `maps` / `cmp` over hand-rolled loops where they fit; `errors.Is` / `errors.As` / `errors.AsType` over stringly or bare `==`; `strings.Cut` / `SplitSeq` / `CutPrefix` over older split+index patterns; `any` over `interface{}`; no pre-1.22 `e := e` loop captures; `errgroup` for parallel work that returns errors.

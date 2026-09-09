@@ -71,8 +71,8 @@ Type **`Redis`**: one connection, and two layers over it.
 | `esi:b:` / `esi:errors:` / `esi:group:` / `esi:path:` / `esi:downtime` | limiter buckets, ledger, learned groups, downtime | per key | `shared/esiclient` |
 | `lease:` | leader election for core primary, capacity primary, singletons | 15s, renewed | `RunWhileHeld` |
 | `doc_lock:` / `doc_lock_wait:` / `doc_lock_pulse:` / `doc_lock_viewers:` | lock records, waitlists, presence pulses, viewers | 5m / 2m / 5m | `shared/core/documentlock` |
-| `refresh_token:` / `account_sessions:` / `session_index:` / `session_refresh:` | planner sessions and the two indexes that resolve them | 7d | `api/helper/auth` |
-| `custom_claims_corporations:` / `custom_claims_alliances:` | org ids ESI reported for an account | 30d | `api/helper/auth` |
+| `refresh_token:` / `account_sessions:` / `session_index:` / `session_refresh:` | planner sessions and the two indexes that resolve them | 7d | `shared/plannersession` |
+| `custom_claims_corporations:` / `custom_claims_alliances:` | org ids ESI reported for an account | 30d | `shared/plannersession` |
 | `apimetrics:` | HyperLogLogs behind the distinct-account and distinct-character gauges | 35d / 8d | `shared/telemetry/apimetrics` |
 | `eip:core:handoff:v1:` | change-stream resume tokens across a core failover | none | `core/primaryhandoff` |
 | `eip:capacity:cooldown:v1:` | capacity controller action cooldowns | 2× window, min 1h | `capacity-controller/cluster` |

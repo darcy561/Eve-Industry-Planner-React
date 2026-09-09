@@ -53,6 +53,10 @@ flowchart TB
     MW[middleware AuthConstructor]
   end
 
+  subgraph shared ["shared/plannersession"]
+    ST[Store]
+  end
+
   subgraph redis ["Redis"]
     RTK[refresh_token:*]
     AS[account_sessions:*]
@@ -71,31 +75,28 @@ flowchart TB
   end
 
   subgraph bg ["Background"]
-    WRK[worker: grants, ESI maintenance, session cleanup cron]
+    WRK[worker: grants, ESI maintenance]
     CORE[core singleton: doclock expiry, auth-session-maintenance hourly]
   end
 
   SSO --> EX
   EX --> LG
-  LG --> RTK
-  LG --> AS
-  LG --> SI
+  LG --> ST
+  ST --> RTK
+  ST --> AS
+  ST --> SI
   CK --> RT
-  RT --> RTK
-  RT --> AS
+  RT --> ST
   ZS --> RT
   CK --> MW
-  MW --> AS
-  MW --> SI
+  MW --> ST
   CK --> UP
-  UP --> AS
+  UP --> ST
   LG --> USR
   RT --> USR
-  WRK --> AS
+  WRK --> ST
   WRK --> CC
-  CORE --> AS
-  CORE --> SI
-  CORE --> RTK
+  CORE --> ST
   UP --> RES
 ```
 
@@ -104,17 +105,17 @@ flowchart TB
 | Layer | Responsibility | Key paths |
 |-------|----------------|-----------|
 | **EVE SSO (CCP)** | OAuth code grant, ESI access JWT, ESI refresh secret | `services/api/v1endpoints/sso/*` |
-| **Planner session (Redis)** | App identity: `session_id`, reauth window, grants cache on session row | `services/api/helper/auth/*` |
+| **Planner session (Redis)** | App identity: `session_id`, reauth window, grants cache on session row | `services/shared/plannersession/*` |
 | **Session HTTP** | Login, rotate, bootstrap, logout; cookie issuance | `authenticate.go`, `refresh.go`, `logout.go` |
-| **Private API auth** | Cookie → Redis on every private route | `middleware/auth.go`, `auth_helpers.go` |
-| **WebSocket auth** | Same cookie + Redis as REST; no internal JWT | `websocket/server/handler.go` |
+| **Private API auth** | Cookie/header → Redis on every private route | `middleware/auth.go`, `shared/plannersession/request` |
+| **WebSocket auth** | Same cookie/header + Redis as REST; no internal JWT | `websocket/server/handler.go` |
 | **ESI access (runtime)** | Short-lived JWT for ESI calls; cloud refreshes from Mongo | `user/cloudStoredEsiRefresh*.go`, `tokenActions.js` |
-| **Session grants** | Corp/alliance IDs on session + `custom_claims_*` | `UpdateAccountSessionGrants`, worker `update_account_session_grants` |
+| **Session grants** | Corp/alliance IDs on session + `custom_claims_*` | `Store.SetGrants`, worker `update_account_session_grants` |
 | **SPA bootstrap** | OAuth code / localStorage / cookie cloud resume | `useAuthUrlLogin.js`, `appLoginFlow.js` |
 | **SPA maintenance** | Rotate cooldown, Tranquility gate, staggered ESI refresh | `tokenActions.js`, `useRefreshESITokens.js` |
 | **Signout** | WS disconnect → logout → store reset | `routes/signout.jsx` |
 | **First login** | Onboarding route (orthogonal UX, same session) | `routes/__root.jsx`, `First Login/*` |
-| **Hygiene jobs** | Prune expired sessions, orphan keys | `session_cleanup.go`, worker cron, core singleton |
+| **Hygiene jobs** | Revoke orphan refresh tokens | `shared/plannersession/maintenance`, core singleton (hourly) |
 
 ### Token types (do not conflate)
 
@@ -134,7 +135,7 @@ flowchart TB
 | **Fixed reauth window** | `reauth_required_at` = `SessionStart + 7d`. Anchored at **full EVE SSO login** (or first `session_id` on a new chain). |
 | **Rotate/bootstrap must not slide the window** | Cookie resume may rotate planner material and touch `LastSeenAt` — must **not** reset `SessionStart` / `ReauthRequiredAt`. |
 | **After the window** | Full EVE SSO (`POST /auth/sessions` with fresh access JWT), not cookie-only bootstrap. |
-| **No internal planner JWT** | Identity is `eip_session` + Redis only (API and WS share `ExtractAccountSession`). |
+| **No internal planner JWT** | Identity is the session cookie/header + Redis only (API and WS share `shared/plannersession`). |
 | **Cloud ESI secret never in SPA long-term** | Cloud accounts: Mongo + `eip_app_refresh`; strip secrets from login JSON. |
 
 ---
@@ -143,7 +144,8 @@ flowchart TB
 
 - **Docs (#1)** — [README](./overview.md), [BACKEND](./sessions.md), [FRONTEND](../../../frontend/auth/spa.md); internal JWT/JWKS removed.
 - **Redis session hardening (#2–#6, #20)** — reauth gate, index cleanup, CAS writes, persist verify on rotate, scheduled orphan cleanup.
-- **Operational cleanup** — Worker cron every 4h + core singleton `auth-session-maintenance` hourly; `AUTH_SESSION_CLEANUP_DRY_RUN`.
+- **Operational cleanup** — hourly core singleton (`auth-session-maintenance`) revokes orphan refresh tokens; `AUTH_SESSION_CLEANUP_DRY_RUN`.
+- **Service boundaries** — the session kernel, request-side reading and maintenance sweep moved to `services/shared/plannersession` (and `request` / `maintenance`), and the shared HTTP middleware kit moved to `services/shared/httpmiddleware`, so `core`, `worker` and `websocket` reach sessions through a shared package instead of importing `api`. `testing/serviceboundaries` guards it.
 
 ---
 
@@ -151,20 +153,20 @@ flowchart TB
 
 | Area | Automated tests | Gap |
 |------|-----------------|-----|
-| Reauth predicates | `session_reauth_test.go` | — |
-| `session_index` / prune | `refresh_token_session_index_test.go` | — |
-| CAS / concurrent upsert+grants | `account_sessions_cas_test.go` | — |
-| Persist verify + cleanup | `session_persist_test.go`, `session_cleanup_test.go` | — |
-| JSON response shapes | `session_types_test.go` | — |
+| Session kernel, reauth, grants, TTLs | `services/shared/plannersession/*_test.go` | — |
+| Request-side reading (cookie/header/query, failure classification) | `services/shared/plannersession/request/*_test.go` | — |
+| Maintenance sweep | `services/shared/plannersession/maintenance/*_test.go` | — |
+| HTTP middleware kit | `services/shared/httpmiddleware/*_test.go` | — |
+| Cross-service agreement on stored session shape | `testing/sessionhandover` | — |
 | SSO grant error strings | `sso/helpers_test.go` | Exchange/refresh handlers |
 | **HTTP login / rotate / bootstrap / logout** | — | **#15** |
-| **Middleware `AuthConstructor`** | indirect via helpers | Cookie + error codes |
+| **Middleware `AuthConstructor`** | indirect via `shared/plannersession` tests | Cookie + error codes |
 | **WS `/ws` upgrade** | `subscribe_auth_test.go` (doc subscribe only) | Session cookie upgrade |
 | **Worker grants task** | `update_account_session_grants_test.go` | — |
 | **Frontend auth** | — | **#16**, login/rotate/signout flows |
 | **E2E** | — | Optional Playwright smoke |
 
-**Summary:** Redis/session **helpers** are well covered; **HTTP handlers**, **middleware**, **WS session auth**, and **SPA** are not.
+**Summary:** planner session, request-side reading, maintenance and middleware **packages** are well covered; **HTTP handlers**, **WS session auth**, and **SPA** are not.
 
 ---
 
@@ -178,7 +180,7 @@ flowchart TB
 | **#4** | Optimistic locking on `account_sessions` (WATCH + retry) |
 | **#5** | Verify session row before cookies; rollback new refresh on failure |
 | **#6** | Unified `IsReauthExpired` / refresh + middleware alignment |
-| **#20** | `RunAuthSessionMaintenance` (orphan index + refresh tokens) |
+| **#20** | Orphan refresh-token sweep (index + refresh tokens) |
 
 ---
 
@@ -200,10 +202,10 @@ flowchart TB
 
 | Id | Item | Status | Size |
 |----|------|--------|------|
-| **#7** | **Logout revokes `refresh_token:*`** — `RevokeRefreshTokensForLogout` + SPA `clearPlannerAuthCookiesClientSide` | done | S |
+| **#7** | **Logout revokes `refresh_token:*`** — `Store.RevokeSessionTokens` + SPA `clearPlannerAuthCookiesClientSide` | done | S |
 | **#21** | **Admin revoke-all for account** — support/compromise: all sessions, indexes, refresh rows | open | M |
 
-**Where:** `logout.go`, `session_persist.go` (`RevokeRefreshTokensForLogout`), `plannerAuthCookies.js`; [BACKEND §6.3](./sessions.md#63-post-apiv1authsessionslogout-private--logouthandler), [FRONTEND §8](../../../frontend/auth/spa.md#8-signout).
+**Where:** `logout.go`, `shared/plannersession/store.go` (`RevokeSessionTokens`), `plannerAuthCookies.js`; [BACKEND §6.3](./sessions.md#63-post-apiv1authsessionslogout-private--logouthandler), [FRONTEND §8](../../../frontend/auth/spa.md#8-signout).
 
 ---
 
@@ -213,7 +215,7 @@ flowchart TB
 |----|------|--------|------|
 | **#15** | **Refresh state machine tests** — miniredis + `httptest`: happy rotate preserves `SessionStart`; expired → `reauth_required` + no cookies; bootstrap cookie path; upsert verify failure | open | M |
 | **#43** | **`authenticate.go` handler tests** — first login sets cookies, `SessionStart`, cloud strips `refresh_token` from body, grants side effect | open | M |
-| **#44** | **Logout handler tests** — 204, cookies cleared, session + refresh revoked (`httptest` + miniredis for handler; `session_persist_test` covers revoke helper) | open | S |
+| **#44** | **Logout handler tests** — 204, cookies cleared, session + refresh revoked (`httptest` + miniredis for handler; `shared/plannersession` tests cover the revoke method) | open | S |
 | **#45** | **Bootstrap Mongo failure** — no cookies if `ResolveUserDocumentsForLogin` fails after Redis writes; document rollback policy | open | S |
 
 **Where:** `authenticate.go`, `refresh.go`, `logout.go`.
@@ -225,7 +227,7 @@ flowchart TB
 | Id | Item | Status | Size |
 |----|------|--------|------|
 | **#13** | **Clear cookies on middleware `reauth_required`** | open | S |
-| **#46** | **`TouchAccountSession` failure semantics** — today maps to `session_missing`; document or distinguish Redis outage (**#22**) | open | S |
+| **#46** | **`Store.Touch` failure semantics** — a dependency outage now classifies as `503` rather than `session_missing`; document the split (**#22**) | open | S |
 
 **Where:** `middleware/auth.go`, [BACKEND §2](./sessions.md#2-middleware--authconstructor).
 
@@ -260,7 +262,7 @@ flowchart TB
 | Id | Item | Status | Size |
 |----|------|--------|------|
 | **#52** | **Grants refresh on login** — NATS `UpdateAccountSessionGrants` task: document failure modes when JetStream down | open | S |
-| **#53** | **Fail bootstrap if grants update fails** (optional strict mode) — today warn-only on `UpdateAccountSessionGrants` in refresh | open | S |
+| **#53** | **Fail bootstrap if grants update fails** (optional strict mode) — today warn-only on `Store.SetGrants` in refresh | open | S |
 
 **Where:** `refresh.go`, `authenticate.go`, worker `update_account_session_grants.go`.
 
@@ -309,7 +311,7 @@ flowchart TB
 
 | Id | Item | Status | Size |
 |----|------|--------|------|
-| **#22** | Redis outage: runbook + optional 503 `service_unavailable` vs `session_missing` | open | S/L |
+| **#22** | Redis outage: runbook. `session_missing` vs `503 service_unavailable` now split — see § Middleware & private API identity | open | S/L |
 
 **Env vars (auth-related):** `EVE_CLIENT_ID`, `EVE_CLIENT_SECRET`, `REDIS_*`, `REFRESH_TOKEN_AES_*`, `AUTH_SESSION_CLEANUP_DRY_RUN` — see [README §9](./overview.md#9-environment-variables).
 

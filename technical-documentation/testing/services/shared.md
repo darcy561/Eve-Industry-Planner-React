@@ -1,6 +1,6 @@
 # shared — tests
 
-Live SoT for test depth under [`services/shared`](../../../services/shared). Behaviour → [shared/contents.md](../../backend/shared/contents.md), [mongo.md](../../backend/shared/mongo.md); identity / secrets → [stack.md](../../stack/stack.md), [secrets.md](../../stack/secrets.md). Module entrypoints → [contents.md](./contents.md).
+Live SoT for test depth under [`services/shared`](../../../services/shared). Behaviour → [shared/contents.md](../../backend/shared/contents.md), [mongo.md](../../backend/shared/mongo.md); planner sessions and HTTP middleware → [api/auth/sessions.md](../../backend/api/auth/sessions.md); identity / secrets → [stack.md](../../stack/stack.md), [secrets.md](../../stack/secrets.md). Module entrypoints → [contents.md](./contents.md).
 
 ## Entrypoints
 
@@ -9,6 +9,8 @@ Live SoT for test depth under [`services/shared`](../../../services/shared). Beh
 | Tree | From `services/`: `go test ./shared/...` | No Docker |
 | Document locks | `go test ./shared/core/documentlock/` | Large focused suite |
 | Redis handle / lease | `go test ./shared/redis/` | Handle, keyspace, lease, and the driver-boundary test |
+| Planner sessions | `go test ./shared/plannersession/... ` | Kernel, request-side reading, maintenance sweep |
+| HTTP middleware | `go test ./shared/httpmiddleware/` | Constructors + composition kit |
 | Identity | `go test ./shared/container/ ./shared/wsplacement/` | Common control-plane helpers |
 | Messaging | `go test ./shared/nats/` | Live tests start a server in-process via `testing/natsfake`; nothing to run |
 | Live Mongo (opt-in) | `EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1` | Needs stack `MONGO_*`; skips otherwise |
@@ -21,7 +23,7 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 
 ## Coverage map
 
-**Depth:** Strong for document locks, archiveimport normalise, models, crypto/keyrings, Redis lease, orchestration probes. Object store, SDE store, connect/monitor loops, and lifecycle runners are largely untested. Opt-in live Mongo covers Docs put/get parity under `shared/mongo`.
+**Depth:** Strong for document locks, archiveimport normalise, models, crypto/keyrings, Redis lease, planner sessions, orchestration probes. Object store, SDE store, connect/monitor loops, and lifecycle runners are largely untested. Opt-in live Mongo covers Docs put/get parity under `shared/mongo`.
 
 ### Tested
 
@@ -31,6 +33,10 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 | `models` | Job JSON/BSON parity & unknown-field policy; refresh-token encrypt/reencrypt; group-template validation |
 | `core/crypto` + `keyrings` | AES-GCM roundtrip/rotate/AAD; refresh-token keyring legacy parsing |
 | `redis` | Handle and connection defaults; key names and lifetimes pinned to literals; values, keys, collections, lists, compare-and-set, cardinality; pipeline batching and what `Exec` reports; scripts and their result readers; pattern subscription delivery and goroutine lifetime; retry and the three error predicates; the lease — single-leader, takeover, lost-lease cancel, reacquire on fn error, and that neither renew nor release touches another holder's lease; and that no package outside `shared/redis` imports the driver |
+| `plannersession` | The multi-key invariant each write owes (`TestOperationsLeaveTheKeysTheyOwe`); reauth deadline math; record normalise and prune; TTL constants pinned to literals, not to themselves; refresh-token key trimming; grants — refs stored rather than raw entity ids, an account's own key always granted, a corporation ref never grants the alliance of the same id, concurrent grant writes; grants repair — legacy rewrite, sessions survive, idempotence, dry run writes nothing, an account already on the new shape gains its own key, and a record stored under an untrimmed key; `ResolveTokenForValidSession` and `RefreshTokenReauthExpired`; `RevokeSessionTokens` reaching every token a scan attributes to a session, not only the indexed one; `ErrNoStore` classifying as a dependency outage; `GenerateRefreshToken` / `GenerateSessionID` distinctness |
+| `plannersession/request` | Session id precedence — header, then query, then cookie; cookie round-trip and clear; failure classification and its log fields for every failure code; an outage reported as an outage rather than a missing session; revoked and expired sessions rejected; identity round-trips through context |
+| `plannersession/maintenance` | `RunLoop` runs a pass before the first tick and stops when its context is cancelled; the sweep no-ops on a store with no Redis rather than erroring |
+| `httpmiddleware` | `Chain` runs constructors in the order written; `Wrap` applies the chain to a handler; `Group` registers routes behind its chain; `ApplyIf` skips rather than no-op'ing on a non-match; request start time is on the context before the handler runs; request logging's client-failure detail, debug steps, caveats, and health-endpoint skip |
 | `orchestrationprobes` | Health/ready handlers; bus ping role parse/start |
 | `telemetry` | Trace sample rate, service version, deployment env, OTLP endpoint normalise; NATS log-context inject/extract |
 | `nats` (unit) | Retry attempts, backoff and the error classifier, including that a cancelled context ends a wait rather than sleeping it out; envelope trace and log-context enrichment; subject builders and tenant filters; consumer keep policy; task registry — every task registered under its own name, every subject ending in its task name, every task having a publish helper |
@@ -63,7 +69,9 @@ EIP_MONGO_PARITY_LIVE=1 go test ./shared/mongo/ -run Live -count=1
 ## Topic-only detail
 
 - Depth labels → [contents.md](./contents.md) § Depth labels.
-- Shared changes often affect multiple services — run the touched shared package plus the consuming service’s suite.
+- Shared changes often affect multiple services — run the touched shared package plus the consuming service's suite.
+- `plannersession`, `plannersession/request` and `plannersession/maintenance` tests build their fixtures through `testing/redisfixture` rather than hand-rolling the fake-to-handle bridge — see [../harness.md](../harness.md) § `redisfixture`.
+- Cross-service agreement on what a stored session means is not this file's concern — it is a property of the whole fleet, not one package — and is proved by `testing/sessionhandover` instead; see [../harness.md](../harness.md) § `sessionhandover`.
 - Live Mongo tests skip unless `EIP_MONGO_PARITY_LIVE=1`; they do not run in default CI unit jobs.
 - Live Redis tests skip unless `EIP_REDIS_PARITY_LIVE=1`, and they need a throwaway server:
 

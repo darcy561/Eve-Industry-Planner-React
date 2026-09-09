@@ -19,9 +19,9 @@ End-to-end documentation for the planner's authentication and session-handling s
 | **EVE SSO** | CCP's OAuth 2.0 server at `login.eveonline.com`. Issues `access_token` (JWT, ~20m) and `refresh_token` (opaque, long-lived). |
 | **ESI access JWT** | The short-lived OAuth access token CCP returns. Verified locally with EVE's JWKS. Carries the **character hash** in the `owner` claim. |
 | **ESI refresh token** | The long-lived OAuth refresh secret. **For cloud accounts** it lives encrypted in Mongo `users.refreshTokens`; **for local accounts** it lives in browser `localStorage["Auth"]`. |
-| **Account ID** | Derived **deterministically** from the EVE main character hash by stripping non-alphanumeric characters (`auth.GetAccountIDFromCharacterHash`). Same across logins/devices. |
+| **Account ID** | Derived **deterministically** from the EVE main character hash by stripping non-alphanumeric characters (`plannersession.AccountIDFromCharacterHash`). Same across logins/devices. |
 | **Planner session** | One row inside `account_sessions:<accountID>` in Redis, identified by `sessionID`. Represents one logged-in app session (one device / tab group). |
-| **Session ID** | An opaque UUID generated server-side (`auth.GenerateSessionID`). Sent to the browser only as the value of the **`eip_session`** HttpOnly cookie. |
+| **Session ID** | An opaque UUID generated server-side (`plannersession.GenerateSessionID`). Sent to the browser as the value of the **`eip_session`** HttpOnly cookie (or presented per-tab via the `X-Session-ID` header / `planner_session_id` query param). |
 | **Planner refresh token** | A separate opaque UUID stored in Redis under `refresh_token:<token>` with metadata. Used to **rotate the planner session**. *Not* an EVE SSO token. For cloud accounts it lives in the HttpOnly **`eip_app_refresh`** cookie; for local accounts the SPA holds the raw string in Zustand. |
 | **Reauth required at** | `started_at + RefreshTokenTTL` (7 days). After this, the session is treated as expired and `AuthConstructor` rejects with `reauth_required`. |
 | **Bootstrap** | A login-equivalent rotate that **also** reloads user docs / linked characters. Used by the SPA after a cold reload to re-hydrate state without a fresh EVE SSO round-trip. |
@@ -36,7 +36,7 @@ End-to-end documentation for the planner's authentication and session-handling s
 
 The previous implementation issued an **internal RSA-signed JWT** from the API and exposed JWKS endpoints for the websocket service to verify it.
 
-The current implementation **does not issue any internal JWTs**. All API and websocket calls authenticate against a **shared session cookie** that the middleware resolves against Redis on every request.
+The current implementation **does not issue any internal JWTs**. All API and websocket calls authenticate against a **shared session cookie** (or per-tab header/query param) that the middleware resolves against Redis on every request, through a session package (`shared/plannersession`) both services import rather than either reaching into the other.
 
 **Removed source files (gone in this version):**
 
@@ -49,7 +49,7 @@ The current implementation **does not issue any internal JWTs**. All API and web
 - `services/websocket/sso/types.go`
 - `frontend/src/Hooks/App/useCheckEveServerStatus.js` (replaced by `useTranquilityServerStatusQuery`).
 
-**Implication:** every request — API and `/ws` — is authenticated by the `eip_session` cookie + Redis lookup. There is no JWT signing key to rotate, no JWKS to publish, and no client-side bearer token to manage for *planner-internal* auth.
+**Implication:** every request — API and `/ws` — is authenticated against Redis through `shared/plannersession`. There is no JWT signing key to rotate, no JWKS to publish, and no client-side bearer token to manage for *planner-internal* auth.
 
 ---
 
@@ -72,7 +72,7 @@ flowchart LR
 
     Browser -- "POST /auth/sessions (eve_token)" --> API
     API -- "verify EVE JWT" --> EveSSO
-    API -- "StoreRefreshToken / UpsertSessionRecord" --> Redis
+    API -- "PutRefreshToken / PutSession" --> Redis
     API -- "load users + linked chars" --> Mongo
     API -- "SessionBootstrapResponse + cookies" --> Browser
 
@@ -81,7 +81,7 @@ flowchart LR
     Browser -- "POST /auth/sessions/logout (cookie)" --> API
 
     Browser <-- "WebSocket /ws (cookie)" --> WS
-    WS -- "ExtractAccountSession" --> Redis
+    WS -- "ExtractSession" --> Redis
 
     classDef external fill:#fef3c7,stroke:#92400e;
     classDef store fill:#dbeafe,stroke:#1e40af;
@@ -89,7 +89,7 @@ flowchart LR
     class Redis,Mongo store;
 ```
 
-**One-line model**: the only identity material the browser holds is the `eip_session` cookie (and for cloud users, the `eip_app_refresh` cookie). Everything else flows through Redis on the server.
+**One-line model**: the only identity material the browser holds is the `eip_session` cookie (and for cloud users, the `eip_app_refresh` cookie). Everything else flows through Redis on the server, through `shared/plannersession` — the package both `API` and `WS` import rather than either reaching into the other's code.
 
 ---
 
@@ -101,11 +101,11 @@ flowchart LR
 accountID = sanitize(characterHash)         // strip non-[a-zA-Z0-9]
 ```
 
-Computed by `auth.GetAccountIDFromCharacterHash` in `services/api/helper/auth/auth_helpers.go`. Deterministic per EVE character, stable across sessions / devices.
+Computed by `plannersession.AccountIDFromCharacterHash` in `services/shared/plannersession/store.go`. Deterministic per EVE character, stable across sessions / devices.
 
 ### 4.2 Session ID
 
-Opaque UUID (or 32 random bytes URL-base64 if UUID generation fails) produced by `auth.GenerateSessionID()` — actually delegates to `auth.GenerateRefreshToken()` in `services/api/helper/auth/refresh_token.go`. Sent to the browser only as the `eip_session` cookie value.
+Opaque UUID (or 32 random bytes URL-base64 if UUID generation fails) produced by `plannersession.GenerateSessionID()` — delegates to `plannersession.GenerateRefreshToken()` in `services/shared/plannersession/store.go`. Sent to the browser as the `eip_session` cookie value, or presented per-tab via `X-Session-ID` / `planner_session_id`.
 
 ### 4.3 Planner refresh token
 
@@ -117,7 +117,7 @@ Same generator as `sessionID`; distinct value. Stored as the key of `refresh_tok
 
 | Name | HttpOnly | Path | TTL | Purpose |
 |---|---|---|---|---|
-| **`eip_session`** | yes | `/` | 7d (`RefreshTokenTTL`) | Carries the **sessionID**. Sole identity material for API + WS. |
+| **`eip_session`** | yes | `/` | 7d (`RefreshTokenTTL`) | Carries the **sessionID**. Primary identity material for API + WS (a per-tab `X-Session-ID` header or `planner_session_id` query param, when present, is preferred over it). |
 | **`eip_app_refresh`** | yes | `/api/v1/auth` | 7d | Carries the **planner refresh token** (cloud accounts only). Scoped to auth paths so it is never exposed to other endpoints. |
 | **`eip_esi_oauth_storage`** | **no** | `/` | 7d | Non-secret routing hint: `"server"` (cloud-stored ESI refresh) or `"client"` (browser-stored). Read by the SPA on cold reload (`utils/authGuard.js`) to decide whether to attempt cookie-cloud resume. |
 
@@ -152,9 +152,9 @@ sequenceDiagram
     A->>A: ValidateEveTokenAndExtractHash
     A->>A: accountID = sanitize(characterHash)
     A->>A: GenerateRefreshToken + GenerateSessionID
-    A->>R: StoreRefreshToken refresh_token:<token>
-    A->>R: UpsertSessionRecord account_sessions:<accountID>[sessionID]
-    A->>R: SET session_index:<sessionID> = accountID
+    A->>R: PutRefreshToken refresh_token:<token>
+    A->>R: PutSession account_sessions:<accountID>[sessionID]
+    A->>R: SET session_index:<sessionID> = accountID, session_refresh:<sessionID> = token
     A->>M: ResolveUserDocumentsForLogin
     M-->>A: users / settings / linked characters
     A-->>S: SessionBootstrapResponse + cookies\n  Set-Cookie eip_session, eip_app_refresh (cloud), eip_esi_oauth_storage
@@ -176,11 +176,11 @@ sequenceDiagram
     U->>S: Open app (no `Auth` localStorage, eip_app_refresh + eip_session present)
     S->>S: useAuthUrlLogin -> mode "cookieCloudResume"
     S->>A: POST /api/v1/auth/sessions/bootstrap { eve_token: "" }\nCookie: eip_app_refresh; eip_session
-    A->>R: GetRefreshTokenData(eip_app_refresh)
+    A->>R: RefreshToken(eip_app_refresh)
     R-->>A: RefreshTokenData
     A->>M: RefreshStoredEsiFromMongoForCharacter (main)
     M-->>A: fresh ESI access token
-    A->>R: StoreRefreshToken (new), UpsertSessionRecord, RevokeRefreshToken (old)
+    A->>R: PutRefreshToken (new), PutSession, DeleteRefreshToken (old)
     A-->>S: SessionBootstrapResponse incl. linked_characters[main.access_token]\nSet-Cookie eip_session (rotated), eip_app_refresh (rotated)
     S->>S: applyLoginAuthResponse + setLoggedIn(true)
 ```
@@ -199,9 +199,9 @@ sequenceDiagram
     S->>S: Tranquility cached offline? -> return
     S->>S: lastPlannerSessionValidatedAt within 20m? -> return
     S->>A: POST /api/v1/auth/sessions/rotate { eve_token? }\nCookie: eip_session, eip_app_refresh
-    A->>R: GetRefreshTokenData (presented or eip_app_refresh)
+    A->>R: RefreshToken (presented or eip_app_refresh)
     A->>A: validate eve_token character_hash OR refresh ESI from Mongo
-    A->>R: StoreRefreshToken (new), UpsertSessionRecord, RevokeRefreshToken (old)
+    A->>R: PutRefreshToken (new), PutSession, DeleteRefreshToken (old)
     A-->>S: SessionRotateResponse { session_id, refresh_token? }
     S->>S: setSessionTokens + lastPlannerSessionValidatedAt = now
 ```
@@ -219,9 +219,9 @@ sequenceDiagram
     S->>W: disconnectRealtime()
     S->>A: POST /api/v1/auth/sessions/logout { refresh_token? }\nCookie: eip_session, eip_app_refresh
     A->>A: RequireAccountID (from session cookie context)
-    A->>R: GetRefreshTokenData -> verify token.AccountID matches context
-    A->>R: RevokeRefreshTokensForLogout(presented, sessionID)
-    A->>R: RevokeAccountSession(accountID, sessionID)
+    A->>R: RefreshToken -> verify token.AccountID matches context
+    A->>R: RevokeSessionTokens(presented, sessionID)
+    A->>R: RemoveSession(accountID, sessionID)
     A-->>S: 204 + Set-Cookie clear (all three)
     S->>S: clearPlannerAuthCookiesClientSide + resetAccountStore + queryClient.clear() + storage.clear()
     S->>S: navigate "/"
@@ -237,10 +237,10 @@ sequenceDiagram
     participant R as Redis
 
     S->>W: GET /ws (Upgrade)\nCookie: eip_session
-    W->>W: ReadAppSessionCookie -> empty? 401 session_missing
-    W->>R: ExtractAccountSession (account_sessions + session_index)
+    W->>W: session id present? no -> 401 session_missing
+    W->>R: ExtractSession (account_sessions + session_index)
     R-->>W: identity (accountID, sessionID, grants)
-    W->>R: TouchAccountSession (LastSeenAt)
+    W->>R: Touch (LastSeenAt)
     W-->>S: 101 Switching Protocols
     W->>S: { type: "connected", clientID: "..." }
     S->>S: setRealtimeClientID(clientID)
@@ -339,7 +339,7 @@ Request:
 
 Response: `204 No Content` + `Set-Cookie` clears for all three auth cookies (`Max-Age=0`).
 
-Server-side: `RevokeRefreshTokensForLogout` deletes `refresh_token:<presented>` (and any indexed/scanned row for the same `session_id`), then `RevokeAccountSession` removes the `account_sessions` row and `session_index`. The SPA also calls `clearPlannerAuthCookiesClientSide()` so `eip_esi_oauth_storage` is removed even if the HTTP call fails (HttpOnly cookies require a successful logout response with `credentials: "same-origin"`).
+Server-side: `Store.RevokeSessionTokens` deletes `refresh_token:<presented>` and every other refresh token a scan attributes to the same `session_id`, then `Store.RemoveSession` removes the `account_sessions` row and its indexes. The SPA also calls `clearPlannerAuthCookiesClientSide()` so `eip_esi_oauth_storage` is removed even if the HTTP call fails (HttpOnly cookies require a successful logout response with `credentials: "same-origin"`).
 
 ### 7.6 `POST /api/v1/eve-sso/tokens/refresh`
 
@@ -358,12 +358,13 @@ Response: same shape as `/exchange`.
 | Key | Body | TTL | Purpose |
 |---|---|---|---|
 | `refresh_token:<token>` | `RefreshTokenData` JSON (account id, character hash, scopes, corps/alliances cache, session id, app version, timestamps) | 7d | Planner refresh token row. One per active device chain. |
-| `account_sessions:<accountID>` | `AccountSessionsRecord` (map of `sessionID → AccountSession`, grants) | 7d | All currently active planner sessions for an account. |
+| `account_sessions:<accountID>` | `AccountRecord` (map of `sessionID → Session`, grants) | 7d | All currently active planner sessions for an account. |
 | `session_index:<sessionID>` | `<accountID>` (string) | 7d | Fast `sessionID → accountID` reverse lookup. |
+| `session_refresh:<sessionID>` | `<token>` (string) | 7d | Fast `sessionID → current refresh token` reverse lookup. |
 | `custom_claims_corporations:<accountID>` | JSON `[int64]` | 30d | Cached corporation grants for this account. |
 | `custom_claims_alliances:<accountID>` | JSON `[int64]` | 30d | Cached alliance grants for this account. |
 
-See [BACKEND.md §3](./sessions.md#3-redis-key-layout) for the full struct definitions and the helper functions that read/write them.
+See [sessions.md §3](./sessions.md#3-redis-key-layout) for the full struct definitions and the `Store` methods that read/write them.
 
 ---
 
@@ -377,6 +378,7 @@ See [BACKEND.md §3](./sessions.md#3-redis-key-layout) for the full struct defin
 | `REFRESH_TOKEN_AES_KEY` | yes for cloud | Base64 AES key (16/24/32 bytes) for encrypting **ESI** refresh tokens stored in Mongo. |
 | `REFRESH_TOKEN_AES_KEY_VERSION` | no | Active key version for the keyring (default `"v1"`). |
 | `REFRESH_TOKEN_AES_LEGACY_KEYS` | no | JSON `{ "<version>": "<base64 key>" }` for legacy decryption. |
+| `AUTH_SESSION_CLEANUP_DRY_RUN` | no | Set `true` to have the orphan refresh-token sweep log what it would revoke without revoking it. |
 
 ---
 
@@ -384,13 +386,16 @@ See [BACKEND.md §3](./sessions.md#3-redis-key-layout) for the full struct defin
 
 ### Backend (`services/`)
 
-- `api/middleware/auth.go` — `AuthConstructor` (cookie → Redis → context).
-- `api/helper/auth/auth_helpers.go` — context keys, EVE JWT validation, `ExtractAccountSession`.
-- `api/helper/auth/refresh_token.go` — Redis types, key prefixes, TTLs, CRUD.
-- `api/helper/auth/session_cookie.go` — `eip_session` cookie helpers.
+- `api/middleware/auth.go` — `AuthConstructor` (cookie/header → Redis → context).
+- `shared/plannersession/keys.go`, `types.go`, `reauth.go`, `record.go`, `store.go`, `grants.go` — session kernel: Redis key contract, stored shapes, reauth math, `Store`.
+- `shared/plannersession/request/cookie.go`, `failure.go`, `extract.go` — session cookie/header/query reading, failure classification, `ExtractSession`.
+- `shared/plannersession/maintenance/sweep.go`, `verify.go` — orphan refresh-token sweep.
+- `shared/httpmiddleware/middleware.go`, `requestlogging.go`, `requeststarttime.go` — the composition kit and constructors both `api` and `websocket` use.
 - `api/helper/auth/app_refresh_cookie.go` — `eip_app_refresh` cookie helpers.
 - `api/helper/auth/esi_oauth_storage_cookie.go` — `eip_esi_oauth_storage` cookie helpers.
-- `api/helper/httpGuards.go` — `RequireAccountID`, `RequireMethod`.
+- `api/helper/auth/tenant_affinity_cookie.go`, `refresh_credential_log.go`, `refresh_token_rotation.go` — the rest of the browser auth flow.
+- `api/helper/auth/evetoken.go` — EVE SSO token validation and error messages.
+- `api/helper/httpGuards.go` — `AuthenticatedAccountID`, `AuthenticatedSessionID`, `RequireAccountID`, `RequireMethod`.
 - `api/helper/request_context.go` — `PopulateRequestMeta` (account + session id + WS client id).
 - `api/helper/headers.go` — `X-WS-Client-ID`, `X-Session-ID` constants.
 - `api/v1endpoints/authenticate.go` — `AuthHandler` (POST `/auth/sessions`).
@@ -400,7 +405,8 @@ See [BACKEND.md §3](./sessions.md#3-redis-key-layout) for the full struct defin
 - `api/v1endpoints/sso/exchangeHandler.go` — `EveSSOExchangeHandler`.
 - `api/v1endpoints/sso/refreshHandler.go` — `EveSSORefreshHandler`.
 - `api/v1endpoints/sso/helpers.go`, `requestParsers.go`, `types.go` — shared SSO parsing + length caps.
-- `websocket/server/handler.go` — WS upgrade auth via shared cookie + Redis.
+- `websocket/server/handler.go` — WS upgrade auth via shared `plannersession` + `plannersession/request`.
+- `core/singleton/jobs.go` — `AuthSessionMaintenanceJob`, the hourly sweep singleton.
 - `shared/core/config/config.go` — env-driven `Config` (EVE creds, Redis, refresh keyring).
 
 ### Frontend (`frontend/src/`)
@@ -432,9 +438,10 @@ See [BACKEND.md §3](./sessions.md#3-redis-key-layout) for the full struct defin
 
 | Condition | API response | Notes |
 |---|---|---|
-| `eip_session` missing on private route | `401 { "code": "session_missing" }` | Middleware-level; the SPA does **not** auto-redirect on 401. The frontend `requireAuth` guard is purely state-based (`account.isLoggedIn`). |
+| `eip_session` / per-tab session id missing on private route | `401 { "code": "session_missing" }` | Middleware-level; the SPA does **not** auto-redirect on 401. The frontend `requireAuth` guard is purely state-based (`account.isLoggedIn`). |
 | Session row missing / `RevokedAt` set | `401 { "code": "session_revoked" }` | Cleaned up by logout or admin tooling. |
 | `ReauthRequiredAt` past now | `401 { "code": "reauth_required" }` | Hard 7-day cap; user must run the full SSO flow again. |
+| Redis unreachable while resolving or touching a session | `503 { "code": "service_unavailable" }` | Classified through `dependency.IsUnavailable`; distinct from `session_missing`. |
 | `refresh_token` Redis row missing on rotate/bootstrap/logout | `401 "Invalid token"` | Most often: the token was rotated by another tab/device. |
 | Wrong account on logout | `401 "Unauthorized"` | The presented refresh token's `account_id` must match the session-cookie account. |
 | Tranquility cached offline (frontend) | refresh path returns early | No HTTP issued; existing cookies remain valid until they expire. |

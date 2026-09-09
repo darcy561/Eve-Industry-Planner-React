@@ -22,7 +22,6 @@ never built. Nothing else declares a job.
 | `cron.adjustedPricesRefresh` | `20 * * * *` | Triggers the adjusted-prices refresh |
 | `cron.industrySystemsRefresh` | `50 * * * *` | Triggers the industry system-index refresh |
 | `cron.schemaVersionMaintenance` | `0 * * * *` | Upgrades legacy schema versions in batches, one collection per run |
-| `cron.pruneExpiredAccountSessions` | `0 */4 * * *` | Publishes the Redis session prune |
 | `cron.checkSDEUpdates` | `0 17 * * *` | Checks for a new Static Data Export |
 | `cron.inactiveAccountPlannerCleanup` | `0 8 * * 1` | Publishes planner cleanup for accounts inactive over two years, bookmarked through the user set |
 
@@ -38,6 +37,10 @@ func(deps contract.Dependencies, jobName string) contract.TaskHandler
 
 Adding a job is one row plus a builder in the owning package (`esi/`, `maintenance/`, `sde/`,
 `archivedjobs/`). Those packages never touch the scheduler; registration is the registry's job.
+
+Planner session cleanup is not a cron job — the orphan refresh-token sweep runs on an hourly core
+singleton instead, alongside doc-lock expiry. Singleton jobs → [core.md](./core.md); the sweep itself
+→ [`../api/auth/sessions.md`](../api/auth/sessions.md) § Cleanup.
 
 ## What fires a job
 

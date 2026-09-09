@@ -6,8 +6,7 @@ and [`../technical-rules.md`](../technical-rules.md) (migration-plans).
 While this project is active, this file is the overlay on top of live SoT: where it describes a
 surface, it wins for that in-flight work. Where it is silent, live documentation remains the truth.
 
-Each rollout phase fills its section as it lands — what changed, and how that part works
-afterwards. Empty sections mean the phase has not landed.
+Each phase fills its section as it lands — what changed, and how that part works afterwards.
 
 ## Current behaviour (before this project)
 
@@ -25,7 +24,12 @@ is built by `crypto/aesgcm/keyrings.NewRefreshTokenKeyringSpec`, which takes key
 `swarmsecret.Require("REFRESH_TOKEN_AES_KEY")` and the version from
 `REFRESH_TOKEN_AES_KEY_VERSION`, defaulting to `v1`.
 
-This was the plan's blocking security milestone and no longer gates later phases.
+This was the plan's blocking security milestone and no longer gates anything else.
+
+`rToken` still exists as the field a browser sends a token up in; it is encrypted on arrival and
+never persisted in the clear. Rows written before that carry plaintext still, and belong to
+accounts with cloud storage off — no path reads them, so nothing repairs them.
+[plan.md](./plan.md) § The tail — the plaintext fallback.
 
 ## Shared entity id helpers
 
@@ -107,17 +111,21 @@ boundaries below, and is converted the moment it arrives or the moment before it
 
 | Boundary | Where | Converted by |
 |----------|-------|--------------|
-| ESI ids computed into a session | `auth.UpdateAccountSessionGrants` | `protectedfields.ValuesForIDs64` |
-| Ids a browser names in `upgrade_scopes` | `Server.ApplyRealtimeScopeUpgrade` | `protectedfields.ValuesForIDs` |
+| Corporation and alliance ids ESI reports for an account | `esi.entityOwners`, before membership rows are reconciled | `entityid.Cipher.Corporation` / `.Alliance` |
 | Ids on a job document being written | `jobdocuments` / `archivedjobs` PUT handlers | `jobidentity.Encrypt` |
 
-`SessionGrants` persists `corporation_refs` / `alliance_refs`, so Redis session records hold
-no entity ids. The websocket reads those refs straight through without converting.
+A membership row therefore holds a ref, and the owner keys built from those rows carry it into
+session grants and websocket routing without converting again. What a grant *is* belongs to
+[shared-planners](../shared-planners/plan.md); this project owns only the value inside it.
 
-`upgrade_scopes` keeps `corporationIDs` in its client message on purpose: the browser has no
-key and can only name organisations by id. Anything that cannot be converted is dropped
-rather than compared raw — otherwise a client could send a string that matched a grant
-directly.
+One store still holds raw ids: `SessionStore.PutCorporations` / `PutAlliances` cache the `[]int64`
+ESI reported, and `authenticate` and `refresh` copy them onto the refresh-token record as
+`corporations` / `alliances`. Nothing reads them back for any authorization decision — they are
+the remains of the ESI-derived grants fill, and they go when shared-planners retires that path.
+Until then, "Redis holds no entity ids" is not true of this deployment.
+
+`protectedfields.ValuesForIDs` / `ValuesForIDs64` converted ids for that fill and now have no
+caller outside their own test; they go with it.
 
 ### Response — ref to id
 
@@ -136,37 +144,26 @@ decrypt, serialise, echo, re-encrypt — and asserts the refs come back byte for
 
 A `Declaration[T]` names a document type's protected fields and the spec they belong to.
 `Encrypt`, `Decrypt` and `HasRawIDs` all traverse the same declaration, so they cannot
-disagree about which fields hold ids. `ValuesForIDs` and `ValuesForIDs64` cover the
-query direction for callers that hold ids and want to match stored refs.
+disagree about which fields hold ids. `Encrypt` also stamps the spec, which is how the
+conversion sweep tells a converted document from one written under an older field set —
+[plan.md](./plan.md) § Converting stored documents.
 
-Non-positive ids are refused rather than converted: a zero from a missing query parameter
-would otherwise derive a valid ref for "entity zero" that matches nothing, turning a bad
-request into an empty result set.
+Non-positive ids are refused rather than converted: a zero from an absent field would otherwise
+derive a valid ref for "entity zero" that matches nothing.
 
-### Tenant keys are guarded
+### The org owner kinds are validated
 
-`wsplacement.TenantKeyCorporation` and `TenantKeyAlliance` accept only a well formed ref of
-the matching kind and return `""` for anything else, so a caller that has not been converted
-produces an empty key instead of routing on a raw id and leaking it into placement and the
-client-visible affinity cookie. `TenantStringFromRouting` treats an empty key as absence and
-falls through to the next lane. `TenantKeyAccount` is unguarded, because an account id is not
-an entity ref.
+`models.Owner.Validate` requires the id of a `corporation` or `alliance` owner to be a well
+formed ref of the matching kind. It is checked on read as well as at construction, so an owner
+that reached storage holding a raw id is refused rather than routed on.
 
-The guard found four unconverted call sites when it was introduced — the affinity cookie
-builder, the changestream publish subject and two soak-harness paths.
+Tenant strings are `Owner.Key()`, so that one check covers placement, the client-visible affinity
+cookie, NATS subjects and lock partitions at once: a raw id cannot become a tenant string without
+passing it. An account owner is unguarded, because an account id is not an entity ref.
 
-### Naming
-
-A field named `…ID` means an actual EVE id and you are at a boundary. Anywhere else it is
-`…Ref`. That asymmetry is the point: a raw id appearing internally reads as wrong rather
-than plausible, and someone reading a log line or task payload can tell which they hold.
-
-"Ref" names what the value *is* — a reference to an entity — not how it is produced, so it is
-unaffected by the primitive behind it. `Encrypt` and `Decrypt` name the operations.
-
-Carrying the convention: `RealtimeScopes.CorporationRefs`, `Client.grantedCorpRefs`,
-`Server.corpRefToClients`, `RouteInfo.CorporationRef`, the `corporationRefs` NATS key and
-the `corporation_refs` Redis handoff payload.
+An earlier form of this guard lived on per-kind tenant key builders, and found four unconverted
+call sites when it was introduced — the affinity cookie builder, the changestream publish subject
+and two soak-harness paths.
 
 ### Not converted
 
@@ -180,56 +177,39 @@ Refs must not reach a browser. Two paths carry them outward and are handled diff
 
 - **API reads** restore ids and keep the ref off the wire through the model's json tags — see
   § Response above.
-- **`doc.update` payloads** carry routing metadata the websocket server routes on —
-  `corporationRef`, `allianceRef` and `scopes` — and `outgoinglogic.ClientPayload` strips it once
-  per message before delivery, rather than per recipient.
+- **`doc.update` payloads** carry routing metadata the websocket server routes on — `ownerKey`,
+  `scopes` and the source ids — and `outgoinglogic.ClientPayload` strips it once per message
+  before delivery, rather than per recipient.
 
-`ClientPayload` strips the top-level routing keys and then walks the document body,
-replacing every ref with the id behind it. It runs on the copy handed to delivery, after
-routing has been decided from the untouched message, because delivery matches on refs — a
-conversion any earlier would produce a message that routes to nobody. A value that looks
-like a ref but does not decrypt is dropped rather than passed through.
+`ClientPayload` strips those keys, puts back `owner` as a **handle** — the same owner with its
+real id, via `models.OwnerHandle` — and then walks the document body replacing every ref with the
+id behind it. It runs on the copy handed to delivery, after routing has been decided from the
+untouched message, because delivery matches on refs: a conversion any earlier would produce a
+message that routes to nobody. A value that looks like a ref but does not decrypt is dropped
+rather than passed through.
 
-A ref is spelled to match the id field it stands in for, which differs by area: job bodies
-mirror ESI, so `corporation_id` pairs with `corporation_ref`; `_meta` is ours and camelCase,
-so `accountID` pairs with `corporationRef`. The rewrite produces the key the **client** reads,
-so it must land on the model's json tag rather than on the storage convention — the two
-spellings are the mechanism for that, not drift between them.
+A ref is spelled to match the id field it stands in for, which differs by area: job bodies mirror
+ESI, so `corporation_id` pairs with `corporation_ref`; `_meta` is ours and camelCase. The rewrite
+produces the key the **client** reads, so it must land on the model's json tag rather than on the
+storage convention — the two spellings are the mechanism for that, not drift between them.
 
-`TestClientPayloadKeysMatchTheAPIResponse` pins it by putting the same job through both
-transports and comparing the delivered key sets, so a storage rename that breaks the
-derivation fails there rather than in the browser.
+`TestClientPayloadKeysMatchTheAPIResponse` pins it by putting the same job through both transports
+and comparing the delivered key sets, so a storage rename that breaks the derivation fails there
+rather than in the browser.
 
-`models.MetaData` declares `CorporationRef` / `AllianceRef` so the changestream reads the
-field names from the model rather than matching a bare string.
-
-The body walk is exercised now — every job `doc.update` carries refs on the sale and
-linked-job lines. The top-level routing strip is not: no document carries
-`_meta.corporationRef` until corporation and alliance documents land, and the org-scoped path
-is built ahead of them deliberately. What such a document has to supply for the existing
-machinery to carry it is set out in
-[archived-jobs-stats/overlay.md](../archived-jobs-stats/overlay.md) § What a corporation
+The body walk is exercised now — every job `doc.update` carries refs on the sale and linked-job
+lines. The owner handle is exercised only for the account kind: no document carries an org owner
+until corporation and alliance documents land, and the org-scoped path is built ahead of them
+deliberately. What such a document has to supply for the existing machinery to carry it is set out
+in [archived-jobs-stats/overlay.md](../archived-jobs-stats/overlay.md) § What a corporation
 document has to supply.
 
-## Login backfill
+## Withdrawn — the authorization half
 
-_Not landed._
-
-Fill in: what login repairs for legacy accounts, failure policy, and why the check stays permanent.
-
-## Entitlements store and recompute
-
-_Not landed._
-
-Fill in: snapshot shape, what triggers recompute, TTL policy, and how websocket sessions learn a
-version changed.
-
-## Authorization cutover
-
-_Not landed._
-
-Fill in: how API and websocket checks read entitlements, and what the dual-read period looks like
-while both paths are live.
+Login backfill, the entitlements snapshot and the authorization cutover are no longer part of this
+project and no overlay is owed for them. Grants and access are decided by
+[shared-planners](../shared-planners/plan.md); reasons → [plan.md](./plan.md) § The authorization
+half is withdrawn.
 
 ## Missing live SoT found during this work
 

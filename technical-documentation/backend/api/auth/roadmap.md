@@ -10,7 +10,7 @@ Companion architecture docs:
 
 Related rollouts (separate plans):
 
-- [Authz HMAC rollout](../../../migration-plans/authz-hmac/contents.md) — ref IDs and scope snapshots
+- [Entity id encryption](../../../migration-plans/entity-id-encryption/contents.md) — entity refs and refresh-token encryption at rest
 - [Frontend lifecycles](../../../frontend/lifecycles/roadmap.md) — move SPA maintenance timers out of React mount into a boot-time supervisor
 
 > Per backlog item: **status** · **size** (S/M/L) · **where** · **why** · **how** · optional **acceptance**.  
@@ -299,7 +299,7 @@ flowchart TB
 | Id | Item | Status | Size |
 |----|------|--------|------|
 | **#17** | Mongo ESI refresh encryption rollout | tracked | L |
-| **#18** | Authz HMAC / scope snapshots | tracked | L |
+| **#18** | Entity id refs (`ENTITY_ID_KEY`) | tracked | L |
 | **#19** | Planner `refresh_token:*` encryption at rest (optional) | open | L |
 | **#32** | Session-bound CSRF / double-submit | open | M |
 

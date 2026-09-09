@@ -48,7 +48,7 @@ Other release tags → [release-channels.md](./deployment-tool/cli/release-chann
 # or TUI: ./eip
 ```
 
-Writes missing stack YAML, `.env`, and `eip.config.yaml` from Go defaults (`kit/templates`). Auto-generates database/redis secrets where needed. You may be prompted to type **`YES`** after backing up **`AUTHZ_HMAC_KEY`** — use an interactive terminal.
+Writes missing stack YAML, `.env`, and `eip.config.yaml` from Go defaults (`kit/templates`). Autogen secrets are generated where needed. **`ENTITY_ID_KEY`** is generated once and then locked — stored entity ids are encrypted under it and cannot be recovered without it, so back it up somewhere other than a database dump before going further.
 
 Containers start only on `eip up` / `eip dev`.
 

@@ -12,7 +12,7 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 
 | I need to… | Read |
 |------------|------|
-| Entity id encryption (entity refs, entitlements snapshot) | [entity-id-encryption/contents.md](./entity-id-encryption/contents.md) |
+| Entity id encryption (entity refs, refresh-token encryption at rest) | [entity-id-encryption/contents.md](./entity-id-encryption/contents.md) |
 | Swarm stack migration (**promoted** — kept only because changestream-tenant-scale cites its overlays) | [swarm-stack/contents.md](./swarm-stack/contents.md) |
 | Changestream tenant scale (publisher queues / metrics / future auto-detect) | [changestream-tenant-scale/contents.md](./changestream-tenant-scale/contents.md) |
 | Shared planners (planner as a scope, membership, invites, the owner block, realtime consistency and the document lock under more than one writer) | [shared-planners/contents.md](./shared-planners/contents.md) |

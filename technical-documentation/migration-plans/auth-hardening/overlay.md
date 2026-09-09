@@ -117,7 +117,9 @@ Not started.
 
 ### Stage E — bootstrap that half-succeeds
 
-Not started.
+No code landed. The investigation and the decisions it produced — including #52 closing unchanged and #53 moving to
+[shared-planners](../shared-planners/plan.md) § Stage I — are recorded in [plan.md](./plan.md) § Stage E.
+This section fills in when the change lands.
 
 ### Stage F — the security decisions that were never taken
 

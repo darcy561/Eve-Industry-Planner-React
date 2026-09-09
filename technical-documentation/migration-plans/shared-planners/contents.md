@@ -60,5 +60,6 @@ The planner as a first-class thing a user works in, and the ownership model unde
 | Find what the retired websocket-realtime project left behind | [plan.md](./plan.md) § Stage G — Absorbed from the retired websocket-realtime project |
 | Understand why two members take two different locks on one job | [plan.md](./plan.md) § Stage H |
 | Know what happens to same-account force-release once the lock is planner-wide | [plan.md](./plan.md) § Stage H |
+| Decide where the websocket's grant ceiling is read from | [plan.md](./plan.md) § Stage I |
 | Know how a document states its owner today | [overlay.md](./overlay.md) § Stage A — The owner block cutover |
 | See how a part works while the project is in flight | [overlay.md](./overlay.md) |

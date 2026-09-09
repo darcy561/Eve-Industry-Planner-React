@@ -2001,6 +2001,56 @@ whole — is a separate question with no planner premise, and it is tracked as
 whether the lock relaxes; this stage decides whether it works at all, and the two must not be confused.
 A relaxation landed before this stage would be relaxing something that is not holding.
 
+### Stage I — Where the grants ceiling is read from
+
+**Not a planner feature — a decision about where one already-built check gets its answer.** Raised from
+[auth-hardening](../auth-hardening/plan.md) § Stage E and parked here because it cannot be taken until
+the membership model has settled.
+
+**What is built.** `models.SessionGrants` sits on the account's session record in Redis, filled by
+`OwnerKeysForAccount` at login and at every bootstrap, and read exactly once — at websocket connect,
+into `Client.Scopes` and `Client.Ceiling`. Its only non-test reader is the ceiling test in
+`handleActivePlanner`: the owner a client names when it switches planner must be in that list or the
+switch is refused, and the switch is what enrols the connection in an owner's fan-out pool. Every REST
+route authorises from the membership rows in Mongo directly and consults the grants list for nothing.
+
+So the stored list is a cache of one Mongo query, kept because a planner switch is meant to be a cheap
+message rather than a database round trip.
+
+**What is unsettled about it.** Both handlers that fill the list treat a failure as a warning, so a
+session can be issued whose ceiling is empty or stale. The account then finds that its shared planners
+do not stream for the life of that session while every REST surface still works. That is the item
+auth-hardening carries as #53, and it cannot be closed there: "make the fill fatal", "fall back to
+Mongo at the reader" and "stop storing the list at all" are three answers to a question this project
+owns.
+
+**What has to be known before it can be decided**
+
+- **§ Losing access is the case that argues for keeping the cache.** A kick has to bite on a member who
+  is already connected, and the mechanism designed for it mutates the stored ceiling and pushes a
+  revocation over the fan-out. Resolving membership per switch instead would leave a removed member
+  streaming a planner they had already switched into until they switch again or reconnect — so the
+  stored list is not only a cache, it is where a revocation is applied. That path is Stage E's one
+  outstanding item and is not built yet, which is what keeps this decision cheap to take now.
+- **Stage F still owes "when the grant task fires and how it resolves".** The worker's ESI task writes
+  the same list from a third place. Dropping the stored list removes that write; keeping it has to say
+  which of the three writers wins when they disagree.
+- **Stage G's owner-scoped baseline** decides what a reconnecting or switching client is told it
+  missed, which is the other half of what a switch costs.
+
+**What this stage has to answer**
+
+- Whether the ceiling stays a stored snapshot, becomes a membership read at the moment of the switch,
+  or stays stored with a read-through when the row is missing.
+- If it stays stored: which writer is authoritative, and whether a failed fill refuses the session or
+  is tolerated — the answer auth-hardening #53 is waiting for.
+- If it stops being stored: how a revocation reaches a connection that has already switched, given
+  that the fan-out revoke in § Losing access is the answer only while a stored list exists.
+- Whether one Mongo read per planner switch is acceptable at all, measured rather than assumed.
+
+**Done when** the ceiling has one stated source, a removed member loses a live planner by a mechanism
+that follows from that source, and auth-hardening #53 closes against the answer.
+
 ## Live data, and the cutover window
 
 `Public` is deployed with real data, and the next deployment takes the stack down. Every data change
@@ -2162,3 +2212,4 @@ do not touch.
 | F — ESI providers | **F1 landed.** Corporation and alliance membership rows are reconciled from the ids ESI reports, at login and on the cloud token sweep, completing a task that read as finished and wrote no rows. A row grants while it exists and nothing expires one: a revoked token is a positive answer the reconcile acts on, and a two-year dormant account is cleared by `InactiveAccountPlannerCleanup`. Owed: reshaping when the grant task fires and how it resolves, and access lists |
 | G — realtime state under more than one writer | **Not started.** The `lastModified` cursor, the account-shaped baseline and the asserting `session_resume` are all single-writer assumptions, and each becomes a defect on a shared planner. Absorbs what survived the retired websocket-realtime project. Now also carries keying the job and group stores by owner, which waits on the owner-scoped baseline — see § Stage G |
 | H — the document lock stops being account-shaped | **Not started.** The lock key, the waitlist, the viewer set and the fan-out subject are all namespaced by the calling account, so two members of one planner take two keys for one job and neither contends. Becomes the owner key, which leaves a personal planner's keys unchanged. Blocks a planner holding two people as surely as Stage D does — see § Stage H |
+| I — where the grants ceiling is read from | **Not started, and deliberately unscheduled.** A decision rather than a build: the ceiling is a stored snapshot read once at connect, and whether it stays one depends on the revocation path Stage E owes and the grant-task reshaping Stage F owes. Raised from [auth-hardening](../auth-hardening/plan.md) § Stage E — see § Stage I |

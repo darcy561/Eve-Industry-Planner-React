@@ -29,7 +29,8 @@ it — and the investigation that has to happen before each piece can be scoped.
   own `refresh_token:*` rows in Redis is a separate question and is Stage F here.
 - What a session's grants mean, where the owner-key list is filled from, and the membership
   revocation path → [shared-planners/contents.md](../shared-planners/contents.md). Stage B here
-  consumes that project's revocation work rather than duplicating it.
+  consumes that project's revocation work rather than duplicating it, and whether a failed grants fill
+  should refuse a session is that project's § Stage I.
 - The document lock, its namespacing, and realtime consistency under more than one writer →
   [shared-planners/contents.md](../shared-planners/contents.md) and
   [document-write-granularity/contents.md](../document-write-granularity/contents.md).
@@ -46,7 +47,8 @@ it — and the investigation that has to happen before each piece can be scoped.
 | Pick up account-wide revocation, or find what it waits on | [plan.md](./plan.md) § Stage B |
 | Work out what an operator can see when auth fails | [plan.md](./plan.md) § Stage C |
 | Work out what a user sees when a cloud ESI credential dies | [plan.md](./plan.md) § Stage D |
-| Understand what happens when bootstrap half-succeeds | [plan.md](./plan.md) § Stage E |
+| Understand what happens when bootstrap half-succeeds, and what was decided | [plan.md](./plan.md) § Stage E |
+| Find out where the grants ceiling question went | [plan.md](./plan.md) § Stage E, [shared-planners/plan.md](../shared-planners/plan.md) § Stage I |
 | Take a decision on refresh-token encryption, CSRF, or a variable reauth window | [plan.md](./plan.md) § Stage F |
 | Check whether a change breaks a client | [plan.md](./plan.md) § Wire compatibility |
 | Find the auth invariants that no live document states yet | [overlay.md](./overlay.md) § Session window invariants |

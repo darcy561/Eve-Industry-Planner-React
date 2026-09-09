@@ -172,35 +172,62 @@ path has a test, and the outage story is written in one place.
 
 **Carries:** #45, #43 residual, #52, #53.
 
-Bootstrap writes Redis, verifies the session persisted, ensures the account planner, resolves owner
-keys and sets grants, and only then reads the user's documents out of Mongo. If that last read fails,
-the session material is already minted and verified. Nothing decides whether the cookies should still
-go out. Both possible answers are defensible — the session is genuinely valid, so issuing it is
-honest; but a client that gets cookies and no documents is in a state the SPA has no path out of —
-and the point of this stage is that neither has been chosen.
+Login and bootstrap both mint session material in Redis and then read the account's documents out of
+Mongo. If that read fails, the material already exists. Neither handler decides what should happen to
+it, and the two are not equally exposed.
 
-The grants items arrive here with their premise changed. Grants are no longer a cached list of
-corporation and alliance ids; [shared-planners](../shared-planners/plan.md) Stage C made them owner
-keys read from membership rows, which is why the handler calls `mongo.OwnerKeysForAccount`. The
-question that survives is unchanged in shape: both the resolve and the set are warn-only, so a
-session can be issued carrying an empty or stale grant list, and the account silently sees nothing it
-should have access to.
+**What the investigation found**
 
-**What this stage has to answer**
+- **The cookie question has no subject.** `auth.ApplyRotatedSessionCookies` is a no-op that discards
+  all six of its arguments: per-tab sessions moved identity onto the `X-Session-ID` header and a body
+  `refresh_token`, and rotate and bootstrap set no session cookie at all. The question is therefore
+  whether the *response body* carrying the new refresh token ever reaches the client, not whether
+  cookies go out. The dead wrapper is called from two sites in `refresh.go` and goes with this stage.
+- **Bootstrap recovers on its own.** The SPA sends `X-Session-ID` on the bootstrap call and retries a
+  `5xx` up to three times, and `ResolveTokenForValidSession` finds the orphaned new refresh row by
+  session id. The retry then revokes it as superseded, so the orphan does not accumulate. A tab is
+  lost only if Mongo is still failing after the last attempt.
+- **`AuthHandler` is the exposed one.** It mints the refresh token, writes the session record,
+  increments `Started` and `RecordAuthSessionDistinctAccount`, and only then resolves the documents.
+  On failure nothing revokes what it minted and the client holds no session id to recover with, so
+  every attempt leaves an orphan and inflates the lifecycle counters Stage C is about to build on.
 
-- Whether the Mongo read moves before the Redis writes, or whether a rollback path is added, or
-  whether issuing the session anyway is declared correct. Document the choice either way — the
-  ordering is not obvious from reading the handler.
-- Whether a failed grants resolve should fail the bootstrap rather than warn (#53). An empty grant
-  list is indistinguishable from an account with no memberships, which is what makes warn-only
-  dangerous here.
-- What the worker's `update_account_session_grants` task is still for now that the handler resolves
-  grants inline (#52), and what happens to it when JetStream is down.
-- Asserting that a cloud login strips the ESI refresh secret from the response body. The policy is
-  stated and unproven.
+**Decisions taken**
 
-**Done when** the half-success path has a chosen behaviour and a test, and the grants failure mode is
-either fatal or explicitly declared safe.
+- **#45 — revoke, then fail.** When the document read fails after the material exists, the handler
+  revokes the refresh token and the session record best-effort before returning `500`, and the
+  `Started` and distinct-account metrics move to after the read succeeds. The alternative orderings
+  were considered and rejected: moving the Mongo read ahead of the Redis writes reorders both handlers
+  for a failure that is already recoverable on one of them, and declaring the orphan acceptable leaves
+  a Mongo outage silently inflating the session counters.
+- **#52 — closed, no change.** The worker's `update_account_session_grants` task is not a duplicate of
+  the handler's inline resolve. The task is the only thing that calls ESI affiliation, writes the
+  corporation and alliance caches and reconciles membership rows; the handler only projects rows that
+  already exist into the grants list. Different jobs, and the task remains the one that discovers a
+  membership.
+- **#53 — handed to [shared-planners](../shared-planners/plan.md) § Stage I.** The grants list has one
+  non-test reader: the websocket's connect-time ceiling, which decides whether a client may switch its
+  active planner into that owner's fan-out pool. Every REST route authorises from the membership rows
+  in Mongo instead. So a failed fill costs a session its live shared-planner updates and nothing else,
+  and whether the fill should be fatal cannot be answered without deciding whether the stored list
+  survives at all — which is that project's § Losing access, § Stage E revocation path and § Stage F
+  grant task. This project stops tracking #53; the wire-breaking change it implied is withdrawn.
+
+**Still owed here**
+
+- Asserting that a cloud login strips the ESI refresh secret from the response body (#43 residual).
+  `StripRefreshTokensFromUserDocumentForClient` is called on both paths and nothing proves it.
+- Deleting `ApplyRotatedSessionCookies` and its two call sites.
+- The composite-literal `go fix` suggestions in `authenticate.go` and `refresh.go`, which this stage
+  edits anyway. The `omitempty` suggestion in `session_types.go` is **not** taken — see
+  [current-state.md](./current-state.md) § Go modernisation in the touch surface.
+- `EnsureAccountPlanner` runs twice on bootstrap — warn-only in `refresh.go`, then fatally inside
+  `ResolveUserDocumentsForLogin`. The `refresh.go` call is still needed by the rotate path, so this is
+  a question of which path owns the repair rather than a straight deletion.
+
+**Done when** the half-success path revokes what it minted and has a test on both handlers, the
+lifecycle counters only count sessions a client received, the strip is asserted, and the dead cookie
+wrapper is gone.
 
 ---
 
@@ -236,7 +263,7 @@ Assessed for every stage that could touch a client-visible surface.
 | Account-wide revoke endpoint (Stage B) | **Additive** | A new route. |
 | New counters and log fields (Stage C) | **Additive** | Telemetry only. |
 | A credential-failure reason on the rotate and bootstrap responses (Stage D) | **Additive** | A new optional field; older clients ignore it. |
-| Failing bootstrap where it currently warns (Stage E) | **Breaking** | A client that gets a session today would get an error. Needs the decision recorded before it is written. |
+| ~~Failing bootstrap where it currently warns (Stage E)~~ | **Withdrawn** | The grants fill it referred to is #53, now [shared-planners](../shared-planners/plan.md) § Stage I. Nothing left in this project makes a warned failure fatal. |
 | Dropping `omitempty` from the bootstrap response's `user_document` and `application_settings` (the `go fix` suggestion in `session_types.go`) | **Breaking** | Both fields would always be emitted. Not to be applied as a modernisation — see [current-state.md](./current-state.md) § Go modernisation in the touch surface. |
 
 Nothing in this project changes a Redis key layout, a cookie name, or a persisted document shape.

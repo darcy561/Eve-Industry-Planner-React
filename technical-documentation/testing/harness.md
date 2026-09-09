@@ -11,6 +11,7 @@ Live SoT for cross-cutting **ops soak / harness packages** under [`testing/`](..
 | Session cross-service check | From `testing/`: `go test ./sessionhandover/` | Drives one planner session through the API, websocket and worker/core paths each actually uses |
 | Ops soak CLI | From `testing/`: `go build -o ../.tmp/ws_soak ./ws_soak` then docker on `eip-core` | Needs live stack — [services/websocket.md](./services/websocket.md) § Ops soak |
 | Capacity soak CLI | From `testing/`: `go build -o ../.tmp/capacity_soak ./capacity_soak` | Live stack — [services/capacity-controller.md](./services/capacity-controller.md) § Ops soak |
+| Model parity CLI | From `testing/`: `go build -o ../.tmp/model_parity ./model_parity` | Live stack — sweeps every stored document against its Go model; see § Model parity |
 | Live Mongo tests | `./scripts/testing/live-mongo.sh [package] [pattern]` | Needs a live stack — see § Live Mongo |
 | CI | `shared testing library` job in [test.yml](../../.github/workflows/test.yml) | Separate module — outside the `services` suite |
 
@@ -32,6 +33,9 @@ Live SoT for cross-cutting **ops soak / harness packages** under [`testing/`](..
 | `testing/ws_soak` | CLI | Thin `main.go` → `soaklib.Run` (flags only) |
 | `testing/capacity_soak/lib` (`capsoak`) | **Tested** (unit) / **ops** (live stack) | Worker Asynq via harness; websocket/api hold via soaklib (`Accounts==Clients`) + Docker/NATS Observer; `-phase all\|up\|down` |
 | `testing/capacity_soak` | CLI | Thin `main.go` → parse profile/phase → `capsoak.Run` |
+| `testing/model_parity/lib` (`modelparity`) | **Tested** (unit) / **ops** (live stack) | Per-collection sweep (decode, round trip, orphan census), the job corpus the SPA test reads, and `JSONPaths` — the model's own JSON surface by reflection |
+| `testing/model_parity` | CLI | Thin `main.go` → parse phase → `modelparity.Run` |
+| `testing/fixtures/model-parity` | **Tested** (unit) | `instance-keys.json` — which map keys name an instance rather than a field, embedded for the Go sweep and read by the SPA parity test |
 
 ## Live Mongo
 
@@ -65,6 +69,63 @@ deliberate: it needs no per-machine setup and works the same way in CI.
 **An owner is a pair.** `models.AccountOwner` is the only construction that fills both kind and id;
 setting `Owner.ID` alone compiles, looks right, and matches no owner-scoped read.
 
+## Model parity
+
+`model_parity` answers a different question from the live parity tests under `services/shared/mongo`.
+Those assert one behaviour against a scratch account; this sweeps **every** document the stack holds
+and reports a census — what the model rejected, what it failed to reproduce, and which stored fields
+no model writes back.
+
+| Phase | What it does |
+|-------|--------------|
+| `census` | Decode each document into its model, encode it back, compare against what was stored |
+| `corpus` | Write the job documents as the API serialises them, plus the model's JSON paths beside them |
+| `all` | Both |
+
+Exit status is 1 when a model rejected or altered a document. **Orphans do not fail the run**: a field
+the model stopped writing years ago is a cleanup, not a regression, and failing on it would leave the
+tool permanently red.
+
+An orphan still matters. The upsert builds `$set` from the struct, so a key no model writes stays on
+disk untouched while whatever replaced it moves on — the stored figure and the derived one disagree
+from then on, and nothing reads the stale one to notice.
+
+Which map keys name an instance rather than a field is shared data, not a rule each side spells for
+itself: [`testing/fixtures/model-parity/instance-keys.json`](../../testing/fixtures/model-parity/instance-keys.json)
+holds the shapes, the Go sweep embeds them (it runs as a binary inside a container, where the
+repository is not present) and the SPA test reads the same file. A shape added on one side alone would
+leave the two counting different things without either failing.
+
+Numeric BSON types compare as one value. The same field is `int32` in some documents and `double` in
+others depending on when it was written; the driver converts on the way in, so a widened type is not a
+difference and reporting it would bury the real findings under every number in the corpus.
+
+### The SPA half
+
+A job has a second boundary: what the API sends becomes a `Job` in the browser and is written back by
+`toDocument()`. That leg cannot be driven from Go, so it lives beside the class it tests —
+[`frontend/src/Classes/job.parity.test.js`](../../frontend/src/Classes/job.parity.test.js) — and reads
+the corpus this tool writes:
+
+```bash
+cd frontend
+EIP_JOB_CORPUS=../.tmp/model-parity/jobs.jsonl npx vitest run src/Classes/job.parity.test.js
+```
+
+Without a corpus it skips rather than standing in for coverage it does not have.
+
+The schema file written beside the corpus is what makes that test precise. A field the SPA adds is a
+fault only when the model has nowhere to put it; a field left out of one document under `omitempty`
+is not. A single document cannot tell those apart — only the model's type can, so the tool emits its
+JSON paths by reflection and the test reads them.
+
+`null` and an empty collection are treated as the same thing on that leg. Go marshals a nil slice as
+`null` and the SPA builds `[]`; both say the collection is empty. Which of them the wire should settle
+on is a separate question from whether anything was lost.
+
+**The corpus carries real account data.** It is written under `.tmp`, which is not tracked, and must
+not be committed — the same rule as `.tmp/mongo-parity`.
+
 ## Topic-only detail
 
 - **Parent folder** — `testing/` holds shared harness products (CLI `main` + reusable `lib/` under the same tree). Fakes for one product package live next to that package instead — e.g. `services/capacity-controller/cluster/clusterfake`.
@@ -74,6 +135,7 @@ setting `Owner.ID` alone compiles, looks right, and matches no owner-scoped read
 - **`natsfake`** — every test needing NATS takes `natsfake.New(t)`, which starts the **same server version as production** (`nats-server` is pinned in `services/go.mod` to match the deployed image) inside the test process. It runs the real server rather than a stub because the server's own behaviour is what several tests assert — that a durable's delivery policy cannot be updated, that publishing to a schedule subject replaces rather than appends, that purging a subject cancels a schedule. None of that can be checked against a stub without encoding the answer the test is asking for.
 - **`redisfake`** — every test needing Redis takes `redisfake.New(t)`; `.Client` for the wired client, `.Server` to manipulate the store. It owns construction and both cleanups, so no test hand-rolls the miniredis dance. One caveat it also owns: miniredis listens on loopback TCP, so a client call is real network I/O and a test using this fixture cannot run inside a `testing/synctest` bubble. This constructor is the single place to change if that becomes necessary.
 - **`redisfixture`** — sits beside `redisfake` rather than on it, because binding the service handle (`eipredis.NewRedis(fake.Client)`) belongs to a package that may import `shared/redis`; `shared/redis`'s own tests reach for `redisfake` directly, and `redisfake` importing back would be a cycle. `redisfixture.New(t)` embeds `redisfake.Redis` (so `.Server` and `.Client` still work) and adds `.Handle`, the bound `*eipredis.Redis` most callers actually want.
+- **`model_parity`** — a sweep rather than an assertion: it reports a census over the whole corpus instead of pinning one behaviour, because the faults it looks for are the ones no single document shows. A model that reproduces every document it decodes is the bar; what the stored data still carries beyond that is reported and left to a deliberate cleanup.
 - **`serviceboundaries`** — discovers services by reading `services/` rather than listing them, so a new deployable is guarded from the day it exists; `shared`, `cmd` and the empty `services/services` directory are the named exceptions. Test files and build-tagged files count as imports like any other.
 - **`sessionhandover`** — exists because each service's session tests only prove that service agrees with itself once sessions stopped being reached by importing one shared package's code; this test proves the services agree with **each other** through `shared/plannersession`.
 - **Shared package** — `testing/harness` for NATS connect / Asynq Redis; polling lives in `wait`. Domain WS profiles + client SoT stay in `soaklib`; Swarm observe + capacity phases stay in `capsoak` (capsoak calls soaklib hold directly).

@@ -18,6 +18,7 @@ Cross-cutting **map** of how this repo is tested today: layers, entrypoints, CI 
 | See what test layers exist and what runs where | [overview.md](./overview.md) |
 | CI policy (branches, path filters, suites) | [overview.md](./overview.md) § CI test suite → [test.yml](../../.github/workflows/test.yml) |
 | Shared Go harness / ops soak packages (`testing`) | [harness.md](./harness.md) |
+| Check stored documents against the Go models (and the SPA classes) | [harness.md](./harness.md) § Model parity |
 | Run Go tests / see services test depth | [services/contents.md](./services/contents.md) |
 | api / core / websocket / worker / capacity-controller / … depth | [services/contents.md](./services/contents.md) task map |
 | Deployment Tool test depth by package | [deployment-tool/contents.md](./deployment-tool/contents.md) |

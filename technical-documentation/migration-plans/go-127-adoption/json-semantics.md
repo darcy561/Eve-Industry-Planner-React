@@ -24,13 +24,13 @@ The reason to migrate is read-side strictness: duplicate object names rejected, 
 Zero-value `models.Job` under each engine:
 
 ```
-v1: {"apiJobs":null,"apiOrders":null,"parentJobs":null,"build":{"setup":null,…
-v2: {"schemaVersion":0,"apiJobs":[],"apiOrders":[],"parentJobs":[],"build":{"setup":{},…
+v1: {"displayOnPlanner":false,…,"parentJobs":null,…,"build":{"setup":null,"costs":{"extrasCosts":null,…
+v2: {"schemaVersion":0,"displayOnPlanner":false,…,"parentJobs":[],…,"build":{"setup":{},"costs":{"extrasCosts":[],…
 ```
 
 | # | Difference | Effect here |
 |---|-----------|-------------|
-| 1 | v2 `omitempty` means "omits an empty **JSON** value", so `0` / `false` / `0.0` are emitted | Largest single cost — ~100 fields, including the websocket change flags in [`changestream/watcher.go`](../../../services/core/changestream/watcher.go), ESI types, and document-lock payloads |
+| 1 | v2 `omitempty` means "omits an empty **JSON** value", so `0` / `false` / `0.0` are emitted | Largest single cost — ~100 fields, including the websocket change flags in [`changestream/watcher.go`](../../../services/core/changestream/watcher.go), ESI types, and document-lock payloads. `_meta` shows it too: v2 emits `version` and `archiveProcessed`, which v1 omits |
 | 2 | Nil slices and maps marshal as `[]` / `{}`, not `null` | Client-visible on every non-`omitempty` slice field in the models |
 | 3 | No HTML escaping of `<`, `>`, `&` | No in-tree consumer embeds JSON in HTML |
 | 4 | Map keys not sorted | Does not affect the ETag in [`api/helper/httpcache.go`](../../../services/api/helper/httpcache.go) — it re-parses and canonicalises with sorted keys before hashing. Any shape change does churn every ETag once on deploy. |
@@ -38,13 +38,14 @@ v2: {"schemaVersion":0,"apiJobs":[],"apiOrders":[],"parentJobs":[],"build":{"set
 
 ## Differences that change acceptance
 
-Reading input that v1 accepted: duplicate object names now error (v1 took last-wins), lone surrogates now error (v1 substituted U+FFFD), and `APIJOBS` no longer matches an `apiJobs` tag.
+Reading input that v1 accepted: duplicate object names now error (v1 took last-wins), lone surrogates now error (v1 substituted U+FFFD), and `JOBSTATUS` no longer matches a `jobStatus` tag.
 
-Generic-map paths are unaffected by the case rule — [`shared/archiveimport/normalize.go`](../../../services/shared/archiveimport/normalize.go) does its key handling explicitly over `map[string]any` rather than leaning on case-insensitive struct matching.
+The case rule reaches struct field matching only, and no path decodes JSON into a generic map today,
+so nothing in the tree relies on the old behaviour.
 
 ## Ports unchanged
 
-Verified working under v2 with no edit: the 14 custom `MarshalJSON` / `UnmarshalJSON` methods (`FlexibleInt64` parsed `"42"` identically), the four `json:",inline"` embeddings of `MetaData`, `json.RawMessage` (now an alias for `jsontext.Value`), `json.Number`, `[]byte` base64, and `time.Time` RFC 3339.
+Verified working under v2 with no edit: the six custom `MarshalJSON` / `UnmarshalJSON` methods (`ExtraCost` still read a numeric `category` as a string), the four `json:",inline"` embeddings of `MetaData`, `json.RawMessage` (now an alias for `jsontext.Value`), `json.Number`, `[]byte` base64, and `time.Time` RFC 3339.
 
 ## The retag rule (Phase A1)
 
@@ -58,6 +59,11 @@ zero struct   omitempty v1: {"t":"0001-01-01T00:00:00Z"}
 ```
 
 Safe to retag: `int`, `float`, `bool`, `string`, pointer.
+
+`omitzero` is a **JSON** tag option. The BSON driver (v2.8.0) does not read it — its tag parser knows
+`omitempty` only. A field's two tags are usually written as one pair, so a retag must change the
+`json` half alone and leave `bson:"…,omitempty"` where it is. Changing the BSON half instead silently
+drops the option, and on a job document that changes what the upsert writes.
 
 **Not** safe to retag — the tags genuinely differ, and these types already agree between engines under `omitempty`:
 

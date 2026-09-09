@@ -152,16 +152,12 @@ func TestTheSweepRemovesOnlyWhatNoSessionHolds(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("seed orphan token: %v", err)
 	}
-	if err := store.PutSessionIndex(ctx, "orphan-index", accountID); err != nil {
-		t.Fatalf("seed orphan index: %v", err)
-	}
-
 	stats, err := maintenance.Run(ctx, store, maintenance.Options{})
 	if err != nil {
 		t.Fatalf("sweep: %v", err)
 	}
-	if stats.OrphanRefreshTokensRemoved != 1 || stats.OrphanSessionIndexesRemoved != 1 {
-		t.Fatalf("stats = %+v, want one orphan token and one orphan index removed", stats)
+	if stats.OrphanRefreshTokensRemoved != 1 {
+		t.Fatalf("stats = %+v, want one orphan token removed", stats)
 	}
 
 	if _, found, _ := store.RefreshToken(ctx, "live-token"); !found {

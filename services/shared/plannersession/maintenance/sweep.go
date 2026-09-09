@@ -11,20 +11,17 @@ import (
 	"eve-industry-planner/shared/plannersession"
 )
 
-// Options configures the orphan and expiry sweeps.
+// Options configures the sweep.
 type Options struct {
-	// DryRun counts what a pass would remove without removing it.
+	// DryRun counts what a pass would revoke without revoking it.
 	DryRun bool
 }
 
-// Stats summarizes one maintenance pass.
+// Stats summarizes one pass.
 type Stats struct {
-	AccountsScanned             int
-	OrphanSessionIndexesFound   int
-	OrphanSessionIndexesRemoved int
-	OrphanRefreshTokensFound    int
-	OrphanRefreshTokensRemoved  int
-	DryRun                      bool
+	OrphanRefreshTokensFound   int
+	OrphanRefreshTokensRemoved int
+	DryRun                     bool
 }
 
 // OptionsFromEnv reads AUTH_SESSION_CLEANUP_DRY_RUN (true/1/yes).
@@ -33,66 +30,40 @@ func OptionsFromEnv() Options {
 	return Options{DryRun: v == "true" || v == "1" || v == "yes"}
 }
 
-// A store with no Redis behind it makes every sweep a no-op rather than an
-// error: a service that starts without Redis should not report maintenance
-// failures it was never going to run.
+// A store with no Redis behind it makes the sweep a no-op rather than an error:
+// a service that starts without Redis should not report a failure for a pass it
+// was never going to run.
 func idle(err error) bool { return errors.Is(err, plannersession.ErrNoStore) }
 
-// PruneAccountRecords loads every account record so expired sessions and their
-// indexes are dropped. Reading is what prunes.
-func PruneAccountRecords(ctx context.Context, store *plannersession.Store) (int, error) {
-	var scanned int
-	err := store.EachAccountKey(ctx, func(accountIDs []string) error {
-		for _, accountID := range accountIDs {
-			if _, err := store.LiveAccountRecord(ctx, accountID); err != nil {
-				logs.WarnCtx(ctx, "planner session prune: load account record failed",
-					"account_id", accountID, "error", err)
-				continue
-			}
-			scanned++
-		}
-		return nil
-	})
-	if idle(err) {
-		return 0, nil
+// Run revokes refresh tokens whose session no longer exists.
+//
+// This is the only part of the keyspace that does not look after itself. Expired
+// sessions are dropped from a record by every read and write of it, a stranded
+// session index is deleted the moment something tries to resolve it, and every
+// key carries a TTL that ends it regardless. An orphaned refresh token has none
+// of that. Nothing deletes it on the way past, and its lifetime is anchored
+// differently from its session's: the reauth deadline runs from when the session
+// started, while a rotated token gets a fresh TTL from when it was minted. So a
+// session rotated late in its window is pruned on schedule while the token it
+// issued stays alive for days behind it, with nothing left to resolve.
+func Run(ctx context.Context, store *plannersession.Store, opts Options) (Stats, error) {
+	stats := Stats{DryRun: opts.DryRun}
+
+	found, err := revokeOrphanRefreshTokens(ctx, store, opts)
+	stats.OrphanRefreshTokensFound = found
+	if !opts.DryRun {
+		stats.OrphanRefreshTokensRemoved = found
 	}
-	return scanned, err
+	return stats, err
 }
 
-// CleanupOrphanIndexes removes session indexes with no matching account record.
-func CleanupOrphanIndexes(ctx context.Context, store *plannersession.Store, opts Options) (int, error) {
-	var found int
-	err := store.EachSessionIndexKey(ctx, func(sessionIDs []string) error {
-		for _, sessionID := range sessionIDs {
-			if _, err := store.SessionRow(ctx, sessionID); err == nil {
-				continue
-			}
-			found++
-			if opts.DryRun {
-				continue
-			}
-			if err := store.DeleteSessionIndexes(ctx, sessionID); err != nil {
-				logs.WarnCtx(ctx, "planner session cleanup: delete orphan index failed",
-					"session_id", sessionID, "error", err)
-			}
-		}
-		return nil
-	})
-	if idle(err) {
-		return 0, nil
-	}
-	return found, err
-}
-
-// CleanupOrphanRefreshTokens removes refresh tokens whose session is no longer
-// held by the account record they name.
-func CleanupOrphanRefreshTokens(ctx context.Context, store *plannersession.Store, opts Options) (int, error) {
+func revokeOrphanRefreshTokens(ctx context.Context, store *plannersession.Store, opts Options) (int, error) {
 	var found int
 	err := store.EachRefreshTokenKey(ctx, func(tokens []string) error {
 		for _, token := range tokens {
 			data, ok, err := store.RefreshToken(ctx, token)
 			if err != nil {
-				logs.WarnCtx(ctx, "planner session cleanup: load refresh token failed", "error", err)
+				logs.WarnCtx(ctx, "planner session sweep: load refresh token failed", "error", err)
 				continue
 			}
 			if !ok {
@@ -119,34 +90,6 @@ func CleanupOrphanRefreshTokens(ctx context.Context, store *plannersession.Store
 	return found, err
 }
 
-// Run performs one pass: prune account records, then remove orphan indexes and
-// orphan refresh tokens.
-func Run(ctx context.Context, store *plannersession.Store, opts Options) (Stats, error) {
-	stats := Stats{DryRun: opts.DryRun}
-
-	scanned, err := PruneAccountRecords(ctx, store)
-	stats.AccountsScanned = scanned
-	if err != nil {
-		return stats, err
-	}
-
-	indexFound, err := CleanupOrphanIndexes(ctx, store, opts)
-	stats.OrphanSessionIndexesFound = indexFound
-	if !opts.DryRun {
-		stats.OrphanSessionIndexesRemoved = indexFound
-	}
-	if err != nil {
-		return stats, err
-	}
-
-	refreshFound, err := CleanupOrphanRefreshTokens(ctx, store, opts)
-	stats.OrphanRefreshTokensFound = refreshFound
-	if !opts.DryRun {
-		stats.OrphanRefreshTokensRemoved = refreshFound
-	}
-	return stats, err
-}
-
 // RunLoop runs a pass on start and every interval until ctx is cancelled.
 func RunLoop(ctx context.Context, store *plannersession.Store, interval time.Duration, opts Options) error {
 	if interval <= 0 {
@@ -158,13 +101,10 @@ func RunLoop(ctx context.Context, store *plannersession.Store, interval time.Dur
 	for {
 		stats, err := Run(ctx, store, opts)
 		if err != nil && ctx.Err() == nil {
-			logs.WarnCtx(ctx, "planner session maintenance pass failed", "error", err, "dry_run", opts.DryRun)
+			logs.WarnCtx(ctx, "planner session sweep failed", "error", err, "dry_run", opts.DryRun)
 		} else {
-			logs.InfoCtx(ctx, "planner session maintenance pass complete",
+			logs.InfoCtx(ctx, "planner session sweep complete",
 				"dry_run", stats.DryRun,
-				"accounts_scanned", stats.AccountsScanned,
-				"orphan_session_indexes", stats.OrphanSessionIndexesFound,
-				"orphan_session_indexes_removed", stats.OrphanSessionIndexesRemoved,
 				"orphan_refresh_tokens", stats.OrphanRefreshTokensFound,
 				"orphan_refresh_tokens_removed", stats.OrphanRefreshTokensRemoved,
 			)

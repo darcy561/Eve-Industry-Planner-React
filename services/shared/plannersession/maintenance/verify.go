@@ -1,6 +1,7 @@
-// Package maintenance runs the periodic sweeps over the planner session
-// keyspace: pruning expired sessions and removing indexes and refresh tokens
-// that no longer name a live session.
+// Package maintenance revokes refresh tokens whose session no longer exists.
+//
+// It is deliberately the only sweep. The rest of the planner session keyspace
+// looks after itself — see [Run] for why an orphaned refresh token does not.
 package maintenance
 
 import (

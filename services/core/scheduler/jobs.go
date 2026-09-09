@@ -29,5 +29,4 @@ var jobs = []Job{
 	{"cron.schemaVersionMaintenance", "0 * * * *", maintenance.SchemaVersionMaintenance},
 	{"cron.inactiveAccountPlannerCleanup", "0 8 * * 1", maintenance.InactiveAccountPlannerCleanup},
 	{"cron.cloudStoredEsiRefreshMaintenance", "*/10 * * * *", maintenance.CloudStoredEsiRefreshMaintenance},
-	{"cron.pruneExpiredAccountSessions", "0 */4 * * *", maintenance.PruneExpiredAccountSessions},
 }

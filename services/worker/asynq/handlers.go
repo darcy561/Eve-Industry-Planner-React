@@ -51,7 +51,6 @@ func SetupHandlers(mux *asynq.ServeMux, taskDeps *taskrun.Dependencies) error {
 	handle(handlers, eipnats.SchemaVersionMaintenanceBatch, taskDeps, maintenance.SchemaVersionMaintenanceBatch)
 	handle(handlers, eipnats.InactiveAccountPlannerCleanup, taskDeps, maintenance.InactiveAccountPlannerCleanup)
 	handle(handlers, eipnats.CloudStoredEsiRefreshMaintenance, taskDeps, maintenance.CloudStoredEsiRefreshMaintenance)
-	handleTrigger(handlers, eipnats.PruneExpiredAccountSessions, taskDeps, maintenance.PruneExpiredAccountSessions)
 
 	return mount(mux, handlers)
 }

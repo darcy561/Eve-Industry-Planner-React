@@ -166,13 +166,6 @@ var (
 		DefaultTimeout:  10 * time.Minute,
 		MaxRetries:      3,
 	})
-	PruneExpiredAccountSessions = defineTask(Definition{
-		Name:            "pruneExpiredAccountSessions",
-		Subject:         "task.maintenance.pruneExpiredAccountSessions",
-		DefaultPriority: Priority5,
-		DefaultTimeout:  5 * time.Minute,
-		MaxRetries:      3,
-	})
 )
 
 // Publish helpers. One per task, taking the fields that task needs, so a caller
@@ -305,11 +298,6 @@ func PublishCloudStoredEsiRefreshMaintenance(ctx context.Context, n *NATS, accou
 		RotateAfterLoginDays:    rotateAfterLoginDays,
 		AbandonAfterLoginMonths: abandonAfterLoginMonths,
 	})
-}
-
-// TriggerPruneExpiredAccountSessions asks the worker to prune expired account sessions.
-func TriggerPruneExpiredAccountSessions(ctx context.Context, n *NATS) error {
-	return trigger(ctx, n, PruneExpiredAccountSessions)
 }
 
 // TriggerRollbackSDEVersion rolls the live Static Data Export back to the most

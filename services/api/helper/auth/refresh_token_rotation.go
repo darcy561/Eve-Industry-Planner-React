@@ -78,13 +78,3 @@ func MintAndStoreRefreshToken(ctx context.Context, redisClient *eipredis.Redis, 
 func RevokeSupersededRefreshToken(ctx context.Context, redisClient *eipredis.Redis, supersededToken string) error {
 	return plannersession.NewStore(redisClient).DeleteRefreshToken(ctx, supersededToken)
 }
-
-// UseAppRefreshCookieOnResponse reports whether rotate/bootstrap should set eip_app_refresh.
-func UseAppRefreshCookieOnResponse(refreshFromCookie, recoveredViaSession bool) bool {
-	return refreshFromCookie || recoveredViaSession
-}
-
-// ApplyRotatedSessionCookies is a no-op for per-tab sessions (identity via X-Session-ID / JSON body).
-func ApplyRotatedSessionCookies(w http.ResponseWriter, r *http.Request, sessionID, newRefreshToken string, refreshFromCookie, recoveredViaSession bool) {
-	_, _, _, _, _, _ = w, r, sessionID, newRefreshToken, refreshFromCookie, recoveredViaSession
-}

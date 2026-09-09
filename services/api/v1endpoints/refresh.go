@@ -333,6 +333,10 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 	// Before the grants below: they are the account's membership rows, and this is
 	// the path that repairs a missing one. Reading first would hand back an empty
 	// grant list on exactly the refresh that fixed the row.
+	//
+	// A bootstrap ensures again, fatally, inside ResolveUserDocumentsForLogin. That
+	// one runs after the grants below, so this call is not the duplicate it looks
+	// like.
 	if err := mongo.EnsureAccountPlanner(ctx, tokenData.AccountID, time.Now().UTC()); err != nil {
 		logs.AttachHandlerCaveat(r, "account_planner_ensure_failed", "failed to ensure the account planner", map[string]any{
 			"error": err.Error(),
@@ -404,7 +408,6 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 			LinkedCharacters:    linkedCharacters,
 		}
 		bootstrap.RefreshToken = newRefreshToken
-		auth.ApplyRotatedSessionCookies(w, r, updatedTokenData.SessionID, newRefreshToken, refreshFromCookie, recoveredViaSession)
 		auth.SetEsiOAuthStorageCookieFromUserCloud(w, r, userOut.UserCloudAccounts)
 		auth.SetTenantAffinityCookieAccount(w, r, tokenData.AccountID)
 
@@ -433,7 +436,6 @@ func (a *Handlers) refreshHandler(w http.ResponseWriter, r *http.Request, touchL
 		ReauthRequiredAt:  plannersession.ReauthRequiredAtUnix(updatedTokenData.SessionStart, time.Time{}),
 	}
 	rotate.RefreshToken = newRefreshToken
-	auth.ApplyRotatedSessionCookies(w, r, updatedTokenData.SessionID, newRefreshToken, refreshFromCookie, recoveredViaSession)
 	auth.SetTenantAffinityCookieAccount(w, r, tokenData.AccountID)
 
 	w.Header().Set("Content-Type", "application/json")

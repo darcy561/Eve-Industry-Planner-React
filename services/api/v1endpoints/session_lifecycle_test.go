@@ -457,6 +457,61 @@ func TestLoginRejectsAnExpiredToken(t *testing.T) {
 	}
 }
 
+// A login that mints its session and then cannot read the account's documents
+// must leave nothing behind. The session id reaches the browser only in the
+// response body, so material stranded here can never be presented, recovered or
+// revoked by anyone — it sits until the sweep, and it counts as a session that
+// was never issued.
+//
+// The Mongo handle is nil in this harness, which is what the document read
+// fails on.
+func TestLoginLeavesNothingBehindWhenTheDocumentsCannotBeRead(t *testing.T) {
+	s := newSession(t)
+	sso := s.withSSO(t)
+
+	rec := s.post(t, s.handlers.AuthHandler, "/api/v1/auth/eve-token",
+		map[string]string{"token": sso.AccessToken()}, nil)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500; body %s", rec.Code, rec.Body.String())
+	}
+	if keys := s.keysUnder(plannersession.RefreshTokenKeyPrefix); len(keys) != 0 {
+		t.Fatalf("a failed login left refresh material: %v", keys)
+	}
+	if keys := s.keysUnder(plannersession.SessionIndexKeyPrefix); len(keys) != 0 {
+		t.Fatalf("a failed login left a session index: %v", keys)
+	}
+	if rec.Header().Get("Set-Cookie") != "" {
+		t.Fatalf("a failed login set cookies: %q", rec.Header().Get("Set-Cookie"))
+	}
+}
+
+// The same invariant one step earlier: the refresh token is minted before the
+// session record is written, so a login that cannot write the record must not
+// leave the token behind either.
+//
+// The account record is poisoned rather than the server made to fail, so the
+// mint still succeeds and only the write under it does.
+func TestLoginLeavesNothingBehindWhenTheSessionCannotBeStored(t *testing.T) {
+	s := newSession(t)
+	sso := s.withSSO(t)
+
+	accountID := plannersession.AccountIDFromCharacterHash("owner-hash")
+	if err := s.fake.Server.Set(plannersession.AccountSessionsKeyPrefix+accountID, "not-a-record"); err != nil {
+		t.Fatalf("poison account record: %v", err)
+	}
+
+	rec := s.post(t, s.handlers.AuthHandler, "/api/v1/auth/eve-token",
+		map[string]string{"token": sso.AccessToken()}, nil)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500; body %s", rec.Code, rec.Body.String())
+	}
+	if keys := s.keysUnder(plannersession.RefreshTokenKeyPrefix); len(keys) != 0 {
+		t.Fatalf("a failed session write left refresh material: %v", keys)
+	}
+}
+
 func TestLoginRejectsAMalformedRequest(t *testing.T) {
 	s := newSession(t)
 

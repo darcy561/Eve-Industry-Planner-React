@@ -46,3 +46,19 @@ func RevokeTokenBestEffort(ctx context.Context, store *plannersession.Store, tok
 	}
 	_ = store.DeleteRefreshToken(ctx, token)
 }
+
+// DiscardMintedSessionBestEffort removes session material minted for a request
+// that then failed before the client could receive it: the refresh token, the
+// session record and its index.
+//
+// Only for material the caller minted in the request that is failing. A rotate
+// must not use it: the row it would delete is what a client's retry recovers
+// through its session id, so discarding turns a recoverable failure into a
+// forced EVE login.
+func DiscardMintedSessionBestEffort(ctx context.Context, store *plannersession.Store, accountID, sessionID, token string) {
+	RevokeTokenBestEffort(ctx, store, token)
+	if strings.TrimSpace(accountID) == "" || strings.TrimSpace(sessionID) == "" {
+		return
+	}
+	_ = store.RemoveSession(ctx, accountID, sessionID)
+}

@@ -96,16 +96,3 @@ func TestMintAndStoreRefreshToken(t *testing.T) {
 		t.Fatalf("SessionID = %q, want %q", loaded.SessionID, sessionID)
 	}
 }
-
-func TestUseAppRefreshCookieOnResponse(t *testing.T) {
-	t.Parallel()
-	if UseAppRefreshCookieOnResponse(true, false) != true {
-		t.Fatal("expected true for refreshFromCookie")
-	}
-	if UseAppRefreshCookieOnResponse(false, true) != true {
-		t.Fatal("expected true for recoveredViaSession")
-	}
-	if UseAppRefreshCookieOnResponse(false, false) {
-		t.Fatal("expected false")
-	}
-}

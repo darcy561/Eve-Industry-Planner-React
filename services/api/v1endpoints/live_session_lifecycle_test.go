@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"eve-industry-planner/api/apideps"
 	"eve-industry-planner/api/v1endpoints"
@@ -214,5 +215,64 @@ func TestLive_loginThenLogoutEndsOnlyThatSession(t *testing.T) {
 	}
 	if !s.stored(plannersession.RefreshTokenKeyPrefix + keep.RefreshToken) {
 		t.Error("logging out of one session ended another")
+	}
+}
+
+// A cloud account's stored ESI refresh material must not reach the browser. It
+// lives in Mongo; the login response carries the roster and nothing else — a
+// client that received the material could refresh ESI outside the server's rate
+// budget and would be holding a credential the design says it never holds.
+//
+// The assertion is on the shape of each row rather than on a planted secret
+// string: the login re-encrypts what it refreshes, so a plaintext sentinel would
+// vanish whether or not anything stripped it.
+func TestLive_loginDoesNotHandBackTheStoredEsiSecret(t *testing.T) {
+	s := newLiveSession(t)
+
+	s.seedCloudAccount(t, "eip-live-scratch-esi-refresh-secret")
+
+	rec := s.post(t, s.handlers.AuthHandler, "/api/v1/auth/eve-token",
+		map[string]string{"token": s.sso.AccessToken()}, nil)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("login = %d, body %s", rec.Code, rec.Body.String())
+	}
+
+	var out struct {
+		UserDocument struct {
+			RefreshTokens []map[string]any `json:"refreshTokens"`
+		} `json:"user_document"`
+	}
+	if err := json.NewDecoder(rec.Body).Decode(&out); err != nil {
+		t.Fatalf("decode login response: %v", err)
+	}
+
+	if len(out.UserDocument.RefreshTokens) != 1 {
+		t.Fatalf("linked character rows = %d, want 1", len(out.UserDocument.RefreshTokens))
+	}
+	row := out.UserDocument.RefreshTokens[0]
+	for field := range row {
+		if field != "characterHash" {
+			t.Errorf("the login response carried %q on a refresh token row", field)
+		}
+	}
+	if row["characterHash"] != liveScratchHash {
+		t.Errorf("character hash = %v, want %q", row["characterHash"], liveScratchHash)
+	}
+}
+
+// seedCloudAccount writes the scratch account as a cloud account holding one
+// linked character whose refresh material is the given secret, which is what
+// gives the strip something to remove.
+func (s *liveSession) seedCloudAccount(t *testing.T, secret string) {
+	t.Helper()
+	ctx := context.Background()
+
+	accountID := liveScratchAccount()
+	doc := models.DefaultUserAccountDocument(accountID, time.Now().UTC())
+	doc.UserCloudAccounts = true
+	doc.RefreshTokens = []models.RefreshToken{{CharacterHash: liveScratchHash, RToken: secret}}
+
+	if _, _, err := s.mongo.Users.UpsertUserAccount(ctx, accountID, doc); err != nil {
+		t.Fatalf("seed cloud account: %v", err)
 	}
 }

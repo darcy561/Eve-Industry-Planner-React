@@ -15,6 +15,7 @@ import (
 	"eve-industry-planner/shared/logs"
 	"eve-industry-planner/shared/models"
 	"eve-industry-planner/shared/plannersession"
+	sessionmaint "eve-industry-planner/shared/plannersession/maintenance"
 	"eve-industry-planner/shared/telemetry/apimetrics"
 )
 
@@ -152,6 +153,9 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		StartedAt:     sessionNow,
 		LastSeenAt:    sessionNow,
 	}); err != nil {
+		// The record write can succeed and the index write fail, so both halves go
+		// rather than only the token.
+		sessionmaint.DiscardMintedSessionBestEffort(ctx, sessions, accountID, sessionID, refreshToken)
 		duration := time.Since(start)
 		m.Errors.WithLabelValues("session_store_error").Inc(ctx)
 		sessionMetrics.StoreErrors.WithLabelValues("login").Inc(ctx)
@@ -165,11 +169,12 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 	logs.AttachDebugStep(r, "session_created", map[string]any{
 		"session_id": sessionID,
 	})
-	sessionMetrics.Started.WithLabelValues("login").Inc(ctx)
-	sessionMetrics.Stored.WithLabelValues("login").Inc(ctx)
-	apimetrics.RecordAuthSessionDistinctAccount(ctx, rdb, accountID)
 	loginDocs, err := helper.ResolveUserDocumentsForLogin(ctx, mongo, accountID)
 	if err != nil {
+		// The session id reaches the client only in the response below, so material
+		// left here is material nothing can present, recover or revoke. Counting the
+		// session before this point counted logins the browser never received.
+		sessionmaint.DiscardMintedSessionBestEffort(ctx, sessions, accountID, sessionID, refreshToken)
 		duration := time.Since(start)
 		m.Errors.WithLabelValues("mongo_error").Inc(ctx)
 		apimetrics.LogRequestMetrics(ctx, "eve_token_login", duration, "mongo_error",
@@ -177,6 +182,9 @@ func (a *Handlers) AuthHandler(w http.ResponseWriter, r *http.Request) {
 		respondAuthSessionsServerError(w, r, "failed to resolve user documents for login", "auth_mongo_user_docs", err, map[string]any{})
 		return
 	}
+	sessionMetrics.Started.WithLabelValues("login").Inc(ctx)
+	sessionMetrics.Stored.WithLabelValues("login").Inc(ctx)
+	apimetrics.RecordAuthSessionDistinctAccount(ctx, rdb, accountID)
 
 	// After the documents above: grants are the membership rows, and this login is
 	// what creates them for an account that has none. Reading them first would

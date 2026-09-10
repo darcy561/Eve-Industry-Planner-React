@@ -38,6 +38,7 @@ export const MATERIAL_PLAN = {
  * @property {boolean} isLinked - Whether child jobs are linked for it
  * @property {number} volume - Total volume the quantity occupies
  * @property {number} paidCost - What was actually paid for it, where it was bought
+ * @property {number} remainingQuantity - How many are still to buy or build
  * @property {object} mark - What kind of material it is and whether anything builds it
  * @property {object} material - The material itself, for a drawer opened on this row
  * @property {Array<object>} matchedChildJobs - The child jobs behind it
@@ -94,6 +95,7 @@ export function buildMaterialSourcingRow({
     isLinked,
     volume: (material?.volume ?? 0) * quantity,
     paidCost: purchase.paidCost,
+    remainingQuantity: Math.max(0, quantity - purchase.paidQuantity),
     material,
     matchedChildJobs,
     mark,

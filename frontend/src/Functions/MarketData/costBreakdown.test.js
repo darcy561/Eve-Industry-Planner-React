@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import { MATERIAL_PLAN } from "./materialSourcingRow";
 import { buildCostBreakdown } from "./costBreakdown";
 
-const row = (overrides) => ({
-  quantity: 100,
+/** A row as useMaterialsSourcing builds one: what is left to source is on it. */
+const row = ({ quantity = 100, paidQuantity = 0, ...overrides } = {}) => ({
+  quantity,
+  remainingQuantity: quantity - paidQuantity,
   buyPrice: 10,
   buildPrice: null,
   paidCost: 0,
@@ -46,7 +48,14 @@ describe("what a build costs", () => {
 
   it("counts what was paid for a material already bought, not an estimate", () => {
     const cost = buildCostBreakdown({
-      rows: [row({ plan: MATERIAL_PLAN.PAID, paidCost: 940, buyPrice: 10 })],
+      rows: [
+        row({
+          plan: MATERIAL_PLAN.PAID,
+          paidQuantity: 100,
+          paidCost: 940,
+          buyPrice: 10,
+        }),
+      ],
     });
 
     expect(lineValue(cost.toBuild, "paid")).toBe(940);
@@ -97,10 +106,11 @@ describe("the figures a panel leads with", () => {
     expect(cost.perUnit).toBe(150);
   });
 
-  it("has no per-unit cost for a job that makes nothing", () => {
+  it("has no per-unit cost to state for a job that makes nothing", () => {
+    // Unanswerable rather than zero, the same as every other ratio here.
     const cost = buildCostBreakdown({ rows: [row()], quantityProduced: 0 });
 
-    expect(cost.perUnit).toBe(0);
+    expect(cost.perUnit).toBeNull();
   });
 });
 
@@ -156,5 +166,58 @@ describe("what each line says about itself", () => {
       "1.5% at Jita · Broker Relations IV"
     );
     expect(lineDetail(cost.toSell, "salesTax")).toContain("Accounting IV");
+  });
+});
+
+describe("a material bought in part", () => {
+  const partly = () =>
+    row({
+      quantity: 1000,
+      paidQuantity: 400,
+      paidCost: 4_000_000,
+      buyPrice: 5_000,
+      plan: MATERIAL_PLAN.BUY,
+    });
+
+  it("counts what was already spent on it", () => {
+    const cost = buildCostBreakdown({ rows: [partly()] });
+
+    expect(lineValue(cost.toBuild, "paid")).toBe(4_000_000);
+  });
+
+  it("estimates only the units still to buy", () => {
+    // Pricing all 1000 would charge for 400 nobody is going to buy again.
+    const cost = buildCostBreakdown({ rows: [partly()] });
+
+    expect(lineValue(cost.toBuild, "bought")).toBe(3_000_000);
+  });
+
+  it("comes to what was spent plus what is left to spend", () => {
+    expect(buildCostBreakdown({ rows: [partly()] }).total).toBe(7_000_000);
+  });
+
+  it("charges nothing more for a material bought in full", () => {
+    const cost = buildCostBreakdown({
+      rows: [
+        row({ quantity: 1000, paidQuantity: 1000, paidCost: 9_000, plan: MATERIAL_PLAN.PAID }),
+      ],
+    });
+
+    expect(cost.total).toBe(9_000);
+  });
+});
+
+describe("per unit", () => {
+  it("is worked out once, for every line and every total", () => {
+    // Two divisions of the same figures is how two totals that disagree start.
+    const cost = buildCostBreakdown({
+      rows: [row()],
+      installCost: 500,
+      quantityProduced: 10,
+    });
+
+    expect(cost.toBuild.lines[0].perUnit).toBe(100);
+    expect(cost.toBuild.perUnit).toBe(150);
+    expect(cost.perUnit).toBe(cost.total / 10);
   });
 });

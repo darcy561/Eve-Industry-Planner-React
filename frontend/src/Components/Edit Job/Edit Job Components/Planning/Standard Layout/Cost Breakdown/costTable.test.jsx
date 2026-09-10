@@ -8,16 +8,18 @@ const formatIsk = (value) => value.toLocaleString("en-GB");
 const cost = (overrides = {}) => ({
   toBuild: {
     lines: [
-      { id: "bought", label: "Materials bought at market", detail: "13 of 16", value: 398_600_000 },
-      { id: "install", label: "Install cost", detail: "this job only", value: 12_400_000 },
+      { id: "bought", label: "Materials bought at market", detail: "13 of 16", value: 398_600_000, perUnit: 39_860_000 },
+      { id: "install", label: "Install cost", detail: "this job only", value: 12_400_000, perUnit: 1_240_000 },
     ],
     total: 411_000_000,
+    perUnit: 41_100_000,
   },
   toSell: {
     lines: [
-      { id: "brokerFee", label: "Broker fee to list", detail: "1.5% at Jita", value: 9_360_000 },
+      { id: "brokerFee", label: "Broker fee to list", detail: "1.5% at Jita", value: 9_360_000, perUnit: 936_000 },
     ],
     total: 9_360_000,
+    perUnit: 936_000,
   },
   total: 420_360_000,
   perUnit: 42_036_000,
@@ -25,9 +27,7 @@ const cost = (overrides = {}) => ({
 });
 
 const renderTable = (overrides) =>
-  render(
-    <CostTable cost={cost(overrides)} quantityProduced={10} formatIsk={formatIsk} />
-  );
+  render(<CostTable cost={cost(overrides)} formatIsk={formatIsk} />);
 
 const rowFor = (label) => screen.getByText(label).closest("tr");
 
@@ -57,11 +57,31 @@ describe("the cost table", () => {
 
   it("has no per-unit column to fill for a job that makes nothing", () => {
     render(
-      <CostTable cost={cost()} quantityProduced={0} formatIsk={formatIsk} />
+      <CostTable
+        cost={cost({
+          toBuild: {
+            lines: [
+              { id: "install", label: "Install cost", value: 12_400_000, perUnit: null },
+            ],
+            total: 12_400_000,
+            perUnit: null,
+          },
+        })}
+        formatIsk={formatIsk}
+      />
     );
     const cells = within(rowFor("Install cost")).getAllByRole("cell");
 
     expect(cells[2]).toHaveTextContent("—");
+  });
+
+  it("states the per-unit the figures worked out, not one of its own", () => {
+    // Dividing again here is how a table's total stops matching the model's.
+    renderTable();
+
+    expect(
+      within(rowFor("Cost to build and sell")).getAllByRole("cell")[2]
+    ).toHaveTextContent("42,036,000");
   });
 
   it("subtotals the build separately from the whole", () => {

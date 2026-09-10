@@ -14,12 +14,14 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
  * @property {string} label
  * @property {string} [detail] - What the figure is made of, in words
  * @property {number} value
+ * @property {number|null} perUnit - Its share of one unit produced
  */
 
 /**
  * @typedef {object} CostBand
  * @property {CostLine[]} lines
  * @property {number} total
+ * @property {number|null} perUnit
  */
 
 /**
@@ -63,20 +65,27 @@ export function buildCostBreakdown({
   let paid = 0;
 
   for (const row of rows) {
-    if (row.plan === MATERIAL_PLAN.PAID) {
-      paid += row.paidCost ?? 0;
+    // What was already spent is spent whatever the row's plan is, and only what
+    // is left counts as still to source. A material bought in part was
+    // otherwise losing its paid half and being estimated for units nobody is
+    // going to buy.
+    paid += row.paidCost ?? 0;
+
+    const remaining = row.remainingQuantity ?? row.quantity;
+    if (remaining <= 0) continue;
+
+    if (row.plan === MATERIAL_PLAN.BUILD) {
+      built += (row.buildPrice ?? 0) * remaining;
       continue;
     }
-    if (row.plan === MATERIAL_PLAN.BUILD && row.buildPrice !== null) {
-      built += row.buildPrice * row.quantity;
-      continue;
-    }
-    bought += (row.buyPrice ?? 0) * row.quantity;
+    bought += (row.buyPrice ?? 0) * remaining;
   }
 
   const counts = countRows(rows);
 
-  const toBuild = band([
+  const each = (value) => (quantityProduced > 0 ? value / quantityProduced : null);
+
+  const toBuild = band(each, [
     {
       id: "bought",
       label: "Materials bought at market",
@@ -99,7 +108,7 @@ export function buildCostBreakdown({
     { id: "extras", label: "Extras", value: extras },
   ]);
 
-  const toSell = band([
+  const toSell = band(each, [
     {
       id: "brokerFee",
       label: "Broker fee to list",
@@ -121,7 +130,7 @@ export function buildCostBreakdown({
     toSell,
     total,
     // A job producing nothing has no per-unit cost rather than an infinite one.
-    perUnit: quantityProduced > 0 ? total / quantityProduced : 0,
+    perUnit: each(total),
   };
 }
 
@@ -133,9 +142,8 @@ function countRows(rows) {
   const counts = { total: rows.length, bought: 0, built: 0, paid: 0 };
   for (const row of rows) {
     if (row.plan === MATERIAL_PLAN.PAID) counts.paid += 1;
-    else if (row.plan === MATERIAL_PLAN.BUILD && row.buildPrice !== null) {
-      counts.built += 1;
-    } else counts.bought += 1;
+    else if (row.plan === MATERIAL_PLAN.BUILD) counts.built += 1;
+    else counts.bought += 1;
   }
   return counts;
 }
@@ -155,14 +163,15 @@ function materialsDetail({ total, bought, built }) {
  * Drops the lines that are nothing, so a breakdown states what it is made of
  * rather than listing every part a build could have had.
  *
+ * @param {(value: number) => number|null} each
  * @param {Array<{id: string, label: string, value: number}>} lines
  * @returns {CostBand}
  */
-function band(lines) {
-  const present = lines.filter((line) => line.value > 0);
+function band(each, lines) {
+  const present = lines
+    .filter((line) => line.value > 0)
+    .map((line) => ({ ...line, perUnit: each(line.value) }));
+  const total = present.reduce((sum, line) => sum + line.value, 0);
 
-  return {
-    lines: present,
-    total: present.reduce((sum, line) => sum + line.value, 0),
-  };
+  return { lines: present, total, perUnit: each(total) };
 }

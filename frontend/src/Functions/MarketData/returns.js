@@ -12,16 +12,16 @@
  * @property {string} label
  * @property {number} revenue - Before what selling costs
  * @property {number} net - After it
+ * @property {number|null} perUnit
+ * @property {number|null} margin - Net over revenue, as a fraction
+ * @property {number|null} returnOnOutlay - Net over what it cost, as a fraction
  */
 
 /**
  * @typedef {object} Returns
- * @property {number} net - What is left after everything
- * @property {number} perUnit
- * @property {number|null} margin - Net over revenue, as a fraction
- * @property {number|null} returnOnOutlay - Net over what it cost, as a fraction
- * @property {ExitRoute[]} routes
- * @property {number|null} breakEvenPerUnit - What each unit must fetch to cover the build
+ * @property {ExitRoute[]} routes - Each with its own figures
+ * @property {number|null} breakEvenPerUnit - What each unit must fetch to cover
+ *   the build and the selling
  */
 
 /**
@@ -31,6 +31,10 @@
  * buy orders returns the buy price less tax only, because nothing is listed. The
  * app does not model undercutting, order-book position, or how long a listing
  * sits.
+ *
+ * Every figure belongs to a route. Nothing here picks one to lead with: a player
+ * selling only into buy orders would otherwise be shown a margin that is not
+ * theirs, with nothing saying whose it was. The panel chooses, and says which.
  *
  * @param {object} params
  * @param {number} params.sellPrice - Unit price listing into the sell side
@@ -49,33 +53,28 @@ export function calculateReturns({
   brokerFee = 0,
   salesTax = 0,
 }) {
-  const listedRevenue = sellPrice * quantityProduced;
-  const immediateRevenue = buyPrice * quantityProduced;
-
-  const routes = [
-    {
-      id: "listed",
-      label: "Sell order",
-      revenue: listedRevenue,
-      net: listedRevenue - brokerFee - salesTax - buildCost,
-    },
-    {
-      id: "immediate",
-      label: "Into buy orders",
-      revenue: immediateRevenue,
-      // No listing, so no broker fee — the tax is charged either way.
-      net: immediateRevenue - salesTax - buildCost,
-    },
-  ];
-
-  const chosen = routes[0];
+  const route = (id, label, revenue, cost) => {
+    const net = revenue - cost - buildCost;
+    return {
+      id,
+      label,
+      revenue,
+      net,
+      perUnit: quantityProduced > 0 ? net / quantityProduced : null,
+      margin: fraction(net, revenue),
+      returnOnOutlay: fraction(net, buildCost),
+    };
+  };
 
   return {
-    net: chosen.net,
-    perUnit: quantityProduced > 0 ? chosen.net / quantityProduced : 0,
-    margin: fraction(chosen.net, chosen.revenue),
-    returnOnOutlay: fraction(chosen.net, buildCost),
-    routes,
+    routes: [
+      route("listed", "Sell order", sellPrice * quantityProduced, brokerFee + salesTax),
+      // No listing, so no broker fee — the tax is charged either way.
+      route("immediate", "Into buy orders", buyPrice * quantityProduced, salesTax),
+    ],
+    // Linearised around today's price: the fee and the tax are shares of
+    // revenue, so the price that truly breaks even would change them again.
+    // Close enough to plan against, and not a solved figure.
     breakEvenPerUnit:
       quantityProduced > 0
         ? (buildCost + brokerFee + salesTax) / quantityProduced

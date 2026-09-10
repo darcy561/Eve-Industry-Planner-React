@@ -31,12 +31,12 @@ const COLUMNS = [
 /**
  * @param {object} props
  * @param {import("../../../../../../Functions/MarketData/costBreakdown").CostBreakdown} props.cost
- * @param {number} props.quantityProduced
  * @param {(value: number) => string} props.formatIsk
  */
-export default function CostTable({ cost, quantityProduced, formatIsk }) {
-  const perUnit = (value) =>
-    quantityProduced > 0 ? formatIsk(value / quantityProduced) : null;
+export default function CostTable({ cost, formatIsk }) {
+  // Per unit comes from the figures rather than being divided again here: two
+  // divisions of the same numbers is how two totals that disagree begin.
+  const perUnit = (value) => (value === null ? null : formatIsk(value));
 
   return (
     <Table size="small" aria-label="Cost breakdown">
@@ -56,6 +56,7 @@ export default function CostTable({ cost, quantityProduced, formatIsk }) {
         <SubtotalRow
           label="Cost to build"
           value={cost.toBuild.total}
+          valuePerUnit={cost.toBuild.perUnit}
           formatIsk={formatIsk}
           perUnit={perUnit}
         />
@@ -74,6 +75,7 @@ export default function CostTable({ cost, quantityProduced, formatIsk }) {
             <SubtotalRow
               label="Cost to build and sell"
               value={cost.total}
+              valuePerUnit={cost.perUnit}
               formatIsk={formatIsk}
               perUnit={perUnit}
             />
@@ -102,7 +104,7 @@ function CostRow({ line, formatIsk, perUnit }) {
         <Figure>{formatIsk(line.value)}</Figure>
       </TableCell>
       <TableCell align="right">
-        <Figure>{perUnit(line.value)}</Figure>
+        <Figure>{perUnit(line.perUnit)}</Figure>
       </TableCell>
     </TableRow>
   );
@@ -114,7 +116,7 @@ function CostRow({ line, formatIsk, perUnit }) {
  *
  * @param {object} props
  */
-function SubtotalRow({ label, value, formatIsk, perUnit }) {
+function SubtotalRow({ label, value, valuePerUnit, formatIsk, perUnit }) {
   return (
     <TableRow>
       <TableCell sx={{ borderTop: 1, borderColor: "divider", fontWeight: 500 }}>
@@ -126,7 +128,7 @@ function SubtotalRow({ label, value, formatIsk, perUnit }) {
         <Figure sx={{ fontWeight: 500 }}>{formatIsk(value)}</Figure>
       </TableCell>
       <TableCell align="right" sx={{ borderTop: 1, borderColor: "divider" }}>
-        <Figure sx={{ fontWeight: 500 }}>{perUnit(value)}</Figure>
+        <Figure sx={{ fontWeight: 500 }}>{perUnit(valuePerUnit)}</Figure>
       </TableCell>
     </TableRow>
   );

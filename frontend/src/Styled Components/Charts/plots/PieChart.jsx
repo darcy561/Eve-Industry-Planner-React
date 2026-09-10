@@ -34,11 +34,18 @@ export function PieChart({
   style,
   width,
   height,
+  paletteSeed,
 }) {
   const theme = useTheme();
   const deviceNotMobile = useMediaQuery(theme.breakpoints.up("sm"));
 
-  const colouredRows = useMemo(() => withSeriesColours(theme, rows), [rows, theme]);
+  // Seeded on the fields the chart draws rather than on the rows themselves, so
+  // two charts of different things differ and adding a row recolours nothing.
+  const seed = paletteSeed ?? `${categoryKey}:${valueKey}`;
+  const colouredRows = useMemo(
+    () => withSeriesColours(theme, rows, seed),
+    [rows, theme, seed],
+  );
 
   // Matched on name: the legend sorts its own keys, so the index it reports is
   // not the sector's.

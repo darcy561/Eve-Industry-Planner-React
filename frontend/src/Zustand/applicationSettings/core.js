@@ -68,6 +68,9 @@ export const stateDefault = () => ({
   hideCompleteMaterials: false,
   defaultStationIDForAssets: DEFAULT_ASSET_LOCATION,
   defaultCitadelBrokersFee: 1,
+  // Whose skills and standings price a sale. Null until chosen; the seller
+  // accessor stands in with the account's main.
+  defaultMarketCharacter: null,
   customStructures: {
     manufacturing: [],
     reaction: [],
@@ -190,6 +193,7 @@ export function mergeApplicationSettingsState(
     ...(incoming.defaultCitadelBrokersFee !== undefined && {
       defaultCitadelBrokersFee: incoming.defaultCitadelBrokersFee,
     }),
+    defaultMarketCharacter: incoming.defaultMarketCharacter ?? null,
     customStructures: nextCustomStructures,
     exemptTypeIDs:
       incoming.exemptTypeIDs != null
@@ -275,6 +279,9 @@ export const coreActions = (set, get) => ({
       hideCompleteMaterials: state.hideCompleteMaterials,
       defaultStationIDForAssets: state.defaultStationIDForAssets,
       defaultCitadelBrokersFee: state.defaultCitadelBrokersFee,
+      ...(state.defaultMarketCharacter && {
+        defaultMarketCharacter: state.defaultMarketCharacter,
+      }),
       defaultMaterialEfficiencyValue: state.defaultMaterialEfficiencyValue,
       customStructures: {
         manufacturing: cs.manufacturing.map((structure) =>

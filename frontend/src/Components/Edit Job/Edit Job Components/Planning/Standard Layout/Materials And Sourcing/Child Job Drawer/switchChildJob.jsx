@@ -4,7 +4,7 @@ import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
 import ArrowForwardOutlinedIcon from "@mui/icons-material/ArrowForwardOutlined";
 import { STANDARD_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 
-export function ChildJobSwitcher_ChildJobPopoverFrame({
+export function ChildJobSwitcher({
   childJobObjects,
   jobDisplay,
   setJobDisplay,

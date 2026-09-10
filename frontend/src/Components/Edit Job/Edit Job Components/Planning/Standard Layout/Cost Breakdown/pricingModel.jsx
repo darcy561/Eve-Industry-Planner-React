@@ -19,15 +19,13 @@ export const PRICING_MODEL = {
  * @param {object} props
  * @param {string} props.value - One of PRICING_MODEL
  * @param {(value: string) => void} props.onChange
- * @param {boolean} [props.disabled]
  */
-export default function PricingModelToggle({ value, onChange, disabled = false }) {
+export default function PricingModelToggle({ value, onChange }) {
   return (
     <ToggleButtonGroup
       size="small"
       exclusive
       value={value}
-      disabled={disabled}
       onChange={(_event, next) => {
         // A group with nothing selected has no meaning here — the cost is drawn
         // from one model or the other.

@@ -66,7 +66,7 @@ describe("what a build costs", () => {
     const cost = buildCostBreakdown({
       rows: [],
       installCost: 500,
-      extras: 250,
+      extras: [{ id: "a", categoryLabel: "Hauling", extraValue: 250 }],
     });
 
     expect(cost.toBuild.total).toBe(750);
@@ -136,11 +136,17 @@ describe("what a breakdown leaves out", () => {
   });
 
   it("drops the invitation once there is a figure to state instead", () => {
-    const cost = buildCostBreakdown({ rows: [row()], extras: 500 });
-    const extras = cost.toBuild.lines.find((line) => line.id === "extras");
+    const cost = buildCostBreakdown({
+      rows: [row()],
+      extras: [
+        { id: "a", categoryLabel: "Hauling", extraText: "Courier", extraValue: 500 },
+      ],
+    });
 
-    expect(extras.value).toBe(500);
-    expect(extras.detail).toBeUndefined();
+    expect(cost.toBuild.lines.find((line) => line.id === "extras")).toBeUndefined();
+    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").value).toBe(
+      500,
+    );
   });
 
   it("costs nothing for a job with no materials at all", () => {
@@ -276,5 +282,256 @@ describe("pricing every material at market", () => {
         cost.toBuild.lines.find((line) => line.id === "paid").value,
       ).toBe(700);
     }
+  });
+});
+
+// The archive counts invention in what a build cost, so a stage that leaves it
+// out reads every T2 job as cheaper than its own history says the last one was.
+it("counts what the invention attempts cost", () => {
+  const cost = buildCostBreakdown({
+    rows: [],
+    installCost: 1_000,
+    inventionCost: 5_000,
+    quantityProduced: 10,
+  });
+
+  const invention = cost.toBuild.lines.find((line) => line.id === "invention");
+  expect(invention.value).toBe(5_000);
+  expect(invention.perUnit).toBe(500);
+  expect(cost.toBuild.total).toBe(6_000);
+});
+
+it("drops the invention line on a job that invented nothing", () => {
+  const cost = buildCostBreakdown({ rows: [], installCost: 1_000, quantityProduced: 10 });
+
+  expect(cost.toBuild.lines.some((line) => line.id === "invention")).toBe(false);
+});
+
+// A child job that no longer covers its material is part built and part bought.
+// Costing all of it as a build states a plan the linked jobs do not carry out.
+describe("a row whose child jobs fall short", () => {
+  const shortRow = {
+    plan: MATERIAL_PLAN.BUILD,
+    quantity: 100,
+    remainingQuantity: 100,
+    buyPrice: 10,
+    buildPrice: 8.8,
+    coverage: {
+      required: 100,
+      covered: 40,
+      shortfall: 60,
+      isShort: true,
+      buildCost: 280,
+      buyCost: 600,
+      assumed: false,
+    },
+  };
+
+  it("puts the shortfall in the band that bought it", () => {
+    const cost = buildCostBreakdown({ rows: [shortRow], quantityProduced: 10 });
+
+    const built = cost.toBuild.lines.find((line) => line.id === "built");
+    const bought = cost.toBuild.lines.find((line) => line.id === "bought");
+
+    expect(built.value).toBe(280);
+    expect(bought.value).toBe(600);
+    expect(bought.detail).toContain("fall short");
+  });
+
+  it("says when the build line assumes a resize instead", () => {
+    const assumedRow = {
+      ...shortRow,
+      buildPrice: 7,
+      coverage: { ...shortRow.coverage, buyCost: 0, assumed: true },
+    };
+
+    const cost = buildCostBreakdown({ rows: [assumedRow], quantityProduced: 10 });
+    const built = cost.toBuild.lines.find((line) => line.id === "built");
+
+    expect(built.value).toBe(700);
+    expect(built.detail).toContain("assumes a resize on close");
+  });
+
+  it("says nothing extra when the child jobs still cover the row", () => {
+    const covered = {
+      ...shortRow,
+      buildPrice: 7,
+      coverage: { ...shortRow.coverage, isShort: false, buyCost: 0, assumed: false },
+    };
+
+    const cost = buildCostBreakdown({ rows: [covered], quantityProduced: 10 });
+    const built = cost.toBuild.lines.find((line) => line.id === "built");
+
+    expect(built.detail).toBe("their materials and install, not counted above");
+  });
+});
+
+// Units already paid for come off the shortfall before they come off what the
+// child jobs make: the jobs produce what they produce whatever was bought
+// separately. Prorating both halves alike charged the row for paid units.
+describe("a row that is both short and partly paid", () => {
+  const row = {
+    plan: MATERIAL_PLAN.BUILD,
+    quantity: 100,
+    remainingQuantity: 50,
+    paidCost: 300,
+    buyPrice: 10,
+    buildPrice: 8.5,
+    coverage: {
+      required: 100,
+      covered: 30,
+      shortfall: 70,
+      isShort: true,
+      // 5 an item to build, 10 an item to buy.
+      buildCost: 150,
+      buyCost: 700,
+      assumed: false,
+    },
+  };
+
+  it("covers what is still needed from the child jobs first", () => {
+    const cost = buildCostBreakdown({ rows: [row], quantityProduced: 10 });
+
+    // Of the 50 still to source, the jobs make 30 at 5 and 20 are bought at 10.
+    expect(cost.toBuild.lines.find((line) => line.id === "built").value).toBe(150);
+    expect(cost.toBuild.lines.find((line) => line.id === "bought").value).toBe(200);
+  });
+
+  it("never costs more than the same row with nothing paid yet", () => {
+    const paid = buildCostBreakdown({ rows: [row], quantityProduced: 10 });
+    const unpaid = buildCostBreakdown({
+      rows: [{ ...row, remainingQuantity: 100, paidCost: 0 }],
+      quantityProduced: 10,
+    });
+
+    expect(paid.toBuild.total).toBeLessThanOrEqual(unpaid.toBuild.total);
+  });
+
+  it("buys nothing when the jobs already make everything still needed", () => {
+    const cost = buildCostBreakdown({
+      rows: [{ ...row, remainingQuantity: 20 }],
+      quantityProduced: 10,
+    });
+
+    expect(cost.toBuild.lines.find((line) => line.id === "bought")).toBeUndefined();
+    expect(cost.toBuild.lines.find((line) => line.id === "built").value).toBe(100);
+  });
+});
+
+// A player writes down a courier contract and a set of copies because they are
+// separate costs. Anything that adds them back together undoes the record.
+describe("extras, a line each as they were recorded", () => {
+  const extra = (id, extraText, extraValue, categoryLabel = "Hauling") => ({
+    id,
+    category: "1",
+    categoryLabel,
+    extraText,
+    extraValue,
+  });
+
+  it("gives every extra its own line", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [extra("a", "Courier to Jita", 300), extra("b", "BPC set", 100)],
+    });
+
+    const labels = cost.toBuild.lines.map((line) => line.label);
+    expect(labels).toContain("Courier to Jita");
+    expect(labels).toContain("BPC set");
+  });
+
+  it("keeps two costs filed the same way apart", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [extra("a", "First haul", 300), extra("b", "Second haul", 200)],
+    });
+
+    const extrasLines = cost.toBuild.lines.filter((line) =>
+      line.id.startsWith("extras"),
+    );
+    expect(extrasLines).toHaveLength(2);
+    expect(extrasLines.map((line) => line.value)).toEqual([300, 200]);
+  });
+
+  it("lists them in the order they were recorded", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [extra("a", "First", 100), extra("b", "Second", 900)],
+    });
+
+    const extrasLines = cost.toBuild.lines.filter((line) =>
+      line.id.startsWith("extras"),
+    );
+    expect(extrasLines.map((line) => line.label)).toEqual(["First", "Second"]);
+  });
+
+  it("says what a cost was filed under beside it", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [extra("a", "Courier to Jita", 300, "Hauling")],
+    });
+
+    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").detail).toBe(
+      "Hauling",
+    );
+  });
+
+  it("falls back to the category for a cost with no description", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [extra("a", "", 300, "Hauling")],
+    });
+
+    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").label).toBe(
+      "Hauling",
+    );
+  });
+
+  it("names a cost with neither a description nor a category", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [{ id: "a", extraValue: 300 }],
+    });
+
+    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").label).toBe(
+      "Extra cost",
+    );
+  });
+
+  // A row's id could otherwise collide with a component's own.
+  it("keeps an extra's id apart from a component's", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [extra("install", "Odd", 100)],
+    });
+
+    expect(cost.toBuild.lines.find((line) => line.id === "install")).toBeUndefined();
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "extras:install"),
+    ).toBeDefined();
+  });
+
+  // Rows stored before they carried ids must still draw as separate lines.
+  it("draws two lines for two costs with no ids", () => {
+    const cost = buildCostBreakdown({
+      rows: [],
+      extras: [
+        { extraText: "One", extraValue: 100 },
+        { extraText: "Two", extraValue: 200 },
+      ],
+    });
+
+    const extrasLines = cost.toBuild.lines.filter((line) =>
+      line.id.startsWith("extras"),
+    );
+    expect(new Set(extrasLines.map((line) => line.id)).size).toBe(2);
+  });
+
+  it("still invites them where a build has none", () => {
+    const cost = buildCostBreakdown({ rows: [], extras: [] });
+    const extras = cost.toBuild.lines.find((line) => line.id === "extras");
+
+    expect(extras.value).toBe(0);
+    expect(extras.detail).toMatch(/Hauling/);
   });
 });

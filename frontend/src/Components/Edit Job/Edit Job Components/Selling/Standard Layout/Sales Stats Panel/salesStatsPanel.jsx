@@ -6,6 +6,11 @@ import { STANDARD_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
 export function SalesStats({ state }) {
   const brokersFeesTotal = state.activeJob.totalBrokersFees;
   const transactionFeeTotal = state.activeJob.totalTransactionFees;
+  // Orders that have not sold yet carry the estimate made when they were linked.
+  // Stated separately because it is a forecast, and mixing it into the charged
+  // total would read as money already taken.
+  const estimatedTaxOutstanding =
+    state.activeJob.estimatedSalesTaxOutstanding;
   const totalSale = state.activeJob.totalSales;
 
   return (
@@ -70,6 +75,24 @@ export function SalesStats({ state }) {
             </Typography>
           </Grid>
         </Grid>
+        {estimatedTaxOutstanding > 0 ? (
+          <Grid container size={12}>
+            <Grid size={{ xs: 12, sm: 8 }}>
+              <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
+                Estimated Tax On Unsold Orders:
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <Typography
+                sx={{ typography: STANDARD_TEXT_FORMAT }}
+                align="right"
+                color="text.secondary"
+              >
+                {formatNumberForLocale(estimatedTaxOutstanding)}
+              </Typography>
+            </Grid>
+          </Grid>
+        ) : null}
         <Grid container size={12}>
           <Grid
             size={{

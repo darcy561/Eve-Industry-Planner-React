@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { resourceListText } from "./materialsAndSourcingPanel";
 
 describe("the resources list a player copies", () => {
-  it("gives one material and quantity a line, as the retired panel did", () => {
+  it("gives one material and quantity a line", () => {
     const rows = [
       { name: "Tritanium", quantity: 10_000_000 },
       { name: "Isogen", quantity: 142_000 },

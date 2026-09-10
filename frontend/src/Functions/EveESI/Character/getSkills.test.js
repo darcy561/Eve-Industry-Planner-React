@@ -1,47 +1,80 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockFetchWithCustomHeaders, mockGetEsiAccessToken } = vi.hoisted(() => ({
-  mockFetchWithCustomHeaders: vi.fn(),
-  mockGetEsiAccessToken: vi.fn(),
+const fetchWithCustomHeaders = vi.fn();
+
+vi.mock("../fetchWithCustomHeaders", () => ({
+  default: (...args) => fetchWithCustomHeaders(...args),
 }));
-vi.mock("../fetchWithCustomHeaders", () => ({ default: mockFetchWithCustomHeaders }));
 vi.mock("../../Auth/esiCredentials/provider.js", () => ({
-  getEsiAccessToken: mockGetEsiAccessToken,
+  getEsiAccessToken: async () => ({ accessToken: "token" }),
+}));
+vi.mock("../../../RawData/bpSkills.json", () => ({
+  default: { 3446: { id: 3446 }, 16622: { id: 16622 } },
 }));
 
-import getCharacterSkills from "./getSkills.js";
+const { default: getCharacterSkills } = await import("./getSkills");
 
-describe("character skills fetcher", () => {
-  beforeEach(() => {
-    mockFetchWithCustomHeaders.mockReset();
-    mockGetEsiAccessToken.mockReset();
-    mockFetchWithCustomHeaders.mockResolvedValue({
-      status: 200,
-      headers: { get: () => "etag-1" },
-      json: async () => ({ skills: [] }),
-    });
+const character = { CharacterHash: "hash-1", CharacterID: 90000001 };
+
+const respond = ({ status = 200, body = { skills: [] } } = {}) =>
+  fetchWithCustomHeaders.mockResolvedValue({
+    status,
+    ok: status >= 200 && status < 300,
+    headers: { get: () => "tag" },
+    json: async () => body,
   });
 
-  // A fetcher acquires its own token rather than reading one someone else kept fresh. That is what
-  // makes the background refresh clocks unnecessary.
-  it("acquires a token and sends it", async () => {
-    mockGetEsiAccessToken.mockResolvedValue({ accessToken: "fresh-token", exp: 1 });
+beforeEach(() => vi.clearAllMocks());
 
-    await getCharacterSkills({ character: { CharacterID: 42, CharacterHash: "owner-hash" } });
-
-    expect(mockGetEsiAccessToken).toHaveBeenCalledWith("owner-hash");
-    const [, options] = mockFetchWithCustomHeaders.mock.calls[0];
-    expect(options.headers.Authorization).toBe("Bearer fresh-token");
-  });
-
-  it("does not call ESI when no token can be acquired", async () => {
-    mockGetEsiAccessToken.mockRejectedValue(new Error("no credentials"));
-
-    const result = await getCharacterSkills({
-      character: { CharacterID: 42, CharacterHash: "owner-hash" },
+/**
+ * The broker fee and the sales tax are both quoted from these levels, so a
+ * failed read that arrives as an empty map quotes the untrained rate for a
+ * character who may hold both skills at five.
+ */
+describe("reading a character's skills", () => {
+  it("maps the levels the character has trained", async () => {
+    respond({
+      body: { skills: [{ skill_id: 3446, active_skill_level: 4, trained_skill_level: 5 }] },
     });
 
-    expect(mockFetchWithCustomHeaders).not.toHaveBeenCalled();
-    expect(result).toEqual({ data: {} });
+    const { data } = await getCharacterSkills({ character });
+
+    expect(data[3446]).toMatchObject({ activeLevel: 4, trainedLevel: 5 });
+  });
+
+  it("reads a skill the character has not trained as zero", async () => {
+    respond({ body: { skills: [] } });
+
+    const { data } = await getCharacterSkills({ character });
+
+    expect(data[16622].activeLevel).toBe(0);
+  });
+
+  // Null is "we could not read"; a map of zeroes is "trained none of them". A
+  // caller given the second for the first quotes a confident, wrong fee.
+  it("gives no map at all when the token may not read them", async () => {
+    respond({ status: 403 });
+
+    const { data } = await getCharacterSkills({ character });
+
+    expect(data).toBeNull();
+  });
+
+  it("throws on a server error rather than reporting untrained", async () => {
+    respond({ status: 500 });
+
+    await expect(getCharacterSkills({ character })).rejects.toThrow();
+  });
+
+  it("throws when the network is gone", async () => {
+    fetchWithCustomHeaders.mockRejectedValue(new Error("offline"));
+
+    await expect(getCharacterSkills({ character })).rejects.toThrow("offline");
+  });
+
+  it("throws rather than guessing for an incomplete character", async () => {
+    await expect(
+      getCharacterSkills({ character: { CharacterHash: "hash-1" } }),
+    ).rejects.toThrow();
   });
 });

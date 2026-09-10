@@ -44,10 +44,13 @@ export function RankedBarChart({
   style,
   width,
   height,
+  paletteSeed,
 }) {
   const theme = useTheme();
   const axisProps = chartAxisProps(theme);
-  const baseColour = colour ?? resolveSeriesColour(theme, null, 0);
+  const baseColour =
+    colour ??
+    resolveSeriesColour(theme, null, 0, paletteSeed ?? `${categoryKey}:${valueKey}`);
   const rowsHeight =
     height ?? Math.min(320, Math.max(160, rows.length * barHeight + 48));
 

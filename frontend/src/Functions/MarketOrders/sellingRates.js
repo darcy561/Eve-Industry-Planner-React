@@ -4,6 +4,8 @@ import {
   salesTaxRates,
 } from "../../Context/defaultValues";
 import getStationData from "../EveESI/World/getStationData";
+import { raceFactionsQuery } from "../../Hooks/React Query/World/raceFactions";
+import { entityNamesQuery } from "../../Hooks/React Query/World/entityNames";
 import { getCachedCharacterSkills } from "../../Hooks/EveEsi/Character/useGetCharacterSkills";
 import { getCachedCharacterStandings } from "../../Hooks/EveEsi/Character/useGetCharacterStandings";
 import { SALE_LOCATION_KIND } from "./saleLocations";
@@ -18,6 +20,8 @@ import { SALE_LOCATION_KIND } from "./saleLocations";
  * @typedef {object} SellerSkills
  * @property {number} brokerRelations - Active level, 0 when untrained or signed out
  * @property {number} accounting - Active level, 0 when untrained or signed out
+ * @property {boolean} [unknown] - The levels could not be read, so the zeroes
+ *   stand in for figures rather than reporting untrained skills
  */
 
 /**
@@ -38,11 +42,22 @@ export function getSellerSkills(queryClient, characterHash) {
     return { brokerRelations: 0, accounting: 0 };
   }
 
-  const { data } = getCachedCharacterSkills(queryClient, characterHash);
+  const { data, isLoading, isError } = getCachedCharacterSkills(
+    queryClient,
+    characterHash
+  );
+
+  // Same rule as standings: a level that could not be read is not level zero,
+  // and quoting the untrained rate for it says the seller has not trained
+  // something they may well have.
+  if (isLoading || isError || !data) {
+    return { brokerRelations: 0, accounting: 0, unknown: true };
+  }
 
   return {
     brokerRelations: data?.[marketSkillIDs.brokerRelations]?.activeLevel ?? 0,
     accounting: data?.[marketSkillIDs.accounting]?.activeLevel ?? 0,
+    unknown: false,
   };
 }
 
@@ -70,6 +85,10 @@ export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
  * @property {string} label - What the reduction came from
  * @property {number} amount - Percentage points it took off
  * @property {number} level - The skill level or standing behind it
+ * @property {boolean} [unknown] - The figure could not be read, so the term took
+ *   nothing off for want of a number rather than because there was none
+ * @property {string|null} [entityName] - Who the standing is with, where the
+ *   term is a standing and the name resolved
  */
 
 /**
@@ -104,12 +123,16 @@ export async function brokerFeeWorking(saleLocation, queryClient, characterHash)
     };
   }
 
-  const { brokerRelations } = getSellerSkills(queryClient, characterHash);
-  const { faction, corporation } = await getStationStandings(
-    saleLocation?.priceHubStationID,
+  const { brokerRelations, unknown: skillsUnknown } = getSellerSkills(
     queryClient,
     characterHash
   );
+  const { faction, corporation, unknown, factionName, corporationName } =
+    await getStationStandings(
+      saleLocation?.priceHubStationID,
+      queryClient,
+      characterHash
+    );
 
   const terms = [
     {
@@ -117,18 +140,23 @@ export async function brokerFeeWorking(saleLocation, queryClient, characterHash)
       label: "Broker Relations",
       amount: brokerFeeRates.brokerRelations * brokerRelations,
       level: brokerRelations,
+      unknown: skillsUnknown,
     },
     {
       id: "faction",
       label: "Faction standing",
       amount: brokerFeeRates.factionStanding * faction,
       level: faction,
+      entityName: factionName,
+      unknown,
     },
     {
       id: "corporation",
       label: "Corporation standing",
       amount: brokerFeeRates.corporationStanding * corporation,
       level: corporation,
+      entityName: corporationName,
+      unknown,
     },
   ];
 
@@ -141,21 +169,6 @@ export async function brokerFeeWorking(saleLocation, queryClient, characterHash)
 }
 
 /**
- * The percentage taken from a sale. It takes no location: tax has no station or
- * structure component, so it is the same wherever the sale happens.
- *
- * Accounting takes a fraction of the base per level rather than subtracting from
- * it, which is what puts the rate at 3.375% rather than 6.95% at level V.
- *
- * @param {import("@tanstack/react-query").QueryClient} [queryClient]
- * @param {string|null} [characterHash]
- * @returns {number} Percentage
- */
-export function salesTaxRate(queryClient, characterHash) {
-  return salesTaxWorking(queryClient, characterHash).rate;
-}
-
-/**
  * The sales tax and what it is made of. Accounting is the only thing that moves
  * it, and it takes a share of the base rather than subtracting from it.
  *
@@ -164,11 +177,12 @@ export function salesTaxRate(queryClient, characterHash) {
  * @returns {{base: number, accounting: number, rate: number}}
  */
 export function salesTaxWorking(queryClient, characterHash) {
-  const { accounting } = getSellerSkills(queryClient, characterHash);
+  const { accounting, unknown } = getSellerSkills(queryClient, characterHash);
 
   return {
     base: salesTaxRates.base,
     accounting,
+    unknown,
     rate: salesTaxRates.base * (1 - salesTaxRates.accounting * accounting),
   };
 }
@@ -188,7 +202,7 @@ export function brokerFeeAmount(rate, value) {
  * What a sale is taxed in ISK. No floor: unlike the broker fee, tax scales all the
  * way down.
  *
- * @param {number} rate - Percentage, from salesTaxRate
+ * @param {number} rate - Percentage, from salesTaxWorking
  * @param {number} value - Total ISK value of the sale
  * @returns {number}
  */
@@ -202,26 +216,82 @@ export function salesTaxAmount(rate, value) {
  * @param {number|null|undefined} stationID
  * @param {import("@tanstack/react-query").QueryClient} [queryClient]
  * @param {string|null} [characterHash]
- * @returns {Promise<{faction: number, corporation: number}>}
+ * @returns {Promise<{faction: number, corporation: number, unknown: boolean}>}
  */
 async function getStationStandings(stationID, queryClient, characterHash) {
-  const none = { faction: 0, corporation: 0 };
-  if (!stationID || !characterHash) return none;
+  // No character and no station both mean the standings are unknown rather than
+  // absent: nobody has said the seller holds none.
+  if (!stationID || !characterHash) {
+    return { faction: 0, corporation: 0, unknown: true };
+  }
 
-  const { data: standings } = getCachedCharacterStandings(
-    queryClient,
-    characterHash
-  );
+  const {
+    data: standings,
+    isLoading,
+    isError,
+  } = getCachedCharacterStandings(queryClient, characterHash);
+
+  // Absent is not empty. A read still in flight, one that failed, and one the
+  // token is not allowed to make all leave the fee quoted as though the seller
+  // had ground no standing anywhere — which is a claim, and usually the wrong
+  // one. The accessor hands back an empty list for the first two, so the state
+  // has to be read rather than the list inspected.
+  if (isLoading || isError || !Array.isArray(standings)) {
+    return { faction: 0, corporation: 0, unknown: true };
+  }
   const station = await getStationData(stationID);
 
   // Read through the station rather than guarding it: getStationData swallows its
   // own errors and resolves to null, so this is what turns a failed lookup into a
   // rejected promise. Defaulting to no standings instead would quote a plausible
   // fee the seller does not owe, and the Selling stage stores the fee it links.
+  //
+  // The station names the race that built it; the standing is held against that
+  // race's faction, so the two are not the same id and looking the standing up by
+  // the race finds nothing.
+  const raceFactions = await queryClient.fetchQuery(raceFactionsQuery());
+  const factionID = raceFactions.get(station.race_id) ?? null;
+
+  // Named so a reader can check the answer. Cosmetic, so a failure here does not
+  // take the fee down with it — the figures are still right without them.
+  const names = await queryClient
+    .fetchQuery(entityNamesQuery([factionID, station.owner]))
+    .catch(() => ({}));
+
   return {
-    faction:
-      standings?.find((i) => i.from_id === station.race_id)?.standing ?? 0,
-    corporation:
-      standings?.find((i) => i.from_id === station.owner)?.standing ?? 0,
+    faction: standingFrom(standings, factionID, STANDING_FROM.FACTION),
+    corporation: standingFrom(standings, station.owner, STANDING_FROM.CORPORATION),
+    factionName: names?.[factionID]?.name ?? null,
+    corporationName: names?.[station.owner]?.name ?? null,
+    unknown: false,
   };
+}
+
+/**
+ * The categories ESI reports a standing against. A faction and an NPC
+ * corporation can hold the same id in different categories, so the kind is part
+ * of the match rather than the id alone.
+ *
+ * @enum {string}
+ */
+const STANDING_FROM = {
+  FACTION: "faction",
+  CORPORATION: "npc_corp",
+};
+
+/**
+ * One standing from the character's list, or none where they hold none.
+ *
+ * @param {Array<{from_id: number, from_type: string, standing: number}>} [standings]
+ * @param {number|null} fromID
+ * @param {string} fromType - One of STANDING_FROM
+ * @returns {number}
+ */
+function standingFrom(standings, fromID, fromType) {
+  if (fromID == null) return 0;
+
+  return (
+    standings?.find((i) => i.from_id === fromID && i.from_type === fromType)
+      ?.standing ?? 0
+  );
 }

@@ -5,6 +5,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import LensIcon from "@mui/icons-material/Lens";
 import {
   Box,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -26,7 +27,7 @@ import { eveImageSize } from "../../../../../../Functions/Shared/eveOwner";
 import {
   getListingModeLabel,
   getMarketLocationLabel,
-} from "../Material Prices/Helpers/marketLabelHelpers";
+} from "./Helpers/marketLabelHelpers";
 import { MATERIAL_MARK } from "../../../../../../Functions/MarketData/materialMark";
 import StatusChip, {
   STATUS_TONE,
@@ -35,6 +36,7 @@ import {
   MATERIAL_PLAN,
   hasSavingAvailable,
 } from "../../../../../../Functions/MarketData/materialSourcingRow";
+import ShortfallChip from "./shortfallChip";
 
 /**
  * The material list, rendered once for the stage.
@@ -129,9 +131,13 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
       onClick={expandable ? () => onToggleRow?.(row.typeID) : undefined}
       sx={{
         cursor: expandable ? "pointer" : "default",
-        // The stripe says the row needs a second look: it is building, or it
-        // could be building for less than it is being bought for.
-        "& td:first-of-type": accentStripe(building, saving),
+        // The stripe says the row needs a second look: it is building, it could
+        // be building for less than it is being bought for, or what builds it
+        // no longer makes enough.
+        "& td:first-of-type": accentStripe(
+          building,
+          saving || Boolean(row.coverage?.isShort),
+        ),
       }}
     >
       <TableCell>
@@ -173,7 +179,12 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
         <SourceCell row={row} />
       </TableCell>
       <TableCell align="right">
-        <PlanCell plan={row.plan} saving={saving} />
+        <PlanCell
+          plan={row.plan}
+          saving={saving}
+          coverage={row.coverage}
+          childJobs={row.matchedChildJobs}
+        />
       </TableCell>
     </TableRow>
   );
@@ -238,7 +249,9 @@ function cheaperTone(isCheaper) {
  * @param {string} props.plan
  * @param {boolean} props.saving
  */
-function PlanCell({ plan, saving }) {
+function PlanCell({ plan, saving, coverage, childJobs }) {
+  const short = <ShortfallChip coverage={coverage} childJobs={childJobs} />;
+
   if (plan === MATERIAL_PLAN.BASE) {
     return (
       <Typography component="span" variant="caption" color="text.secondary">
@@ -250,16 +263,23 @@ function PlanCell({ plan, saving }) {
   if (plan === MATERIAL_PLAN.PAID) {
     return <StatusChip label="Paid" tone={STATUS_TONE.FACT} />;
   }
-  if (plan === MATERIAL_PLAN.BUILD) {
-    return <StatusChip label="Build" tone={STATUS_TONE.GOOD} />;
-  }
-  // Buying while building would cost less: the chip carries the warning rather
-  // than a separate marker, so the row says it in one place.
+  // The shortfall tag rides alongside whichever plan the row is on. A linked job
+  // that has stopped producing has no build price, so its row reads as Buy — and
+  // that is the row most in need of the tag rather than least.
   return (
-    <StatusChip
-      label="Buy"
-      tone={saving ? STATUS_TONE.WARN : STATUS_TONE.NEUTRAL}
-    />
+    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap">
+      {plan === MATERIAL_PLAN.BUILD ? (
+        <StatusChip label="Build" tone={STATUS_TONE.GOOD} />
+      ) : (
+        // Buying while building would cost less: the chip carries the warning
+        // rather than a separate marker, so the row says it in one place.
+        <StatusChip
+          label="Buy"
+          tone={saving ? STATUS_TONE.WARN : STATUS_TONE.NEUTRAL}
+        />
+      )}
+      {short}
+    </Stack>
   );
 }
 
@@ -275,7 +295,7 @@ function accentStripe(building, saving) {
   return {};
 }
 
-export { MaterialRow };
+export { MaterialRow, MaterialMark, PlanCell, SourceCell, cheaperTone, accentStripe };
 
 /**
  * Where the row's buy price came from: the hub, and which of the four figures

@@ -93,14 +93,21 @@ export function getDefaultSaleStructure() {
  * Normalises a hub or a saved citadel into the one shape a caller pricing a sale
  * reads, so neither kind is handled twice.
  *
- * @param {string|null} [saleStructureID] - A saved row's id, or null for a hub
- * @param {string} [hubID] - A MARKET_OPTIONS id, used when no structure is named
+ * @param {string|null} [saleLocationID] - A saved citadel's id or an NPC station's,
+ *   or null to fall back to the hub
+ * @param {string} [hubID] - A MARKET_OPTIONS id, used when no location is named
  * @returns {SaleLocation|null}
  */
-export function resolveSaleLocation(saleStructureID, hubID) {
-  if (saleStructureID) {
-    const structure = getSaleStructures().find((i) => i.id === saleStructureID);
+export function resolveSaleLocation(saleLocationID, hubID) {
+  if (saleLocationID) {
+    const structure = getSaleStructures().find((i) => i.id === saleLocationID);
     if (structure) return saleLocationFromStructure(structure);
+
+    // A named NPC station is a choice like any other. Falling through to the
+    // hub argument here sold the job from whichever hub the materials happened
+    // to be priced against, quietly ignoring the station that was picked.
+    const chosen = MARKET_OPTIONS.find((i) => i.id === saleLocationID);
+    if (chosen) return saleLocationFromHub(chosen);
   }
 
   const hub =
@@ -108,6 +115,14 @@ export function resolveSaleLocation(saleStructureID, hubID) {
     MARKET_OPTIONS.find((i) => i.id === GLOBAL_CONFIG.DEFAULT_MARKET_OPTION);
   if (!hub) return null;
 
+  return saleLocationFromHub(hub);
+}
+
+/**
+ * @param {{id: string, name: string, stationID: number}} hub
+ * @returns {SaleLocation}
+ */
+function saleLocationFromHub(hub) {
   return {
     kind: SALE_LOCATION_KIND.HUB,
     id: hub.id,

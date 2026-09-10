@@ -17,9 +17,7 @@ import (
 // What the job costs, produces and has linked is derived from the rows it holds
 // rather than stored beside them, so a figure cannot fall behind an edit — the
 // methods below are the only way to ask.
-//
-// Ownership and lifecycle (account, archive, delete flags) live on MetaData
-// (`_meta`), not root fields.
+
 type Job struct {
 	SchemaVersion       int              `json:"schemaVersion,omitempty" bson:"schemaVersion,omitempty"`
 	DisplayOnPlanner    bool             `json:"displayOnPlanner" bson:"displayOnPlanner"`
@@ -59,8 +57,7 @@ type Job struct {
 //
 // A sale entered by hand is minted with a negative id, so a positive one is the
 // market's own. Money that arrived through the market arrived when it arrived,
-// which is why the two are told apart at all — and they are told apart in more
-// than one place, over more than one shape, so the rule lives here.
+// which is what the two being told apart decides.
 func IsMarketTransactionID(id int64) bool {
 	return id > 0
 }
@@ -115,7 +112,6 @@ type JobSetup struct {
 }
 
 // MaterialQuantity is how many of a material this setup calls for.
-// JobSetup#materialQuantity in the SPA is the same method.
 func (s JobSetup) MaterialQuantity(typeID int) int {
 	return s.MaterialCount[strconv.Itoa(typeID)].Quantity
 }
@@ -160,10 +156,8 @@ func (p JobCostParts) Total() float64 {
 // TotalInstallCost is what the installs cost: the sum of the ESI jobs linked to
 // this job at the build stage.
 //
-// It is summed from the linked rows on every call, so linking and unlinking
-// cannot leave the figure behind. Nothing linked costs nothing — setup estimates
-// are a planning figure the SPA keeps to itself. Job.totalInstallCost() in the
-// SPA is the same method.
+// Nothing linked costs nothing: setup estimates are a planning figure the SPA
+// keeps to itself.
 func (j Job) TotalInstallCost() float64 {
 	var installed float64
 	for _, linked := range j.Build.Costs.LinkedJobs {
@@ -174,10 +168,6 @@ func (j Job) TotalInstallCost() float64 {
 
 // TotalQuantityProduced is how many items the job produces: what its setups are
 // set to make.
-//
-// It is worked out from the setups on every call, so a setup added, removed or
-// resized is reflected immediately and nothing is stored that could fall behind
-// them. Job.totalQuantityProduced() in the SPA is the same method.
 func (j Job) TotalQuantityProduced() int {
 	produced := 0
 	for _, setup := range j.Build.Setup {
@@ -188,9 +178,6 @@ func (j Job) TotalQuantityProduced() int {
 
 // TotalExtrasCost is what the extras cost: the sum of the rows the Extras panel
 // keeps on the job.
-//
-// It is summed from the rows on every call, so adding, removing or editing one
-// is reflected at once. Job.totalExtrasCost() in the SPA is the same method.
 func (j Job) TotalExtrasCost() float64 {
 	total := 0.0
 	for _, extra := range j.Build.Costs.ExtrasCosts {
@@ -201,10 +188,6 @@ func (j Job) TotalExtrasCost() float64 {
 
 // TotalInventionCost is what invention cost: the sum of the entries recorded
 // against the job.
-//
-// It is summed from the entries on every call, so adding, removing or editing
-// one is reflected at once. Job.totalInventionCost() in the SPA is the same
-// method.
 func (j Job) TotalInventionCost() float64 {
 	total := 0.0
 	for _, entry := range j.Build.Costs.InventionEntries {
@@ -213,8 +196,7 @@ func (j Job) TotalInventionCost() float64 {
 	return total
 }
 
-// LinkedESIJobIDs is the ESI industry jobs linked to this job, read from the
-// linked rows. Job#esiJobIDs in the SPA is the same reading.
+// LinkedESIJobIDs is the ESI industry jobs linked to this job.
 func (j Job) LinkedESIJobIDs() []int64 {
 	out := make([]int64, 0, len(j.Build.Costs.LinkedJobs))
 	for _, linked := range j.Build.Costs.LinkedJobs {
@@ -226,14 +208,12 @@ func (j Job) LinkedESIJobIDs() []int64 {
 // IsComplete reports whether everything the order listed has sold.
 //
 // Read from the volume left rather than stored beside it, so an order cannot
-// claim to be finished while it still holds volume. MarketOrder#isComplete in
-// the SPA is the same reading.
+// claim to be finished while it still holds volume.
 func (o MarketOrder) IsComplete() bool {
 	return o.VolumeTotal > 0 && o.VolumeRemain <= 0
 }
 
-// LinkedOrderIDs is the ESI market orders linked to this job, read from the
-// rows on the sale. Job#esiOrderIDs in the SPA is the same reading.
+// LinkedOrderIDs is the ESI market orders linked to this job.
 func (j Job) LinkedOrderIDs() []int64 {
 	out := make([]int64, 0, len(j.Build.Sale.MarketOrders))
 	for _, order := range j.Build.Sale.MarketOrders {
@@ -242,8 +222,7 @@ func (j Job) LinkedOrderIDs() []int64 {
 	return out
 }
 
-// LinkedTransactionIDs is the ESI transactions linked to this job, read from the
-// rows on the sale. Job#esiTransactionIDs in the SPA is the same reading.
+// LinkedTransactionIDs is the ESI transactions linked to this job.
 func (j Job) LinkedTransactionIDs() []int64 {
 	out := make([]int64, 0, len(j.Build.Sale.Transactions))
 	for _, transaction := range j.Build.Sale.Transactions {
@@ -253,10 +232,6 @@ func (j Job) LinkedTransactionIDs() []int64 {
 }
 
 // MaterialRequirement is how many of a material the job's setups call for.
-//
-// Summed from the setups on every call, so a setup added, removed or resized
-// moves what each material needs with it. Job#materialRequirement in the SPA is
-// the same method.
 func (j Job) MaterialRequirement(typeID int) int {
 	required := 0
 	for _, setup := range j.Build.Setup {
@@ -266,8 +241,7 @@ func (j Job) MaterialRequirement(typeID int) int {
 }
 
 // TotalMaterialCost is what the materials cost the job: what each material's
-// purchases bought, summed. Job.totalMaterialCost() in the SPA is the same
-// method.
+// purchases bought, summed.
 func (j Job) TotalMaterialCost() float64 {
 	total := 0.0
 	for _, material := range j.Build.Materials {
@@ -276,10 +250,7 @@ func (j Job) TotalMaterialCost() float64 {
 	return total
 }
 
-// CostParts reads what the job cost from its own fields.
-//
-// Every component is summed from the rows that make it up: the purchases on each
-// material, the linked ESI jobs, the extras rows and the invention entries.
+// CostParts is the six components of what the job cost.
 func (j Job) CostParts() JobCostParts {
 	parts := JobCostParts{
 		Materials: j.TotalMaterialCost(),
@@ -301,8 +272,7 @@ func (j Job) CostParts() JobCostParts {
 //
 // The cheapest purchases fill the requirement first, so a job pays the best
 // prices it managed and the dearest units are the ones left over. Nothing beyond
-// the requirement adds cost. Material#quantityPurchased and
-// Material#purchasedCost in the SPA are the same figures.
+// the requirement adds cost.
 func (m JobMaterial) countedPurchases(requirement int) (int, float64) {
 	rows := make([]Purchase, 0, len(m.Purchasing))
 	for _, row := range m.Purchasing {
@@ -338,10 +308,11 @@ func (m JobMaterial) PurchasedCost(requirement int) float64 {
 	return cost
 }
 
-// ExtraCost matches the SPA extras row (Extras panel, Job.toDocument): id, category, extraText, extraValue.
-// Category is the extras category id as a string (same as ExtraCategory.ID). ExtraText is the description.
-// ExtraValue is the ISK amount (numeric JSON/BSON). UnmarshalJSON/UnmarshalBSON coerce legacy scalars (numeric
-// category, type/label/cost aliases).
+// ExtraCost is one cost a player recorded against a job by hand.
+//
+// Category is an ExtraCategory.ID. The decoders below accept older shapes rows
+// were written in — a numeric category, and type/label/cost field names — so a
+// stored row keeps decoding whatever it was written as.
 type ExtraCost struct {
 	ID            string  `json:"id" bson:"id"`
 	Category      string  `json:"category" bson:"category"`
@@ -425,7 +396,7 @@ func extraCostScalarFloat64(raw json.RawMessage) float64 {
 	return 0
 }
 
-// UnmarshalJSON accepts legacy numeric category, type→category, label→extraText, cost→extraValue, and string extraValue.
+// UnmarshalJSON decodes a row written in any shape ExtraCost has had.
 //
 // categoryLabel is read here rather than left to the struct tags: a decoder that
 // misses it writes an empty label back over a stamped one, and the name a deleted
@@ -457,7 +428,10 @@ func (e *ExtraCost) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func extraCostCategoryFromBSON(v any) string {
+// stringFromDocumentValue reads a stored value as a string whatever shape it was
+// written in. Ids and categories have both been numbers in this collection's
+// history, and a document written then still has to decode.
+func stringFromDocumentValue(v any) string {
 	if v == nil {
 		return ""
 	}
@@ -509,26 +483,27 @@ func extraCostValueFromBSON(v any) float64 {
 	}
 }
 
-// UnmarshalBSON coerces legacy numeric category and type/label/cost aliases like UnmarshalJSON.
+// UnmarshalBSON decodes a row written in any shape ExtraCost has had, as
+// UnmarshalJSON does.
 func (e *ExtraCost) UnmarshalBSON(data []byte) error {
 	var m bson.M
 	if err := bson.Unmarshal(data, &m); err != nil {
 		return err
 	}
 	if v, ok := m["id"]; ok && v != nil {
-		e.ID = extraCostCategoryFromBSON(v)
+		e.ID = stringFromDocumentValue(v)
 	}
 	cat, ok := m["category"]
 	if !ok || cat == nil {
 		cat = m["type"]
 	}
-	e.Category = ExtrasCategoryOrUnassigned(extraCostCategoryFromBSON(cat))
-	e.CategoryLabel = extraCostCategoryFromBSON(m["categoryLabel"])
+	e.Category = ExtrasCategoryOrUnassigned(stringFromDocumentValue(cat))
+	e.CategoryLabel = stringFromDocumentValue(m["categoryLabel"])
 	txt, ok := m["extraText"]
 	if !ok || txt == nil {
 		txt = m["label"]
 	}
-	e.ExtraText = extraCostCategoryFromBSON(txt)
+	e.ExtraText = stringFromDocumentValue(txt)
 	val, ok := m["extraValue"]
 	if !ok || val == nil {
 		val = m["cost"]
@@ -537,8 +512,7 @@ func (e *ExtraCost) UnmarshalBSON(data []byte) error {
 	return nil
 }
 
-// LinkedESIJob represents a linked ESI job from EVE Online API
-// Matches the LinkedESIJob class from frontend Classes/linkedESIJob.js
+// LinkedESIJob is an ESI industry job linked to a planner job.
 type LinkedESIJob struct {
 	Status          string  `json:"status" bson:"status"`                                     // Job status (active, completed, etc.)
 	CharacterHash   string  `json:"CharacterHash,omitempty" bson:"CharacterHash,omitempty"`   // Character hash of the owner
@@ -562,23 +536,63 @@ type LinkedESIJob struct {
 	JobType         int     `json:"job_type" bson:"job_type"` // Job type
 }
 
-// InventionEntry represents invention-related costs
-// Matches the structure used in addInventionCost in frontend Classes/job.js
+// InventionEntry is one invention attempt recorded against a job.
 type InventionEntry struct {
-	ID       int64   `json:"id" bson:"id"`             // Unique identifier (timestamp from Date.now())
+	ID       string  `json:"id" bson:"id"`             // Identifies the row within its job
 	ItemName string  `json:"itemName" bson:"itemName"` // Name of the invention item
 	ItemCost float64 `json:"itemCost" bson:"itemCost"` // Cost of the invention item
 }
 
-// JobSale contains sales and market order data
-type JobSale struct {
-	MarketOrders []MarketOrder `json:"marketOrders" bson:"marketOrders"`
-	Transactions []Transaction `json:"transactions" bson:"transactions"`
-	BrokersFee   []BrokerFee   `json:"brokersFee" bson:"brokersFee"`
+// UnmarshalBSON reads an id written in either shape.
+//
+// The id was minted from the clock and stored as a number until it became a
+// uuid, so documents carry both. It is only ever compared, never parsed, and a
+// number read as its own digits compares the same as it always did.
+func (e *InventionEntry) UnmarshalBSON(data []byte) error {
+	var m bson.M
+	if err := bson.Unmarshal(data, &m); err != nil {
+		return err
+	}
+
+	e.ID = stringFromDocumentValue(m["id"])
+	e.ItemName = stringFromDocumentValue(m["itemName"])
+	e.ItemCost = extraCostValueFromBSON(m["itemCost"])
+
+	return nil
 }
 
-// MarketOrder represents a market order for selling products
-// Matches the structure created by createESIMarketOrder in createMarketOrder.js
+// UnmarshalJSON reads an id written in either shape, as UnmarshalBSON does.
+func (e *InventionEntry) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ID       any     `json:"id"`
+		ItemName string  `json:"itemName"`
+		ItemCost float64 `json:"itemCost"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	e.ID = stringFromDocumentValue(raw.ID)
+	e.ItemName = raw.ItemName
+	e.ItemCost = raw.ItemCost
+
+	return nil
+}
+
+// JobSale contains sales and market order data
+type JobSale struct {
+	MarketOrders []MarketOrder  `json:"marketOrders" bson:"marketOrders"`
+	Transactions []Transaction  `json:"transactions" bson:"transactions"`
+	BrokersFee   []BrokerFee    `json:"brokersFee" bson:"brokersFee"`
+	Plan         JobSellingPlan `json:"plan" bson:"plan"`
+}
+
+type JobSellingPlan struct {
+	SellerCharacter *string `json:"sellerCharacter,omitempty" bson:"sellerCharacter,omitempty"`
+	SaleLocationID  *string `json:"saleLocationID,omitempty" bson:"saleLocationID,omitempty"`
+}
+
+// MarketOrder is an ESI market order linked to a job.
 type MarketOrder struct {
 	Duration       int      `json:"duration" bson:"duration"`                               // Order duration in days
 	IsCorporation  bool     `json:"is_corporation" bson:"is_corporation"`                   // Whether this is a corporation order
@@ -600,8 +614,8 @@ type MarketOrder struct {
 	State          string   `json:"state" bson:"state"` // Order state (active, etc.)
 }
 
-// Transaction represents a completed market transaction
-// Matches the structure created by createTransaction in createTransaction.js
+// Transaction is a completed sale linked to a job. Tax is what EVE charged on
+// it, which is the figure a job's cost is built from.
 type Transaction struct {
 	OrderID        int     `json:"order_id,omitempty" bson:"order_id,omitempty"`           // zero = none
 	JournalRefID   int64   `json:"journal_ref_id" bson:"journal_ref_id"`                   // Journal reference ID
@@ -622,20 +636,12 @@ type Transaction struct {
 	CharacterRef   string  `json:"-" bson:"character_ref,omitempty"`
 }
 
-// BrokerFee represents broker fees for market orders
-// Matches the structure created by ESIBrokerFee in findBrokersFeeEntry.js
-// BrokerFee is what listing a market order cost. Whose fee it is comes from the
-// order it was charged for, which records its own character and corporation, so
-// the fee carries no identity of its own.
-//
-// The amount is worked out per order rather than read from the journal: listing
-// several orders at once charges them in one entry covering all of them, which
-// also makes ID shared between those orders rather than an identity for the fee.
 type BrokerFee struct {
-	OrderID int     `json:"order_id" bson:"order_id"` // Order ID associated with the fee
-	ID      int64   `json:"id" bson:"id"`             // Journal entry ID; shared by orders listed together
-	Date    string  `json:"date" bson:"date"`         // Fee date
-	Amount  float64 `json:"amount" bson:"amount"`     // Fee amount
+	OrderID  int     `json:"order_id" bson:"order_id"` // Order ID associated with the fee
+	ID       int64   `json:"id" bson:"id"`             // Journal entry ID; shared by orders listed together
+	Date     string  `json:"date" bson:"date"`         // Fee date
+	Amount   float64 `json:"amount" bson:"amount"`     // Fee amount
+	SalesTax float64 `json:"salesTax" bson:"salesTax"` // Estimated tax on the sale, until it happens
 }
 
 // JobMaterial represents a material required for the job
@@ -647,8 +653,8 @@ type JobMaterial struct {
 	Purchasing []Purchase `json:"purchasing" bson:"purchasing"`
 }
 
-// Purchase represents a material purchase transaction.
-// Matches useBuildMaterialPriceObject / material purchasing rows in frontend Classes/job.js (typeID duplicates parent material for UI).
+// Purchase is one buy recorded against a material. TypeID repeats the parent
+// material's, which the SPA reads directly off the row.
 type Purchase struct {
 	TypeID         int     `json:"typeID" bson:"typeID"`                       // EVE type id (frontend includes on each row); zero encodes as 0 when unknown
 	ID             string  `json:"id" bson:"id"`                               // UUID identifier
@@ -686,8 +692,8 @@ type Skill struct {
 	Level  int `json:"level" bson:"level"`
 }
 
-// JobLayout contains UI layout preferences. Per-job market/order overrides use `local*` names;
-// application-wide defaults live on ApplicationSettings as defaultMarketLocation/defaultOrderType.
+// JobLayout is a job's own display choices. The `local*` fields are its
+// departures from the account's defaults, which live on ApplicationSettings.
 //
 // Both decoders below assign every field by hand, so a field added here and
 // nowhere else compiles, decodes to its zero value, and is written back empty by
@@ -711,7 +717,8 @@ type MaterialPriceOverride struct {
 	OrderDisplay  string `json:"orderDisplay,omitempty" bson:"orderDisplay,omitempty"`
 }
 
-// UnmarshalBSON prefers local*; if empty, accepts short-lived marketLocation/orderType keys into local* fields.
+// UnmarshalBSON prefers the local* fields, falling back to the marketLocation
+// and orderType keys some rows were written with.
 func (l *JobLayout) UnmarshalBSON(data []byte) error {
 	var aux struct {
 		LocalMarketDisplay  string `bson:"localMarketDisplay"`
@@ -742,7 +749,8 @@ func (l *JobLayout) UnmarshalBSON(data []byte) error {
 	return nil
 }
 
-// UnmarshalJSON prefers local*; if empty, accepts short-lived marketLocation/orderType keys into local* fields.
+// UnmarshalJSON prefers the local* fields, falling back to the marketLocation
+// and orderType keys some rows were written with.
 func (l *JobLayout) UnmarshalJSON(data []byte) error {
 	var aux struct {
 		LocalMarketDisplay  string `json:"localMarketDisplay"`
@@ -773,6 +781,9 @@ func (l *JobLayout) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// JobMetaData is a job's ownership and lifecycle, kept apart from the job itself
+// under `_meta` so a field about who holds a job is never mistaken for one about
+// what the job is.
 type JobMetaData struct {
 	MetaData         `json:",inline" bson:",inline"`
 	CreatedAt        time.Time `json:"createdAt" bson:"createdAt"`

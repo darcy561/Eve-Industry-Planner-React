@@ -4,6 +4,7 @@ import BrokerFee from "./brokerFee";
 import MarketOrder from "./marketOrder";
 import Transaction from "./transaction";
 import Job from "./job";
+import InventionEntry from "./inventionEntry";
 
 describe("Transaction", () => {
   it("takes the stored id as it finds it", () => {
@@ -268,9 +269,16 @@ describe("BrokerFee", () => {
       id: 500,
       date: "2026-01-01T00:00:00Z",
       amount: 1200,
+      salesTax: 90,
     };
 
     expect(new BrokerFee(row).toDocument()).toEqual(row);
+  });
+
+  // The tax is an estimate made when the order was linked. A row stored before
+  // the estimate existed has none, and must not read as a sale taxed nothing.
+  it("carries no estimate for a row stored without one", () => {
+    expect(new BrokerFee({ order_id: 1, amount: 1200 }).salesTax).toBe(0);
   });
 });
 
@@ -331,7 +339,13 @@ describe("linking a market order", () => {
     expect(job.totalBrokersFees).toBe(1200);
     // The dead completion flag does not survive a read and a write.
     expect(job.toDocument().build.sale.brokersFee).toEqual([
-      { order_id: 1, id: 500, date: "2026-01-01T00:00:00Z", amount: 1200 },
+      {
+        order_id: 1,
+        id: 500,
+        date: "2026-01-01T00:00:00Z",
+        amount: 1200,
+        salesTax: 0,
+      },
     ]);
   });
 
@@ -352,5 +366,142 @@ describe("linking a market order", () => {
     job.removeMarketOrder({ order_id: 1, location_id: 60003760 });
 
     expect(job.totalBrokersFees).toBe(800);
+  });
+});
+
+// The tax estimate exists to fill the gap before a sale happens. Once it has,
+// the transaction carries what EVE actually charged, and that is what the job's
+// cost is built from — counting both would charge the same sale twice.
+describe("tax expected on orders that have not sold", () => {
+  const jobWith = ({ fees = [], transactions = [] }) =>
+    new Job({
+      jobID: "job-1",
+      itemID: 34,
+      jobType: 1,
+      name: "Tritanium",
+      build: { materials: [], sale: { brokersFee: fees, transactions } },
+    });
+
+  it("counts the estimate for an order with no transaction yet", () => {
+    const job = jobWith({
+      fees: [{ order_id: 1, amount: 1200, salesTax: 500 }],
+    });
+
+    expect(job.estimatedSalesTaxOutstanding).toBe(500);
+  });
+
+  it("stops counting it once the order has sold", () => {
+    const job = jobWith({
+      fees: [{ order_id: 1, amount: 1200, salesTax: 500 }],
+      transactions: [{ order_id: 1, transaction_id: 9, tax: 480, amount: 100 }],
+    });
+
+    expect(job.estimatedSalesTaxOutstanding).toBe(0);
+    // What was actually charged is the figure that survives.
+    expect(job.totalTransactionFees).toBe(480);
+  });
+
+  it("counts only the orders still open when some have sold", () => {
+    const job = jobWith({
+      fees: [
+        { order_id: 1, amount: 1200, salesTax: 500 },
+        { order_id: 2, amount: 800, salesTax: 300 },
+      ],
+      transactions: [{ order_id: 1, transaction_id: 9, tax: 480, amount: 100 }],
+    });
+
+    expect(job.estimatedSalesTaxOutstanding).toBe(300);
+  });
+
+  // The estimate is a forecast, so it must never reach the figure the job is
+  // costed on.
+  it("stays out of the job's total cost", () => {
+    const job = jobWith({
+      fees: [{ order_id: 1, amount: 1200, salesTax: 500 }],
+    });
+
+    expect(job.totalCost).toBe(job.buildCost + 1200);
+  });
+
+  it("counts nothing for rows stored before estimates existed", () => {
+    const job = jobWith({ fees: [{ order_id: 1, amount: 1200 }] });
+
+    expect(job.estimatedSalesTaxOutstanding).toBe(0);
+  });
+});
+
+// A job is built from the SDE recipe, which names this `metaGroupID`; a stored
+// job carries it back as `metaLevel`. Reading only the second left every new job
+// without one, and the invention costs offered for T2 and T3 items never showed.
+describe("what meta group a job belongs to", () => {
+  it("takes it from the recipe it was built from", () => {
+    const job = new Job({ jobType: 1, name: "Item", metaGroupID: 2 });
+
+    expect(job.metaLevel).toBe(2);
+  });
+
+  it("takes it from a stored job's own field", () => {
+    const job = new Job({ jobType: 1, name: "Item", metaLevel: 14 });
+
+    expect(job.metaLevel).toBe(14);
+  });
+
+  it("carries it back into the document", () => {
+    const job = new Job({ jobType: 1, name: "Item", metaGroupID: 53 });
+
+    expect(job.toDocument().metaLevel).toBe(53);
+  });
+
+  it("has none for an item that belongs to no meta group", () => {
+    expect(new Job({ jobType: 1, name: "Item" }).metaLevel).toBeNull();
+  });
+});
+
+// A row is removed by matching on its id, so two rows sharing one meant removing
+// either removed both. The clock alone repeats within a millisecond.
+describe("minting an invention entry's id", () => {
+  it("gives two entries made together ids of their own", () => {
+    const first = InventionEntry.forItem("Datacore", 100);
+    const second = InventionEntry.forItem("Decryptor", 200);
+
+    expect(first.id).not.toBe(second.id);
+  });
+
+  it("mints a different id every time", () => {
+    const ids = [1, 2, 3, 4, 5].map(() => InventionEntry.mintID());
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  // Rows written before the change carry a number. The id is only ever compared,
+  // never parsed, so both kinds sit in one job without anything having to know.
+  it("keeps a numeric id a stored row already has", () => {
+    const entry = new InventionEntry({ id: 1789083363901, itemName: "Old" });
+
+    expect(entry.id).toBe(1789083363901);
+    expect(entry.toDocument().id).toBe(1789083363901);
+  });
+
+  it("removes a row carrying a numeric id", () => {
+    const job = new Job({ jobType: 1, name: "Item", build: { materials: [] } });
+    job.addInventionCost({ id: 1789083363901, itemName: "Old", itemCost: 5 });
+    job.addInventionCost(InventionEntry.forItem("New", 10));
+
+    job.removeInventionCost(job.build.costs.inventionEntries[0]);
+
+    expect(job.build.costs.inventionEntries).toHaveLength(1);
+    expect(job.build.costs.inventionEntries[0].itemName).toBe("New");
+  });
+
+  // Removing one of two rows added together must leave the other.
+  it("leaves the other row when one of a pair is removed", () => {
+    const job = new Job({ jobType: 1, name: "Item", build: { materials: [] } });
+    job.addInventionCost(InventionEntry.forItem("Datacore", 100));
+    job.addInventionCost(InventionEntry.forItem("Decryptor", 200));
+
+    job.removeInventionCost(job.build.costs.inventionEntries[0]);
+
+    expect(job.build.costs.inventionEntries).toHaveLength(1);
+    expect(job.build.costs.inventionEntries[0].itemName).toBe("Decryptor");
   });
 });

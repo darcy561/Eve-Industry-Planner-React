@@ -1,3 +1,5 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createElement } from 'react';
 import { create } from 'zustand';
 import { vi } from 'vitest';
 import { activePlannerActions } from '../Zustand/activePlanner/actions.js';
@@ -218,4 +220,22 @@ export function esiAccessToken(claims = {}) {
     name,
     exp,
   })}.signature`;
+}
+
+/**
+ * Wraps an element in a React Query provider.
+ *
+ * A component that calls `useQueryClient` throws without one, and that is a
+ * setup failure rather than anything the test is about. Retries are off so a
+ * failing query fails the test immediately instead of timing it out.
+ *
+ * @param {React.ReactNode} ui
+ * @returns {React.ReactElement}
+ */
+export function withQueryClient(ui) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return createElement(QueryClientProvider, { client }, ui);
 }

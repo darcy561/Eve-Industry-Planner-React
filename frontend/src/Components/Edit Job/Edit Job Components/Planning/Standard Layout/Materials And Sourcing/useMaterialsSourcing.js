@@ -1,7 +1,11 @@
 import { useMemo } from "react";
 
 import { useEffectiveMarketHubFromLayout } from "../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js";
-import { calculateMaterialCostFromChildJobs } from "../../../../../../Functions/Groups/materialCostFromChildJobs.js";
+import {
+  childJobCoverage,
+  coverageModeFor,
+} from "../../../../../../Functions/Groups/childJobCoverage";
+import { calculateChildJobTotals } from "../../../../../../Functions/Groups/childJobTotals";
 import checkJobTypeIsBuildable from "../../../../../../Functions/Helper/checkJobTypeIsBuildable.js";
 import {
   getEffectiveMaterialPriceHub,
@@ -13,11 +17,11 @@ import {
   buildMaterialSourcingRow,
   summariseSourcing,
 } from "../../../../../../Functions/MarketData/materialSourcingRow.js";
-import { getMarketPriceForType } from "../Material Prices/marketPriceHelpers";
+import { getMarketPriceForType } from "../../../../../../Functions/MarketData/marketPriceForType";
 import {
   resolveMaterialChildJobStatus,
   resolveMaterialChildJobs,
-} from "../Material Prices/Helpers/materialChildJobs";
+} from "./Helpers/materialChildJobs";
 import { materialMark } from "../../../../../../Functions/MarketData/materialMark.js";
 import useUsersStore from "../../../../../../Zustand/usersStore.js";
 
@@ -42,6 +46,9 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
 
   const checkTypeIDisExempt = useUsersStore(
     (store) => store.applicationSettings.actions.checkTypeIDisExempt
+  );
+  const automaticRecalculation = useUsersStore(
+    (store) => store.applicationSettings.enableAutomaticJobRecalculation
   );
 
   return useMemo(() => {
@@ -80,20 +87,28 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         ? null
         : (state.speculativeChildJobs?.[material.typeID] ?? null);
 
+      const buyPrice = getMarketPriceForType(
+        material.typeID,
+        resolved.marketSelect,
+        resolved.listingSelect
+      );
+
+      const coverage = coverageFor({
+        contributingJobs: speculative ? [speculative] : matchedChildJobs,
+        quantity,
+        buyPrice,
+        state,
+        resolved,
+        isCommitted: hasChildJobs && !speculative,
+        automaticRecalculation,
+      });
+
       return buildMaterialSourcingRow({
         material,
         quantity,
-        buyPrice: getMarketPriceForType(
-          material.typeID,
-          resolved.marketSelect,
-          resolved.listingSelect
-        ),
-        buildPrice: unitBuildCost({
-          material,
-          childJobIDs: speculative ? [speculative.jobID] : childJobIDs,
-          childJobs: speculative ? [speculative] : matchedChildJobs,
-          resolved,
-        }),
+        buyPrice,
+        buildPrice: coverage ? coverage.unitCost : null,
+        coverage,
         isSpeculative: Boolean(speculative),
         isBuildable: checkJobTypeIsBuildable(material.jobType),
         isLinked: hasChildJobs,
@@ -136,6 +151,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
     layout,
     listingSelect,
     checkTypeIDisExempt,
+    automaticRecalculation,
     marketSelect,
     state.parentChildToEdit.childJobs,
     state.speculativeChildJobs,
@@ -144,27 +160,48 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
 }
 
 /**
- * What building one of a material costs, or null when nothing is linked to say.
+ * What the jobs behind a row produce against what the row needs, or null when
+ * nothing builds it.
+ *
+ * Each job is costed for what it actually makes rather than for the whole
+ * requirement, so the row states how much of itself is covered and what the rest
+ * was costed as.
  *
  * @param {object} params
- * @returns {number|null}
+ * @returns {import("../../../../../../Functions/Groups/childJobCoverage").ChildJobCoverage|null}
  */
-function unitBuildCost({ material, childJobIDs, childJobs, resolved }) {
-  if (childJobIDs.length === 0) return null;
+function coverageFor({
+  contributingJobs,
+  quantity,
+  buyPrice,
+  state,
+  resolved,
+  isCommitted,
+  automaticRecalculation,
+}) {
+  if (contributingJobs.length === 0) return null;
 
-  const total = calculateMaterialCostFromChildJobs(
-    material,
-    childJobIDs,
-    childJobs,
-    [],
-    resolved.marketSelect,
-    resolved.listingSelect
-  );
+  const contributors = contributingJobs.map((job) => {
+    const totals = calculateChildJobTotals(
+      job,
+      state.temporaryChildJobs,
+      resolved.marketSelect,
+      resolved.listingSelect
+    );
 
-  const quantity = material.quantity;
-  if (!quantity) return null;
+    return {
+      jobID: job.jobID,
+      produced: totals.quantityProduced,
+      unitCost: totals.totalCostPerItem,
+    };
+  });
 
-  return total / quantity;
+  return childJobCoverage({
+    required: quantity,
+    contributors,
+    buyPrice: Number.isFinite(buyPrice) && buyPrice > 0 ? buyPrice : null,
+    mode: coverageModeFor({ isCommitted, automaticRecalculation }),
+  });
 }
 
 /**

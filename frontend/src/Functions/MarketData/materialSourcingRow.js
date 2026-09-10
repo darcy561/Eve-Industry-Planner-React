@@ -40,6 +40,9 @@ export const MATERIAL_PLAN = {
  * @property {number} volume - Total volume the quantity occupies
  * @property {number} paidCost - What was actually paid for it, where it was bought
  * @property {number} remainingQuantity - How many are still to buy or build
+ * @property {import("../Groups/childJobCoverage").ChildJobCoverage|null} coverage -
+ *   What the linked jobs actually produce against what the row needs, and how
+ *   the difference was costed. Null where nothing builds the row.
  * @property {object} mark - What kind of material it is and whether anything builds it
  * @property {object} material - The material itself, for a drawer opened on this row
  * @property {Array<object>} matchedChildJobs - The child jobs behind it
@@ -62,6 +65,7 @@ export const MATERIAL_PLAN = {
  * @param {string} [params.listingSelect] - The basis the row resolved to
  * @param {number} [params.quantity] - Overrides the material's own requirement,
  *   for a row stating one setup's need rather than the whole job's
+ * @param {import("../Groups/childJobCoverage").ChildJobCoverage} [params.coverage]
  * @returns {MaterialSourcingRow}
  */
 export function buildMaterialSourcingRow({
@@ -76,6 +80,7 @@ export function buildMaterialSourcingRow({
   marketSelect,
   listingSelect,
   quantity: quantityOverride,
+  coverage = null,
 }) {
   const quantity = quantityOverride ?? material?.quantity ?? 0;
   const purchase = materialPurchaseState(material);
@@ -100,6 +105,7 @@ export function buildMaterialSourcingRow({
     volume: (material?.volume ?? 0) * quantity,
     paidCost: purchase.paidCost,
     remainingQuantity: Math.max(0, quantity - purchase.paidQuantity),
+    coverage,
     material,
     matchedChildJobs,
     mark,
@@ -179,7 +185,11 @@ export function summariseSourcing(rows) {
   for (const row of list) {
     if (!hasSavingAvailable(row)) continue;
     cheaperToBuild += 1;
-    savingAvailable += (row.buyPrice - row.buildPrice) * row.quantity;
+    // Only what is still to source can move to a build plan. Counting the whole
+    // requirement offers a saving on units already bought, which applying the
+    // change cannot deliver.
+    savingAvailable +=
+      (row.buyPrice - row.buildPrice) * (row.remainingQuantity ?? row.quantity);
   }
 
   return {

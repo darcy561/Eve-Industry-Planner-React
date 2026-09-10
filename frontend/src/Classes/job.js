@@ -55,7 +55,12 @@ class Job {
    * @param {Object} [buildRequest.childJobs] - Child jobs configuration
    */
   constructor(itemJson, buildRequest) {
-    this.metaLevel = itemJson?.metaLevel ?? itemJson?.metaGroup ?? null;
+    // `metaGroupID` is what the SDE conversion emits and what a job is built
+    // from; `metaLevel` is what a stored document carries. Reading only the
+    // stored name left every new job at null, and the invention costs — offered
+    // for T2 and T3 items, which is what the meta group says — never appeared.
+    this.metaLevel =
+      itemJson?.metaLevel ?? itemJson?.metaGroupID ?? itemJson?.metaGroup ?? null;
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = itemJson?.jobID || `job-${crypto.randomUUID()}`;
@@ -102,6 +107,14 @@ class Job {
         brokersFee: (itemJson?.build?.sale?.brokersFee || []).map(
           (row) => new BrokerFee(row),
         ),
+        // Where the output is meant to go, as against the orders beside it,
+        // which are where it went. Null on almost every job: absent means the
+        // account's defaults apply.
+        plan: {
+          sellerCharacter:
+            itemJson?.build?.sale?.plan?.sellerCharacter ?? null,
+          saleLocationID: itemJson?.build?.sale?.plan?.saleLocationID ?? null,
+        },
       },
       materials: documentToMaterials(itemJson, (typeID) =>
         this.materialRequirement(typeID),
@@ -594,6 +607,28 @@ class Job {
   }
 
   /**
+   * Tax expected on orders that have not sold yet.
+   *
+   * The estimate stored with each order's fee, counted only while the order has
+   * produced no transaction. Once it has, `totalTransactionFees` carries what
+   * EVE actually charged, and that is the figure the job's cost is built from —
+   * counting both would charge the same sale twice.
+   *
+   * @returns {number} Estimated tax still to come
+   */
+  get estimatedSalesTaxOutstanding() {
+    const sold = new Set(
+      this.build.sale.transactions.map((transaction) => transaction.order_id),
+    );
+
+    return this.build.sale.brokersFee.reduce(
+      (total, fee) =>
+        sold.has(fee.order_id) ? total : total + (fee.salesTax || 0),
+      0,
+    );
+  }
+
+  /**
    * What the sales brought in.
    *
    * @returns {number} Sales total
@@ -942,6 +977,22 @@ class Job {
     this.build.sale.transactions = this.build.sale.transactions.filter(
       (i) => i.transaction_id !== transaction.transaction_id,
     );
+  }
+
+  /**
+   * Names where this job's output is meant to go.
+   *
+   * Passing null for either puts that half back on the account's default, which
+   * is what most jobs use — the override exists for the minority that sell
+   * somewhere other than the usual place.
+   *
+   * @param {{sellerCharacter?: string|null, saleLocationID?: string|null}} plan
+   */
+  setSellingPlan(plan) {
+    this.build.sale.plan = {
+      ...this.build.sale.plan,
+      ...plan,
+    };
   }
 
   /**

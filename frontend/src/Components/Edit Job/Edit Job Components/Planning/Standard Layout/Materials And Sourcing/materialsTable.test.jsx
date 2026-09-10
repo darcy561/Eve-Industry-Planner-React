@@ -198,7 +198,7 @@ describe("the drawer under a row", () => {
   });
 
   it("lets more than one row be open at once", () => {
-    // The popover this replaces could only ever show one material.
+    // Comparing two materials means having both open together.
     renderTable([row(), row({ typeID: 35, name: "Isogen" })], {
       renderDrawer: drawerFor,
       openTypeIDs: [34, 35],
@@ -230,8 +230,8 @@ describe("the mark at the head of a row", () => {
   });
 
   it("marks a material the account excludes from builds", () => {
-    // The old row turned its icon amber for this; it was otherwise invisible
-    // until a popover was opened.
+    // An exempt material is worth stating on the row: it is why a build the
+    // player expected to be offered is not.
     renderTable([
       row({
         mark: {
@@ -246,8 +246,8 @@ describe("the mark at the head of a row", () => {
 
     const glyph = screen.getByLabelText("Manufacturing Job — exempt from builds");
     expect(glyph).toBeInTheDocument();
-    // Legible without hovering: the old row's icon said it on sight, and a long
-    // list is scanned rather than hovered row by row.
+    // Legible without hovering: a long list is scanned rather than hovered row
+    // by row.
     expect(glyph.querySelector("svg")).toHaveAttribute(
       "data-testid",
       "BlockIcon"
@@ -342,5 +342,83 @@ describe("the item artwork", () => {
     const src = document.querySelector('img[src*="/types/34/icon"]').getAttribute("src");
     const size = Number(new URL(src).searchParams.get("size"));
     expect(Number.isInteger(Math.log2(size))).toBe(true);
+  });
+});
+
+// The drawer states a shortfall in full, but a row has to be opened to reach it,
+// and a player with thirty materials has no reason to open the one that drifted.
+describe("a row whose child jobs no longer make enough", () => {
+  const shortRow = (overrides) =>
+    row({
+      coverage: {
+        required: 10_000_000,
+        produced: 4_000_000,
+        shortfall: 6_000_000,
+        isShort: true,
+        mode: "extrapolate",
+      },
+      matchedChildJobs: [{ name: "Tritanium job" }],
+      ...overrides,
+    });
+
+  it("says so on the row itself", () => {
+    renderTable([shortRow()]);
+
+    expect(screen.getByText("6,000,000 short")).toBeInTheDocument();
+  });
+
+  it("keeps the plan chip beside it, since the row is still building", () => {
+    renderTable([shortRow()]);
+
+    // Scoped to the row: "Build" is also a column header.
+    const cells = screen.getByText("Tritanium").closest("tr");
+    expect(within(cells).getByText("Build")).toBeInTheDocument();
+    expect(within(cells).getByText("6,000,000 short")).toBeInTheDocument();
+  });
+
+  it("marks the row so it is findable in a long list", () => {
+    renderTable([shortRow()]);
+
+    // The same stripe a row that is cheaper to build carries: both mean the row
+    // wants a second look.
+    const cell = screen.getByText("Tritanium").closest("td");
+    expect(cell).toHaveStyle({ boxShadow: expect.stringContaining("inset") });
+  });
+
+  // A linked job producing nothing has no build price, so the row falls back to
+  // the Buy plan — and that is the row most in need of the tag, not least.
+  it("says so on a linked row whose job now makes nothing", () => {
+    renderTable([
+      shortRow({
+        plan: MATERIAL_PLAN.BUY,
+        buildPrice: null,
+        delta: null,
+        coverage: {
+          required: 10_000_000,
+          produced: 0,
+          shortfall: 10_000_000,
+          isShort: true,
+          mode: "extrapolate",
+        },
+      }),
+    ]);
+
+    expect(screen.getByText("10,000,000 short")).toBeInTheDocument();
+  });
+
+  it("says nothing on a row its jobs still cover", () => {
+    renderTable([
+      shortRow({
+        coverage: {
+          required: 10_000_000,
+          produced: 10_000_000,
+          shortfall: 0,
+          isShort: false,
+          mode: "extrapolate",
+        },
+      }),
+    ]);
+
+    expect(screen.queryByText(/short/)).not.toBeInTheDocument();
   });
 });

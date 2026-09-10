@@ -1,5 +1,6 @@
 /**
- * Shared material price override map logic (Material Prices panel + pricing model).
+ * The per-material pricing overrides a job's layout holds, and the reads and
+ * writes that keep the map well formed.
  * Keeps normalisation rules in one place to match Job layout persistence.
  */
 

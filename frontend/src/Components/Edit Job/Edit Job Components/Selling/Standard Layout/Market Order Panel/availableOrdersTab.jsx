@@ -12,7 +12,7 @@ import {
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { useQueryClient } from "@tanstack/react-query";
 import findBrokersFeeEntry from "../../../../../../Functions/MarketOrders/findBrokersFeeEntry";
-import calcBrokersFee from "../../../../../../Functions/MarketOrders/calcBrokersFee";
+import calcSellingCharges from "../../../../../../Functions/MarketOrders/calcSellingCharges";
 import {
   formatDateForLocale,
   formatNumberForLocale,
@@ -155,14 +155,14 @@ export function AvailableMarketOrdersTab({
                           onClick={async () => {
                             if (jobLockReadOnly) return;
                             try {
-                              const brokersFee = await calcBrokersFee(
+                              const charges = await calcSellingCharges(
                                 order,
                                 queryClient,
                                 citadelBrokersFee
                               );
                               const brokersFeeObject = findBrokersFeeEntry(
                                 order,
-                                brokersFee,
+                                charges,
                                 queryClient
                               );
                               state.activeJob.addMarketOrder(

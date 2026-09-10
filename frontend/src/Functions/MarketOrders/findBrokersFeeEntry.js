@@ -17,11 +17,12 @@ import BrokerFee from "../../Classes/brokerFee";
  * it belongs to, which records that already.
  *
  * @param {Object} order - The market order being linked
- * @param {number} brokersFee - What the listing cost this order
+ * @param {import("./calcSellingCharges").SellingCharges} charges - Both charges
+ *   worked out for this order
  * @param {import("@tanstack/react-query").QueryClient} queryClient
  * @returns {BrokerFee}
  */
-export default function findBrokersFeeEntry(order, brokersFee, queryClient) {
+export default function findBrokersFeeEntry(order, charges, queryClient) {
   const { data: characterJournal } = getAllCachedCharacterJournal(queryClient);
   const { data: corporationJournal } =
     getAllCachedCorporationJournal(queryClient);
@@ -37,5 +38,10 @@ export default function findBrokersFeeEntry(order, brokersFee, queryClient) {
       Date.parse(order?.issued) === Date.parse(candidate?.date)
   );
 
-  return BrokerFee.fromJournalEntry(entry, order, brokersFee);
+  return BrokerFee.fromJournalEntry(
+    entry,
+    order,
+    charges?.brokerFee ?? 0,
+    charges?.salesTax ?? 0
+  );
 }

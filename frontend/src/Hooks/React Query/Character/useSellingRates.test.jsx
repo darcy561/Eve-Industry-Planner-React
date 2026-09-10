@@ -5,8 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const getCharacterStandings = vi.fn();
 const getCharacterSkills = vi.fn();
 
+// Both reads are faked at the ESI boundary rather than at the hooks above them,
+// so the test runs the real subscription — which is the thing that was wrong.
 vi.mock("../../../Functions/EveESI/Character/getStandings", () => ({
   default: (...args) => getCharacterStandings(...args),
+}));
+vi.mock("../../../Functions/EveESI/Character/getSkills", () => ({
+  default: (...args) => getCharacterSkills(...args),
 }));
 
 vi.mock("../../../Functions/Shared/queryExecutionEnabled", () => ({
@@ -21,25 +26,19 @@ vi.mock("../../../Zustand/usersStore", () => ({
   },
 }));
 
-vi.mock("../../../Functions/EveESI/World/getStationData", () => ({
-  default: async () => ({ race_id: 500001, owner: 1000035 }),
+// As ESI reports Jita 4-4: race_id is the race that built the station, and the
+// standing is held against that race's faction.
+vi.mock("../../../Functions/EveESI/World/getUniverseNames", () => ({
+  default: async () => [
+    { id: 500001, name: "Caldari State", category: "faction" },
+  ],
 }));
-
-vi.mock("../../EveEsi/Character/useGetCharacterSkills", async (original) => {
-  const actual = await original();
-  return {
-    ...actual,
-    useGetCharacterSkills: () => ({
-      data: { 3446: { activeLevel: 5 }, 16622: { activeLevel: 5 } },
-      isLoading: false,
-      dataUpdatedAt: 1,
-    }),
-    getCachedCharacterSkills: () => ({
-      data: { 3446: { activeLevel: 5 }, 16622: { activeLevel: 5 } },
-      isLoading: false,
-    }),
-  };
-});
+vi.mock("../../../Functions/EveESI/World/getRaces", () => ({
+  default: async () => [{ race_id: 1, alliance_id: 500001, name: "Caldari" }],
+}));
+vi.mock("../../../Functions/EveESI/World/getStationData", () => ({
+  default: async () => ({ race_id: 1, owner: 1000035 }),
+}));
 
 const { useSellingRates } = await import("./useSellingRates");
 const { SALE_LOCATION_KIND } = await import(
@@ -68,10 +67,13 @@ function harness() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  getCharacterSkills.mockResolvedValue({
+    data: { 3446: { activeLevel: 5 }, 16622: { activeLevel: 5 } },
+  });
   getCharacterStandings.mockResolvedValue({
     data: [
-      { from_id: 500001, standing: 5 },
-      { from_id: 1000035, standing: 5 },
+      { from_id: 500001, from_type: "faction", standing: 5 },
+      { from_id: 1000035, from_type: "npc_corp", standing: 5 },
     ],
   });
 });

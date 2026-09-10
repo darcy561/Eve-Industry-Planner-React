@@ -159,8 +159,8 @@ describe("the Materials and Sourcing panel", () => {
   });
 
   it("gives each row the means to price itself differently", () => {
-    // Setting an override was the last thing the old panel could do that this
-    // one could not.
+    // A row's own price outranks the panel's basis, so the control that sets
+    // it has to be on the row.
     renderPanel();
 
     expect(screen.getByTestId("pricing-34")).toHaveTextContent(

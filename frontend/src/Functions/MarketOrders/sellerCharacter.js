@@ -10,9 +10,9 @@ import useUsersStore from "../../Zustand/usersStore";
  * one with no market skills at all, and quotes the untrained rate as if it were
  * the player's.
  *
- * Nothing stores the choice yet, so this resolves to the account's main and every
- * consumer reaches it through here. Storing a chosen seller is then a change to
- * this file alone — the same shape the saved sale locations use.
+ * The choice is `applicationSettings.defaultMarketCharacter`. Until one is made,
+ * or where the chosen character has since left the account, this stands in with
+ * the account's main and says so, so a rate block can state that it is guessing.
  */
 
 /**
@@ -23,12 +23,14 @@ import useUsersStore from "../../Zustand/usersStore";
  */
 
 /**
- * @param {string|null} [chosenHash] - A stored seller, once one can be chosen
+ * @param {string|null} [override] - A seller named by the job, once one can be
  * @returns {SellerCharacter}
  */
-export function resolveSellerCharacter(chosenHash) {
-  const { actions } = useUsersStore.getState().account;
+export function resolveSellerCharacter(override) {
+  const { account, applicationSettings } = useUsersStore.getState();
+  const { actions } = account;
 
+  const chosenHash = override ?? applicationSettings.defaultMarketCharacter;
   const chosen = chosenHash ? actions.findCharacterByHash(chosenHash) : null;
   if (chosen) {
     return {

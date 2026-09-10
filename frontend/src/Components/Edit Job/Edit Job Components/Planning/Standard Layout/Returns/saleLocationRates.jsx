@@ -1,4 +1,12 @@
-import { Skeleton, Stack, Typography } from "@mui/material";
+import {
+  Link,
+  ListSubheader,
+  MenuItem,
+  Select,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 import InsetSurface from "../../../../../../Styled Components/Paper/InsetSurface";
 import {
@@ -6,7 +14,13 @@ import {
   FigureRow,
 } from "../../../../../../Styled Components/Typography/figures";
 import { formatPercentage } from "../../../../../../Functions/Helper/numberParser";
-import { SALE_LOCATION_KIND } from "../../../../../../Functions/MarketOrders/saleLocations";
+import {
+  SALE_LOCATION_KIND,
+  getDefaultSaleStructure,
+  getSaleStructures,
+} from "../../../../../../Functions/MarketOrders/saleLocations";
+import GLOBAL_CONFIG from "../../../../../../global-config-app";
+import AssignUsersSelect from "../../../../../../Styled Components/Select/users";
 
 /**
  * Where the build is sold from, and what selling there costs.
@@ -25,6 +39,10 @@ import { SALE_LOCATION_KIND } from "../../../../../../Functions/MarketOrders/sal
  * @param {string} [props.priceHubName] - Named for a citadel, whose prices come
  *   from a hub rather than from itself
  * @param {boolean} [props.isLoading]
+ * @param {{sellerCharacter: string|null, saleLocationID: string|null}} [props.plan] -
+ *   What this job has named, as against the account's defaults
+ * @param {(plan: object) => void} [props.onPlanChange] - Omit for a block that
+ *   states the location rather than choosing it
  */
 export default function SaleLocationRates({
   saleLocation,
@@ -32,6 +50,8 @@ export default function SaleLocationRates({
   seller,
   priceHubName,
   isLoading = false,
+  plan = {},
+  onPlanChange,
 }) {
   if (!saleLocation) return null;
 
@@ -40,9 +60,13 @@ export default function SaleLocationRates({
   return (
     <InsetSurface>
       <FigureCaption>Selling from</FigureCaption>
-      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-        {saleLocation.name}
-      </Typography>
+      {onPlanChange ? (
+        <SaleLocationSelect plan={plan} onPlanChange={onPlanChange} />
+      ) : (
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          {saleLocation.name}
+        </Typography>
+      )}
       {atStructure && priceHubName ? (
         <Typography variant="caption" color="text.secondary">
           Prices from {priceHubName}; the fee is this structure's own
@@ -83,11 +107,7 @@ export default function SaleLocationRates({
                   key={term.id}
                   label={term.label}
                   sublabel={termDetail(term)}
-                  value={
-                    term.amount === 0
-                      ? null
-                      : `−${formatPercentage(fraction(term.amount), { places: 2 })}`
-                  }
+                  value={termValue(term)}
                 />
               ))}
               <FigureRow
@@ -103,9 +123,7 @@ export default function SaleLocationRates({
           <FigureRow
             label="Sales tax"
             sublabel={
-              rates.salesTax.accounting > 0
-                ? `Accounting ${rates.salesTax.accounting}, from a base of ${formatPercentage(fraction(rates.salesTax.base), { places: 2 })}`
-                : "no Accounting trained"
+              accountingDetail(rates.salesTax)
             }
             value={formatPercentage(fraction(rates.salesTax.rate), {
               places: 3,
@@ -114,11 +132,37 @@ export default function SaleLocationRates({
         </Stack>
       )}
 
+      {onPlanChange ? (
+        <Stack spacing={0.5} sx={{ mt: 1 }}>
+          <AssignUsersSelect
+            value={plan.sellerCharacter}
+            onChange={(characterHash) =>
+              onPlanChange({ sellerCharacter: characterHash ?? null })
+            }
+            formHelperText="Sold by"
+          />
+          {plan.sellerCharacter || plan.saleLocationID ? (
+            <Link
+              component="button"
+              type="button"
+              underline="hover"
+              variant="caption"
+              sx={{ alignSelf: "flex-start" }}
+              onClick={() =>
+                onPlanChange({ sellerCharacter: null, saleLocationID: null })
+              }
+            >
+              Back to the account default
+            </Link>
+          ) : null}
+        </Stack>
+      ) : null}
+
       {seller?.name ? (
         <Typography variant="caption" color="text.secondary">
           Quoted for {seller.name}
           {seller.isDefault
-            ? " — your main. Market skills and standings are the seller's, and a job cannot yet name one."
+            ? " — your main, until this job or your settings name a seller."
             : ""}
         </Typography>
       ) : null}
@@ -135,12 +179,62 @@ export default function SaleLocationRates({
  * @param {import("../../../../../../Functions/MarketOrders/sellingRates").FeeTerm} term
  */
 function termDetail(term) {
+  // Before the kind of term, because every kind has the same trap: reporting a
+  // figure that could not be read as untrained, or as no standing, states
+  // something about the seller the app does not know. The fee below is quoted
+  // without the figure either way, so what it cannot do is claim a zero.
+  if (term.unknown) return "could not be read";
+
   if (term.id === "brokerRelations") {
     return term.level > 0 ? `level ${term.level}` : "untrained";
   }
-  return term.level > 0
-    ? `standing ${term.level.toFixed(2)}`
-    : "no standing with them";
+
+  // Named, because a standing of nothing is the same sentence whichever empire
+  // owns the station — and without knowing which one was asked about, a right
+  // answer and a lookup pointed at the wrong entity read identically.
+  //
+  // A standing of zero is stated as 0.00 rather than as an absence: it was read,
+  // and it is the answer. Only a figure that could not be read says so.
+  return `${term.level.toFixed(2)} with ${term.entityName ?? "them"}`;
+}
+
+/**
+ * The Accounting behind the tax rate, and the base it came off.
+ *
+ * A level of zero is stated as the zero it read, the same way a standing is: the
+ * rate below is the untrained one either way, and what a reader needs to know is
+ * whether the app established that or failed to.
+ *
+ * @param {{accounting: number, base: number, unknown?: boolean}} salesTax
+ * @returns {string}
+ */
+function accountingDetail(salesTax) {
+  if (salesTax.unknown) return "Accounting could not be read";
+
+  const base = formatPercentage(fraction(salesTax.base), { places: 2 });
+  return `Accounting ${salesTax.accounting}, from a base of ${base}`;
+}
+
+/**
+ * What a term took off the base, or nothing where the figure is not known.
+ *
+ * A term that was read and took nothing off still shows its zero: the row is
+ * reporting a figure, and an empty cell beside a named entity reads as a gap in
+ * the working rather than as the answer.
+ *
+ * @param {import("../../../../../../Functions/MarketOrders/sellingRates").FeeTerm} term
+ * @returns {string|null}
+ */
+function termValue(term) {
+  if (term.unknown) return null;
+
+  const size = formatPercentage(fraction(Math.abs(term.amount)), { places: 2 });
+
+  if (term.amount === 0) return size;
+
+  // A standing below zero raises the fee, so the sign has to follow the figure
+  // rather than always being taken off.
+  return term.amount > 0 ? `−${size}` : `+${size}`;
 }
 
 /**
@@ -149,3 +243,80 @@ function termDetail(term) {
  * column and a ragged one reads as figures of different kinds.
  */
 const fraction = (percentage) => percentage / 100;
+
+/**
+ * Where the job sells from.
+ *
+ * The two kinds of location are not interchangeable and the list says so: a
+ * citadel charges the rate its owner set, and an NPC station charges one derived
+ * from the seller's own skill and standings. A flat list of names hides the one
+ * thing that decides how the fee beneath it was worked out.
+ *
+ * The account's default is the menu item it actually resolves to, marked, rather
+ * than a separate entry — as a separate entry the same location appeared twice,
+ * and choosing it from the list pinned the job to a location it was already
+ * using. Choosing the marked item writes nothing, so the job keeps following the
+ * default if the default later changes.
+ *
+ * @param {object} props
+ * @param {{saleLocationID: string|null}} props.plan
+ * @param {(plan: object) => void} props.onPlanChange
+ */
+function SaleLocationSelect({ plan, onPlanChange }) {
+  const defaultID = getDefaultSaleStructure()?.id ?? null;
+  const groups = saleLocationGroups();
+
+  return (
+    <Select
+      variant="standard"
+      size="small"
+      fullWidth
+      value={plan.saleLocationID ?? defaultID ?? ""}
+      inputProps={{ "aria-label": "Where this job sells from" }}
+      onChange={(event) => {
+        const chosen = event.target.value;
+        onPlanChange({ saleLocationID: chosen === defaultID ? null : chosen });
+      }}
+    >
+      {groups.flatMap((group) => [
+        <ListSubheader key={group.label}>{group.label}</ListSubheader>,
+        ...group.options.map((option) => (
+          <MenuItem key={option.id} value={option.id}>
+            {option.name}
+            {option.id === defaultID ? (
+              <Typography
+                component="span"
+                variant="caption"
+                color="text.secondary"
+                sx={{ ml: 1 }}
+              >
+                account default
+              </Typography>
+            ) : null}
+          </MenuItem>
+        )),
+      ])}
+    </Select>
+  );
+}
+
+/**
+ * The locations a job can sell from, split by what decides their broker fee.
+ *
+ * @returns {Array<{label: string, options: Array<{id: string, name: string}>}>}
+ */
+function saleLocationGroups() {
+  return [
+    {
+      label: "Citadels",
+      options: getSaleStructures().map(({ id, name }) => ({ id, name })),
+    },
+    {
+      label: "NPC stations",
+      options: GLOBAL_CONFIG.MARKET_OPTIONS.map(({ id, name }) => ({
+        id,
+        name,
+      })),
+    },
+  ].filter((group) => group.options.length > 0);
+}

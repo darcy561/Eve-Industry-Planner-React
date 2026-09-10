@@ -42,10 +42,11 @@ async function getCharacterStandings({
 
     // Handle client errors (4xx)
     if (response.status >= 400 && response.status < 500) {
-      // Permission errors - return empty data gracefully
+      // The token cannot read standings. That is not the same as the character
+      // having none, and returning an empty list would have the app state as
+      // fact that they hold no standing anywhere.
       if (response.status === 403) {
-        console.warn(`Access forbidden for character standings: ${CharacterID}`);
-        return { data: [] };
+        return { data: null, etag: "" };
       }
       // Other client errors - throw
       throw new Error(
@@ -70,8 +71,11 @@ async function getCharacterStandings({
     };
 
   } catch (err) {
+    // Thrown rather than swallowed into an empty list: every fee quoted from
+    // standings that failed to load is wrong, and a caller that cannot tell the
+    // difference states the wrong one confidently.
     console.error(`Error fetching character standings: ${err}`);
-    return { data: [] };
+    throw err;
   }
 }
 

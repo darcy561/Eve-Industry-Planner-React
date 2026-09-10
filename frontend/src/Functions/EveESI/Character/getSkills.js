@@ -76,10 +76,11 @@ async function getCharacterSkills({
 
     // Handle client errors (4xx)
     if (response.status >= 400 && response.status < 500) {
-      // Permission errors - return empty data gracefully
+      // The token cannot read skills. An empty map would have the app state as
+      // fact that the character has trained nothing, and quote the untrained
+      // broker fee and sales tax for someone who may hold both skills at five.
       if (response.status === 403) {
-        console.warn(`Access forbidden for character skills: ${CharacterID}`);
-        return { data: {} };
+        return { data: null, etag: "" };
       }
       // Other client errors - throw
       throw new Error(
@@ -115,8 +116,10 @@ async function getCharacterSkills({
     };
 
   } catch (err) {
+    // Thrown rather than swallowed into an empty map, so a caller can tell a
+    // failed read from a character who has trained nothing.
     console.error(`Error fetching character skills: ${err}`);
-    return { data: {} };
+    throw err;
   }
 }
 

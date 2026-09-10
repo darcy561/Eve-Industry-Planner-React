@@ -2,8 +2,7 @@ import { useMediaQuery } from "@mui/material";
 import { Selling_StandardLayout_EditJob } from "./Standard Layout/standardLayout";
 import useUsersStore from "../../../../Zustand/usersStore";
 import { useGetCharacterOrdersAndWalletData } from "../../../../Hooks/EveEsi/useGetCharacterOrdersAndWalletData";
-import { useGetCharacterSkills } from "../../../../Hooks/EveEsi/Character/useGetCharacterSkills";
-import { useGetCharacterStandings } from "../../../../Hooks/EveEsi/Character/useGetCharacterStandings";
+import { useSellingRateInputs } from "../../../../Hooks/React Query/Character/useSellingRateInputs";
 
 export function LayoutSelector_EditJob_Selling(props) {
   const { state } = props;
@@ -28,30 +27,21 @@ export function LayoutSelector_EditJob_Selling(props) {
     error: characterDataErrorObj,
   } = useGetCharacterOrdersAndWalletData(characterHashes);
 
+  // Every character with an order here, not only the account's main: a fee is
+  // worked out against the character who placed the order and then stored on the
+  // job, so an alt whose skills and standings were never fetched had its orders
+  // costed as though it had neither.
   const {
-    isLoading: SkillDataLoading,
-    isError: SkillDataError,
-    error: SkillDataErrorObj,
-  } = useGetCharacterSkills(mainCharacterHash);
+    isLoading: rateInputsLoading,
+    isError: rateInputsError,
+    error: rateInputsErrorObj,
+  } = useSellingRateInputs(characterHashes);
 
-  const {
-    isLoading: StandingDataLoading,
-    isError: StandingDataError,
-    error: StandingDataErrorObj,
-  } = useGetCharacterStandings(mainCharacterHash);
+  const isLoading = rateInputsLoading || characterDataLoading;
 
-  const isLoading =
-    SkillDataLoading ||
-    StandingDataLoading ||
-    characterDataLoading
+  const isError = rateInputsError || characterDataError;
 
-  const isError =
-    SkillDataError || StandingDataError || characterDataError;
-
-  const error =
-    SkillDataErrorObj ||
-    StandingDataErrorObj ||
-    characterDataErrorObj
+  const error = rateInputsErrorObj || characterDataErrorObj;
 
   switch (deviceNotMobile) {
     case true:

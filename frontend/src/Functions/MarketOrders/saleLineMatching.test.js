@@ -127,7 +127,7 @@ describe("the broker fee charged for an order", () => {
       { id: 11, ref_type: "brokers_fee", date: SOLD_AT },
     ]);
 
-    const fee = findBrokersFeeEntry(order, 1200, null);
+    const fee = findBrokersFeeEntry(order, { brokerFee: 1200 }, null);
 
     expect(fee.id).toBe(11);
     expect(fee.amount).toBe(1200);
@@ -141,7 +141,7 @@ describe("the broker fee charged for an order", () => {
       { id: 10, ref_type: "brokers_fee", date: "2026-07-01T00:00:00Z" },
     ]);
 
-    const fee = findBrokersFeeEntry(order, 1200, null);
+    const fee = findBrokersFeeEntry(order, { brokerFee: 1200 }, null);
 
     expect(fee.amount).toBe(1200);
     expect(fee.id).toBeNull();
@@ -154,8 +154,8 @@ describe("the broker fee charged for an order", () => {
   it("gives orders listed together their own amounts from a shared entry", () => {
     withJournal([{ id: 11, ref_type: "brokers_fee", date: SOLD_AT }]);
 
-    const first = findBrokersFeeEntry(order, 1200, null);
-    const second = findBrokersFeeEntry({ ...order, order_id: 2 }, 800, null);
+    const first = findBrokersFeeEntry(order, { brokerFee: 1200 }, null);
+    const second = findBrokersFeeEntry({ ...order, order_id: 2 }, { brokerFee: 800 }, null);
 
     expect(first.id).toBe(11);
     expect(second.id).toBe(11);
@@ -169,7 +169,7 @@ describe("the broker fee charged for an order", () => {
       { id: 12, ref_type: "market_transaction", date: SOLD_AT, amount: 500 },
     ]);
 
-    expect(findBrokersFeeEntry(order, 1200, null).id).toBeNull();
+    expect(findBrokersFeeEntry(order, { brokerFee: 1200 }, null).id).toBeNull();
   });
 });
 

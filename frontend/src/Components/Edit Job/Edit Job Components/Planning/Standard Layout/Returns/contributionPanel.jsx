@@ -27,13 +27,11 @@ import {
  *   Sell-side at this job's own hub: a parent buying the material pays the ask.
  *   Where the parent prices that material on another basis or hub, its own delta
  *   column will differ from this by that much.
- * @param {React.ReactNode} [props.children]
  */
 export default function ContributionPanel({
   commitment,
   contributedCost,
   marketPrice,
-  children,
 }) {
   if (!commitment?.hasParents || commitment.committed <= 0) return null;
 
@@ -95,7 +93,6 @@ export default function ContributionPanel({
           sales tax.
         </Typography>
 
-        {children}
       </Stack>
     </AppShellPanel>
   );

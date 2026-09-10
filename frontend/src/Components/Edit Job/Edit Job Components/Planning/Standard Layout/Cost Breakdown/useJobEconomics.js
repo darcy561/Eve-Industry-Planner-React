@@ -7,16 +7,12 @@ import {
   brokerFeeAmount,
   salesTaxAmount,
 } from "../../../../../../Functions/MarketOrders/sellingRates";
-import {
-  getDefaultSaleStructure,
-  resolveSaleLocation,
-} from "../../../../../../Functions/MarketOrders/saleLocations";
 import { useSellingRates } from "../../../../../../Hooks/React Query/Character/useSellingRates";
 import { useAccountTotalsQuery } from "../../../../../../Hooks/React Query/Backend/statisticsTotals";
 import { formatPercentage } from "../../../../../../Functions/Helper/numberParser";
-import { getMarketPriceForType } from "../Material Prices/marketPriceHelpers";
-import { resolveSellerCharacter } from "../../../../../../Functions/MarketOrders/sellerCharacter";
+import { getMarketPriceForType } from "../../../../../../Functions/MarketData/marketPriceForType";
 import { useJobCommitment } from "../../../../../../Hooks/Planner/useJobCommitment";
+import { useJobSellingContext } from "../../../../../../Hooks/Planner/useJobSellingContext";
 
 /**
  * The figures Cost Breakdown and Returns both draw from.
@@ -41,17 +37,7 @@ export function useJobEconomics({
 }) {
   const { activeJob } = state;
 
-  // The planner's default citadel is the one every job sells from; a job cannot
-  // name its own.
-  const saleLocation = useMemo(
-    () => resolveSaleLocation(getDefaultSaleStructure()?.id, marketSelect),
-    [marketSelect],
-  );
-
-  // The seller, not the builder. Market skills and standings live on whichever
-  // character lists the order, which is routinely a trading alt rather than the
-  // one the setup runs the job on.
-  const seller = resolveSellerCharacter();
+  const { seller, saleLocation } = useJobSellingContext(activeJob);
 
   const { data: rates, isLoading: ratesLoading } = useSellingRates(
     saleLocation,
@@ -78,9 +64,10 @@ export function useJobEconomics({
     // revenue of what is actually going to be listed.
     const listedValue = sellPrice * sellable;
     // Nothing listed is charged nothing. The fee has a 100 ISK floor, which
-    // would otherwise bill a job whose whole output is owed to a parent for a
-    // listing it never makes.
-    const charged = rates && sellable > 0;
+    // would otherwise bill a listing that is never made — by a job whose whole
+    // output is owed to a parent, or of an item the market has no price for,
+    // where the floor is the only figure the estimate would have.
+    const charged = rates && sellable > 0 && listedValue > 0;
     const brokerFee = charged
       ? brokerFeeAmount(rates.brokerFee.rate, listedValue)
       : 0;
@@ -91,7 +78,11 @@ export function useJobEconomics({
     const cost = buildCostBreakdown({
       rows,
       installCost: getJobInstallCostForPlanning(activeJob),
-      extras: activeJob.totalExtrasCost ?? 0,
+      // The attempts that produced the blueprint, which the archive counts in a
+      // build's cost. Left out here, the stage reads a T2 job as cheaper than
+      // its own history says every previous one was.
+      inventionCost: activeJob.totalInventionCost ?? 0,
+      extras: activeJob.build?.costs?.extrasCosts ?? [],
       brokerFee,
       salesTax,
       quantityProduced,
@@ -99,7 +90,11 @@ export function useJobEconomics({
       sellDetail: rates
         ? {
             brokerFee: `${formatPercentage(rates.brokerFee.rate / 100, { places: 2 })} at ${saleLocation?.name}`,
-            salesTax: formatPercentage(rates.salesTax.rate / 100, { places: 3 }),
+            // Named the same way the fee is. The rate itself carries no location
+            // — tax is the same wherever a sale happens — but a reader comparing
+            // two lines in one band should not have to know that to place the
+            // second one.
+            salesTax: `${formatPercentage(rates.salesTax.rate / 100, { places: 3 })} on the sale at ${saleLocation?.name}`,
           }
         : {},
     });
@@ -113,9 +108,6 @@ export function useJobEconomics({
       seller,
       sellPrice,
       commitment,
-      // The marks themselves, for a consumer that needs the months rather than
-      // the comparison drawn from them.
-      history: totalsData?.history,
       // The share of the build cost belonging to what can actually be sold.
       // Returns states it and subtracts it, and the two must be the same figure.
       sellableBuildCost: (cost.toBuild.perUnit ?? 0) * sellable,

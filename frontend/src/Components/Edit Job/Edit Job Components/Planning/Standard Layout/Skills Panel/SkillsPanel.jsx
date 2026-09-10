@@ -11,13 +11,9 @@ import {
 import { useGetCharacterSkills } from "../../../../../../Hooks/EveEsi/Character/useGetCharacterSkills";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { groupJobSkills } from "../../../../../../Functions/Skills/jobSkillGroups";
-import {
-  getDefaultSaleStructure,
-  resolveSaleLocation,
-} from "../../../../../../Functions/MarketOrders/saleLocations";
-import { resolveSellerCharacter } from "../../../../../../Functions/MarketOrders/sellerCharacter";
+import { useJobSellingContext } from "../../../../../../Hooks/Planner/useJobSellingContext";
 import { useSellingRates } from "../../../../../../Hooks/React Query/Character/useSellingRates";
-import { getMarketPriceForType } from "../Material Prices/marketPriceHelpers";
+import { getMarketPriceForType } from "../../../../../../Functions/MarketData/marketPriceForType";
 import SkillsWhatIf from "./skillsWhatIf";
 import SkillLevelPips from "./skillLevelPips";
 import SkillsTimeEffect from "./skillsTimeEffect";
@@ -38,7 +34,7 @@ import { useJobCommitment } from "../../../../../../Hooks/Planner/useJobCommitme
 export function SkillsPanel({ state, actions }) {
   const { activeJob } = state;
   const buildCharacterHash = activeJob.selectedSetup?.selectedCharacter ?? null;
-  const seller = resolveSellerCharacter();
+  const { seller, saleLocation } = useJobSellingContext(activeJob);
 
   const findCharacterByHash = useUsersStore(
     (store) => store.account.actions.findCharacterByHash,
@@ -47,16 +43,15 @@ export function SkillsPanel({ state, actions }) {
     ? findCharacterByHash(buildCharacterHash)
     : null;
 
-  // A job whose output is owed to its parents never lists anything, so what
-  // selling would cost is not a question it has — the same rule Returns follows,
-  // read from the same place so the two cannot disagree.
   // A level being tried is a question, not a plan: it lives here and reaches no
   // store, no document and no other panel.
   const [proposed, setProposed] = useState({});
+
+  // A job whose output is owed to its parents never lists anything, so what
+  // selling would cost is not a question it has.
   const { surplus } = useJobCommitment({ state, actions });
   const build = useGetCharacterSkills(buildCharacterHash);
   const sell = useGetCharacterSkills(seller.hash);
-  const saleLocation = resolveSaleLocation(getDefaultSaleStructure()?.id);
   const { data: rates } = useSellingRates(saleLocation, seller.hash);
 
   if (!activeJob.selectedSetup) return null;
@@ -89,21 +84,32 @@ export function SkillsPanel({ state, actions }) {
       isLoading={build.isLoading}
       isError={build.isError}
       error={build.error}
+      // Always present, even with nothing to say. The header's columns and its
+      // height both depend on whether there is an action at all, so letting it
+      // appear on the first click changes the panel's shape underneath the
+      // control being clicked.
       action={
-        Object.keys(proposed).length > 0 ? (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Chip label="What-if" size="small" color="primary" />
-            <Link
-              component="button"
-              type="button"
-              underline="hover"
-              variant="caption"
-              onClick={() => setProposed({})}
-            >
-              Reset
-            </Link>
-          </Stack>
-        ) : null
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ minHeight: 24 }}
+        >
+          {Object.keys(proposed).length > 0 ? (
+            <>
+              <Chip label="What-if" size="small" color="primary" />
+              <Link
+                component="button"
+                type="button"
+                underline="hover"
+                variant="caption"
+                onClick={() => setProposed({})}
+              >
+                Reset
+              </Link>
+            </>
+          ) : null}
+        </Stack>
       }
     >
       <Stack spacing={2}>

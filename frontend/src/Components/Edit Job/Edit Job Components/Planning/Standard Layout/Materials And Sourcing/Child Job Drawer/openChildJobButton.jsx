@@ -9,7 +9,7 @@ import EditJobLeaveConfirmDialogue from "../../../../../EditJobLeaveConfirmDialo
 import { yieldEditJobDocumentLocksOnLeave } from "../../../../../../../Functions/DocumentLock/yieldEditJobDocumentLocksOnLeave.js";
 import { useActiveJobPersistGate } from "../../../../../Edit Job Hooks/useActiveJobDocumentLock";
 
-export function OpenChildJobButon_ChildJobPopoverFrame({
+export function OpenChildJobButton({
   state,
   childJobObjects,
   jobDisplay,

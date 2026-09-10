@@ -10,16 +10,79 @@ import {
  * each one re-deriving it.
  */
 
-/** Series colours in assignment order, taken from the theme. */
+/** The theme entries a chart draws series from, in assignment order. */
+const SERIES_PALETTES = [
+  "primary",
+  "secondary",
+  "success",
+  "warning",
+  "info",
+  "error",
+  "manufacturing",
+  "reaction",
+  "pi",
+  "baseMat",
+  "groupJob",
+  "blueprintOriginal",
+  "blueprintCopy",
+];
+
+/** The six a caller picks from when a colour has to carry a meaning. */
+const BASE_PALETTES = SERIES_PALETTES.slice(0, 6);
+
+/**
+ * Where in the rotation a chart starts.
+ *
+ * Charts drawn from one palette in one order all come out looking the same, so
+ * each starts at its own place in it. Derived from the chart rather than drawn
+ * at random: a random offset would pick a new one on every render, so a series
+ * would change colour while a reader watched it, and the same chart would look
+ * different on a reload. Seeded on what the chart *is* rather than on the rows
+ * it holds, so adding data does not recolour it.
+ *
+ * @param {string} [seed]
+ * @returns {number}
+ */
+export function paletteOffset(seed) {
+  const text = String(seed ?? "");
+  let hash = 0;
+
+  for (let i = 0; i < text.length; i += 1) {
+    hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  }
+
+  return Math.abs(hash);
+}
+
+/**
+ * The six theme colours a chart assigns from, at full strength.
+ *
+ * Where a caller needs colours that mean something rather than colours that are
+ * merely distinct — a band of a total, say — this is the set to choose from.
+ *
+ * @param {object} theme
+ * @returns {string[]}
+ */
+export function chartBaseColours(theme) {
+  return BASE_PALETTES.map((name) => theme.palette[name].main);
+}
+
+/**
+ * Series colours in assignment order.
+ *
+ * Each theme colour contributes its main, its light and its dark, and the whole
+ * rotation is taken a shade at a time: every main before any light, every light
+ * before any dark. A chart with six series or fewer therefore looks as it always
+ * did, and a longer one reaches for a variant of a colour it has already used
+ * rather than wrapping back onto an exact repeat.
+ *
+ * @param {object} theme
+ * @returns {string[]}
+ */
 export function chartSeriesColours(theme) {
-  return [
-    theme.palette.primary.main,
-    theme.palette.secondary.main,
-    theme.palette.success.main,
-    theme.palette.warning.main,
-    theme.palette.info.main,
-    theme.palette.error.main,
-  ];
+  return ["main", "light", "dark"].flatMap((shade) =>
+    SERIES_PALETTES.map((name) => theme.palette[name]?.[shade]).filter(Boolean),
+  );
 }
 
 /**
@@ -40,14 +103,17 @@ export function chartRoleColours(theme) {
  * Resolves a series colour: an explicit one wins, then a named role, then the
  * rotation for series that carry no meaning beyond being distinct.
  */
-export function resolveSeriesColour(theme, series, index) {
+export function resolveSeriesColour(theme, series, index, seed) {
   if (series?.colour) return series.colour;
   if (series?.role) {
     const byRole = chartRoleColours(theme)[series.role];
     if (byRole) return byRole;
   }
   const palette = chartSeriesColours(theme);
-  return palette[index % palette.length];
+
+  // A named role is answered above, so only series that mean nothing beyond
+  // being distinct are moved along the rotation.
+  return palette[(index + paletteOffset(seed)) % palette.length];
 }
 
 /**
@@ -55,10 +121,10 @@ export function resolveSeriesColour(theme, series, index) {
  * swatch from the entry's own `fill`, so colouring marks only in a shape renderer
  * draws correctly and legends grey.
  */
-export function withSeriesColours(theme, rows = []) {
+export function withSeriesColours(theme, rows = [], seed) {
   return rows.map((row, index) => ({
     ...row,
-    fill: resolveSeriesColour(theme, row, index),
+    fill: resolveSeriesColour(theme, row, index, seed),
   }));
 }
 

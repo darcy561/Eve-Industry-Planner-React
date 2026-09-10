@@ -70,9 +70,15 @@ describe("InventionEntry", () => {
 
     expect(entry.itemName).toBe("Datacore - Mechanical Engineering");
     expect(entry.itemCost).toBe(125000);
-    expect(Number.isSafeInteger(entry.id)).toBe(true);
+    // A uuid rather than the clock: two entries minted in one millisecond took
+    // the same id, and a row is removed by matching on it.
+    expect(entry.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
   });
 
+  // Rows written before the id became a uuid carry a number, and are kept as
+  // they are: the id is only ever compared, never parsed.
   it("keeps every stored key on the way out", () => {
     const row = { id: 1788510923210, itemName: "Datacore", itemCost: 125000 };
 

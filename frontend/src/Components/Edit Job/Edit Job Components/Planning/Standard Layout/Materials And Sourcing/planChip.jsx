@@ -1,8 +1,9 @@
 import { Button, Chip, Stack, Tooltip } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { findMaterialJobInGroup } from "../../../../../../Functions/Groups/findMaterialJobInGroup";
 import { finaliseCreatedChildJobs } from "./Helpers/finaliseCreatedChildJobs";
-import { resolveMaterialChildJobStatus } from "../Material Prices/Helpers/materialChildJobs";
+import { resolveMaterialChildJobStatus } from "./Helpers/materialChildJobs";
 import {
   useActiveGroupReadOnly,
   useSiblingLinkLock,
@@ -26,6 +27,7 @@ import { trackNewJobsCreated } from "../../../../../../analytics/trackNewJobsCre
  *   for it, or the real one already linked to it
  */
 export default function PlanChip({ state, actions, material, rowJob }) {
+  const queryClient = useQueryClient();
   const groupReadOnly = useActiveGroupReadOnly(state);
   const siblingLock = useSiblingLinkLock(state);
 
@@ -62,6 +64,14 @@ export default function PlanChip({ state, actions, material, rowJob }) {
       jobsForMissingDataAndRecalc: groupJob ? [] : job,
       jobsToMarkForAddition: job,
       actions,
+      // A job built for this row is sized to what this row needs, which is the
+      // figure the panel has been costing it at.
+      //
+      // A job the group already runs is not: it may already be feeding another
+      // job in the group, and sizing it to this row's requirement alone would
+      // take that job's supply away without either of them being told.
+      requiredQuantity: groupJob ? undefined : material.quantity,
+      queryClient,
     });
 
     if (!groupJob) trackNewJobsCreated(job);

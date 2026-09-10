@@ -165,24 +165,31 @@ type ApplicationSettingsMeta struct {
 }
 
 type ApplicationSettings struct {
-	SchemaVersion                    int                           `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	DisplayHelpCards                 bool                          `bson:"displayHelpCards" json:"displayHelpCards"`
-	DefaultMarketLocation            string                        `bson:"defaultMarketLocation" json:"defaultMarketLocation"`
-	DefaultOrderType                 string                        `bson:"defaultOrderType" json:"defaultOrderType"`
-	EsiJobTab                        *string                       `bson:"esiJobTab,omitempty" json:"esiJobTab,omitempty"`
-	EnableCompactLayoutView          bool                          `bson:"enableCompactLayoutView" json:"enableCompactLayoutView"`
-	EnableAutomaticJobRecalculation  bool                          `bson:"enableAutomaticJobRecalculation" json:"enableAutomaticJobRecalculation"`
-	EnableSkipMissingBlueprints      bool                          `bson:"enableSkipMissingBlueprints" json:"enableSkipMissingBlueprints"`
-	HideCompleteMaterialsFromEditJob bool                          `bson:"hideCompleteMaterials" json:"hideCompleteMaterials"`
-	DefaultStationIDForAssets        int64                         `bson:"defaultStationIDForAssets" json:"defaultStationIDForAssets"`
-	DefaultCitadelBrokersFee         float64                       `bson:"defaultCitadelBrokersFee" json:"defaultCitadelBrokersFee"`
-	DefaultMaterialEfficiencyValue   int                           `bson:"defaultMaterialEfficiencyValue" json:"defaultMaterialEfficiencyValue"`
-	ShareCitadelNames                bool                          `bson:"shareCitadelNames" json:"shareCitadelNames"`
-	CustomStructures                 CustomStructures              `bson:"customStructures" json:"customStructures"`
-	ExemptTypeIDs                    []int                         `bson:"exemptTypeIDs" json:"exemptTypeIDs,omitempty"`
-	ReprocessingSettings             ReprocessingSettings          `bson:"reprocessingSettings" json:"reprocessingSettings"`
-	ExtrasCategories                 []ExtraCategory               `bson:"extrasCategories" json:"extrasCategories,omitempty"`
-	PredefinedSystemIndexes          map[string]map[string]float64 `bson:"predefinedSystemIndexes" json:"predefinedSystemIndexes,omitempty"`
-	JobStatuses                      map[string]JobStatusEntry     `bson:"jobStatuses" json:"jobStatuses,omitempty"`
-	MetaData                         ApplicationSettingsMeta       `bson:"_meta" json:"_meta"`
+	SchemaVersion                    int     `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
+	DisplayHelpCards                 bool    `bson:"displayHelpCards" json:"displayHelpCards"`
+	DefaultMarketLocation            string  `bson:"defaultMarketLocation" json:"defaultMarketLocation"`
+	DefaultOrderType                 string  `bson:"defaultOrderType" json:"defaultOrderType"`
+	EsiJobTab                        *string `bson:"esiJobTab,omitempty" json:"esiJobTab,omitempty"`
+	EnableCompactLayoutView          bool    `bson:"enableCompactLayoutView" json:"enableCompactLayoutView"`
+	EnableAutomaticJobRecalculation  bool    `bson:"enableAutomaticJobRecalculation" json:"enableAutomaticJobRecalculation"`
+	EnableSkipMissingBlueprints      bool    `bson:"enableSkipMissingBlueprints" json:"enableSkipMissingBlueprints"`
+	HideCompleteMaterialsFromEditJob bool    `bson:"hideCompleteMaterials" json:"hideCompleteMaterials"`
+	DefaultStationIDForAssets        int64   `bson:"defaultStationIDForAssets" json:"defaultStationIDForAssets"`
+	DefaultCitadelBrokersFee         float64 `bson:"defaultCitadelBrokersFee" json:"defaultCitadelBrokersFee"`
+	// DefaultMarketCharacter is whose skills and standings price a sale.
+	//
+	// Not the character that builds: market skills and the standings grind
+	// usually sit on a dedicated trading alt, so deriving the fee from the
+	// builder quotes the untrained rate on most accounts. Nil until chosen, and
+	// the SPA stands in with the account's main.
+	DefaultMarketCharacter         *string                       `bson:"defaultMarketCharacter,omitempty" json:"defaultMarketCharacter,omitempty"`
+	DefaultMaterialEfficiencyValue int                           `bson:"defaultMaterialEfficiencyValue" json:"defaultMaterialEfficiencyValue"`
+	ShareCitadelNames              bool                          `bson:"shareCitadelNames" json:"shareCitadelNames"`
+	CustomStructures               CustomStructures              `bson:"customStructures" json:"customStructures"`
+	ExemptTypeIDs                  []int                         `bson:"exemptTypeIDs" json:"exemptTypeIDs,omitempty"`
+	ReprocessingSettings           ReprocessingSettings          `bson:"reprocessingSettings" json:"reprocessingSettings"`
+	ExtrasCategories               []ExtraCategory               `bson:"extrasCategories" json:"extrasCategories,omitempty"`
+	PredefinedSystemIndexes        map[string]map[string]float64 `bson:"predefinedSystemIndexes" json:"predefinedSystemIndexes,omitempty"`
+	JobStatuses                    map[string]JobStatusEntry     `bson:"jobStatuses" json:"jobStatuses,omitempty"`
+	MetaData                       ApplicationSettingsMeta       `bson:"_meta" json:"_meta"`
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MenuItem, Select, Stack } from "@mui/material";
+import { MenuItem, Select, Stack, useMediaQuery, useTheme } from "@mui/material";
 
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
 import PricingBasisSelect from "../../../../../../Styled Components/Select/pricingBasis";
@@ -11,6 +11,7 @@ import {
 } from "../../../../../../Functions/Helper/numberParser";
 import MaterialDrawer from "./materialDrawer";
 import MaterialsTable from "./materialsTable";
+import MaterialCards from "./materialCards";
 import {
   SourcingCostOffer,
   SourcingFooter,
@@ -18,7 +19,7 @@ import {
 } from "./sourcingSummary";
 import { useMaterialsSourcing } from "./useMaterialsSourcing";
 import { useMaterialOverrides } from "./Hooks/useMaterialOverrides";
-import { getSafeMaterialPriceOverrides } from "../Material Prices/Helpers/materialPriceOverridesState";
+import { getSafeMaterialPriceOverrides } from "./Helpers/materialPriceOverridesState";
 import { useChildJobBuildActions } from "./Hooks/useChildJobBuildActions";
 import { finaliseCreatedChildJobs } from "./Helpers/finaliseCreatedChildJobs";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
@@ -42,6 +43,10 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
   // The job's own lock, the way every other panel on the page gates its
   // actions: a job someone else holds is read from, not edited.
   const readOnly = useActiveJobReadOnly(state);
+  // A seven-column table cannot survive a 360px stack; the figures can.
+  const theme = useTheme();
+  const asCards = useMediaQuery(theme.breakpoints.down("sm"));
+  const MaterialsList = asCards ? MaterialCards : MaterialsTable;
 
   const {
     rows,
@@ -191,7 +196,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
           disabled={readOnly}
         />
 
-        <MaterialsTable
+        <MaterialsList
           rows={rows}
           formatIsk={formatIsk}
           formatQuantity={formatQuantity}
@@ -207,6 +212,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
               marketSelect={row.marketSelect}
               listingSelect={row.listingSelect}
               currentMaterialPrice={row.buyPrice ?? 0}
+              coverage={row.coverage}
               pricing={{
                 overrideMarket: overrideFor(state, row.typeID).marketDisplay,
                 overrideListing: overrideFor(state, row.typeID).orderDisplay,

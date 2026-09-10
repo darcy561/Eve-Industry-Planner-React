@@ -61,6 +61,11 @@ export function TimeSeriesChart({
   rightDomain,
   categoryAngle,
   showGrid = true,
+  /**
+   * Where this chart starts in the colour rotation. Name one wherever two charts
+   * share a category, and wherever the series are built from the data.
+   */
+  paletteSeed,
   tooltipProps,
   axisProps: axisPropsOverride,
   style,
@@ -68,6 +73,14 @@ export function TimeSeriesChart({
   height,
 }) {
   const theme = useTheme();
+  // Falls back to the category rather than to the series keys: a panel whose
+  // series are built from its data — one per extras category present in the
+  // window, say — would otherwise take a new seed whenever that set changed, and
+  // every series on the chart would recolour as a reader changed the range.
+  //
+  // The cost of the fallback is that two charts over the same category start in
+  // the same place; a panel that wants its own colours names a `paletteSeed`.
+  const seed = paletteSeed ?? categoryKey;
   const deviceNotMobile = useMediaQuery(theme.breakpoints.up("sm"));
   const axisProps = { ...chartAxisProps(theme), ...axisPropsOverride };
   const hasRightAxis = series.some((s) => s.axis === "right");
@@ -133,7 +146,7 @@ export function TimeSeriesChart({
         <Legend position="top" {...chartLegendProps(theme)} />
       )}
       {series.map((s, index) => {
-        const colour = resolveSeriesColour(theme, s, index);
+        const colour = resolveSeriesColour(theme, s, index, seed);
         const shared = {
           dataKey: s.key,
           name: s.label,

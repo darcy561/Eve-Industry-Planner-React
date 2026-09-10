@@ -3,8 +3,9 @@ export { RankedBarChart } from "./plots/RankedBarChart";
 export { PieChart } from "./plots/PieChart";
 export { ChartRangeSlider, trailingRange } from "./ChartRangeSlider";
 export { ProportionBar } from "./bars/ProportionBar";
-export { RangeBar } from "./bars/RangeBar";
+export { RangeBar, rangeMarkSx } from "./bars/RangeBar";
 export {
+  chartBaseColours,
   chartSeriesColours,
   resolveSeriesColour,
   formatAxisValue,

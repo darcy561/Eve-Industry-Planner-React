@@ -25,6 +25,7 @@ vi.mock("../../../../../../analytics/trackNewJobsCreated", () => ({
 }));
 
 const { default: PlanChip } = await import("./planChip");
+const { withQueryClient } = await import("../../../../../../tests/utils.js");
 
 const material = { typeID: 34, name: "Tritanium" };
 const speculative = { jobID: "spec-34", itemID: 34 };
@@ -44,13 +45,15 @@ const state = (overrides = {}) => ({
 const renderChip = (props = {}) => {
   const actions = { markChildJobsForRemoval: vi.fn() };
   render(
-    <PlanChip
-      state={state()}
-      actions={actions}
-      material={material}
-      rowJob={speculative}
-      {...props}
-    />,
+    withQueryClient(
+      <PlanChip
+        state={state()}
+        actions={actions}
+        material={material}
+        rowJob={speculative}
+        {...props}
+      />,
+    ),
   );
   return actions;
 };
@@ -141,6 +144,19 @@ describe("the plan chip", () => {
   });
 });
 
+// The panel costs an uncommitted job against the whole requirement because
+// committing sizes it to match, so committing has to actually ask for that.
+describe("committing a job built for this row", () => {
+  it("sizes it to what this row needs", async () => {
+    renderChip();
+    await userEvent.click(screen.getByRole("button", { name: "Build it" }));
+
+    expect(finaliseCreatedChildJobs).toHaveBeenCalledWith(
+      expect.objectContaining({ requiredQuantity: material.quantity }),
+    );
+  });
+});
+
 // A group that already builds the material links its job rather than creating a
 // second one that makes the same thing.
 describe("the plan chip inside a group", () => {
@@ -168,6 +184,22 @@ describe("the plan chip inside a group", () => {
 
     expect(finaliseCreatedChildJobs).toHaveBeenCalledWith(
       expect.objectContaining({ jobsToMarkForAddition: groupJob }),
+    );
+  });
+
+  // The group's job may already be feeding another job in the group. Sizing it
+  // to this row's requirement alone would take that job's supply away without
+  // either of them being told.
+  it("does not resize a job the group already runs", async () => {
+    findMaterialJobInGroup.mockReturnValue(groupJob);
+
+    renderChip({ state: inGroup() });
+    await userEvent.click(
+      screen.getByRole("button", { name: "Build in this group" }),
+    );
+
+    expect(finaliseCreatedChildJobs).toHaveBeenCalledWith(
+      expect.objectContaining({ requiredQuantity: undefined }),
     );
   });
 

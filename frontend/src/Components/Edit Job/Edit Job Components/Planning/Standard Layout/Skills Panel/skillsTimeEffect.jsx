@@ -46,7 +46,9 @@ export default function SkillsTimeEffect({
       <Stack sx={{ mt: 0.5 }}>
         <FigureRow
           label="Job time"
-          sublabel={changed ? sublabelFor(now, then) : undefined}
+          // Always says something: a line that appears only once a level is
+          // tried grows the panel underneath the control being clicked.
+          sublabel={changed ? sublabelFor(now, then) : "at your current levels"}
           value={
             <Superseded
               was={formatTimeDuration(now)}

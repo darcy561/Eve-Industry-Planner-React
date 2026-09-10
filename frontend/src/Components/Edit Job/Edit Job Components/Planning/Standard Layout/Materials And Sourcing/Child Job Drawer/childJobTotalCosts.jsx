@@ -3,7 +3,7 @@ import { Typography, Grid } from "@mui/material";
 import { SMALL_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 import { formatNumberForLocale } from "../../../../../../../Functions/Helper/numberParser";
 
-export function ChildJobMaterialTotalCosts_ChildJobPopoverFrame({
+export function ChildJobMaterialTotalCosts({
   currentMaterialPrice,
   totalCostOfMaterials,
   totalInstallCosts,

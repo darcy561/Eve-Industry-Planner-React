@@ -3,23 +3,22 @@ import { Collapse, Stack, Typography } from "@mui/material";
 import InsetSurface from "../../../../../../Styled Components/Paper/InsetSurface";
 import { calculateChildJobTotals } from "../../../../../../Functions/Groups/childJobTotals";
 import useUsersStore from "../../../../../../Zustand/usersStore";
-import { ChildJobMaterials_ChildJobPopoverFrame } from "./Child Job Drawer/childJobMaterials";
-import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./Child Job Drawer/childJobTotalCosts";
-import { ChildJobSwitcher_ChildJobPopoverFrame } from "./Child Job Drawer/switchChildJob";
-import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./Child Job Drawer/misMatchedTotals";
-import { OpenChildJobButon_ChildJobPopoverFrame } from "./Child Job Drawer/openChildJobButton";
+import { ChildJobMaterials } from "./Child Job Drawer/childJobMaterials";
+import { ChildJobMaterialTotalCosts } from "./Child Job Drawer/childJobTotalCosts";
+import { ChildJobSwitcher } from "./Child Job Drawer/switchChildJob";
+import { DisplayMismatchedChildTotals } from "./Child Job Drawer/misMatchedTotals";
+import { OpenChildJobButton } from "./Child Job Drawer/openChildJobButton";
 import PlanChip from "./planChip";
-import { ImportingStateLayout_ChildJobPopoverFrame } from "./Child Job Drawer/fetchState";
+import { ImportingStateLayout } from "./Child Job Drawer/fetchState";
 import { useChildJobBuildActions } from "./Hooks/useChildJobBuildActions";
-import { useChildJobPopoverData } from "./Hooks/useChildJobPopoverData";
+import { useChildJobDrawerData } from "./Hooks/useChildJobDrawerData";
 import RowPricingOverride from "./rowPricingOverride";
 
 /**
  * What building a material would involve, opened from its row.
  *
- * The same comparison the centre-screen popover held, on the row it belongs to:
- * more than one can be open at once, it stays with its row while the list
- * scrolls, and the actions have room to say what they do.
+ * More than one can be open at once, and each stays with its row while the list
+ * scrolls, so a comparison is read against the material it is about.
  *
  * @param {object} props
  * @param {boolean} props.isOpen
@@ -31,6 +30,8 @@ import RowPricingOverride from "./rowPricingOverride";
  * @param {number} props.currentMaterialPrice
  * @param {Array<object>} props.matchedChildJobs
  * @param {object} [props.pricing] - Where this row is priced, and how to change it
+ * @param {import("../../../../../../Functions/Groups/childJobCoverage").ChildJobCoverage} [props.coverage] -
+ *   What the linked jobs produce against what the row needs
  */
 export default function MaterialDrawer({
   isOpen,
@@ -42,6 +43,7 @@ export default function MaterialDrawer({
   marketSelect,
   listingSelect,
   pricing,
+  coverage,
   ...rest
 }) {
   const checkTypeIDisExempt = useUsersStore(
@@ -62,7 +64,7 @@ export default function MaterialDrawer({
     childJobObjects,
     fetchError,
     isExistingJobInGroup,
-  } = useChildJobPopoverData({
+  } = useChildJobDrawerData({
     state,
     isOpen,
     material,
@@ -93,7 +95,10 @@ export default function MaterialDrawer({
   return (
     <Collapse in={isOpen} timeout="auto" unmountOnExit>
       <InsetSurface sx={{ my: 1 }}>
-        {jobImportState ? (
+        {/* A failed cost has to stay on the fetch state: the loaded branch would
+            draw a comparison with nothing in it, which reads as a material that
+            costs nothing to build rather than one that could not be priced. */}
+        {jobImportState && !fetchError ? (
           <Stack spacing={1.5}>
             {pricing ? (
               <RowPricingOverride typeID={material.typeID} {...pricing} />
@@ -105,23 +110,19 @@ export default function MaterialDrawer({
               </Typography>
             ) : null}
 
-            <ChildJobMaterials_ChildJobPopoverFrame
+            <ChildJobMaterials
               {...shared}
               childJobObjects={childJobObjects}
               jobDisplay={jobDisplay}
             />
-            <ChildJobMaterialTotalCosts_ChildJobPopoverFrame
+            <ChildJobMaterialTotalCosts
               currentMaterialPrice={currentMaterialPrice}
               totalCostOfMaterials={totals.totalCostOfMaterials}
               totalInstallCosts={totals.totalInstallCosts}
               totalCostPerItem={totals.totalCostPerItem}
             />
-            <DisplayMismatchedChildTotals_ChildJobPopoverFrame
-              materialQuantity={material?.quantity || 0}
-              totalItemsProduced={totals.quantityProduced}
-              totalCostPerItem={totals.totalCostPerItem}
-            />
-            <ChildJobSwitcher_ChildJobPopoverFrame
+            <DisplayMismatchedChildTotals coverage={coverage} />
+            <ChildJobSwitcher
               childJobObjects={childJobObjects}
               jobDisplay={jobDisplay}
               setJobDisplay={setJobDisplay}
@@ -144,7 +145,7 @@ export default function MaterialDrawer({
                 }
               />
               {childJobObjects[jobDisplay] ? (
-                <OpenChildJobButon_ChildJobPopoverFrame
+                <OpenChildJobButton
                   {...shared}
                   childJobObjects={childJobObjects}
                   jobDisplay={jobDisplay}
@@ -153,7 +154,7 @@ export default function MaterialDrawer({
             </Stack>
           </Stack>
         ) : (
-          <ImportingStateLayout_ChildJobPopoverFrame
+          <ImportingStateLayout
             fetchError={fetchError}
             material={material}
           />

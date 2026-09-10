@@ -35,7 +35,6 @@ import OutputHeader from "./outputHeader";
  * @param {object} [props.output] - What the job makes, for the header
  * @param {React.ReactNode} [props.action] - Shown in the panel header
  * @param {React.ReactNode} [props.children] - The sale location and its rates
- * @param {Array<{label: string, onClick: Function, disabled?: boolean}>} [props.menuItems]
  */
 export default function ReturnsPanel({
   returns,
@@ -46,7 +45,6 @@ export default function ReturnsPanel({
   output,
   action,
   children,
-  menuItems = [],
 }) {
   if (!returns) return null;
 
@@ -62,8 +60,6 @@ export default function ReturnsPanel({
       // panel filling an undecided height grows without bound.
       paperSx={{ height: "auto" }}
       action={action}
-      enableMenu={menuItems.length > 0}
-      menuItems={menuItems}
     >
       <Stack spacing={2}>
         {output ? <OutputHeader {...output} /> : null}

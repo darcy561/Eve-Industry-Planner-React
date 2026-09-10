@@ -49,6 +49,13 @@ function PaletteProbe() {
       <span data-testid="manufacturing">
         {theme.palette.manufacturing.main}
       </span>
+      <span data-testid="custom-shades">
+        {["manufacturing", "reaction", "pi", "baseMat", "groupJob"]
+          .map((name) =>
+            [theme.palette[name]?.light, theme.palette[name]?.dark].join("|"),
+          )
+          .join(";")}
+      </span>
       <span data-testid="scrollbar-thumb">
         {
           theme.components.MuiCssBaseline.styleOverrides["*"][
@@ -393,5 +400,40 @@ describe("useThemeContext", () => {
     expect(() => renderHook(() => useThemeContext())).toThrow(
       /useThemeContext must be used within a ThemeProvider/
     );
+  });
+});
+
+// MUI augments only its own six palette entries, so the app's arrive carrying
+// `main` alone — and a caller reaching for `.light` gets `undefined`, which in an
+// `sx` block is an element that does not render rather than an error. The chart
+// rotation draws these, so they have to be filled out.
+describe("the palette entries the app adds of its own", () => {
+  // The suite above resets this within its own describe; this one is outside it,
+  // and a test that left the mock throwing would otherwise build a fallback
+  // theme carrying none of these entries.
+  beforeEach(() => {
+    localStorage.clear();
+    responsiveFontSizesMock.mockReset();
+    responsiveFontSizesMock.mockImplementation((theme) => theme);
+  });
+
+  it("carries a light and a dark for each of them", () => {
+    render(
+      <ThemeProvider>
+        <PaletteProbe />
+      </ThemeProvider>,
+    );
+
+    const shades = screen.getByTestId("custom-shades").textContent;
+
+    expect(shades).not.toMatch(/undefined/);
+    // Semicolons, because a derived colour is `rgb(67, 131, 204)` — spaces and
+    // commas are both inside the values.
+    for (const pair of shades.split(";")) {
+      const [light, dark] = pair.split("|");
+      expect(light).toMatch(/^(#|rgb)/);
+      expect(dark).toMatch(/^(#|rgb)/);
+      expect(light).not.toBe(dark);
+    }
   });
 });

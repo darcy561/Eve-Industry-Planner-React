@@ -26,7 +26,7 @@ func TestComputeBuildStatSnapshot_matchesArchivedJobsMath(t *testing.T) {
 			},
 			Costs: models.JobCosts{
 				ExtrasCosts:      []models.ExtraCost{{ID: "e1", ExtraValue: 3}},
-				InventionEntries: []models.InventionEntry{{ID: 1, ItemName: "Datacore", ItemCost: 2}},
+				InventionEntries: []models.InventionEntry{{ID: "i1", ItemName: "Datacore", ItemCost: 2}},
 				LinkedJobs: []models.LinkedESIJob{
 					{IsCorporation: false, Cost: 2},
 					{IsCorporation: true, Cost: 3},

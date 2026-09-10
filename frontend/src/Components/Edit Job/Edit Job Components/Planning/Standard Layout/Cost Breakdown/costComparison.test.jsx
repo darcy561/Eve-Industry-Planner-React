@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import CostComparison from "./costComparison";
 import { compareToHistory } from "../../../../../../Functions/MarketData/buildComparison";
@@ -27,10 +28,11 @@ describe("the cost comparison", () => {
   it("places the build on a range drawn from the archive's own ends", () => {
     renderFor(history(), 234);
 
-    expect(screen.getByText("228")).toBeInTheDocument();
-    expect(screen.getByText("236")).toBeInTheDocument();
+    // The ends say which is which: two bare numbers under a line do not.
+    expect(screen.getByText("cheapest 228")).toBeInTheDocument();
+    expect(screen.getByText("dearest 236")).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAccessibleName(
-      "Cost per unit 234, against 228 to 236 across 4 builds",
+      /Where this build's cost per unit falls between the cheapest and dearest/,
     );
   });
 
@@ -71,17 +73,62 @@ describe("the cost comparison", () => {
     ).toBeInTheDocument();
   });
 
-  it("names the span the ends describe", () => {
+  // The count sat under the middle of the bar, where it read as a label for
+  // whatever the midpoint is rather than for the whole comparison.
+  it("says what the bar shows above it rather than under its middle", () => {
     renderFor(history(), 234);
 
-    expect(screen.getByText("your 4 builds")).toBeInTheDocument();
+    expect(screen.getByText("Against your 4 builds")).toBeInTheDocument();
+  });
+
+  // Hover is where a reader asks what a picture means.
+  it("describes itself to a reader hovering it", async () => {
+    renderFor(history(), 234);
+
+    await userEvent.hover(screen.getByRole("img"));
+
+    // Says what the picture means. The figures are written underneath it, and a
+    // tooltip is a poor place to read a long number.
+    const tip = await screen.findByRole("tooltip");
+    expect(tip).toHaveTextContent("The upright mark is their average");
+    expect(tip.textContent).not.toMatch(/\d{3}/);
   });
 
   // Where this build sits between the ends means little without the average to
   // read it against.
-  it("states the average and this build beneath the bar", () => {
+  // The bar draws a dot and an upright line and neither says what it is, so the
+  // line was a mark in the middle of a picture with no way to find out.
+  it("names both of the bar's marks beside what they stand for", () => {
     renderFor(history(), 234);
 
-    expect(screen.getByText("Average 232 · this build 234")).toBeInTheDocument();
+    expect(screen.getByText("this build")).toBeInTheDocument();
+    expect(screen.getByText("average 232")).toBeInTheDocument();
+  });
+
+  // The panel's headline states this build's cost per unit two inches away.
+  // Repeating it here was one of three places the same number appeared.
+  it("does not repeat this build's own figure", () => {
+    renderFor(history(), 234);
+
+    expect(screen.queryByText(/this build 234/)).not.toBeInTheDocument();
+  });
+});
+
+// A range bar is read by where the marker falls along it, so a narrow one puts
+// every build in much the same place. It takes the width the headline leaves
+// rather than sitting at a fixed size — which is also what the design draws.
+describe("the width it takes beside the headline", () => {
+  const flexOf = (element) => window.getComputedStyle(element).flexGrow;
+
+  it("grows into the space the headline leaves", () => {
+    const { container } = renderFor(history(), 234);
+
+    expect(flexOf(container.firstChild)).toBe("1");
+  });
+
+  it("grows the same way with nothing to compare against", () => {
+    const { container } = renderFor(null, 234);
+
+    expect(flexOf(container.firstChild)).toBe("1");
   });
 });

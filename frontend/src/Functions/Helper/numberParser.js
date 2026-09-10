@@ -135,6 +135,29 @@ export function formatIsk(value) {
 }
 
 /**
+ * A figure shortened to fit: 10,000,000 reads as "10M".
+ *
+ * For a phone, where a full ISK figure either wraps or pushes the column it
+ * shares off the card. The full value stays available on tap, so shortening
+ * costs nothing a reader cannot get back — which truncating a label does.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+export function formatCompactNumber(value) {
+  if (!Number.isFinite(value)) return "";
+
+  const locale = useUsersStore
+    .getState()
+    .applicationSettings.actions.getCurrentLocale();
+
+  return new Intl.NumberFormat(locale, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+/**
  * A fraction as a percentage: 0.083 reads as "8.3%".
  *
  * Takes a fraction rather than a percentage because that is what a ratio of two

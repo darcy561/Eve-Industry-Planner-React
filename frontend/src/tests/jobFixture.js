@@ -16,6 +16,8 @@
  * @param {object} [overrides.setup] - The setup at that key
  * @param {Array<object>} [overrides.materials]
  * @param {Object<number, string[]>} [overrides.childJobs]
+ * @param {Array<object>} [overrides.inventionEntries]
+ * @param {Array<object>} [overrides.extrasCosts]
  * @returns {object} An activeJob with the class's own getter semantics
  */
 export function jobFixture({
@@ -23,6 +25,8 @@ export function jobFixture({
   setup = {},
   materials = [],
   childJobs = {},
+  inventionEntries = [],
+  extrasCosts = [],
   ...rest
 } = {}) {
   return {
@@ -38,7 +42,15 @@ export function jobFixture({
     build: {
       materials,
       childJobs,
-      costs: { extrasCosts: [] },
+      costs: { extrasCosts, inventionEntries },
+      // Where the output is meant to go. Both halves null is what almost every
+      // job carries: the account's defaults apply.
+      sale: {
+        marketOrders: [],
+        transactions: [],
+        brokersFee: [],
+        plan: { sellerCharacter: null, saleLocationID: null },
+      },
       setup: {
         setup0: {
           id: "setup0",
@@ -56,6 +68,18 @@ export function jobFixture({
     },
     get selectedSetup() {
       return this.build.setup[this.layout.setupToEdit];
+    },
+    get totalExtrasCost() {
+      return this.build.costs.extrasCosts.reduce(
+        (total, row) => total + (Number(row?.extraValue) || 0),
+        0,
+      );
+    },
+    get totalInventionCost() {
+      return this.build.costs.inventionEntries.reduce(
+        (total, entry) => total + (Number(entry?.itemCost) || 0),
+        0,
+      );
     },
     ...rest,
   };

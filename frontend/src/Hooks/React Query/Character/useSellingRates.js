@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useGetCharacterSkills } from "../../EveEsi/Character/useGetCharacterSkills";
-import { useGetCharacterStandings } from "../../EveEsi/Character/useGetCharacterStandings";
+import { useSellingRateInputs } from "./useSellingRateInputs";
 import {
   brokerFeeWorking,
   salesTaxWorking,
@@ -11,34 +10,30 @@ import {
  * What it costs a character to list and sell at a location, with the working
  * behind each rate.
  *
- * Subscribes to the skills and standings queries rather than only reading their
- * caches. `sellingRates` reads them through their cached accessors, which never
- * start a fetch — and outside the Selling stage nothing else mounts the standings
- * query, so a station fee worked out without this would quote every seller as
- * having no standings at all.
+ * Subscribes to the reads the rates are worked out from rather than only reading
+ * their caches, through the same hook the Selling stage uses so the two cannot
+ * subscribe to different things.
  *
  * @param {import("../../../Functions/MarketOrders/saleLocations").SaleLocation|null} saleLocation
  * @param {string|null} characterHash
  */
 export function useSellingRates(saleLocation, characterHash) {
   const queryClient = useQueryClient();
-  const skills = useGetCharacterSkills(characterHash);
-  const standings = useGetCharacterStandings(characterHash);
+  const inputs = useSellingRateInputs(characterHash);
 
-  const settled = !characterHash || (!skills.isLoading && !standings.isLoading);
+  const settled = !characterHash || !inputs.isLoading;
 
   return useQuery({
     // The reads are cache lookups made inside the query function, so what they
-    // returned is not otherwise part of the key: without these the first result
-    // would be cached against skills that had not arrived yet.
+    // returned is not otherwise part of the key: without this the first result
+    // would be cached against levels that had not arrived yet.
     queryKey: [
       "sellingRates",
       saleLocation?.kind ?? "none",
       saleLocation?.id ?? "none",
       saleLocation?.priceHubStationID ?? "none",
       characterHash ?? "none",
-      skills.dataUpdatedAt,
-      standings.dataUpdatedAt,
+      inputs.updatedAt,
     ],
     queryFn: async () => ({
       brokerFee: await brokerFeeWorking(saleLocation, queryClient, characterHash),

@@ -3,7 +3,7 @@ import { calculateMaterialCostFromChildJobs } from "../../../../../../../Functio
 import { SMALL_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 import { formatNumberForLocale } from "../../../../../../../Functions/Helper/numberParser";
 
-export function ChildJobMaterials_ChildJobPopoverFrame({
+export function ChildJobMaterials({
   state,
   jobDisplay,
   childJobObjects,

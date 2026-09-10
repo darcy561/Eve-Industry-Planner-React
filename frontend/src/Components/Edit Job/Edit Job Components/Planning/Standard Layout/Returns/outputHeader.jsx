@@ -20,7 +20,7 @@ import { formatNumberForLocale } from "../../../../../../Functions/Helper/number
  * @param {string} props.priceHubID - The hub the price and the links are for
  * @param {string} props.priceHubName
  * @param {number} props.unitPrice - Sell-side, per unit
- * @param {number} props.quantityProduced
+ * @param {number} props.quantityProduced - What is left to sell
  */
 export default function OutputHeader({
   typeID,
@@ -44,10 +44,17 @@ export default function OutputHeader({
             {name}
           </Typography>
         </MaterialPopoverIconButtons>
-        <Typography variant="caption" color="text.secondary">
-          {formatNumberForLocale(quantityProduced, { max: 0 })} at{" "}
+        {/* Its own line, said explicitly: the name above sits in the market
+            links' wrapper, which is inline-flex, and a caption renders as a
+            span — so the two run together on one line without this. */}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block" }}
+        >
+          Making {formatNumberForLocale(quantityProduced, { max: 0 })} ·{" "}
           {formatNumberForLocale(unitPrice)} each
-          {priceHubName ? ` on the ${priceHubName} market` : ""}
+          {priceHubName ? `, priced from ${priceHubName}` : ""}
         </Typography>
       </Box>
       <Box sx={{ textAlign: "right" }}>

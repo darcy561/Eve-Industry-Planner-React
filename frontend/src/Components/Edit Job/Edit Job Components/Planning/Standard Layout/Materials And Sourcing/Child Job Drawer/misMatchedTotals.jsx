@@ -1,59 +1,41 @@
-import { Typography, Grid } from "@mui/material";
+import { Alert, AlertTitle, Typography } from "@mui/material";
 
-import { SMALL_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
-import { formatNumberForLocale } from "../../../../../../../Functions/Helper/numberParser";
+import { shortfallWording } from "../../../../../../../Functions/Groups/childJobCoverage";
+import {
+  formatIsk,
+  formatNumberForLocale,
+} from "../../../../../../../Functions/Helper/numberParser";
 
-export function DisplayMismatchedChildTotals_ChildJobPopoverFrame({
-  materialQuantity,
-  totalItemsProduced,
-  totalCostPerItem,
-}) {
-  if (materialQuantity !== totalItemsProduced) {
-    return (
-      <Grid container sx={{ marginTop: "20px" }}>
-        <Grid container size={12}>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 8
-            }}>
-            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
-              Total Items Produced By Child Job{" "}
-            </Typography>
-          </Grid>
-          <Grid
-            align="right"
-            size={{
-              xs: 12,
-              sm: 4
-            }}>
-            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
-              {formatNumberForLocale(totalItemsProduced, { max: 0 })}
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container size={12}>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 8
-            }}>
-            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
-              Total Estimated Cost
-            </Typography>
-          </Grid>
-          <Grid
-            align="right"
-            size={{
-              xs: 12,
-              sm: 4
-            }}>
-            <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
-              {formatNumberForLocale(totalCostPerItem)}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-  }
+/**
+ * Says when the child job no longer makes what the parent needs.
+ *
+ * A child job is sized to the requirement when it is created and not again until
+ * the parent is closed, so any change to the parent's runs, efficiency or setup
+ * leaves it short. Until it is resized the row's cost is partly a guess, and the
+ * player is the only one who can decide whether to resize the job or buy the
+ * difference — so this states the shortfall rather than quietly absorbing it.
+ *
+ * @param {object} props
+ * @param {import("../../../../../../../Functions/Groups/childJobCoverage").ChildJobCoverage} [props.coverage]
+ */
+export function DisplayMismatchedChildTotals({ coverage }) {
+  if (!coverage?.isShort) return null;
+
+  const { required, produced, shortfall } = coverage;
+  const quantity = (value) => formatNumberForLocale(value, { max: 0 });
+  const short = quantity(shortfall);
+
+  return (
+    <Alert severity="warning" variant="outlined" sx={{ mt: 1 }}>
+      <AlertTitle sx={{ fontSize: "0.85rem" }}>
+        The child job is {short} short
+      </AlertTitle>
+      <Typography variant="caption" display="block">
+        It makes {quantity(produced)} of the {quantity(required)} this job needs.
+      </Typography>
+      <Typography variant="caption" display="block">
+        {shortfallWording(coverage, quantity, formatIsk)}
+      </Typography>
+    </Alert>
+  );
 }

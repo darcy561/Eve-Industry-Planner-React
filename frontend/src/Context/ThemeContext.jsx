@@ -196,7 +196,7 @@ export function ThemeProvider({ children }) {
     };
 
     try {
-      return responsiveFontSizes(createTheme(designTokens));
+      return responsiveFontSizes(createTheme(withAugmentedCustomColours(designTokens)));
     } catch (error) {
       console.error("Error creating theme:", error);
       // Return a basic theme if creation fails
@@ -255,4 +255,49 @@ export function useThemeContext() {
     throw new Error("useThemeContext must be used within a ThemeProvider");
   }
   return context;
+}
+
+/**
+ * The palette entries this app adds, which MUI does not fill out.
+ *
+ * `augmentColor` runs only over MUI's own six, so a colour added beside them
+ * arrives carrying `main` and nothing else — and a caller reaching for `.light`
+ * gets `undefined`, which in an `sx` block is an element that does not render
+ * rather than an error.
+ */
+const CUSTOM_PALETTE_ENTRIES = [
+  "manufacturing",
+  "reaction",
+  "pi",
+  "baseMat",
+  "groupJob",
+  "blueprintOriginal",
+  "blueprintCopy",
+];
+
+/**
+ * Fills out the app's own palette entries the way MUI fills out its own.
+ *
+ * Anything already given — `secondary`'s explicit dark, say — is kept:
+ * `augmentColor` only supplies what is missing.
+ *
+ * @param {object} designTokens
+ * @returns {object} The tokens, with every custom colour carrying light and dark
+ */
+function withAugmentedCustomColours(designTokens) {
+  const base = createTheme({ palette: { mode: designTokens.palette.mode } });
+
+  const augmented = Object.fromEntries(
+    CUSTOM_PALETTE_ENTRIES.filter(
+      (name) => designTokens.palette[name]?.main,
+    ).map((name) => [
+      name,
+      base.palette.augmentColor({ color: designTokens.palette[name], name }),
+    ]),
+  );
+
+  return {
+    ...designTokens,
+    palette: { ...designTokens.palette, ...augmented },
+  };
 }

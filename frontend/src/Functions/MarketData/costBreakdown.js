@@ -42,9 +42,11 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
  * estimate any more.
  *
  * @param {object} params
- * @param {Array<object>} params.rows - Rows from buildMaterialSourcingRow
+ * @param {Array<object>} params.rows - Rows from buildMaterialSourcingRow, each
+ *   carrying what its child jobs actually cover
  * @param {number} params.installCost - This job's own slots
- * @param {number} params.extras
+ * @param {number} params.inventionCost - What the attempts cost, not per unit
+ * @param {Array<object>} params.extras - The extras rows, one line per category
  * @param {number} params.brokerFee - ISK, from brokerFeeAmount
  * @param {number} params.salesTax - ISK, from salesTaxAmount
  * @param {number} params.quantityProduced
@@ -57,7 +59,8 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
 export function buildCostBreakdown({
   rows = [],
   installCost = 0,
-  extras = 0,
+  inventionCost = 0,
+  extras = [],
   brokerFee = 0,
   salesTax = 0,
   quantityProduced = 0,
@@ -67,6 +70,8 @@ export function buildCostBreakdown({
   let bought = 0;
   let built = 0;
   let paid = 0;
+  let assumedRows = 0;
+  let shortfallBought = 0;
 
   for (const row of rows) {
     // What was already spent is spent whatever the row's plan is, and only what
@@ -81,6 +86,31 @@ export function buildCostBreakdown({
     // What was already paid stays paid whichever model is being read: it is a
     // record, not an estimate, and no model reprices it.
     if (!buyEverything && row.plan === MATERIAL_PLAN.BUILD) {
+      // A row whose child jobs fall short is part built and part bought, and the
+      // two halves belong in the bands that describe them. Costing all of it as
+      // a build would state a plan the linked jobs do not carry out.
+      //
+      // What is left to source is covered by the child jobs first: on a row that
+      // is partly paid for, the units already bought come off the shortfall
+      // before they come off what the jobs make. Scaling both halves by the same
+      // fraction instead charged the row for units it had already paid for.
+      const coverage = row.coverage;
+      if (coverage?.isShort && coverage.buyCost > 0) {
+        const buildRate =
+          coverage.covered > 0 ? coverage.buildCost / coverage.covered : 0;
+        const buyRate =
+          coverage.shortfall > 0 ? coverage.buyCost / coverage.shortfall : 0;
+
+        const builtQuantity = Math.min(coverage.covered, remaining);
+        const boughtQuantity = Math.max(0, remaining - coverage.covered);
+
+        built += builtQuantity * buildRate;
+        bought += boughtQuantity * buyRate;
+        shortfallBought += boughtQuantity * buyRate;
+        continue;
+      }
+
+      if (coverage?.assumed) assumedRows += 1;
       built += (row.buildPrice ?? 0) * remaining;
       continue;
     }
@@ -95,13 +125,13 @@ export function buildCostBreakdown({
     {
       id: "bought",
       label: "Materials bought at market",
-      detail: materialsDetail(counts),
+      detail: materialsDetail(counts, shortfallBought > 0),
       value: bought,
     },
     {
       id: "built",
       label: "Child job builds",
-      detail: "their materials and install, not counted above",
+      detail: builtDetail(assumedRows),
       value: built,
     },
     {
@@ -112,15 +142,12 @@ export function buildCostBreakdown({
     },
     { id: "install", label: "Install cost", detail: "this job only", value: installCost },
     {
-      id: "extras",
-      label: "Extras",
-      value: extras,
-      detail: extras > 0 ? undefined : "Hauling, courier collateral, copies…",
-      // Kept at zero where every other line is dropped: a build with no extras
-      // recorded is the common case, and the row is how a reader finds out the
-      // stage takes them at all.
-      alwaysShow: true,
+      id: "invention",
+      label: "Invention",
+      detail: "the attempts behind the blueprint",
+      value: inventionCost,
     },
+    ...extrasLines(extras),
   ]);
 
   const toSell = band(each, [
@@ -150,6 +177,45 @@ export function buildCostBreakdown({
 }
 
 /**
+ * The extras, one line each, in the order they were recorded.
+ *
+ * A line apiece rather than one total, or one per category: a player writes down
+ * a courier contract and a set of copies because they are separate costs, and
+ * anything that adds them back together is undoing the record they kept. Its
+ * category is said beside it rather than instead of it.
+ *
+ * @param {Array<{id: *, category: string, categoryLabel: string, extraText: string, extraValue: number}>} rows
+ * @returns {Array<object>}
+ */
+function extrasLines(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+
+  if (list.length === 0) {
+    // Kept at zero where every other line is dropped: a build with no extras
+    // recorded is the common case, and the row is how a reader finds out the
+    // stage takes them at all.
+    return [
+      {
+        id: "extras",
+        label: "Extras",
+        detail: "Hauling, courier collateral, copies…",
+        value: 0,
+        alwaysShow: true,
+      },
+    ];
+  }
+
+  return list.map((row, index) => ({
+    // Namespaced so a row's own id cannot collide with a component's, and
+    // positioned so two rows saved without ids still draw as two lines.
+    id: `extras:${row?.id ?? index}`,
+    label: row?.extraText?.trim() || row?.categoryLabel || "Extra cost",
+    detail: row?.extraText?.trim() ? row?.categoryLabel || undefined : undefined,
+    value: row?.extraValue ?? 0,
+  }));
+}
+
+/**
  * @param {Array<object>} rows
  * @param {boolean} [buyEverything]
  * @returns {{total: number, bought: number, built: number, paid: number}}
@@ -168,11 +234,30 @@ function countRows(rows, buyEverything = false) {
  * Says how much of the list this line covers, since the figure alone does not.
  *
  * @param {{total: number, bought: number, built: number}} counts
+ * @param {boolean} [includesShortfall] - Whether a child job's shortfall is in here
  * @returns {string}
  */
-function materialsDetail({ total, bought, built }) {
+function materialsDetail({ total, bought, built }, includesShortfall = false) {
   const of = `${bought} of ${total}`;
-  return built > 0 ? `${of} · ${built} replaced by child builds` : of;
+  const base = built > 0 ? `${of} · ${built} replaced by child builds` : of;
+  return includesShortfall ? `${base} · includes what child jobs fall short of` : base;
+}
+
+/**
+ * Says when part of the build line is a resize that has not happened.
+ *
+ * A child job keeps the size it was created at until the parent is closed, so a
+ * figure covering more than it currently produces is an estimate of the resized
+ * job rather than a cost the plan can be held to.
+ *
+ * @param {number} assumedRows
+ * @returns {string}
+ */
+function builtDetail(assumedRows) {
+  const base = "their materials and install, not counted above";
+  if (assumedRows === 0) return base;
+
+  return `${base} · ${assumedRows} assume${assumedRows === 1 ? "s" : ""} a resize on close`;
 }
 
 /**

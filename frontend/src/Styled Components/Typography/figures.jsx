@@ -339,14 +339,28 @@ export function PanelHeadline({ children, aside }) {
       sx={{
         display: "flex",
         flexWrap: "wrap",
-        gap: 3,
+        gap: 2.25,
         alignItems: "flex-end",
         justifyContent: "space-between",
       }}
     >
       {children}
       {aside ? (
-        <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{aside}</Box>
+        // Grows into whatever the headline leaves, so an aside that wants the
+        // width — a range bar, which is unreadable narrow — can take it, while
+        // one made of fixed tiles stays against the right edge as before.
+        <Box
+          sx={{
+            display: "flex",
+            gap: 3,
+            flexWrap: "wrap",
+            flexGrow: 1,
+            minWidth: 0,
+            justifyContent: "flex-end",
+          }}
+        >
+          {aside}
+        </Box>
       ) : null}
     </Box>
   );

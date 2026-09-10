@@ -2,9 +2,6 @@ import { useState } from "react";
 
 import CostBreakdownPanel from "./costBreakdownPanel";
 import PricingModelToggle, { PRICING_MODEL } from "./pricingModel";
-import CostOverTime from "../Archive Jobs Panel/costOverTime";
-import { historyWindow } from "../Archive Jobs Panel/buildHistoryFigures";
-import { useAccountTimelineQuery } from "../../../../../../Hooks/React Query/Backend/statisticsTimeline";
 import CostComparison from "./costComparison";
 import ReturnsPanel from "../Returns/returnsPanel";
 import ContributionPanel from "../Returns/contributionPanel";
@@ -12,6 +9,7 @@ import SaleLocationRates from "../Returns/saleLocationRates";
 import { useJobEconomics } from "./useJobEconomics";
 import { useMaterialsSourcing } from "../Materials And Sourcing/useMaterialsSourcing";
 import ExtrasEditor from "../../../Complete/Standard Layout/Extras Panel/extrasEditor";
+import InventionEditor, { invitesInvention } from "./inventionEditor";
 import { Typography } from "@mui/material";
 
 import { Disclosure } from "../../../../../../Styled Components/Typography/figures";
@@ -32,7 +30,6 @@ export default function PlanningEconomics(props) {
   // The model is a way of reading this job's cost, not a change to it — it is
   // never written to the document, so a reader coming back sees the real one.
   const [pricingModel, setPricingModel] = useState(PRICING_MODEL.CHEAPEST);
-  const [showChart, setShowChart] = useState(false);
   const { rows, marketSelect } = useMaterialsSourcing({
     state,
     actions: props.actions,
@@ -49,7 +46,6 @@ export default function PlanningEconomics(props) {
     sellPrice,
     commitment,
     contributedCost,
-    history,
     sellableBuildCost,
   } = useJobEconomics({
     state,
@@ -58,12 +54,6 @@ export default function PlanningEconomics(props) {
     marketSelect,
     buyEverything: pricingModel === PRICING_MODEL.BUY_ALL,
   });
-
-  const window = historyWindow(history);
-  const { data: timelineData } = useAccountTimelineQuery(
-    { ...window, typeID: state.activeJob.itemID, includeProductionChain: true },
-    { enabled: showChart && Boolean(window) },
-  );
 
   if (!state.activeJob.selectedSetup) return null;
 
@@ -85,14 +75,15 @@ export default function PlanningEconomics(props) {
           <ExtrasEditor state={state} actions={props.actions} />
         </Disclosure>
 
-        {comparison?.builds > 0 ? (
-          <Disclosure
-            label={`Cost per unit over time · ${comparison.builds} builds`}
-            onOpen={() => setShowChart(true)}
-          >
-            <CostOverTime timelineData={timelineData} />
+        {/* Only a T2 or T3 item is invented, so only one of those is asked what
+            invention cost. What is recorded here is what the Purchasing stage
+            shows: both write the same rows on the job. */}
+        {invitesInvention(state.activeJob) ? (
+          <Disclosure label={inventionLabel(state.activeJob)}>
+            <InventionEditor state={state} actions={props.actions} />
           </Disclosure>
         ) : null}
+
       </CostBreakdownPanel>
       <ContributionPanel
         commitment={commitment}
@@ -105,9 +96,6 @@ export default function PlanningEconomics(props) {
         charges={charges}
         buildCost={sellableBuildCost}
         comparison={comparison}
-        // Stated rather than chosen: a job cannot name its own sale location
-        // until there is somewhere to write the choice, and a picker that
-        // cannot save would be a control in name only.
         action={
           saleLocation ? (
             <Typography variant="body2" color="text.secondary">
@@ -119,7 +107,14 @@ export default function PlanningEconomics(props) {
           typeID: state.activeJob.itemID,
           name: state.activeJob.name,
           priceHubID: saleLocation?.priceHubID,
-          priceHubName: saleLocation?.priceHubName,
+          // Named only where it is not the place being sold from — a citadel
+          // holds no market, so its figures come from a hub. At a station the
+          // two are the same and saying it twice invites the reader to look for
+          // a difference.
+          priceHubName:
+            saleLocation?.priceHubName === saleLocation?.name
+              ? null
+              : saleLocation?.priceHubName,
           unitPrice: sellPrice,
           quantityProduced: commitment.surplus,
         }}
@@ -128,6 +123,11 @@ export default function PlanningEconomics(props) {
           saleLocation={saleLocation}
           rates={rates}
           isLoading={ratesLoading}
+          plan={state.activeJob.build?.sale?.plan ?? {}}
+          onPlanChange={(next) => {
+            state.activeJob.setSellingPlan(next);
+            props.actions.updateActiveJob(state.activeJob);
+          }}
           seller={seller}
           priceHubName={saleLocation?.priceHubName}
         />
@@ -142,6 +142,13 @@ export default function PlanningEconomics(props) {
  *
  * @param {object} activeJob
  */
+function inventionLabel(activeJob) {
+  const rows = activeJob.build?.costs?.inventionEntries ?? [];
+  if (rows.length === 0) return "Add an invention cost";
+
+  return `Invention — ${rows.length}, ${formatNumberForLocale(activeJob.totalInventionCost ?? 0)}`;
+}
+
 function extrasLabel(activeJob) {
   const rows = activeJob.build?.costs?.extrasCosts ?? [];
   if (rows.length === 0) return "Add an extra cost";

@@ -161,8 +161,8 @@ describe("the planning economics wiring", () => {
     expect(screen.getByText("1,200.00")).toBeInTheDocument();
   });
 
-  // Extras used to be its own panel on this stage. Cost Breakdown absorbs it, so
-  // the affordance has to remain reachable rather than merely accounted for.
+  // Extras are a cost component and an entry point both. Counting them in the
+  // table without carrying the editor would make them unreachable.
   it("carries the extras editor, saying what is behind it", () => {
     render(<PlanningEconomics state={state} actions={{}} />);
 
@@ -228,22 +228,55 @@ describe("the pricing model toggle", () => {
 
 // The chart is the history behind the figure the panel leads with, one click
 // away rather than a scroll away — and fetched only once asked for.
-describe("the cost over time disclosure", () => {
-  it("offers the chart where there is history", () => {
-    useJobEconomics.mockReturnValue(
-      economics({ comparison: { builds: 7 }, history: {} }),
-    );
+// The cost-over-time chart belongs to Build History, which draws the same one
+// from the same query. Two copies on one stage is two places to look at the same
+// figures and two places for them to disagree.
+describe("the cost over time chart", () => {
+  it("is left to Build History rather than drawn here as well", () => {
+    useJobEconomics.mockReturnValue(economics({ comparison: { builds: 7 } }));
 
-    render(<PlanningEconomics state={state} actions={{}} />);
-
-    expect(
-      screen.getByText("Cost per unit over time · 7 builds"),
-    ).toBeInTheDocument();
-  });
-
-  it("offers nothing where the item has never been built", () => {
     render(<PlanningEconomics state={state} actions={{}} />);
 
     expect(screen.queryByText(/Cost per unit over time/)).not.toBeInTheDocument();
+  });
+});
+
+// Invention is a cost the job carries and the breakdown counts, so it is
+// recorded where the rest of the cost is read. Only a T2 or T3 item is invented.
+describe("recording what invention cost", () => {
+  const withMeta = (metaGroupID) => ({
+    ...state,
+    activeJob: { ...state.activeJob, metaLevel: metaGroupID },
+  });
+
+  it("offers it on an item that is invented", () => {
+    render(<PlanningEconomics state={withMeta(2)} actions={{}} />);
+
+    expect(screen.getByText("Add an invention cost")).toBeInTheDocument();
+  });
+
+  it("offers nothing on an item that is not", () => {
+    render(<PlanningEconomics state={withMeta(1)} actions={{}} />);
+
+    expect(screen.queryByText(/invention cost/i)).not.toBeInTheDocument();
+  });
+
+  it("counts what is recorded in the label", () => {
+    const job = {
+      ...state.activeJob,
+      metaLevel: 2,
+      totalInventionCost: 1500,
+      build: {
+        ...state.activeJob.build,
+        costs: {
+          ...state.activeJob.build.costs,
+          inventionEntries: [{ id: 1, itemName: "Datacore", itemCost: 1500 }],
+        },
+      },
+    };
+
+    render(<PlanningEconomics state={{ ...state, activeJob: job }} actions={{}} />);
+
+    expect(screen.getByText(/Invention — 1,/)).toBeInTheDocument();
   });
 });

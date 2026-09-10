@@ -15,7 +15,7 @@ import {
   totalRowSx,
 } from "../../../../../../Styled Components/Typography/figures";
 import { ColumnHeaderRow } from "../../../../../../Styled Components/Table/tableParts";
-import { costPartColour } from "./costParts";
+import { costPartColour, extrasIdsOf } from "./costParts";
 
 /**
  * What the cost is made of, one line per part.
@@ -35,8 +35,24 @@ const COLUMNS = [
  * @param {object} props
  * @param {import("../../../../../../Functions/MarketData/costBreakdown").CostBreakdown} props.cost
  * @param {(value: number) => string} props.formatIsk
+ * @param {string|null} [props.activeId] - The part being looked at, on the bar
+ *   above or here, so the two always agree about which one it is
+ * @param {(id: string|null) => void} [props.onActivePart] - Supplied by a panel
+ *   that draws the bar as well; without it the rows are inert
  */
-export default function CostTable({ cost, formatIsk }) {
+export default function CostTable({
+  cost,
+  formatIsk,
+  activeId = null,
+  onActivePart,
+}) {
+  // The extras take a shade each of one colour, so a row has to know which of
+  // them it is. Read from the whole breakdown, since the two bands are drawn
+  // separately below.
+  const extrasIds = extrasIdsOf([
+    ...(cost.toBuild?.lines ?? []),
+    ...(cost.toSell?.lines ?? []),
+  ]);
   // Per unit comes from the figures rather than being divided again here: two
   // divisions of the same numbers is how two totals that disagree begin.
   const perUnit = (value) => (value === null ? null : formatIsk(value));
@@ -46,7 +62,15 @@ export default function CostTable({ cost, formatIsk }) {
       <ColumnHeaderRow columns={COLUMNS} />
       <TableBody>
         {cost.toBuild.lines.map((line) => (
-          <CostRow key={line.id} line={line} formatIsk={formatIsk} perUnit={perUnit} />
+          <CostRow
+            key={line.id}
+            line={line}
+            formatIsk={formatIsk}
+            perUnit={perUnit}
+            isActive={activeId === line.id}
+            extrasIds={extrasIds}
+            onActivePart={onActivePart}
+          />
         ))}
         <SubtotalRow
           label="Cost to build"
@@ -65,6 +89,9 @@ export default function CostTable({ cost, formatIsk }) {
                 line={line}
                 formatIsk={formatIsk}
                 perUnit={perUnit}
+                isActive={activeId === line.id}
+                extrasIds={extrasIds}
+                onActivePart={onActivePart}
               />
             ))}
             <SubtotalRow
@@ -84,11 +111,31 @@ export default function CostTable({ cost, formatIsk }) {
 /**
  * @param {object} props
  */
-function CostRow({ line, formatIsk, perUnit }) {
+function CostRow({
+  line,
+  formatIsk,
+  perUnit,
+  isActive = false,
+  extrasIds = [],
+  onActivePart,
+}) {
   const theme = useTheme();
 
   return (
-    <TableRow>
+    <TableRow
+      data-active={isActive ? "true" : undefined}
+      // Hover only, where the bar above also takes focus: a segment is a shape
+      // with nothing written on it, so reaching it by keyboard is the only way
+      // to find out what it is. A row already says what it is and what it cost.
+      onMouseEnter={() => onActivePart?.(line.id)}
+      onMouseLeave={() => onActivePart?.(null)}
+      sx={{
+        bgcolor: isActive ? "action.hover" : undefined,
+        transition: theme.transitions.create("background-color", {
+          duration: theme.transitions.duration.shortest,
+        }),
+      }}
+    >
       <TableCell>
         <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
           {/* Ties the row to its segment of the bar above. */}
@@ -98,7 +145,7 @@ function CostRow({ line, formatIsk, perUnit }) {
               height: 9,
               borderRadius: "2px",
               flexShrink: 0,
-              bgcolor: costPartColour(theme, line.id),
+              bgcolor: costPartColour(theme, line.id, extrasIds),
             }}
           />
           <Typography variant="body2">{line.label}</Typography>

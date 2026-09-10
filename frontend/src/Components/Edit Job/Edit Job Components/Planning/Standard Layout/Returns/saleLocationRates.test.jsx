@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import SaleLocationRates from "./saleLocationRates";
 import { SALE_LOCATION_KIND } from "../../../../../../Functions/MarketOrders/saleLocations";
@@ -51,12 +52,36 @@ describe("the sale location rates block", () => {
   });
 
   // A standing of zero is a reduction not earned, which is different from one
-  // the app failed to read — so the term stays on screen.
-  it("keeps a term that took nothing off", () => {
+  // the app failed to read — so the term stays on screen, and states the zero it
+  // read rather than leaving the row looking unanswered.
+  it("states a standing of zero as a figure it read", () => {
     render(<SaleLocationRates saleLocation={hub} rates={hubRates} />);
 
     expect(screen.getByText("Corporation standing")).toBeInTheDocument();
-    expect(screen.getByText("no standing with them")).toBeInTheDocument();
+    expect(screen.getByText("0.00 with them")).toBeInTheDocument();
+    // The reduction it did not earn, stated rather than left blank.
+    expect(screen.getAllByText("0.00%").length).toBeGreaterThan(0);
+  });
+
+  // A standing below zero raises the fee. Always taking the figure off rendered
+  // the sign twice.
+  it("adds a negative standing to the fee rather than subtracting it", () => {
+    const penalised = {
+      ...hubRates,
+      brokerFee: {
+        ...hubRates.brokerFee,
+        terms: hubRates.brokerFee.terms.map((term) =>
+          term.id === "faction"
+            ? { ...term, level: -2.5, amount: -0.075 }
+            : term,
+        ),
+      },
+    };
+
+    render(<SaleLocationRates saleLocation={hub} rates={penalised} />);
+
+    expect(screen.getByText("+0.08%")).toBeInTheDocument();
+    expect(screen.getByText("-2.50 with them")).toBeInTheDocument();
   });
 
   it("shows one line at a citadel and says why there is no working", () => {
@@ -118,10 +143,12 @@ describe("the sale location rates block", () => {
       />,
     );
 
-    expect(screen.getByText(/a job cannot yet name one/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/until this job or your settings name a seller/),
+    ).toBeInTheDocument();
   });
 
-  it("says a signed-out seller has no Accounting rather than showing a reduction", () => {
+  it("states an untrained Accounting as the zero it read", () => {
     render(
       <SaleLocationRates
         saleLocation={hub}
@@ -132,7 +159,25 @@ describe("the sale location rates block", () => {
       />,
     );
 
-    expect(screen.getByText("no Accounting trained")).toBeInTheDocument();
+    expect(
+      screen.getByText("Accounting 0, from a base of 7.50%"),
+    ).toBeInTheDocument();
+  });
+
+  // The untrained rate and a rate quoted without knowing the level are the same
+  // number, so the line has to say which of the two it is.
+  it("says when Accounting could not be read", () => {
+    render(
+      <SaleLocationRates
+        saleLocation={hub}
+        rates={{
+          ...hubRates,
+          salesTax: { base: 7.5, accounting: 0, rate: 7.5, unknown: true },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Accounting could not be read")).toBeInTheDocument();
   });
 
   it("waits rather than quoting a rate it does not have yet", () => {
@@ -146,5 +191,187 @@ describe("the sale location rates block", () => {
     const { container } = render(<SaleLocationRates saleLocation={null} />);
 
     expect(container).toBeEmptyDOMElement();
+  });
+});
+
+// Stage F stated the location because there was nowhere to write a choice.
+// JobSale.Plan is that somewhere.
+describe("naming where this job sells", () => {
+  const withPickers = (props = {}) => {
+    const onPlanChange = vi.fn();
+    render(
+      <SaleLocationRates
+        saleLocation={hub}
+        rates={hubRates}
+        plan={{ sellerCharacter: null, saleLocationID: null }}
+        onPlanChange={onPlanChange}
+        {...props}
+      />,
+    );
+    return onPlanChange;
+  };
+
+  it("offers every saved citadel and every hub", async () => {
+    withPickers();
+
+    await userEvent.click(screen.getByLabelText("Where this job sells from"));
+
+    expect(
+      within(screen.getByRole("listbox")).getByText("Placeholder Citadel"),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("listbox")).getByText("Jita"),
+    ).toBeInTheDocument();
+  });
+
+  it("names the account default as the option that leaves it alone", async () => {
+    withPickers();
+
+    await userEvent.click(screen.getByLabelText("Where this job sells from"));
+
+    expect(
+      within(screen.getByRole("listbox")).getByText(/account default/),
+    ).toBeInTheDocument();
+  });
+
+  it("writes the location the job is given", async () => {
+    const onPlanChange = withPickers();
+
+    await userEvent.click(screen.getByLabelText("Where this job sells from"));
+    await userEvent.click(
+      within(screen.getByRole("listbox")).getByText("Second Placeholder Citadel"),
+    );
+
+    expect(onPlanChange).toHaveBeenCalledWith({
+      saleLocationID: "placeholder-sale-structure-2",
+    });
+  });
+
+  // The default is the item it resolves to rather than an entry of its own, so
+  // choosing it writes nothing: the job keeps following the default rather than
+  // pinning itself to whatever the default happens to be today.
+  it("writes nothing when the account default is chosen from the list", async () => {
+    const onPlanChange = withPickers({
+      plan: { sellerCharacter: null, saleLocationID: "jita" },
+    });
+
+    await userEvent.click(screen.getByLabelText("Where this job sells from"));
+    await userEvent.click(
+      within(screen.getByRole("listbox")).getByText("Placeholder Citadel"),
+    );
+
+    expect(onPlanChange).toHaveBeenCalledWith({ saleLocationID: null });
+  });
+
+  // A citadel charges the rate its owner set; an NPC station charges one derived
+  // from the seller's own skill and standings. Which of the two a location is
+  // decides how the fee below was worked out.
+  it("keeps citadels and NPC stations apart", async () => {
+    withPickers();
+
+    await userEvent.click(screen.getByLabelText("Where this job sells from"));
+    const listbox = within(screen.getByRole("listbox"));
+
+    expect(listbox.getByText("Citadels")).toBeInTheDocument();
+    expect(listbox.getByText("NPC stations")).toBeInTheDocument();
+  });
+
+  it("selects the default rather than showing it as a separate entry", async () => {
+    withPickers();
+
+    await userEvent.click(screen.getByLabelText("Where this job sells from"));
+    const listbox = within(screen.getByRole("listbox"));
+
+    // Once, as the option it resolves to — not again as an entry of its own.
+    expect(listbox.getAllByText("Placeholder Citadel")).toHaveLength(1);
+    expect(listbox.getAllByText(/account default/)).toHaveLength(1);
+  });
+
+  // Most jobs sell the usual way, so getting back to the default has to be one
+  // click rather than picking the same thing again from a list.
+  it("offers the way back once the job has departed", async () => {
+    const onPlanChange = withPickers({
+      plan: { sellerCharacter: null, saleLocationID: "placeholder-sale-structure" },
+    });
+
+    await userEvent.click(screen.getByText("Back to the account default"));
+
+    expect(onPlanChange).toHaveBeenCalledWith({
+      sellerCharacter: null,
+      saleLocationID: null,
+    });
+  });
+
+  it("offers no way back while the job is on the default" , () => {
+    withPickers();
+
+    expect(
+      screen.queryByText("Back to the account default"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("states the location without choosing it when given no writer", () => {
+    render(<SaleLocationRates saleLocation={hub} rates={hubRates} />);
+
+    expect(
+      screen.queryByLabelText("Where this job sells from"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Jita")).toBeInTheDocument();
+  });
+});
+
+// "No standing with them" and "untrained" are both statements about the seller.
+// When a figure could not be read the app knows neither, and the fee below is
+// quoted without it either way — so it has to say which of the two it is. Every
+// term has the same trap, including Broker Relations: a fixture that carves one
+// out is how the bug survived the first time.
+describe("a fee quoted without the figures behind it", () => {
+  const unreadable = (ids) => ({
+    ...hubRates,
+    brokerFee: {
+      ...hubRates.brokerFee,
+      terms: hubRates.brokerFee.terms.map((term) =>
+        ids.includes(term.id)
+          ? { ...term, level: 0, amount: 0, unknown: true }
+          : term,
+      ),
+    },
+  });
+
+  it.each(["brokerRelations", "faction", "corporation"])(
+    "says %s could not be read rather than claiming a zero",
+    (id) => {
+      render(<SaleLocationRates saleLocation={hub} rates={unreadable([id])} />);
+
+      expect(screen.getAllByText("could not be read").length).toBe(1);
+    },
+  );
+
+  it("does not claim the seller has no standing", () => {
+    render(
+      <SaleLocationRates
+        saleLocation={hub}
+        rates={unreadable(["faction", "corporation"])}
+      />,
+    );
+
+    expect(screen.queryByText("no standing with them")).not.toBeInTheDocument();
+  });
+
+  it("does not call an unreadable skill untrained", () => {
+    render(
+      <SaleLocationRates
+        saleLocation={hub}
+        rates={unreadable(["brokerRelations"])}
+      />,
+    );
+
+    expect(screen.queryByText("untrained")).not.toBeInTheDocument();
+  });
+
+  it("still says no standing where that is what was read", () => {
+    render(<SaleLocationRates saleLocation={hub} rates={hubRates} />);
+
+    expect(screen.queryAllByText("could not be read")).toHaveLength(0);
   });
 });

@@ -16,12 +16,18 @@ import { resolveSeriesColour } from "../chartTheme";
  * @param {(part: object) => React.ReactNode} [props.describe] - What a part's tooltip says
  * @param {boolean} [props.showLegend]
  * @param {number} [props.height]
+ * @param {string|null} [props.activeId] - The part being looked at, dimming the
+ *   rest so the eye can carry it to whatever states the same part in words
+ * @param {(id: string|null) => void} [props.onActivePart] - Supplied by a
+ *   consumer that has somewhere to carry it to; without it the bar is inert
  */
 export function ProportionBar({
   parts = [],
   describe,
   showLegend = false,
   height = 26,
+  activeId = null,
+  onActivePart,
 }) {
   const theme = useTheme();
   const present = parts.filter((part) => Number(part.value) > 0);
@@ -30,6 +36,11 @@ export function ProportionBar({
   if (total <= 0) return null;
 
   const colourOf = (part, index) => resolveSeriesColour(theme, part, index);
+
+  // Only a bar with somewhere to send the answer takes focus: a bar nothing
+  // listens to would add a tab stop per segment and do nothing with it.
+  const interactive = Boolean(onActivePart);
+  const activate = (id) => () => onActivePart?.(id);
 
   return (
     <Box>
@@ -42,9 +53,22 @@ export function ProportionBar({
           >
             <Box
               data-testid={`proportion-${part.id}`}
+              data-active={activeId === part.id ? "true" : undefined}
+              tabIndex={interactive ? 0 : undefined}
+              onMouseEnter={activate(part.id)}
+              onMouseLeave={activate(null)}
+              onFocus={activate(part.id)}
+              onBlur={activate(null)}
               sx={{
                 width: `${(part.value / total) * 100}%`,
                 bgcolor: colourOf(part, index),
+                cursor: interactive ? "default" : undefined,
+                // The others recede rather than this one brightening: a segment
+                // drawn in a colour that means something must keep it.
+                opacity: activeId && activeId !== part.id ? 0.35 : 1,
+                transition: theme.transitions.create("opacity", {
+                  duration: theme.transitions.duration.shortest,
+                }),
               }}
             />
           </Tooltip>

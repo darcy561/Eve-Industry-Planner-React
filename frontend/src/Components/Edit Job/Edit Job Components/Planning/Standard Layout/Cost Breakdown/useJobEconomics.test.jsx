@@ -5,7 +5,7 @@ const getMarketPriceForType = vi.fn();
 const useSellingRates = vi.fn();
 const useAccountTotalsQuery = vi.fn();
 
-vi.mock("../Material Prices/marketPriceHelpers", () => ({
+vi.mock("../../../../../../Functions/MarketData/marketPriceForType", () => ({
   getMarketPriceForType: (...args) => getMarketPriceForType(...args),
 }));
 
@@ -53,9 +53,15 @@ const jobState = (setupToEdit = "setup0") => ({
   activeJob: {
     itemID: 34,
     totalQuantityProduced: 10,
-    totalExtrasCost: 50,
     layout: { setupToEdit },
-    build: { setup: { setup0: { selectedCharacter: "hash" } } },
+    build: {
+      setup: { setup0: { selectedCharacter: "hash" } },
+      costs: {
+        extrasCosts: [
+          { category: "1", categoryLabel: "Hauling", extraValue: 50 },
+        ],
+      },
+    },
     get selectedSetup() {
       return this.build.setup[this.layout.setupToEdit];
     },

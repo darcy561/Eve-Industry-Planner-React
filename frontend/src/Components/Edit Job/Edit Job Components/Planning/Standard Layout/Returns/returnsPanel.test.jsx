@@ -129,7 +129,7 @@ describe("the Returns panel", () => {
     expect(
       document.querySelector('img[src*="/types/34/icon"]'),
     ).toBeInTheDocument();
-    expect(screen.getByText(/on the Jita market/)).toBeInTheDocument();
+    expect(screen.getByText(/priced from Jita/)).toBeInTheDocument();
   });
 
   it("holds the sale location block a caller puts in it", () => {

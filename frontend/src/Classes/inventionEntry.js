@@ -4,8 +4,8 @@
  *
  * The same fields are `models.InventionEntry` on the backend, and
  * {@link InventionEntry#toDocument} defines the shape for the SPA. `id` is
- * minted from the clock when the entry is added, and only ever identifies the
- * row within its job.
+ * minted when the entry is added, and only ever identifies the row within its
+ * job. Rows written before it became a uuid carry a number.
  *
  * @class InventionEntry
  */
@@ -37,10 +37,16 @@ class InventionEntry {
   /**
    * Mints an id for a new entry.
    *
-   * @returns {number} A millisecond timestamp, which is what the rows hold
+   * The clock repeats: entries minted in the same millisecond took the same id,
+   * and since a row is removed by matching on it, removing one removed both.
+   *
+   * Rows written before this carry a millisecond timestamp instead, and both are
+   * read the same way — the id is only ever compared, never parsed.
+   *
+   * @returns {string}
    */
   static mintID() {
-    return Date.now();
+    return crypto.randomUUID();
   }
 
   /**

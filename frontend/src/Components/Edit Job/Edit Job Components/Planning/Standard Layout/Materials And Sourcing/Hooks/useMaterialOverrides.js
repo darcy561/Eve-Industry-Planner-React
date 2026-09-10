@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import {
   getSafeMaterialPriceOverrides,
   setMaterialOverrideMap,
-} from "../../Material Prices/Helpers/materialPriceOverridesState";
+} from "../Helpers/materialPriceOverridesState";
 
 /**
  * Writes a job's layout preferences: the basis a row is priced on, and the

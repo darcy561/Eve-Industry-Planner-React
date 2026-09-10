@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 
 vi.mock("../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js", () => ({
@@ -7,25 +7,38 @@ vi.mock("../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js", ()
     orderDisplay: "sell",
   }),
 }));
-vi.mock("../Material Prices/marketPriceHelpers", () => ({
+vi.mock("../../../../../../Functions/MarketData/marketPriceForType", () => ({
   getMarketPriceForType: (typeID, hub, basis) =>
     ({ sell: 10, buy: 8, buyP95: 9, sellP05: 11 })[basis] ?? 0,
 }));
-vi.mock("../Material Prices/Helpers/materialChildJobs", () => ({
+// Set per test rather than remocked, so a case with linked children does not
+// need the module registry reset around it.
+let linkedChildJobs = [];
+
+vi.mock("./Helpers/materialChildJobs", () => ({
   resolveMaterialChildJobs: () => ({
-    childJobsById: new Map(),
-    childJobIDs: [],
-    hasChildJobs: false,
+    childJobsById: new Map(linkedChildJobs.map((job) => [job.jobID, job])),
+    childJobIDs: linkedChildJobs.map((job) => job.jobID),
+    hasChildJobs: linkedChildJobs.length > 0,
   }),
   resolveMaterialChildJobStatus: () => ({
-    hasLinked: false,
+    hasLinked: linkedChildJobs.length > 0,
     hasTemp: false,
     hasPendingAdd: false,
   }),
 }));
+let automaticRecalculation = true;
+
 vi.mock("../../../../../../Zustand/usersStore.js", () => {
   const storeState = {
-    applicationSettings: { actions: { checkTypeIDisExempt: () => false } },
+    applicationSettings: {
+      // Read per render: the mock factory runs once, so a plain value would
+      // freeze whatever the first test set.
+      get enableAutomaticJobRecalculation() {
+        return automaticRecalculation;
+      },
+      actions: { checkTypeIDisExempt: () => false },
+    },
     worldData: { actions: { findMarketData: () => undefined } },
   };
   const useUsersStore = (selector) => selector(storeState);
@@ -35,8 +48,15 @@ vi.mock("../../../../../../Zustand/usersStore.js", () => {
 vi.mock("../../../../../../Functions/Helper/checkJobTypeIsBuildable.js", () => ({
   default: (jobType) => jobType === 1,
 }));
-vi.mock("../../../../../../Functions/Groups/materialCostFromChildJobs.js", () => ({
-  calculateMaterialCostFromChildJobs: (material) => 700 * material.quantity,
+// The child jobs behind a row are costed for what they actually make, so the
+// stub answers per job rather than per material.
+vi.mock("../../../../../../Functions/Groups/childJobTotals", () => ({
+  calculateChildJobTotals: (job) => ({
+    totalCostOfMaterials: 0,
+    totalInstallCosts: 0,
+    quantityProduced: job?.totalQuantityProduced ?? 100,
+    totalCostPerItem: job?.unitCost ?? 7,
+  }),
 }));
 
 const { useMaterialsSourcing } = await import("./useMaterialsSourcing.js");
@@ -148,7 +168,7 @@ describe("a row costed from a speculative job", () => {
     );
 
     expect(rows[0].isSpeculative).toBe(true);
-    expect(rows[0].buildPrice).not.toBeNull();
+    expect(rows[0].buildPrice).toBe(7);
   });
 
   it("stays unlinked, and so stays planned to buy", () => {
@@ -164,5 +184,88 @@ describe("a row costed from a speculative job", () => {
     const { rows } = render(setup());
 
     expect(rows[0].isSpeculative).toBe(false);
+  });
+});
+
+// A child job is sized to the requirement when it is created and not again until
+// the parent closes, so the two drift apart whenever the parent changes. The row
+// has to carry that rather than quietly costing the requirement at the child's
+// rate as though it had been resized.
+describe("a row whose child jobs no longer cover it", () => {
+  afterEach(() => {
+    linkedChildJobs = [];
+    automaticRecalculation = true;
+  });
+
+  function renderLinked(...jobs) {
+    linkedChildJobs = jobs;
+    return render(setup());
+  }
+
+  it("says how much of the requirement the child actually makes", () => {
+    const { rows } = renderLinked({
+      jobID: "child-1",
+      totalQuantityProduced: 40,
+      unitCost: 7,
+    });
+
+    expect(rows[0].coverage).toMatchObject({
+      required: 100,
+      produced: 40,
+      covered: 40,
+      shortfall: 60,
+      isShort: true,
+    });
+  });
+
+  it("buys the shortfall when nothing will resize the child on close", () => {
+    automaticRecalculation = false;
+
+    const { rows } = renderLinked({
+      jobID: "child-1",
+      totalQuantityProduced: 40,
+      unitCost: 7,
+    });
+
+    // 40 built at 7, 60 bought at the sell price of 10.
+    expect(rows[0].coverage.buildCost).toBe(280);
+    expect(rows[0].coverage.buyCost).toBe(600);
+    expect(rows[0].buildPrice).toBe(8.8);
+    expect(rows[0].coverage.assumed).toBe(false);
+  });
+
+  it("extrapolates and flags it when the child will be resized on close", () => {
+    const { rows } = renderLinked({
+      jobID: "child-1",
+      totalQuantityProduced: 40,
+      unitCost: 7,
+    });
+
+    expect(rows[0].buildPrice).toBe(7);
+    expect(rows[0].coverage.assumed).toBe(true);
+  });
+
+  it("carries no shortfall when the child still covers the requirement", () => {
+    const { rows } = renderLinked({
+      jobID: "child-1",
+      totalQuantityProduced: 100,
+      unitCost: 7,
+    });
+
+    expect(rows[0].coverage.isShort).toBe(false);
+    expect(rows[0].coverage.assumed).toBe(false);
+  });
+
+  // Two jobs each making half were each costed for the whole requirement, so a
+  // material built by siblings cost twice what it should.
+  it("splits the requirement between siblings rather than giving each all of it", () => {
+    const { rows } = renderLinked(
+      { jobID: "child-1", totalQuantityProduced: 50, unitCost: 7 },
+      { jobID: "child-2", totalQuantityProduced: 50, unitCost: 7 },
+    );
+
+    expect(rows[0].coverage.covered).toBe(100);
+    expect(rows[0].coverage.total).toBe(700);
+    expect(rows[0].buildPrice).toBe(7);
   });
 });

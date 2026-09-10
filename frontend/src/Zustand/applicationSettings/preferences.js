@@ -455,12 +455,27 @@ export const preferencesActions = (set, get) => ({
     ),
 
   /**
+   * Sets the character whose skills and standings price a sale.
+   *
+   * @param {string|null} characterHash
+   */
+  setDefaultMarketCharacter: (characterHash) =>
+    set(
+      (state) => ({
+        ...state,
+        applicationSettings: {
+          ...state.applicationSettings,
+          defaultMarketCharacter: characterHash ?? null,
+        },
+      }),
+      false,
+      "setDefaultMarketCharacter"
+    ),
+
+  /**
    * Sets the default reprocessing character.
-   * 
+   *
    * @param {string} characterHash - Character hash to set as default reprocessing character
-   * 
-   * @example
-   * store.getState().applicationSettings.actions.setDefaultReprocessingCharacter('character-hash-123');
    */
   setDefaultReprocessingCharacter: (characterHash) =>
     set(

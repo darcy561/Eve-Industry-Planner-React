@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Stack, useTheme } from "@mui/material";
 
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
@@ -21,16 +22,18 @@ import { costParts } from "./costParts";
  * @param {React.ReactNode} [props.aside] - Shown beside the headline figure
  * @param {React.ReactNode} [props.children] - Shown under the table
  * @param {React.ReactNode} [props.action] - Shown in the panel header
- * @param {Array<{label: string, onClick: Function, disabled?: boolean}>} [props.menuItems]
  */
 export default function CostBreakdownPanel({
   cost,
   aside,
   action,
   children,
-  menuItems = [],
 }) {
   const theme = useTheme();
+  // Which part of the cost is being looked at. The bar shows the shape and the
+  // table states the figures, and on a build with six components it is not
+  // obvious which line a segment belongs to — so looking at one marks the other.
+  const [activeId, setActiveId] = useState(null);
 
   if (!cost) return null;
 
@@ -42,8 +45,6 @@ export default function CostBreakdownPanel({
       // panel filling an undecided height grows without bound.
       paperSx={{ height: "auto" }}
       action={action}
-      enableMenu={menuItems.length > 0}
-      menuItems={menuItems}
     >
       <Stack spacing={2}>
         <PanelHeadline aside={aside}>
@@ -59,9 +60,16 @@ export default function CostBreakdownPanel({
         <ProportionBar
           parts={costParts(cost, theme)}
           describe={(part) => `${part.label} — ${formatIsk(part.value)}`}
+          activeId={activeId}
+          onActivePart={setActiveId}
         />
 
-        <CostTable cost={cost} formatIsk={formatIsk} />
+        <CostTable
+          cost={cost}
+          formatIsk={formatIsk}
+          activeId={activeId}
+          onActivePart={setActiveId}
+        />
 
         {children}
       </Stack>

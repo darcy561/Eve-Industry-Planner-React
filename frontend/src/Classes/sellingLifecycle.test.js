@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { QueryClient } from "@tanstack/react-query";
 
 const characterTransactions = { data: {} };
 const characterJournal = { data: {} };
@@ -7,11 +8,26 @@ const linkedTrans = new Set();
 vi.mock("../Zustand/usersStore", () => ({
   default: {
     getState: () => ({
-      account: { accountID: "acc-1", isLoggedIn: false, linkedTrans },
+      account: {
+        accountID: "acc-1",
+        isLoggedIn: false,
+        linkedTrans,
+        actions: {
+          findCharacterByHash: (hash) => ({
+            CharacterHash: hash,
+            CharacterID: 1,
+          }),
+        },
+      },
       jobData: { jobArray: [], actions: {} },
       applicationSettings: { actions: { getCurrentLocale: () => "en-GB" } },
     }),
   },
+}));
+// The fetch behind the charges is asserted in brokersFeeCalculation.test.js;
+// here the figures are what matters, not where they came from.
+vi.mock("../Hooks/React Query/Character/useSellingRateInputs", () => ({
+  ensureSellingRateInputs: async () => {},
 }));
 vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
   getAllCachedCharacterTransactions: () => characterTransactions,
@@ -36,9 +52,13 @@ vi.mock("../Hooks/EveEsi/Character/useGetCharacterStandings", () => ({
 }));
 
 const { default: Job } = await import("./job.js");
-const { default: calcBrokersFee } = await import(
-  "../Functions/MarketOrders/calcBrokersFee.js"
+const { default: calcSellingCharges } = await import(
+  "../Functions/MarketOrders/calcSellingCharges.js"
 );
+
+// A real client: both charges are worked out from reads this fetches if absent.
+const client = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
 const { default: findBrokersFeeEntry } = await import(
   "../Functions/MarketOrders/findBrokersFeeEntry.js"
 );
@@ -127,10 +147,11 @@ describe("selling a job's output, from listing to a stored document", () => {
     characterJournal.data = {
       2117000001: [{ id: 55, ref_type: "brokers_fee", date: ISSUED }],
     };
-    const feeAmount = await calcBrokersFee(order, null, 1.5);
+    const charges = await calcSellingCharges(order, client(), 1.5);
+    const feeAmount = charges.brokerFee;
     expect(feeAmount).toBe(1500000); // 1.5% of 100,000,000
 
-    job.addMarketOrder(order, findBrokersFeeEntry(order, feeAmount, null));
+    job.addMarketOrder(order, findBrokersFeeEntry(order, charges, null));
 
     expect(job.esiOrderIDs.has(900)).toBe(true);
     expect(job.totalBrokersFees).toBe(1500000);
@@ -183,8 +204,17 @@ describe("selling a job's output, from listing to a stored document", () => {
     const document = job.toDocument();
 
     expect(document.build.sale.transactions).toHaveLength(2);
+    // The tax is the estimate made when the order was linked: 7.5% of the
+    // 100,000,000 listing, for a seller with no Accounting. The transaction's
+    // own tax is what the job's cost is built from once the sale happens.
     expect(document.build.sale.brokersFee).toEqual([
-      { order_id: 900, id: 55, date: ISSUED, amount: 1500000 },
+      {
+        order_id: 900,
+        id: 55,
+        date: ISSUED,
+        amount: 1500000,
+        salesTax: 7500000,
+      },
     ]);
     expect(document.build.sale.marketOrders[0]).not.toHaveProperty("complete");
     expect(document.build.sale.marketOrders[0].volume_remain).toBe(0);
@@ -208,7 +238,7 @@ describe("selling a job's output, from listing to a stored document", () => {
 
     job.addMarketOrder(
       order,
-      findBrokersFeeEntry(order, await calcBrokersFee(order, null, 1.5), null),
+      findBrokersFeeEntry(order, await calcSellingCharges(order, client(), 1.5), null),
     );
 
     const sales = esiSales();
@@ -239,7 +269,7 @@ describe("selling a job's output, from listing to a stored document", () => {
     const job = newJob();
     const order = esiOrder();
     characterJournal.data = { 2117000001: [] };
-    job.addMarketOrder(order, findBrokersFeeEntry(order, 1500000, null));
+    job.addMarketOrder(order, findBrokersFeeEntry(order, { brokerFee: 1500000, salesTax: 0 }, null));
 
     const sales = esiSales();
     characterTransactions.data = { "hash-1": sales };

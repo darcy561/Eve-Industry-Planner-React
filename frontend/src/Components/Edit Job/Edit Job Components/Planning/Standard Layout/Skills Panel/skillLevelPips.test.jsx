@@ -49,8 +49,8 @@ describe("skill level pips", () => {
     expect(onPropose).toHaveBeenCalledWith(null);
   });
 
-  // Lowering a level used to change nothing on screen: every mark below the
-  // trained level stayed filled whatever was being asked.
+  // A proposal below the trained level has to read as giving something up, or
+  // the pips say the same thing whether it is raised or lowered.
   it("marks the levels a lower proposal gives up", () => {
     const { container } = renderPips({ level: 5, proposed: 2 });
 

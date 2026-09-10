@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { findMaterialJobInGroup } from "../../../../../../../Functions/Groups/findMaterialJobInGroup.js";
-import { resolveMaterialChildJobStatus } from "../../Material Prices/Helpers/materialChildJobs";
+import { resolveMaterialChildJobStatus } from "../Helpers/materialChildJobs";
 
-export function useChildJobPopoverData({
+export function useChildJobDrawerData({
   state,
   isOpen,
   material,

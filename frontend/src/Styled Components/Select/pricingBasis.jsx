@@ -3,12 +3,14 @@ import {
   Box,
   Button,
   Divider,
+  Drawer,
   Menu,
   MenuItem,
   Typography,
 } from "@mui/material";
 
 import { formatTimeDuration } from "../../Functions/Helper/numberParser";
+import { useMediaQuery, useTheme } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 /**
@@ -45,6 +47,12 @@ export default function PricingBasisSelect({
   disabled = false,
 }) {
   const [anchor, setAnchor] = useState(null);
+  // An anchored menu at 360px opens against the edge of the screen. A sheet
+  // comes up under the thumb and gives each option a full-width row, which is
+  // where this picker gains most: the figure beside each mode is the reason to
+  // prefer one.
+  const theme = useTheme();
+  const asSheet = useMediaQuery(theme.breakpoints.down("sm"));
   const current = options.find((option) => option.isCurrent) ?? options[0];
 
   if (!current) return null;
@@ -68,11 +76,10 @@ export default function PricingBasisSelect({
       >
         {current.label}
       </Button>
-      <Menu
-        anchorEl={anchor}
-        open={Boolean(anchor)}
+      <Options
+        asSheet={asSheet}
+        anchor={anchor}
         onClose={() => setAnchor(null)}
-        slotProps={{ list: { role: "listbox", dense: true } }}
       >
         {label ? (
           <Typography
@@ -123,7 +130,7 @@ export default function PricingBasisSelect({
         ))}
         <BasisUsage usage={usage} onReset={onReset} />
         <PriceAge age={age} />
-      </Menu>
+      </Options>
     </>
   );
 }
@@ -208,5 +215,50 @@ function PriceAge({ age }) {
     >
       Server prices {formatTimeDuration(age / 1000, { seconds: false })} old
     </Typography>
+  );
+}
+
+/**
+ * The option list, as a sheet on a phone and an anchored menu otherwise.
+ *
+ * @param {object} props
+ */
+function Options({ asSheet, anchor, onClose, children }) {
+  if (!asSheet) {
+    return (
+      <Menu
+        anchorEl={anchor}
+        open={Boolean(anchor)}
+        onClose={onClose}
+        slotProps={{ list: { role: "listbox", dense: true } }}
+      >
+        {children}
+      </Menu>
+    );
+  }
+
+  return (
+    <Drawer
+      anchor="bottom"
+      open={Boolean(anchor)}
+      onClose={onClose}
+      slotProps={{
+        paper: { sx: { borderTopLeftRadius: 12, borderTopRightRadius: 12 } },
+      }}
+    >
+      <Box
+        sx={{
+          width: 34,
+          height: 4,
+          borderRadius: 2,
+          bgcolor: "divider",
+          mx: "auto",
+          mt: 1,
+        }}
+      />
+      <Box role="listbox" sx={{ pb: 2 }}>
+        {children}
+      </Box>
+    </Drawer>
   );
 }

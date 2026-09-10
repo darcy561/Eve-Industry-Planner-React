@@ -4,8 +4,8 @@ import { ProductionStats } from "../Standard Layout/Production Stats Panel/produ
 import { JobSetupPanel } from "../Standard Layout/Setup Panel/jobSetups";
 import { EditJobSetup } from "../Standard Layout/Edit Setup Panel/editJobSetup";
 import { AvailableBlueprintsPanel } from "../Standard Layout/Blueprint Options/blueprintPanel";
-import { RawResourceList } from "../Standard Layout/Resources Panel/ResourcePanel";
-import { MaterialCostPanel } from "../Standard Layout/Material Prices/materialPricePanel";
+import MaterialsAndSourcingPanel from "../Standard Layout/Materials And Sourcing/materialsAndSourcingPanel";
+import PlanningEconomics from "../Standard Layout/Cost Breakdown/planningEconomics";
 import { SkillsPanel } from "../Standard Layout/Skills Panel/SkillsPanel";
 import ArchiveJobsPanel from "../Standard Layout/Archive Jobs Panel/archiveJobsPanel";
 import TutorialTemplate from "../../../../Tutorials/tutorialTemplate";
@@ -22,8 +22,8 @@ export function Planning_MobileLayout_EditJob(props) {
         <JobSetupPanel {...props} />
         <EditJobSetup {...props} />
         <AvailableBlueprintsPanel {...props} />
-        <RawResourceList {...props} />
-        <MaterialCostPanel {...props} />
+        <MaterialsAndSourcingPanel {...props} />
+        <PlanningEconomics {...props} />
         <ArchiveJobsPanel {...props} />
         <SkillsPanel {...props} />
       </Grid>

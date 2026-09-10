@@ -263,3 +263,24 @@ describe("a speculatively costed row", () => {
     expect(row.isSpeculative).toBe(false);
   });
 });
+
+// A part-paid row is still on Buy, so it counts toward the offer — but only the
+// units nobody has bought yet can move to a build plan, and the offer has to be
+// a figure applying the change can actually deliver.
+it("offers a saving only on the part of a row still to source", () => {
+  const summary = summariseSourcing([
+    {
+      typeID: 34,
+      plan: MATERIAL_PLAN.BUY,
+      isLinked: false,
+      buyPrice: 10,
+      buildPrice: 8,
+      quantity: 100,
+      remainingQuantity: 40,
+      volume: 0,
+    },
+  ]);
+
+  expect(summary.savingAvailable).toBe(80);
+  expect(summary.cheaperToBuild).toBe(1);
+});

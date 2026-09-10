@@ -118,16 +118,21 @@ export default function SkillsWhatIf({
         />
       </Stack>
 
-      {changed && then.saved !== 0 ? (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
-          Worth {formatNumberForLocale(Math.abs(then.saved))} on each build at
-          this size
-          {then.breakEvenPerUnit === null
-            ? ""
-            : `, and moves break-even ${formatNumberForLocale(Math.abs(then.breakEvenPerUnit))} a unit`}
-          .
-        </Typography>
-      ) : null}
+      {/* Always occupies its line: a caption that appears only once a level is
+          tried grows the panel underneath the control being clicked. */}
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ mt: 0.5, display: "block" }}
+      >
+        {changed && then.saved !== 0
+          ? `Worth ${formatNumberForLocale(Math.abs(then.saved))} on each build at this size${
+              then.breakEvenPerUnit === null
+                ? ""
+                : `, and moves break-even ${formatNumberForLocale(Math.abs(then.breakEvenPerUnit))} a unit`
+            }.`
+          : "Raise a level on a row above to see what it would be worth."}
+      </Typography>
     </Box>
   );
 }

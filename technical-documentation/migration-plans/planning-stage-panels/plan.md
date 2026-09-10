@@ -84,12 +84,16 @@ Stage G  speculative child jobs                          behavioural
 Stage H  jobs with parent jobs                           behavioural
 Stage I  Skills as a model
 Stage J  mobile layouts
+Stage K  default market character in settings         independent; the accessor it fills exists
+Stage L  per-job selling override                      gated on K and F
 ```
 
 Stages A–C are independent of each other and can land in any order or together. D–F are strictly
 ordered. G and H are the two behavioural changes and are the highest-risk work; both are gated on F so
 they change a panel that has already settled. I depends on B for its figures. J is last because it
-restyles panels that must exist first.
+restyles panels that must exist first. K is gated on nothing: the accessor it fills is already in
+place and already has a default, so the stage swaps a stand-in for a stored value and every consumer
+stays where it is.
 
 ## What this project inherits
 
@@ -214,10 +218,11 @@ One function answers "what rates apply for this character selling here", and bot
 
 The 100 ISK floor `calcBrokersFee` already applies stays in all cases.
 
-**Standings are per character, not per location.** The derived path already reads them through
-`getCachedCharacterStandings` keyed by `CharacterHash`, so a job's estimate uses the standings of the
-character on its selected setup. Changing the selected character changes the fee, which is correct and
-worth surfacing in Stage I rather than hiding.
+**Standings are per character, not per location — and the character is the seller, not the builder.**
+The derived path reads them through `getCachedCharacterStandings` keyed by `CharacterHash`, and the
+hash it is given comes from `sellerCharacter.js` rather than from the job's setup. Players routinely
+build on one character and trade on another, so a fee derived from the builder would quote an
+untrained rate on most accounts.
 
 ### The work
 
@@ -592,7 +597,8 @@ band disappear entirely in Stage H. Materials and child builds do not overlap:
 `calculateMaterialCostFromChildJobs` substitutes a child's own unit cost for the market price rather
 than adding to it, and recurses, so a linked material contributes nothing to the market-priced line.
 Install cost on this panel is this job's slots only. Archive figures render here as a range bar placing
-this build within previous builds, and a per-component **vs last build** column.
+this build within previous builds, and a whole-build **vs last build** figure beside it. The
+per-component column waits on the API serving the split it already stores — § Known limits.
 
 **Returns** leads with the net return and three normalisations of it — per unit, margin, return on
 outlay — then both exit routes at equal weight, then break-even and the previous-build range as context
@@ -603,8 +609,12 @@ every subtraction — base, less Broker Relations, less each standing — becaus
 player's own character and seeing them is what makes the figure trustworthy. At a citadel it is one
 line and a sentence saying Broker Relations does not apply, since the absence of working is itself the
 information. The block names the character it is quoting, and where the location is a citadel it also
-names the hub its prices came from. The location picker and the add-a-citadel form are reached from
-this block.
+names the hub its prices came from.
+
+**The block states the location and the seller; Stage L is where it chooses them.** A picker needs
+somewhere to write the choice, and `JobSale.Plan` is that somewhere — it does not exist until Stage L,
+so through Stage F the block reads the resolved defaults and shows their working. The add-a-citadel
+form is the custom-structure work's throughout.
 
 **Archive figures are one query, three placements.** `useAccountTotalsQuery` already runs on this stage
 for the current type id. The Build History panel keeps the cost-over-time chart and the output
@@ -627,9 +637,16 @@ row, so the Δ is populated before the player chooses.
   states plus an undo**. Build promotes the speculative job; Buy discards it.
 - In a group, the speculative job is **seeded from the job it would link to** plus this parent's extra
   quantity, so confirming updates the existing job's runs and links it in one action rather than
-  offering “create” and “link” as separate buttons.
-- `temporaryChildJobs` is already the right home and already excluded from persistence; it holds one
-  entry per buildable material rather than only the clicked one.
+  offering “create” and “link” as separate buttons. Costing consults `findMaterialJobInGroup` and takes
+  the group's own job as the speculative entry rather than building a second one that makes the same
+  thing, so the Δ on the row is the figure confirming would actually use.
+- Speculative jobs live in **`speculativeChildJobs`**, a slice of their own beside `temporaryChildJobs`
+  and excluded from persistence the same way. An earlier draft of this stage put them in
+  `temporaryChildJobs`; that map is written by `MARK_CHILD_JOBS_FOR_ADDITION` and read by
+  `resolveMaterialChildJobs`, so an entry in it makes a row `isLinked`, which makes its plan **Build**
+  and marks the job modified. Every buildable row would have read as planned-to-build the moment it was
+  costed — the exact state § The offer strip cannot fire until Stage G describes, kept rather than
+  broken. Two maps is what lets a row be priced and still on Buy.
 
 **Cost, and the mitigation.** A speculative build per buildable material means `buildJob` plus
 blueprint and ESI hydration for each, where today there are none. It must not fire on page load: rows
@@ -658,15 +675,24 @@ Production Stats already walks the parents to total what they require.
   it — the same two figures the parent's Δ column compares, from the child's side.
 - Cost Breakdown keeps the build band and drops the sell band.
 - **Partial commitment** is the honest edge case: a job producing more than its parents need has a
-  sellable surplus, so show both, with the sale figures scoped to the surplus.
+  sellable surplus, so show both, with the sale figures scoped to the surplus. Siblings are subtracted
+  before the surplus is worked out — where two children feed one parent, the second only owes what the
+  first does not already cover, and charging it the whole requirement would report a surplus of nothing.
 
 **Done when:** a job with parents shows no sale figures; a job with a surplus shows sale figures for
 the surplus only; a standalone job is unaffected.
 
 ## Stage I — Skills as a model
 
-- Three groups: **required to build**, **affects build cost**, **affects selling cost**. A skill may
-  appear in more than one.
+- Three groups: **required to build**, **shortens the job**, **affects selling cost**. A skill may
+  appear in more than one, and Industry is usually in the first two.
+
+  The middle group was drafted as "affects build cost" and is not: no skill reduces what a build costs
+  in ISK. Materials come from the blueprint's ME and the structure's rigs, and install cost is the
+  system index over the job's value. What skills move is **time** — `calculateTimeForSetup` gives every
+  required skill 1% a level, and applies Industry, Advanced Industry or Reaction once over the whole
+  job. Naming the group for cost would have put a claim on screen that neither the app nor the game
+  supports.
 - **Broker Relations and Accounting** join the panel, because they are inputs to the fee and tax
   figures Cost Breakdown now shows. Where the sale location is a citadel, Broker Relations is shown as
   **not applied here** rather than hidden — it does not reduce a structure owner's rate, and a skill
@@ -675,6 +701,11 @@ the surplus only; a standalone job is unaffected.
   same way and are read for the same character. Changing the selected character changes the fee.
 - A **what-if mode**: a level is tweaked and every dependent figure re-derives — fee, tax, net return,
   break-even. It answers whether a skill is worth training for what this player actually builds.
+
+  It needs no build cost to do it. A market skill moves the charges and nothing else, so the return
+  improves by exactly what the charges fall by and break-even falls by that over the units sold. The
+  rate is recomputed from the working the fee already came with, standings intact, rather than fetched
+  again — the standings are the same character's whatever level is imagined.
 
 **No training times.** Time-to-level depends on attributes and implants, neither of which the app
 reads. A short row states levels short; the what-if figures answer the worth question honestly.
@@ -702,11 +733,173 @@ else is already a vertical arrangement.
 **Done when:** every panel is usable at 360px; no label is clipped; the basis picker and the drawer
 both open as sheets.
 
+## Stage K — A default market character in application settings
+
+**The character that sells is not the character that builds.** Broker Relations, Accounting and the
+faction and corporation standings that reduce a station's fee live on whoever lists the order, and it
+is ordinary play to keep a dedicated trading alt while manufacturing runs elsewhere. Reading the fee
+from the job's setup therefore does not merely pick a different character — it usually picks one with
+no market skills at all, quoting the untrained 3% and 7.5% as though they were the player's and
+understating every margin the stage shows. The figure looks plausible, which is what makes it worth a
+stage of its own rather than a guess buried in a hook.
+
+`Functions/MarketOrders/sellerCharacter.js` is already the single accessor for who sells, standing in
+with the account's main until a choice exists. This stage gives it something real to read, and is a
+change to that one file on the reading side — the same shape the sale locations use.
+
+### It follows the reprocessing default exactly
+
+`ReprocessingSettings.DefaultReprocessingCharacter` already solves this shape — a nullable character
+hash on application settings, chosen from a picker in the settings page — so this is a second instance
+of a settled pattern rather than a new one.
+
+| Piece | Reprocessing | This stage |
+|-------|--------------|------------|
+| Stored field | `DefaultReprocessingCharacter *string`, `omitempty`, nil by default | `DefaultMarketCharacter *string`, the same |
+| Where | `models.ApplicationSettings` | The same document, beside the other market defaults |
+| Store default | `null` in `applicationSettings/core.js` | The same |
+| Hydration | Falls back to the account's main when absent | The same |
+| Serialisation | Written only when set | The same |
+| Setter | `setDefaultReprocessingCharacter` in `applicationSettings/preferences.js` | `setDefaultMarketCharacter` |
+| Picker | `Styled Components/Select/users` (`AssignUsersSelect`) | The same component |
+
+The one deliberate difference is placement in the settings page. Reprocessing has its own tab because
+it configures a calculation with several knobs; a market character is one field belonging with the
+market defaults already on **Job Settings** — `defaultMarketLocation`, `defaultOrderType` and
+`defaultCitadelBrokersFee` — so it goes there rather than opening a tab holding a single select.
+
+### Account, not planner
+
+`ReprocessingSettings` sits on both `ApplicationSettings` and `planner.Settings`. The market character
+goes on the account document **only**, for the reason § Handed to the custom-structure work gives for
+keeping a `CharacterHash` off a saved citadel: a character hash is personal, and a planner is shared.
+A planner-level seller would quote every member the rates of a character most of them cannot use.
+
+Account-level means each member of a shared planner reads the same job through their own seller's
+skills and standings, and sees a fee they would actually pay. That is the intended behaviour, not a
+side effect.
+
+### No schema bump
+
+An absent nullable field decodes to nil, which is the value the default already carries, so nothing
+needs filling and `documentschema.Upgrader.ApplicationSettings` gains no step. The upgrader exists for
+fields that must be *populated* on read; this one is correct empty. `ApplicationSettingsSchemaCurrent`
+stays where it is.
+
+### The work
+
+- Add `DefaultMarketCharacter *string` to `models.ApplicationSettings`, beside the other market
+  defaults, and leave `DefaultApplicationSettings` returning nil for it.
+- Default, hydrate and serialise it in `Zustand/applicationSettings/core.js` the way the reprocessing
+  character is, including the fall back to the account's main when nothing is stored.
+- Add `setDefaultMarketCharacter` to `Zustand/applicationSettings/preferences.js`.
+- Render an `AssignUsersSelect` for it in `Components/Settings/Standard Layout/jobSettingsFrame.jsx`,
+  saving through `scheduleDebouncedApplicationSettingsSave` as its neighbours do.
+- Have `sellerCharacter.js` read the stored hash, keeping the main as the value when none is set and
+  keeping `isDefault` true in that case, so the rate block goes on saying when it is standing in.
+
+**Done when:** a player can name the character their rates are quoted for; the Returns rate block names
+that character and stops saying it is standing in; a character removed from the account falls back to
+the main rather than quoting a character who is gone; and nothing on a shared planner reads another
+member's seller.
+
+## Stage L — A per-job selling override
+
+Most jobs sell the usual way. Some do not: a batch built for a different market, or handed to a
+different alt to list. Stage K settles what the usual way is; this stage lets one job say otherwise.
+
+### It does not go on the setup
+
+`JobSetup` is the obvious home — it is the existing per-job place a `CharacterHash` lives — and it is
+the wrong one. A setup describes **how the item gets made**: the character running the job, the
+structure and its rigs, the runs, the system index. Where the output goes afterwards is a different
+moment in the job's life.
+
+The shape makes the point better than the principle does. A job can have several setups — different
+characters, structures and run counts all contributing to one job — but the finished output is sold
+once, as a batch. A seller on a setup would be per-setup, and there is no answer to which of three
+setups' sellers applies to the single stack of items that comes out.
+
+So the override lives on `JobSale`, which is already the job's selling block, as a nested plan
+distinguished from the record beside it:
+
+```go
+// JobSellingPlan is where this job's output is meant to go, as against the
+// MarketOrders and Transactions beside it, which are where it went.
+//
+// Both fields are nil on almost every job: absent means the account's defaults
+// apply, and the override exists for the minority that sell somewhere else.
+type JobSellingPlan struct {
+	SellerCharacter *string `json:"sellerCharacter,omitempty" bson:"sellerCharacter,omitempty"`
+	SaleLocationID  *string `json:"saleLocationID,omitempty" bson:"saleLocationID,omitempty"`
+}
+```
+
+`SaleLocationID` is a saved citadel's row id or a `MARKET_OPTIONS` hub id — whatever
+`resolveSaleLocation` already accepts — so this stage adds a stored choice and no new resolution.
+
+### Both fields, because it is one decision
+
+A build sold by a different character is usually sold in a different place too, which is what makes
+these one override rather than two. The seller and the location are chosen together on the Returns
+rate block, which is where a player is looking at the rates when they notice the defaults are wrong
+for this job.
+
+### It is an estimate, and nothing downstream depends on it
+
+The override moves one number: the estimated fee and tax, and therefore the estimated return. When the
+job actually sells, the Selling stage links **real market orders from ESI**, and those carry their own
+character, location and prices. That is what happened, so that is what the job records — the plan-time
+choice is superseded rather than reconciled against.
+
+This is why the stage needs no authority rules. A player may plan one thing and do another; the stored
+selection never has to agree with the eventual sale, and nothing reads it once real orders exist.
+
+### On a shared planner, each member reads it through their own characters
+
+A stored seller resolves against the characters of whoever is reading. If the named hash is not one of
+theirs, their own default applies.
+
+That is not a compromise — it is the only computable answer. Broker fee needs the character's Broker
+Relations and their standings with the station's faction and corporation, and those come from an ESI
+scope only that character's own account holds, so no member can work out another member's fee at all.
+The figure a member wants is the one that applies to them.
+
+**`JobSetup` has the same problem and this stage does not fix it.** `selectedCharacter` is a plain
+account-scoped hash from when a planner belonged to one account, so on a shared planner it frequently
+names a character the reader does not hold. Setups need a redesign for that, which is
+[shared-planners](../shared-planners/plan.md)' ground rather than this project's; it is recorded here
+because Stage L adds a second account-scoped hash to a shared document and should not be read as
+setting a precedent that the first one is fine.
+
+### No schema bump
+
+`JobSale` gains a nested struct whose fields are both nullable. An absent `plan` decodes to the zero
+value, whose pointers are nil, which is exactly "no override" — nothing needs filling, so
+`documentschema.Upgrader.Job` gains no step and `JobSchemaCurrent` stays where it is.
+
+### The work
+
+- Add `Plan JobSellingPlan` to `models.JobSale`, and the matching fields to the SPA's `Job` class and
+  its serialisation.
+- Resolve both through the accessors that already exist: `sellerCharacter.js` takes the job's hash
+  ahead of the account default, `resolveSaleLocation` takes the job's location id ahead of it.
+- Put the two pickers on the Returns rate block, which until now only states the location — § Stage F
+  records that the picker was left out for want of somewhere to write the choice, and this is that
+  somewhere.
+- Fall back to the reader's own default when the stored hash is not one of their characters.
+
+**Done when:** a job can name a seller and a sale location of its own; clearing either returns it to the
+account default; a job that names neither is byte-identical on the wire to one written before this
+stage; and a shared planner's member reading a job whose seller they do not hold sees the rates for
+their own default seller.
+
 ## Wire compatibility
 
 | Surface | Change | Compatibility |
 |---------|--------|---------------|
-| Stored document shapes | **None** | This project stores nothing new. Saved citadels move to the custom-structure work, which owns the lane, the schema bump and the migration — § Handed to the custom-structure work |
+| Stored document shapes | `JobSale.Plan` (Stage L) | **Additive.** A nested struct of nullable fields; absent decodes to no override, so no schema bump, no migration, and a job that sets neither is unchanged on the wire |
+| Stored document shapes | `ApplicationSettings.DefaultMarketCharacter` | **Additive.** A nullable field; absent reads as not chosen, which is its default, so no schema bump and no migration — Stage K. Saved citadels remain the custom-structure work's, which owns that lane, its schema bump and its migration — § Handed to the custom-structure work |
 | Base rates and coefficients | Moved into `defaultValues.jsx` | **No wire surface.** SPA constants; a game change ships as a release, not a migration |
 | `defaultCitadelBrokersFee` | Unchanged | **Compatible.** Kept for the Selling stage, and left alone here |
 | `/api/v1/market-prices` | None | Unchanged. All four figures are already served |
@@ -734,10 +927,10 @@ It also records two **rejected drafts** of the Returns panel — one that mixed 
 the exit routes, and one that led with a graded verdict word — both worth reading before rebuilding it,
 so neither failure mode is repeated.
 
-### The offer strip cannot fire until Stage G
+### The offer strip fires once a row is costed
 
-"Building N of M saves X" is built, tested and unreachable, and will stay so until speculative child
-jobs land.
+"Building N of M saves X" was built, tested and unreachable until Stage G, because a row only had a
+build price once children were linked, and being linked made its plan **Build**.
 
 A row only has a build price once child jobs are linked to it, and being linked makes its plan **Build**
 — so no row is ever both priced to build and planned to buy, which is the state the offer looks for.
@@ -748,11 +941,105 @@ Stage G is what breaks the tie: a speculative job gives every buildable row a bu
 committing to it, so a row can be costed and still be on Buy. `onApplyBuildable` is declared on the
 panel and implemented then, against the set `summariseSourcing` already computes.
 
-Kept rather than removed because the code is correct and the figures behind it are already used by the
-footer. Nothing pretends to work — the strip renders nothing when there is nothing to offer, which is
-its own designed behaviour and happens to be every case for now.
+Stage G breaks the tie with `speculativeChildJobs`: a row costed from one carries a build price and
+stays on Buy, so it can be compared without being committed to. The strip renders nothing when there
+is nothing to offer, which is still its designed behaviour — it is simply reachable now.
+
+### Design fidelity
+
+Checked against §3–§6 of the design reference. Each stage was landed on behaviour first — the figures
+right, the words right, the states handled — and the **visual apparatus** that makes those figures
+readable at a glance was missed on all four panels. It has since been built; what follows records what
+each panel was owed and what was done about it.
+
+**Materials & Sourcing (Stage E).** *Done.* The Δ column, plan chips, row accent stripe, footer and
+basis select were already there; the **item icon** and the **Source column** have been added. The
+source names the hub and which of the four server price modes the row used, and says **Price Entry**
+where the figure came from a real purchase — the plan chip already says "Paid", and one row does not
+need to say it twice.
+
+**Cost Breakdown (Stage F).** The largest gap, and the panel is currently a table where the design is a
+picture with a table under it.
+
+- ~~The **stacked proportion bar** above the table~~ — mounted, with a tooltip per segment.
+- ~~**Colour dots** on each component row~~ — added. Both read `costParts.js`, so a segment and its row
+  cannot drift apart.
+- ~~The range bar's **span**, **end ticks**, **labels row** and **note line**~~ — added to `RangeBar`,
+  which now states a range rather than only a position.
+- ~~The **dashed "no archived builds yet" box**~~ — added. It replaces rendering nothing, because a
+  first build is information: the estimate has nothing to be checked against.
+- ~~The **cost-over-time disclosure**~~ — added. The chart moved into `costOverTime.jsx` so Build
+  History and Cost Breakdown draw the same one, and `Disclosure` gained an `onOpen` that fires on the
+  way open only, so the timeline is fetched when asked for and not re-fetched on every fold.
+- ~~The **build-where-cheaper / buy-everything toggle**~~ — added to the header. It is display-only:
+  held in component state, never written to the job. A material already paid for is untouched by either
+  model, being a record rather than an estimate. § Open questions still asks whether the model should
+  reach the rest of the app.
+- ~~**Extras** as a component row~~ — it now survives the zero filter and carries the invitation until
+  there is a figure to state instead.
+- The per-component **vs last build** column stays absent for the reason § Known limits gives — the
+  design assumed the totals read already carried it, and it does not.
+
+**Returns (Stage F).** *Done.* The headline sits on its own inset surface, the routes are captioned and
+each names the price it was struck from and what comes off it, and break-even carries the headroom that
+makes it worth stating — `calculateReturns` now returns both `unitPrice`/`deducts` per route and a
+`headroom` against today's price.
+
+The sale location is **stated** in the header rather than offered as the design's select: a job cannot
+name its own location until Stage L gives the choice somewhere to be written, and a picker that cannot
+save is a control in name only. It becomes a select there.
+
+**Skills (Stage I).** *Done.* Level pips replace the bare "2 / 4" — a reader scanning a list of skills
+is comparing shapes rather than reading arithmetic, and the shortfall is visible before the figures
+are. Rows carry a wash and a left accent per state, and the group header states how much of the
+requirement is met. An impact row says what a shortfall actually blocks, since "2 / 4" leaves the
+consequence to the reader.
+
+The pips are also the control: clicking one asks what that level would be worth, and clicking the level
+already trained puts the question back. A level being tried is drawn in the primary colour rather than
+success — it is not a state the character is in, and colouring a hypothetical green would read as
+achieved. The panel header carries a **What-if** chip and **Reset** while anything is being tried, and
+superseded figures stay struck through beside the ones replacing them, because the delta is the answer
+and reading it off two panels is not.
+
+What-if now covers the required skills too, not only the market ones, so raising a blocked skill
+answers whether the job becomes runnable. The levels live in the panel's own state and reach no store,
+no document and no other panel.
+
+**Pricing basis (§7a).** *Done.* The four modes with their totals and explanations were already built.
+Two things were missing and are now in: the **hub select** beside the basis — the design pairs them,
+both decide what a row's buy figure is, and only the basis could be changed from the panel — and the
+**age of the figures**. The server refreshes on a period measured in hours, and a price from this
+morning looks exactly as authoritative as one from a minute ago; `priceAge` reports the stalest price
+behind the total, because a total is only as fresh as the oldest figure in it.
+
+**§7b, §8 and §9** were checked and need nothing. The rate block already carries what §7b draws — the
+location, the fee with its working, the tax against Accounting, and the character the rates are quoted
+for. §8 and §9 are Stages G and H, built as the plan describes.
+
+### What is left in the retiring panel's folder
+
+`Material Prices/` now holds two things: the panel the **mobile layout** still mounts until Stage J,
+and four helpers both trees genuinely share — `marketPriceHelpers`, `marketLabelHelpers`,
+`materialChildJobs` and `materialPriceOverridesState`. Everything reachable only from Materials &
+Sourcing has moved there: the drawer's six row components (now `Child Job Drawer/`, named for what
+they are rather than the popover they were), three hooks and two helpers.
+
+The four shared helpers stay where they are on purpose. Moving them would only reverse the direction
+of the cross-folder import — the mobile panel would reach into Materials & Sourcing instead. **Stage J
+is where they get a home**, because retiring the mobile panel is what leaves them with one consumer.
 
 ### Known limits
+
+**The per-component "vs last build" column needs a read the API does not serve, so the comparison is
+one whole-build figure.** The split itself is recorded: `models.ArchivedJobCostTotals` carries
+materials, install, invention and extras on every archived job, and those rows are what
+`statistics.BuildHistory` reduces. What reaches the SPA is the reduction —
+`GET /api/v1/statistics/{owner}/totals` serves a `ProductionTotalsRow`, whose `BuildHistoryMarks` are
+whole-build cost per unit only. Comparing this build's material line against the last build's material
+line therefore needs the last non-revoked `ArchivedJobStats` row's cost parts exposed, which is a
+change to that endpoint and so belongs to the statistics work rather than to a frontend project. Until
+then Cost Breakdown states the comparison once, against the whole build.
 
 **The sourcing memo re-runs on every dispatch, and narrowing its dependencies did not stop it.** Some
 members of the Edit Job `actions` object read `state` directly, so the object cannot be memoised with
@@ -772,11 +1059,13 @@ real job.
 | C — Accounting in skill catalogue | data | **Done** |
 | D — pricing basis in panel headers | SPA | **Done** — picker built; Stages E and F mount it |
 | E — Materials & Sourcing | SPA | **Done** for the standard layout. Mobile still renders Raw Resources until Stage J; the market panel is reduced to the figures Stage F absorbs |
-| F — Cost Breakdown and Returns | SPA | Not started |
-| G — speculative child jobs | SPA, behavioural | Not started |
-| H — jobs with parent jobs | SPA, behavioural | Not started |
-| I — Skills as a model | SPA | Not started |
+| F — Cost Breakdown and Returns | SPA | **Done** for the standard layout. Both panels mounted, Extras absorbed into Cost Breakdown, and the totals panel retired from it. Mobile keeps the old panel until Stage J |
+| G — speculative child jobs | SPA, behavioural | **Done.** Rows cost on demand and stay on Buy, the offer that switches them works, group jobs seed their own rows, and the five buttons are one chip with an undo |
+| H — jobs with parent jobs | SPA, behavioural | **Done.** Committed output carries no sale figures and no charges; a surplus is priced on its own; Contribution replaces Returns where nothing is sellable |
+| I — Skills as a model | SPA | **Done.** Three groups, the selling one read from the seller's own skills, Broker Relations kept and marked at a citadel, the signed-out path states requirements, and what-if re-derives the charges without touching the panels |
 | J — mobile layouts | SPA | Not started |
+| K — default market character in settings | SPA + document field | Not started |
+| L — per-job selling override | SPA + job document field | Not started |
 
 ## Start here
 
@@ -815,15 +1104,8 @@ These are named rather than decided, because each changes what gets built:
   unbounded.
 - **Does a Price Entry purchase price override the basis automatically, or only when the row is told
   to?** Automatic is what a player probably expects; explicit is predictable.
-- **Can a job override the planner's default sale location, or is the lane's `Default` the whole
-  selection?** Stage F draws a rate block on Returns but specifies no stored per-job choice, so today
-  the answer is one citadel per planner. A per-job override means a new setup-time field — `JobSetup`
-  is where the comparable `CustomStructureID` lives — and a job document change this project does not
-  otherwise make.
 - **Where is a saved citadel edited from — Returns, or application settings?** Settings is where the
   form is built, since it is where the rest of the `CustomStructures` family is managed and where the
   asset-location picker already exists. Whether the rate block inside Returns also reaches it — the
   place a player notices a rate is wrong — is the part still open.
-- **Is the fee estimate quoted for the setup's selected character, or the account's main?** Standings
-  are per character, so the two can differ materially at a station. The setup character is the
-  consistent choice, but a player planning a build to be sold by an alt would want to say so.
+

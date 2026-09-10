@@ -33,6 +33,14 @@ to read, not easier, and it goes stale in ways the code does not.
 | A *why* that stops a plausible-looking change: "no cache options here — the layer below keys its own cache by version" | The design discussion behind the choice; that belongs in the plan or overlay |
 | A trap that has already cost something: a field that must be unset rather than omitted | A prose essay above a function, bulleted restatements of its steps, or `@example` blocks that re-type the call |
 | What a package or exported surface owns | Anything the name already says |
+| Why a new component holds the shape it does, stated as its own contract | Why it is better than the one it was split out of — "the panel this replaces…", "all that is left of…", a retelling of the retired control's branching |
+
+A component born from splitting an older one is where this goes wrong most often, because the reason
+it exists really is a defect in what came before. State the contract it has now and leave the
+comparison in the migration plan: a reader of the running code cannot see the retired panel, and the
+plan says it better and in one place. "Replaces the totals block that printed both models at once"
+becomes "one pricing model at a time, named in the header, so every figure beneath it has one
+meaning" — the invariant survives, the archaeology goes.
 
 ### JSDoc: the types stay, the essay goes
 

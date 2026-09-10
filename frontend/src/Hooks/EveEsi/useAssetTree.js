@@ -7,6 +7,7 @@ import {
   orderLocations,
 } from "../../Functions/Assets/assetTree";
 import assembledShipIds from "../../Functions/Assets/assembledShipIds";
+import { isAncientRelic } from "../../Functions/Shared/itemCategories";
 
 const EMPTY_LOCATIONS = [];
 
@@ -54,8 +55,15 @@ export default function useAssetTree({
   // What the view leaves out. Blueprints always: they have their own library, and the blueprint
   // collection is what says which items they are. Assembled ships when the player asks, which
   // takes their fittings and cargo with them.
+  //
+  // ESI answers the blueprints endpoint with ancient relics too, because they carry runs the way a
+  // copy does. They are invention materials rather than blueprints, so they stay in the asset view.
   const hidden = useMemo(() => {
-    const itemIds = new Set(blueprintCollection.byItemId.keys());
+    const itemIds = new Set();
+    for (const [itemId, row] of blueprintCollection.byItemId) {
+      if (isAncientRelic(fullItemList?.[row.typeId]?.category_id)) continue;
+      itemIds.add(itemId);
+    }
     if (!hideAssembledShips) return itemIds;
 
     for (const itemId of assembledShipIds(collection, fullItemList ?? {})) {

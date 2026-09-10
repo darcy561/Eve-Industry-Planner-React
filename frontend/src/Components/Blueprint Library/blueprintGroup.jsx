@@ -4,6 +4,7 @@ import { useCachedData } from "../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES } from "../../Context/defaultValues";
 import useGetAllIndustryJobs from "../../Hooks/EveEsi/useGetAllIndustryJobs";
 import consolidateBlueprints from "../../Functions/Blueprints/consolidateBlueprints";
+import { isAncientRelic } from "../../Functions/Shared/itemCategories";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
 import BlueprintCard, { BLUEPRINT_CARD_DENSITY } from "./blueprintCard";
 import BlueprintGroupActions from "./blueprintGroupActions";
@@ -34,6 +35,9 @@ export default function BlueprintGroup({
     isLoading: blueprintIDsLoading,
     error: blueprintIDsError,
   } = useCachedData(CACHED_DATA_FILES.SEARCH_INDEX);
+
+  // Only for the type's category: a relic is drawn from its own image variant.
+  const { data: fullItemList } = useCachedData(CACHED_DATA_FILES.FULL_ITEM_LIST);
 
   const {
     data: apiJobs = [],
@@ -86,6 +90,9 @@ export default function BlueprintGroup({
                 stack={stack}
                 bpData={bpData}
                 locationName={locationNames?.get(stack.blueprint.itemId)}
+                isRelic={isAncientRelic(
+                  fullItemList?.[stack.blueprint.typeId]?.category_id
+                )}
                 density={density}
               />
             ))}

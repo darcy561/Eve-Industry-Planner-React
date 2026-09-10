@@ -3,10 +3,8 @@ import {
   Box,
   Button,
   Chip,
-  FormControl,
   MenuItem,
   Pagination,
-  Select,
   Stack,
   Table,
   TableBody,
@@ -18,14 +16,10 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import {
-  appShellInsetSurfaceSx,
-  appShellOutlinedFormControl,
-  getAppShellSelectMenuProps,
-} from "../../Context/appShell";
+import { appShellInsetSurfaceSx } from "../../Context/appShell";
 import { useQueryClient } from "@tanstack/react-query";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
+import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import { formatNumberForLocale } from "../../Functions/Helper/numberParser";
 import {
   showSnackbarError,
@@ -581,7 +575,6 @@ function Block({ block, onRestore, onFile, busy }) {
  */
 export function ArchivedJobsList({ enabled = true }) {
   const queryClient = useQueryClient();
-  const theme = useTheme();
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("md"));
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("archivedAt");
@@ -643,25 +636,20 @@ export function ArchivedJobsList({ enabled = true }) {
             }}
             sx={{ flex: 1 }}
           />
-          <FormControl
-            size="small"
-            sx={(t) => ({ ...appShellOutlinedFormControl(t), minWidth: 180 })}
+          <AppShellSelect
+            value={sort}
+            minWidth={180}
+            onChange={(next) => {
+              setSort(next);
+              setPage(1);
+            }}
           >
-            <Select
-              value={sort}
-              onChange={(event) => {
-                setSort(event.target.value);
-                setPage(1);
-              }}
-              MenuProps={getAppShellSelectMenuProps(theme)}
-            >
-              {SORT_OPTIONS.map((option) => (
-                <MenuItem key={option.key} value={option.key}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            {SORT_OPTIONS.map((option) => (
+              <MenuItem key={option.key} value={option.key}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </AppShellSelect>
         </Stack>
 
         {blocks.length === 0 ? (

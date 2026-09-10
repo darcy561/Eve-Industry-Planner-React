@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import buildBlueprintRows, { BLUEPRINT_OWNER } from "./buildBlueprintRows";
+import buildBlueprintRows from "./buildBlueprintRows";
+import { OWNER_KIND } from "../Shared/ownerKind";
 import { jobTypes } from "../../Context/defaultValues";
 import {
   blueprintSearchIndex,
@@ -109,7 +110,7 @@ describe("buildBlueprintRows", () => {
     const collection = build();
 
     expect(collection.byItemId.get(7001)).toMatchObject({
-      ownerType: BLUEPRINT_OWNER.CHARACTER,
+      ownerType: OWNER_KIND.CHARACTER,
       ownerId: CHARACTER_HASH,
     });
   });
@@ -118,7 +119,7 @@ describe("buildBlueprintRows", () => {
     const collection = build(corporationBlueprintRows);
 
     expect(collection.byItemId.get(8001)).toMatchObject({
-      ownerType: BLUEPRINT_OWNER.CORPORATION,
+      ownerType: OWNER_KIND.CORPORATION,
       ownerId: CORPORATION_ID,
     });
   });

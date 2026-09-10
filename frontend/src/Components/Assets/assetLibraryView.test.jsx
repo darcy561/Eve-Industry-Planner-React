@@ -99,7 +99,9 @@ vi.mock("../../Functions/EveESI/World/getAssetLocationNames", () => ({
 import AssetLibraryView from "./assetLibraryView";
 import { stubElementHeights } from "../../tests/elementHeights";
 import {
+  ancientRelicAssetRow,
   assembledShipAssetRows,
+  ANCIENT_RELIC_TYPE_ID,
   characterAssetRows,
   JITA_STATION_ID,
   RAITARU_STRUCTURE_ID,
@@ -382,5 +384,51 @@ describe("with assembled ships hidden", () => {
     // The packaged hull remains, as the one assembled row is what goes.
     expect(screen.getAllByText("Rifter").length).toBe(1);
     expect(screen.getByText("Large Secure Container")).toBeTruthy();
+  });
+});
+
+// ESI answers the blueprints endpoint with ancient relics, because they carry runs the way a copy
+// does. They are invention materials a player buys and holds, so the blueprint exemption must not
+// take them with it.
+describe("an ancient relic", () => {
+  beforeEach(() => {
+    characterRows.set("hash-a", [ancientRelicAssetRow]);
+    blueprintRows.current = [
+      {
+        item_id: ancientRelicAssetRow.item_id,
+        type_id: ANCIENT_RELIC_TYPE_ID,
+        location_id: JITA_STATION_ID,
+        location_flag: "Hangar",
+        quantity: -2,
+        material_efficiency: 0,
+        time_efficiency: 0,
+        runs: 1,
+      },
+    ];
+  });
+
+  it("is still listed among the assets", async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+    );
+
+    expect(screen.getByText("Intact Armor Nanobot")).toBeTruthy();
+  });
+
+  // Its icon variant is answered with a 400, which shows as a blank square.
+  it("is drawn from the relic image variant", async () => {
+    const user = userEvent.setup();
+    const { container } = renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+    );
+
+    expect(
+      container.querySelector(`img[src*="/types/${ANCIENT_RELIC_TYPE_ID}/relic"]`)
+    ).toBeTruthy();
   });
 });

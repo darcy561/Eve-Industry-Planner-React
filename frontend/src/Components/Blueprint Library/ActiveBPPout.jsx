@@ -1,5 +1,6 @@
 import { Paper, Popover, Typography, Grid } from "@mui/material";
-import { formatNumberForLocale, formatTimeRemaining } from "../../Functions/Helper/numberParser";
+import { formatTimeRemaining } from "../../Functions/Helper/numberParser";
+import { Figure } from "../../Styled Components/Typography/figures";
 
 export function ActiveBPPopout({
   blueprint,
@@ -44,14 +45,16 @@ export function ActiveBPPopout({
           </Grid>
           <Grid container align="center" size={12}>
             <Grid size={12}>
-              <Typography>Runs: {esiJob.runs}</Typography>
+              <Typography>
+                Runs: <Figure formatOptions={{ max: 0 }}>{esiJob.runs}</Figure>
+              </Typography>
             </Grid>
             <Grid size={12}>
               <Typography>{esiJob.facility_name}</Typography>
             </Grid>
             <Grid size={12}>
               <Typography>
-                Install Cost: {formatNumberForLocale(esiJob.cost)}
+                Install Cost: <Figure>{esiJob.cost}</Figure>
               </Typography>
             </Grid>
             <Grid size={12}>

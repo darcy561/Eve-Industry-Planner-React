@@ -1,22 +1,22 @@
-import {
-  Avatar,
-  Box,
-  FormControl,
-  ListSubheader,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import { Box, ListSubheader, MenuItem } from "@mui/material";
 import useUsersStore from "../../Zustand/usersStore";
+import { OWNER_KIND } from "../../Functions/Shared/ownerKind";
+import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
+import OwnerAvatar from "../../Styled Components/Avatar/OwnerAvatar";
 
 /**
  * Whose assets a view is showing.
  *
+ * The two owner kinds are the shared ones rather than a second spelling of them, because a picker
+ * value is read back into an owner reference. `CHARACTERS` is this control's own: every tracked
+ * character at once is a question, not an owner.
+ *
  * @type {Readonly<Record<string, string>>}
  */
 export const ASSET_OWNER = Object.freeze({
-  CHARACTER: "character",
+  CHARACTER: OWNER_KIND.CHARACTER,
   CHARACTERS: "characters",
-  CORPORATION: "corporation",
+  CORPORATION: OWNER_KIND.CORPORATION,
 });
 
 /** The one entry that names no owner: every tracked character at once. */
@@ -59,55 +59,49 @@ export default function AssetScopePicker({
   const corporations = useUsersStore((state) => state.account.corporations);
 
   return (
-    <FormControl size="small" sx={{ minWidth: 220 }}>
-      <Select
-        value={value ?? ""}
-        onChange={(event) => onChange(event.target.value)}
-        size="small"
-      >
-        <ListSubheader>Characters</ListSubheader>
-        {includeEveryCharacter && (
-          <MenuItem value={EVERY_CHARACTER}>Every character</MenuItem>
-        )}
-        {characters.map(({ CharacterHash, CharacterID, CharacterName }) => (
-          <MenuItem
-            key={CharacterHash}
-            value={scopeValue({
-              kind: ASSET_OWNER.CHARACTER,
-              id: CharacterHash,
-            })}
-          >
-            <OwnerLabel
-              name={CharacterName}
-              image={`https://images.evetech.net/characters/${CharacterID}/portrait?size=32`}
-            />
-          </MenuItem>
-        ))}
+    <AppShellSelect value={value ?? ""} onChange={onChange} minWidth={220}>
+      <ListSubheader>Characters</ListSubheader>
+      {includeEveryCharacter && (
+        <MenuItem value={EVERY_CHARACTER}>Every character</MenuItem>
+      )}
+      {characters.map(({ CharacterHash, CharacterName }) => (
+        <MenuItem
+          key={CharacterHash}
+          value={scopeValue({
+            kind: ASSET_OWNER.CHARACTER,
+            id: CharacterHash,
+          })}
+        >
+          <OwnerLabel
+            name={CharacterName}
+            owner={{ kind: ASSET_OWNER.CHARACTER, id: CharacterHash }}
+          />
+        </MenuItem>
+      ))}
 
-        <ListSubheader>Corporations</ListSubheader>
-        {corporations.map(({ corporation_id, corporationName }) => (
-          <MenuItem
-            key={corporation_id}
-            value={scopeValue({
-              kind: ASSET_OWNER.CORPORATION,
-              id: corporation_id,
-            })}
-          >
-            <OwnerLabel
-              name={corporationName}
-              image={`https://images.evetech.net/corporations/${corporation_id}/logo?size=32`}
-            />
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+      <ListSubheader>Corporations</ListSubheader>
+      {corporations.map(({ corporation_id, corporationName }) => (
+        <MenuItem
+          key={corporation_id}
+          value={scopeValue({
+            kind: ASSET_OWNER.CORPORATION,
+            id: corporation_id,
+          })}
+        >
+          <OwnerLabel
+            name={corporationName}
+            owner={{ kind: ASSET_OWNER.CORPORATION, id: corporation_id }}
+          />
+        </MenuItem>
+      ))}
+    </AppShellSelect>
   );
 }
 
-function OwnerLabel({ name, image }) {
+function OwnerLabel({ name, owner }) {
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-      <Avatar src={image} alt="" sx={{ height: 24, width: 24 }} />
+      <OwnerAvatar owner={owner} size={24} />
       {name}
     </Box>
   );

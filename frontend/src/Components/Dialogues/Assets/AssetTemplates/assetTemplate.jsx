@@ -6,8 +6,8 @@ import {
   assetName,
 } from "../../../../Functions/Assets/assetPresentation";
 import { ownerName } from "../../../../Functions/Shared/eveOwner";
-import { formatNumberForLocale } from "../../../../Functions/Helper/numberParser";
 import OwnerAvatar from "../../../../Styled Components/Avatar/OwnerAvatar";
+import { Figure } from "../../../../Styled Components/Typography/figures";
 
 /**
  * One stack of what was asked for.
@@ -50,17 +50,14 @@ export default function AssetTemplate_AssetDialogueWindow({
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             badgeContent={<OwnerAvatar owner={node.owner} size={18} />}
           >
-            <Avatar src={assetImageUrl(node)} alt={itemName} variant="square" />
+            <Avatar src={assetImageUrl(node, fullItemList)} alt={itemName} variant="square" />
           </Badge>
         ) : (
-          <Avatar src={assetImageUrl(node)} alt={itemName} variant="square" />
+          <Avatar src={assetImageUrl(node, fullItemList)} alt={itemName} variant="square" />
         )}
-        <Typography
-          variant="caption"
-          sx={{ fontVariantNumeric: "tabular-nums" }}
-        >
-          {formatNumberForLocale(node.quantity, { max: 0 })}
-        </Typography>
+        <Figure variant="caption" formatOptions={{ max: 0 }}>
+          {node.quantity}
+        </Figure>
       </Box>
     </Tooltip>
   );

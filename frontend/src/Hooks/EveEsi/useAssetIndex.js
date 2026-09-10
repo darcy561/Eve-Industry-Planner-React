@@ -4,9 +4,9 @@ import useUsersStore from "../../Zustand/usersStore";
 import { characterAssetsQuery } from "../React Query/Character/assets";
 import { corporationAssetsQuery } from "../React Query/Corporation/assets";
 import buildAssetNodes, {
-  ASSET_OWNER_KIND,
   buildAssetCollection,
 } from "../../Functions/Assets/buildAssetNodes";
+import { OWNER_KIND } from "../../Functions/Shared/ownerKind";
 import createCollectionCache from "../../Functions/Shared/collectionCache";
 import {
   isQueryObserverResultLoading,
@@ -73,7 +73,7 @@ function queriesForScope(scope, id, characters, corporations) {
     characters.map(({ CharacterHash }) =>
       held(
         characterAssetsQuery(CharacterHash),
-        ASSET_OWNER_KIND.CHARACTER,
+        OWNER_KIND.CHARACTER,
         CharacterHash
       )
     );
@@ -82,7 +82,7 @@ function queriesForScope(scope, id, characters, corporations) {
     (corporation?.members ?? []).map((memberHash) =>
       held(
         corporationAssetsQuery(memberHash),
-        ASSET_OWNER_KIND.CORPORATION,
+        OWNER_KIND.CORPORATION,
         corporation.corporation_id
       )
     );
@@ -90,7 +90,7 @@ function queriesForScope(scope, id, characters, corporations) {
   switch (scope) {
     case ASSET_SCOPE.CHARACTER:
       return id
-        ? [held(characterAssetsQuery(id), ASSET_OWNER_KIND.CHARACTER, id)]
+        ? [held(characterAssetsQuery(id), OWNER_KIND.CHARACTER, id)]
         : [];
 
     case ASSET_SCOPE.CHARACTERS:

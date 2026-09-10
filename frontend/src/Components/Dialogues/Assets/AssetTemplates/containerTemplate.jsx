@@ -46,7 +46,7 @@ export default function AssetContainerTemplate_AssetDialogueWindow({
         }}
       >
         <Avatar
-          src={assetImageUrl(branch.node)}
+          src={assetImageUrl(branch.node, fullItemList)}
           alt=""
           variant="square"
           sx={{ height: 24, width: 24 }}

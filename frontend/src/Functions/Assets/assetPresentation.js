@@ -1,11 +1,20 @@
+import { isAncientRelic } from "../Shared/itemCategories";
+
 /**
- * The icon EVE serves for what a node is.
+ * The image EVE serves for what a node is.
+ *
+ * Nearly everything is an `icon`. An ancient relic is served only as `relic` — its `icon` is
+ * answered with a 400 and no image — so the one exception is asked for by name.
  *
  * @param {import("./buildAssetNodes").AssetNode} node
+ * @param {Object<string, {category_id?: number}>} [fullItemList]
  * @returns {string}
  */
-export function assetImageUrl(node) {
-  return `https://images.evetech.net/types/${node.typeId}/icon?size=32`;
+export function assetImageUrl(node, fullItemList) {
+  const variant = isAncientRelic(fullItemList?.[node.typeId]?.category_id)
+    ? "relic"
+    : "icon";
+  return `https://images.evetech.net/types/${node.typeId}/${variant}?size=32`;
 }
 
 /**

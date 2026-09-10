@@ -1,10 +1,6 @@
 import { useMemo, useState } from "react";
-import { FormControl, MenuItem, Select, Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import {
-  appShellOutlinedFormControl,
-  getAppShellSelectMenuProps,
-} from "../../Context/appShell";
+import { MenuItem } from "@mui/material";
+import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
 import { PieChart, TimeSeriesChart } from "../../Styled Components/Charts";
 import useUsersStore from "../../Zustand/usersStore";
@@ -31,25 +27,14 @@ import { useItemNames } from "../../Hooks/useItemNames";
 
 /** The measure a panel ranks or splits by, shown in the panel header. */
 function MeasureSelect({ value, onChange, options }) {
-  const theme = useTheme();
   return (
-    <FormControl
-      fullWidth
-      size="small"
-      sx={(t) => ({ ...appShellOutlinedFormControl(t) })}
-    >
-      <Select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        MenuProps={getAppShellSelectMenuProps(theme)}
-      >
-        {options.map((option) => (
-          <MenuItem key={option.key} value={option.key}>
-            By {option.label.toLowerCase()}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+    <AppShellSelect fullWidth value={value} onChange={onChange}>
+      {options.map((option) => (
+        <MenuItem key={option.key} value={option.key}>
+          By {option.label.toLowerCase()}
+        </MenuItem>
+      ))}
+    </AppShellSelect>
   );
 }
 

@@ -23,7 +23,7 @@ export default function blueprintHolderLabel(blueprint, locationName) {
  * A blueprint row's holder as the shared owner reference.
  *
  * @param {import("./buildBlueprintRows").BlueprintRow} blueprint
- * @returns {import("../Shared/eveOwner").EveOwner}
+ * @returns {import("../Shared/ownerKind").EveOwner}
  */
 export function blueprintOwner(blueprint) {
   return { kind: blueprint.ownerType, id: blueprint.ownerId };

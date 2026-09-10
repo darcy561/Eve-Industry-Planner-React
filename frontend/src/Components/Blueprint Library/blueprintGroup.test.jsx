@@ -76,7 +76,8 @@ const activeJobOn = (itemId) => [
     blueprint_id: itemId,
     blueprint_type_id: RIFTER_BLUEPRINT_TYPE_ID,
     status: "active",
-    runs: 1,
+    // A reaction job runs into the thousands, which is where a raw number loses its separators.
+    runs: 12000,
     activity_id: 1,
     cost: 1000,
     end_date: "2099-01-01T00:00:00Z",
@@ -133,6 +134,8 @@ describe.each([
 
     expect(screen.getByText("Manufacturing Job")).toBeTruthy();
     expect(screen.getByText("Abbey Raitaru")).toBeTruthy();
+    // Every figure the popover shows goes through the locale formatter.
+    expect(screen.getByText("12,000")).toBeTruthy();
   });
 
   it("shows only what is building under the active filter", () => {

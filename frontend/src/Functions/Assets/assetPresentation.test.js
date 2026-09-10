@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { locationPickerLabel } from "./assetPresentation";
+import { assetImageUrl, locationPickerLabel } from "./assetPresentation";
+import {
+  ANCIENT_RELIC_TYPE_ID,
+  assetFixtureItemList,
+} from "../../tests/assetFixtures";
 
 // Without the distinction a failed lookup reads as an account holding nothing.
 describe("what a location picker says when it has nothing to offer", () => {
@@ -29,5 +33,24 @@ describe("what a location picker says when it has nothing to offer", () => {
     expect(
       locationPickerLabel({ count: 1, isLoading: true, isError: true })
     ).toBe("Select location");
+  });
+});
+
+// EVE serves a relic only as `relic`: asking for its `icon` is answered with a 400 and no image.
+describe("the image a node is drawn with", () => {
+  it("asks for an icon for an ordinary item", () => {
+    expect(assetImageUrl({ typeId: 34 }, assetFixtureItemList)).toContain(
+      "/types/34/icon"
+    );
+  });
+
+  it("asks for the relic variant for an ancient relic", () => {
+    expect(
+      assetImageUrl({ typeId: ANCIENT_RELIC_TYPE_ID }, assetFixtureItemList)
+    ).toContain(`/types/${ANCIENT_RELIC_TYPE_ID}/relic`);
+  });
+
+  it("asks for an icon when nothing names the type", () => {
+    expect(assetImageUrl({ typeId: 34 })).toContain("/types/34/icon");
   });
 });

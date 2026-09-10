@@ -1,9 +1,4 @@
-/**
- * The SDE inventory category every ship hull belongs to.
- *
- * @type {number}
- */
-export const SHIP_CATEGORY_ID = 6;
+import { ITEM_CATEGORY } from "../Shared/itemCategories";
 
 /**
  * Location flags that only ever describe a ship's own fittings and bays.
@@ -61,7 +56,7 @@ export default function assembledShipIds(collection, fullItemList = {}) {
   for (const node of collection?.nodes ?? []) {
     const category = fullItemList[node.typeId]?.category_id;
 
-    if (category === SHIP_CATEGORY_ID) {
+    if (category === ITEM_CATEGORY.SHIP) {
       if (node.isSingleton) ships.add(node.itemId);
       continue;
     }

@@ -1,4 +1,4 @@
-import { BLUEPRINT_OWNER } from "./buildBlueprintRows";
+import { OWNER_KIND } from "../Shared/ownerKind";
 
 /**
  * @typedef {Object} BlueprintStack
@@ -58,7 +58,7 @@ export default function consolidateBlueprints(blueprints = [], esiJobs = []) {
 function stackKey(blueprint) {
   return [
     blueprint.typeId,
-    blueprint.ownerType === BLUEPRINT_OWNER.CORPORATION ? "corp" : "char",
+    blueprint.ownerType === OWNER_KIND.CORPORATION ? "corp" : "char",
     blueprint.ownerId ?? "",
     blueprint.isCopy ? "copy" : "original",
     blueprint.me ?? 0,

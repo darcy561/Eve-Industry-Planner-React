@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  Box,
-  Chip,
   FormControlLabel,
   InputAdornment,
   Stack,
@@ -10,6 +8,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
+import FilterChipGroup from "../../Styled Components/Chip/filterChipGroup";
 import useUsersStore from "../../Zustand/usersStore";
 import AssetScopePicker, {
   ASSET_OWNER,
@@ -47,23 +46,12 @@ export default function AssetLibrary() {
       }
     >
       <Stack spacing={2} sx={{ width: "100%" }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            gap: 1,
-          }}
+        <FilterChipGroup
+          label="Asset view"
+          options={views}
+          value={view}
+          onChange={setView}
         >
-          {views.map(({ value, label }) => (
-            <Chip
-              key={value}
-              label={label}
-              color={view === value ? "primary" : "default"}
-              variant={view === value ? "filled" : "outlined"}
-              onClick={() => setView(value)}
-            />
-          ))}
           <FormControlLabel
             sx={{ marginLeft: "auto", marginRight: 0 }}
             label="Hide assembled ships"
@@ -78,7 +66,7 @@ export default function AssetLibrary() {
               />
             }
           />
-        </Box>
+        </FilterChipGroup>
         <TextField
           fullWidth
           size="small"

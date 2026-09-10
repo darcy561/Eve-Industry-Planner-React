@@ -1,13 +1,5 @@
 import { useEffect, useMemo } from "react";
-import {
-  Box,
-  FormControl,
-  FormHelperText,
-  Grid,
-  MenuItem,
-  Pagination,
-  Select,
-} from "@mui/material";
+import { Box, Grid, MenuItem, Pagination } from "@mui/material";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { LibrarySearch } from "./LibrarySearch";
 import BlueprintGroup from "./blueprintGroup";
@@ -22,6 +14,7 @@ import { CACHED_DATA_FILES } from "../../Context/defaultValues";
 import filterLibraryBlueprints from "../../Functions/Blueprints/filterLibraryBlueprints";
 import blueprintsAtLocation from "../../Functions/Blueprints/blueprintsAtLocation";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
+import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import BlueprintArchiveDialogue from "../Dialogues/Blueprint Archive";
 
 export default function BlueprintLibrary() {
@@ -181,22 +174,18 @@ export default function BlueprintLibrary() {
         paperSx={{ height: "auto", width: "100%" }}
         contentSx={{ overflow: "visible", minHeight: "auto" }}
         action={
-          <FormControl size="small" sx={{ minWidth: 110 }}>
-            <Select
-              value={currentPageSize}
-              size="small"
-              onChange={(event) =>
-                handlePageSizeChange(Number(event.target.value))
-              }
-            >
-              {[4, 8, 16, 32, 64].map((size) => (
-                <MenuItem key={size} value={size}>
-                  {size}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText variant="standard">Items Per Page</FormHelperText>
-          </FormControl>
+          <AppShellSelect
+            value={currentPageSize}
+            onChange={(size) => handlePageSizeChange(Number(size))}
+            helperText="Items Per Page"
+            minWidth={110}
+          >
+            {[4, 8, 16, 32, 64].map((size) => (
+              <MenuItem key={size} value={size}>
+                {size}
+              </MenuItem>
+            ))}
+          </AppShellSelect>
         }
       >
         <Box sx={{ width: "100%" }}>

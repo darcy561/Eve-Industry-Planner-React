@@ -1,9 +1,5 @@
-import { FormControl, FormHelperText, MenuItem, Select } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import {
-  appShellOutlinedFormControl,
-  getAppShellSelectMenuProps,
-} from "../../Context/appShell";
+import { MenuItem } from "@mui/material";
+import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import { monthKeyFromDate } from "./calendarMonth.js";
 
 /**
@@ -60,25 +56,19 @@ export function resolveArchiveRange(key, now = new Date()) {
  * @param {(key: string) => void} props.onChange
  */
 export function ArchiveRangeControl({ value, onChange }) {
-  const theme = useTheme();
   return (
-    <FormControl
-      size="small"
-      sx={(t) => ({ ...appShellOutlinedFormControl(t), minWidth: 200 })}
+    <AppShellSelect
+      value={value}
+      onChange={onChange}
+      helperText="Period"
+      minWidth={200}
     >
-      <Select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        MenuProps={getAppShellSelectMenuProps(theme)}
-      >
-        {ARCHIVE_RANGES.map((option) => (
-          <MenuItem key={option.key} value={option.key}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-      <FormHelperText>Period</FormHelperText>
-    </FormControl>
+      {ARCHIVE_RANGES.map((option) => (
+        <MenuItem key={option.key} value={option.key}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </AppShellSelect>
   );
 }
 

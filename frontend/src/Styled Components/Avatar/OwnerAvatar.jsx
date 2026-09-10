@@ -5,7 +5,7 @@ import { ownerImageUrl, ownerName } from "../../Functions/Shared/eveOwner";
 /**
  * Whoever holds a thing, as EVE's own portrait or corporation logo.
  *
- * @param {{owner: import("../../Functions/Shared/eveOwner").EveOwner|null, size?: number}} props
+ * @param {{owner: import("../../Functions/Shared/ownerKind").EveOwner|null, size?: number}} props
  */
 export default function OwnerAvatar({ owner, size = 24, ...rest }) {
   const name = ownerName(owner);

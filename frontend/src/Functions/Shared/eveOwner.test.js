@@ -6,12 +6,8 @@ vi.mock("../../Zustand/usersStore", () => ({
   default: { getState: () => ({ account }) },
 }));
 
-import {
-  eveImageSize,
-  ownerImageUrl,
-  ownerName,
-  OWNER_KIND,
-} from "./eveOwner";
+import { eveImageSize, ownerImageUrl, ownerName } from "./eveOwner";
+import { OWNER_KIND } from "./ownerKind";
 
 const CHARACTER = { kind: OWNER_KIND.CHARACTER, id: "hash-a" };
 const CORPORATION = { kind: OWNER_KIND.CORPORATION, id: 98000001 };

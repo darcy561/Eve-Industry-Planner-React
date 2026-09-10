@@ -1,28 +1,10 @@
 import useUsersStore from "../../Zustand/usersStore";
-
-/**
- * The kinds of EVE entity the account holds things as.
- *
- * The asset collection's `owner.kind` and a blueprint row's `ownerType` both take these values, so
- * one owner reference reads the same wherever it came from.
- *
- * @type {Readonly<Record<string, string>>}
- */
-export const OWNER_KIND = Object.freeze({
-  CHARACTER: "character",
-  CORPORATION: "corporation",
-});
-
-/**
- * @typedef {Object} EveOwner
- * @property {string} kind - see {@link OWNER_KIND}
- * @property {string|number} id - CharacterHash, or corporation id
- */
+import { OWNER_KIND } from "./ownerKind";
 
 /**
  * What the account calls an owner.
  *
- * @param {EveOwner|null} [owner]
+ * @param {import("./ownerKind").EveOwner|null} [owner]
  * @returns {string} empty when there is no owner to name
  */
 export function ownerName(owner) {
@@ -60,7 +42,7 @@ export function eveImageSize(pixels) {
  * A corporation is addressed by the id the image server wants; a character is held by hash, which
  * has to be resolved to its id first.
  *
- * @param {EveOwner|null} [owner]
+ * @param {import("./ownerKind").EveOwner|null} [owner]
  * @param {number} [pixels] - how large it will be drawn
  * @returns {string|undefined} undefined when there is no image to show
  */

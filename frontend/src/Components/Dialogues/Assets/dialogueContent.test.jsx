@@ -226,6 +226,8 @@ describe("the assets dialogue", () => {
 
     await screen.findAllByText("Jita IV-4", {}, { timeout: 5000 });
 
-    expect(screen.queryByTitle("Reginal Shardani")).toBeNull();
+    // The one portrait left is the picker's own: the stacks carry none, because the picker has
+    // already said whose they are.
+    expect(screen.getAllByTitle("Reginal Shardani")).toHaveLength(1);
   });
 });

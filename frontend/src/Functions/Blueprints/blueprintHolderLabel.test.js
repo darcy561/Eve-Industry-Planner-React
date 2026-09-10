@@ -7,14 +7,14 @@ vi.mock("../../Zustand/usersStore", () => ({
 }));
 
 import blueprintHolderLabel from "./blueprintHolderLabel";
-import { BLUEPRINT_OWNER } from "./buildBlueprintRows";
+import { OWNER_KIND } from "../Shared/ownerKind";
 
 const characterBlueprint = {
-  ownerType: BLUEPRINT_OWNER.CHARACTER,
+  ownerType: OWNER_KIND.CHARACTER,
   ownerId: "hash-a",
 };
 const corporationBlueprint = {
-  ownerType: BLUEPRINT_OWNER.CORPORATION,
+  ownerType: OWNER_KIND.CORPORATION,
   ownerId: 98000001,
 };
 

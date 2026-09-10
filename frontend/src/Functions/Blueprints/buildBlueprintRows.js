@@ -1,14 +1,6 @@
-const BLUEPRINT_COPY_QUANTITY = -2;
+import { OWNER_KIND } from "../Shared/ownerKind";
 
-/**
- * Which kind of holder a blueprint belongs to.
- *
- * @type {Readonly<Record<string, string>>}
- */
-export const BLUEPRINT_OWNER = Object.freeze({
-  CHARACTER: "character",
-  CORPORATION: "corporation",
-});
+const BLUEPRINT_COPY_QUANTITY = -2;
 
 /**
  * @typedef {Object} BlueprintRow
@@ -20,7 +12,7 @@ export const BLUEPRINT_OWNER = Object.freeze({
  * @property {number} quantity - ESI's raw quantity; -1 an original, -2 a copy, positive a stack
  * @property {boolean} isCopy
  * @property {number} originalCount - originals this row represents; 0 for a copy
- * @property {string} ownerType - see {@link BLUEPRINT_OWNER}
+ * @property {string} ownerType - see {@link OWNER_KIND}
  * @property {string|number|null} ownerId - CharacterHash, or corporation id
  * @property {number} locationId - raw holder; a station, a ship, or a container's item_id
  * @property {string} flag - `location_flag` exactly as ESI gives it
@@ -87,8 +79,8 @@ export default function buildBlueprintRows(rows = [], searchIndex = []) {
       // the everyday condition rather than an edge case.
       originalCount: isCopy ? 0 : Math.max(quantity, 1),
       ownerType: isCorporation
-        ? BLUEPRINT_OWNER.CORPORATION
-        : BLUEPRINT_OWNER.CHARACTER,
+        ? OWNER_KIND.CORPORATION
+        : OWNER_KIND.CHARACTER,
       ownerId: isCorporation
         ? row.corporation_id ?? null
         : row.CharacterHash ?? null,

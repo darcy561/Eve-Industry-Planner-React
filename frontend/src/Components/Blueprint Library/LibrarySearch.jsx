@@ -1,7 +1,9 @@
-import { Box, Chip, FormControl, MenuItem, Select } from "@mui/material";
+import { Box } from "@mui/material";
 import { useCachedData } from "../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES } from "../../Context/defaultValues";
 import VirtualisedRecipeSearch from "../../Styled Components/autocomplete/virtualisedRecipeSearch";
+import FilterChipGroup from "../../Styled Components/Chip/filterChipGroup";
+import VirtualisedLocationSearch from "../../Styled Components/autocomplete/virtualisedLocationSearch";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 
 const FILTER_OPTIONS = [
@@ -63,44 +65,35 @@ export function LibrarySearch({ places = [] }) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-      <VirtualisedRecipeSearch onSelect={handleSearchSelect} />
+      {/* What to look for and where to look sit together: they are two halves of one question, and
+          a search field given the whole width reads as the page's subject rather than a control. */}
       <Box
-        sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          gap: 1.5,
+        }}
       >
-        {FILTER_OPTIONS.map(({ value, label }) => (
-          <Chip
-            key={value}
-            label={label}
-            color={currentFilter === value ? "primary" : "default"}
-            variant={currentFilter === value ? "filled" : "outlined"}
-            onClick={() => handleFilterChange(value)}
+        <Box sx={{ flex: "1 1 320px", minWidth: 0 }}>
+          <VirtualisedRecipeSearch onSelect={handleSearchSelect} />
+        </Box>
+        <Box sx={{ flex: "0 1 260px", minWidth: 200 }}>
+          <VirtualisedLocationSearch
+            places={places}
+            value={currentLocation}
+            onChange={handleLocationChange}
+            anywhereLabel="Anywhere"
+            label="Held at"
           />
-        ))}
-        <FormControl size="small" sx={{ minWidth: 200, marginLeft: "auto" }}>
-          <Select
-            value={
-              places.some(
-                (p) => String(p.locationId) === String(currentLocation),
-              )
-                ? currentLocation
-                : ""
-            }
-            size="small"
-            displayEmpty
-            disabled={places.length === 0}
-            onChange={(event) => handleLocationChange(event.target.value)}
-          >
-            <MenuItem value="">
-              <em>Anywhere</em>
-            </MenuItem>
-            {places.map(({ locationId, name }) => (
-              <MenuItem key={locationId} value={locationId}>
-                {name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        </Box>
       </Box>
+      <FilterChipGroup
+        label="Blueprint kind"
+        options={FILTER_OPTIONS}
+        value={currentFilter}
+        onChange={handleFilterChange}
+      />
     </Box>
   );
 }

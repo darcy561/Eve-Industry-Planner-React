@@ -9,10 +9,10 @@ import blueprintHolderLabel, {
 } from "../../Functions/Blueprints/blueprintHolderLabel";
 import { stackCount } from "../../Functions/Blueprints/consolidateBlueprints";
 import { eveImageSize } from "../../Functions/Shared/eveOwner";
-import { formatNumberForLocale } from "../../Functions/Helper/numberParser";
 import OwnerAvatar from "../../Styled Components/Avatar/OwnerAvatar";
+import { Figure } from "../../Styled Components/Typography/figures";
 import { ActiveBPPopout } from "./ActiveBPPout";
-import { blueprintAccentColor } from "./blueprintStatus";
+import { blueprintAccentColour } from "./blueprintStatus";
 
 /**
  * How much room a card is given. The two library views differ in this and nothing else.
@@ -24,6 +24,9 @@ import { blueprintAccentColor } from "./blueprintStatus";
  *
  * @type {Readonly<Record<string, {art: number, owner: number, figure: number, stackedFigures: boolean, padding: number, columns: string}>>}
  */
+/** Research levels, runs and counts are whole; the formatter's two decimals are for ISK. */
+const WHOLE = { max: 0 };
+
 export const BLUEPRINT_CARD_DENSITY = Object.freeze({
   STANDARD: {
     art: 64,
@@ -51,6 +54,7 @@ export const BLUEPRINT_CARD_DENSITY = Object.freeze({
  *   stack: import("../../Functions/Blueprints/consolidateBlueprints").BlueprintStack,
  *   bpData?: {jobType: number},
  *   locationName?: string,
+ *   isRelic?: boolean,
  *   density?: typeof BLUEPRINT_CARD_DENSITY.STANDARD
  * }} props
  */
@@ -58,13 +62,15 @@ export default function BlueprintCard({
   stack,
   bpData,
   locationName,
+  isRelic = false,
   density = BLUEPRINT_CARD_DENSITY.COMPACT,
 }) {
   const [popoverAnchor, setPopoverAnchor] = useState(null);
   const { blueprint, esiJob } = stack;
 
   const held = stackCount(stack);
-  const kind = blueprint.isCopy ? "bpc" : "bp";
+  // A relic is served only as `relic`; asking for its `bp` or `bpc` is answered with a 400.
+  const kind = isRelic ? "relic" : blueprint.isCopy ? "bpc" : "bp";
   const isManufacturing = bpData?.jobType === jobTypes.manufacturing;
 
   return (
@@ -82,10 +88,11 @@ export default function BlueprintCard({
           // The stripe is the card's leading edge rather than a bar beneath it, so a shelf being
           // built is picked out down a column of cards without costing a row of height.
           borderLeftWidth: 3,
-          borderLeftColor: blueprintAccentColor(
+          borderLeftColor: blueprintAccentColour(
             esiJob,
             blueprint.isCopy,
-            blueprint.runs
+            blueprint.runs,
+            bpData?.jobType
           ),
         },
       ]}
@@ -131,14 +138,18 @@ export default function BlueprintCard({
       >
         {isManufacturing && (
           <>
-            <Figure label="M.E" value={blueprint.me} density={density} />
-            <Figure label="T.E" value={blueprint.te} density={density} />
+            <LabelledFigure label="M.E" value={blueprint.me} density={density} />
+            <LabelledFigure label="T.E" value={blueprint.te} density={density} />
           </>
         )}
         {blueprint.runs !== -1 && (
-          <Figure label="Runs" value={blueprint.runs} density={density} />
+          <LabelledFigure
+            label="Runs"
+            value={blueprint.runs}
+            density={density}
+          />
         )}
-        <Figure label="Held" value={held} density={density} />
+        <LabelledFigure label="Held" value={held} density={density} />
       </Box>
 
       {esiJob && (
@@ -167,20 +178,21 @@ export default function BlueprintCard({
   );
 }
 
-function Figure({ label, value, density }) {
-  const shown = formatNumberForLocale(value, { max: 0 });
-
+/**
+ * One of a card's figures, under its label or beside it depending on the density.
+ */
+function LabelledFigure({ label, value, density }) {
   if (!density.stackedFigures) {
     return (
       <Typography
         variant="caption"
         color="text.secondary"
-        sx={{ fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}
+        sx={{ whiteSpace: "nowrap" }}
       >
         {label}:{" "}
-        <Box component="span" sx={{ color: "text.primary" }}>
-          {shown}
-        </Box>
+        <Figure variant="caption" formatOptions={WHOLE}>
+          {value}
+        </Figure>
       </Typography>
     );
   }
@@ -194,12 +206,9 @@ function Figure({ label, value, density }) {
       >
         {label}
       </Typography>
-      <Typography
-        variant="body2"
-        sx={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.3 }}
-      >
-        {shown}
-      </Typography>
+      <Figure sx={{ lineHeight: 1.3 }} formatOptions={WHOLE}>
+        {value}
+      </Figure>
     </Box>
   );
 }

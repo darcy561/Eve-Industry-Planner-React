@@ -1,20 +1,17 @@
 import {
   Box,
-  FormControl,
   FormControlLabel,
-  FormHelperText,
   Grid,
-  MenuItem,
-  Select,
   Switch,
   TextField,
 } from "@mui/material";
 import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../../Styled Components/Select/marketListing";
+import AssignUsersSelect from "../../../Styled Components/Select/users";
 import useUsersStore from "../../../Zustand/usersStore";
 import useAssetLocations from "../../../Hooks/EveEsi/useAssetLocations";
-import { locationPickerLabel } from "../../../Functions/Assets/assetPresentation";
+import VirtualisedLocationSearch from "../../../Styled Components/autocomplete/virtualisedLocationSearch";
 import CustomSystemIndexes from "./Job Settings/customSystemIndexes";
 import CustomExtrasFrame from "./Job Settings/customExtrasFrame";
 
@@ -25,6 +22,7 @@ function JobSettingsFrame() {
     defaultStationIDForAssets: defaultAssetLocation,
     hideCompleteMaterials,
     defaultCitadelBrokersFee: citadelBrokersFee,
+    defaultMarketCharacter,
   } = useUsersStore((state) => state.applicationSettings);
 
   const {
@@ -33,6 +31,7 @@ function JobSettingsFrame() {
     updateDefaultAssetLocation,
     toggleHideCompleteMaterials,
     updateCitadelBrokersFee,
+    setDefaultMarketCharacter,
   } = useUsersStore((state) => state.applicationSettings.actions);
 
   const {
@@ -108,44 +107,18 @@ function JobSettingsFrame() {
             sm: 6,
           }}
         >
-          <FormControl fullWidth>
-            <Select
-              value={
-                locations.some(
-                  ({ locationId }) => locationId === defaultAssetLocation,
-                )
-                  ? defaultAssetLocation
-                  : ""
-              }
-              variant="standard"
-              displayEmpty
-              disabled={locations.length === 0}
-              renderValue={(locationId) =>
-                locationId
-                  ? (locations.find((l) => l.locationId === locationId)?.name ??
-                    "")
-                  : locationPickerLabel({
-                      count: locations.length,
-                      isLoading: locationsLoading,
-                      isError: locationsError,
-                    })
-              }
-              onChange={(e) => {
-                if (!e.target.value) return;
-                updateDefaultAssetLocation(e.target.value);
-                scheduleDebouncedApplicationSettingsSave();
-              }}
-            >
-              {locations.map(({ locationId, name }) => (
-                <MenuItem key={locationId} value={locationId}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText variant="standard">
-              Default Asset Location
-            </FormHelperText>
-          </FormControl>
+          <VirtualisedLocationSearch
+            places={locations}
+            value={defaultAssetLocation}
+            isLoading={locationsLoading}
+            isError={locationsError}
+            label="Default Asset Location"
+            onChange={(locationId) => {
+              if (!locationId) return;
+              updateDefaultAssetLocation(locationId);
+              scheduleDebouncedApplicationSettingsSave();
+            }}
+          />
         </Grid>
         <Grid
           align="center"
@@ -178,6 +151,26 @@ function JobSettingsFrame() {
               );
               scheduleDebouncedApplicationSettingsSave();
             }}
+          />
+        </Grid>
+        <Grid
+          align="center"
+          sx={{ paddingX: "20px" }}
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
+          {/* The seller, not the builder: market skills and the standings grind
+              usually sit on a trading alt, and a fee derived from whoever runs
+              the job quotes the untrained rate on most accounts. */}
+          <AssignUsersSelect
+            value={defaultMarketCharacter}
+            onChange={(characterHash) => {
+              setDefaultMarketCharacter(characterHash);
+              scheduleDebouncedApplicationSettingsSave();
+            }}
+            formHelperText="Default Market Character"
           />
         </Grid>
       </Grid>

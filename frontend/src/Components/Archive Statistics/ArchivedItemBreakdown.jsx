@@ -2,12 +2,10 @@ import { useMemo, useState } from "react";
 import {
   Button,
   Fade,
-  FormControl,
   Grid,
   Link,
   MenuItem,
   Paper,
-  Select,
   Skeleton,
   Table,
   TableBody,
@@ -16,13 +14,9 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  useTheme,
 } from "@mui/material";
-import {
-  appShellOutlinedFormControl,
-  appShellSetupSectionPaperSx,
-  getAppShellSelectMenuProps,
-} from "../../Context/appShell";
+import { appShellSetupSectionPaperSx } from "../../Context/appShell";
+import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import {
   formatNumberForLocale,
   numberToShortText,
@@ -127,7 +121,6 @@ function LoadingRows() {
  *   opens the item's own view; the name is plain text when it is not given
  */
 export function ArchivedItemBreakdown({ from, to, range, onSelectItem } = {}) {
-  const theme = useTheme();
   const [sort, setSort] = useState("profitLoss");
   const [expanded, setExpanded] = useState(false);
   const limit = expanded ? ROWS_EXPANDED : ROWS_COLLAPSED;
@@ -172,30 +165,24 @@ export function ArchivedItemBreakdown({ from, to, range, onSelectItem } = {}) {
           </Typography>
         </Grid>
         <Grid size={{ xs: 12, sm: 5 }}>
-          <FormControl
+          <AppShellSelect
             fullWidth
-            size="small"
-            sx={(t) => ({ ...appShellOutlinedFormControl(t) })}
+            value={sort}
+            onChange={(next) => {
+              setSort(String(next));
+              // A new ranking is a new list, so start it from the top. The
+              // old rows are dropped rather than faded: they belong to an
+              // ordering that no longer applies.
+              setCollapsingRows(null);
+              setExpanded(false);
+            }}
           >
-            <Select
-              value={sort}
-              onChange={(e) => {
-                setSort(String(e.target.value));
-                // A new ranking is a new list, so start it from the top. The
-                // old rows are dropped rather than faded: they belong to an
-                // ordering that no longer applies.
-                setCollapsingRows(null);
-                setExpanded(false);
-              }}
-              MenuProps={getAppShellSelectMenuProps(theme)}
-            >
-              {SORT_OPTIONS.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            {SORT_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </AppShellSelect>
         </Grid>
       </Grid>
 

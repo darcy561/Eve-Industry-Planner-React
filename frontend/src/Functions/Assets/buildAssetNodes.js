@@ -27,22 +27,6 @@ const PLACE_FLAGS = new Set([
 ]);
 
 /**
- * Which kind of holder a set of rows was fetched for.
- *
- * @type {Readonly<Record<string, string>>}
- */
-export const ASSET_OWNER_KIND = Object.freeze({
-  CHARACTER: "character",
-  CORPORATION: "corporation",
-});
-
-/**
- * @typedef {Object} AssetOwner
- * @property {string} kind - see {@link ASSET_OWNER_KIND}
- * @property {string|number} id - CharacterHash, or corporation id
- */
-
-/**
  * @typedef {Object} AssetNode
  * @property {number} itemId
  * @property {number} typeId
@@ -55,7 +39,7 @@ export const ASSET_OWNER_KIND = Object.freeze({
  * @property {string} rootFlag - the compartment it sits in at that location
  * @property {number} depth - distance from that location
  * @property {boolean} isSingleton - assembled, or otherwise unable to stack
- * @property {AssetOwner|null} owner - whose set the row came from; null when nothing said
+ * @property {import("../Shared/ownerKind").EveOwner|null} owner - whose set the row came from
  */
 
 /**
@@ -85,7 +69,7 @@ export default function buildAssetNodes(rows = []) {
  * to it, and a view spanning several characters cannot say which of them holds a stack.
  *
  * @param {Array<Array<Object>>} [sources] - raw ESI asset rows, one array per owner
- * @param {Array<AssetOwner|null>} [owners] - parallel to `sources`
+ * @param {Array<import("../Shared/ownerKind").EveOwner|null>} [owners] - parallel to `sources`
  * @returns {AssetCollection}
  */
 export function buildAssetCollection(sources = [], owners = []) {

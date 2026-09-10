@@ -376,6 +376,22 @@ export const cyclicAssetRows = [
  * What the static item list says about the fixture types, as far as the asset views ask of it: the
  * inventory category, which is the only thing that names a hull holding nothing as a ship.
  */
+export const ANCIENT_RELIC_TYPE_ID = 30614;
+
+/**
+ * An ancient relic held at the station. ESI answers the blueprints endpoint with it, because it
+ * carries runs the way a copy does, but it is an invention material rather than a blueprint.
+ */
+export const ancientRelicAssetRow = {
+  item_id: 7500,
+  type_id: ANCIENT_RELIC_TYPE_ID,
+  quantity: 1,
+  is_singleton: true,
+  location_flag: "Hangar",
+  location_id: JITA_STATION_ID,
+  location_type: "station",
+};
+
 export const assetFixtureItemList = {
   34: { name: "Tritanium", category_id: 4 },
   35: { name: "Pyerite", category_id: 4 },
@@ -386,4 +402,8 @@ export const assetFixtureItemList = {
   2456: { name: "Hobgoblin I", category_id: 18 },
   3465: { name: "Large Secure Container", category_id: 2 },
   35832: { name: "Astrahus", category_id: 65 },
+  [ANCIENT_RELIC_TYPE_ID]: {
+    name: "Intact Armor Nanobot",
+    category_id: 34,
+  },
 };

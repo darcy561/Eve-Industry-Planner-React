@@ -48,7 +48,9 @@ export function appShellSelectMenuPaperSx(theme) {
     ),
     backdropFilter: "blur(10px)",
     maxHeight: 320,
-    overflow: "hidden",
+    // Scrolls rather than clips: a list longer than the panel is the normal case for locations
+    // and item types, and hiding the overflow leaves the rest of it unreachable.
+    overflow: "auto",
     backgroundImage: "none",
   };
 }

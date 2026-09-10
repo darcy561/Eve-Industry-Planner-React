@@ -15,9 +15,13 @@ import {
   assetName,
 } from "../../../Functions/Assets/assetPresentation";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
+import { Figure } from "../../../Styled Components/Typography/figures";
 
 /** One level of nesting, as an indent rather than a margin that narrows the row. */
 const INDENT = 16;
+
+/** Stacks and quantities are whole things; the formatter's two decimals are for ISK. */
+const WHOLE = { max: 0 };
 
 /**
  * One row of the asset tree: a location, a corporation hangar division, a container, or a stack.
@@ -78,7 +82,7 @@ export default function AssetTreeRow({
           {/* A place holding nothing says so, rather than opening onto nothing. */}
           <Typography variant="caption" color="text.secondary">
             {row.count > 0
-              ? formatNumberForLocale(row.count, { max: 0 })
+              ? formatNumberForLocale(row.count, WHOLE)
               : "Empty"}
           </Typography>
         </Surface>
@@ -113,7 +117,7 @@ export default function AssetTreeRow({
           name={itemName}
         />
         <Avatar
-          src={assetImageUrl(node)}
+          src={assetImageUrl(node, fullItemList)}
           alt=""
           variant="square"
           sx={{
@@ -132,14 +136,12 @@ export default function AssetTreeRow({
           {itemName}
         </Typography>
         {!row.expandable && (
-          <Typography
-            sx={{
-              typography: deviceNotMobile ? "body2" : "caption",
-              fontVariantNumeric: "tabular-nums",
-            }}
+          <Figure
+            variant={deviceNotMobile ? "body2" : "caption"}
+            formatOptions={WHOLE}
           >
-            {formatNumberForLocale(node.quantity, { max: 0 })}
-          </Typography>
+            {node.quantity}
+          </Figure>
         )}
       </Box>
     </Row>

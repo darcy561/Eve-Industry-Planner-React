@@ -105,6 +105,22 @@ function planFor({ purchase, isBuildable, isLinked, build }) {
 }
 
 /**
+ * Whether a row is leaving money on the table: building it would cost less, and
+ * the plan is still to buy it.
+ *
+ * The panel marks these rows and offers to switch them, and the summary totals
+ * what that would save. Both read this so the mark and the figure cannot
+ * disagree about which rows they mean.
+ *
+ * @param {MaterialSourcingRow} row
+ * @returns {boolean}
+ */
+export function hasSavingAvailable(row) {
+  if (!row || row.delta === null || row.delta >= 0) return false;
+  return row.plan === MATERIAL_PLAN.BUY;
+}
+
+/**
  * @typedef {object} SourcingSummary
  * @property {number} materials - How many rows there are
  * @property {number} buildable - How many could be built
@@ -131,10 +147,7 @@ export function summariseSourcing(rows) {
   let cheaperToBuild = 0;
 
   for (const row of list) {
-    if (row.delta === null || row.delta >= 0) continue;
-    if (row.plan === MATERIAL_PLAN.BUILD || row.plan === MATERIAL_PLAN.PAID) {
-      continue;
-    }
+    if (!hasSavingAvailable(row)) continue;
     cheaperToBuild += 1;
     savingAvailable += (row.buyPrice - row.buildPrice) * row.quantity;
   }

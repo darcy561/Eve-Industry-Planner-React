@@ -277,20 +277,58 @@ export function FigureCaption({ children }) {
  * @param {React.ReactNode} props.caption - What the figure is
  * @param {React.ReactNode} props.value - Already formatted
  * @param {string} [props.tone] - One of FIGURE_TONE
+ * @param {'lead'|'beside'} [props.size] - The figure a panel opens with, or one
+ *   of the smaller ones standing next to it
  * @param {React.ReactNode} [props.children] - Shown under the figure
  */
-export function HeadlineStat({ caption, value, tone = FIGURE_TONE.PLAIN, children }) {
+export function HeadlineStat({
+  caption,
+  value,
+  tone = FIGURE_TONE.PLAIN,
+  size = "lead",
+  children,
+}) {
   return (
     <Box sx={{ minWidth: 0 }}>
       <FigureCaption>{caption}</FigureCaption>
       <Figure
         tone={tone}
-        variant="h5"
+        variant={size === "lead" ? "h5" : "body1"}
         sx={{ display: "block", fontWeight: 500, letterSpacing: "-0.02em" }}
       >
         {value}
       </Figure>
       {children}
+    </Box>
+  );
+}
+
+/**
+ * What a panel opens with: the figure it leads on, and whatever stands beside it.
+ *
+ * Cost Breakdown puts a range of previous builds next to its cost per unit;
+ * Returns puts three normalisations next to its net. Same arrangement, so the
+ * panels state their parts rather than each laying out a header.
+ *
+ * @param {object} props
+ * @param {React.ReactNode} props.children - The lead figure
+ * @param {React.ReactNode} [props.aside] - What stands beside it
+ */
+export function PanelHeadline({ children, aside }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 3,
+        alignItems: "flex-end",
+        justifyContent: "space-between",
+      }}
+    >
+      {children}
+      {aside ? (
+        <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{aside}</Box>
+      ) : null}
     </Box>
   );
 }

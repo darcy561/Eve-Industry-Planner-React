@@ -9,6 +9,7 @@ import {
   FigureRow,
   HeadlineStat,
   PanelFooterMeta,
+  PanelHeadline,
   SignedPercent,
   StatTile,
   figureToneColour,
@@ -246,5 +247,47 @@ describe("totalRowSx", () => {
     // table cell alike.
     expect(totalRowSx).toMatchObject({ borderTop: 1, borderColor: "divider" });
     expect(totalRowSx).not.toHaveProperty("borderBottom");
+  });
+});
+
+describe("PanelHeadline", () => {
+  it("puts the lead figure and what stands beside it on one line", () => {
+    render(
+      <PanelHeadline aside={<span>beside</span>}>
+        <HeadlineStat caption="Net return" value="143,400,000" />
+      </PanelHeadline>
+    );
+
+    expect(screen.getByText("Net return")).toBeInTheDocument();
+    expect(screen.getByText("beside")).toBeInTheDocument();
+  });
+
+  it("does without an aside", () => {
+    render(
+      <PanelHeadline>
+        <HeadlineStat caption="Cost per unit" value="1" />
+      </PanelHeadline>
+    );
+
+    expect(screen.getByText("Cost per unit")).toBeInTheDocument();
+  });
+
+  it("holds several figures beside the lead one", () => {
+    // Returns stands three normalisations next to its net.
+    render(
+      <PanelHeadline
+        aside={
+          <>
+            <HeadlineStat caption="Per unit" value="1" size="beside" />
+            <HeadlineStat caption="Margin" value="2" size="beside" />
+            <HeadlineStat caption="Return" value="3" size="beside" />
+          </>
+        }
+      >
+        <HeadlineStat caption="Net return" value="4" />
+      </PanelHeadline>
+    );
+
+    expect(screen.getAllByText(/Per unit|Margin|Return|Net return/)).toHaveLength(4);
   });
 });

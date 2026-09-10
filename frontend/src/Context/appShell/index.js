@@ -15,4 +15,7 @@ export {
   MARKET_HUB_HISTORY_HELPER_TEXT,
 } from "./marketSelectProps";
 export { appShellSimpleLoadingSurfaceSx } from "./loadingSurfaces";
-export { appShellSetupSectionPaperSx } from "./sectionCard";
+export {
+  appShellNestedCardSx,
+  appShellSetupSectionPaperSx,
+} from "./sectionCard";

@@ -1,0 +1,34 @@
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+
+import { FirstLoginSetupSection } from "./FirstLoginSetupSection";
+
+describe("FirstLoginSetupSection", () => {
+  it("titles the section and holds its content", () => {
+    render(
+      <FirstLoginSetupSection title="Your characters" subtitle="Add more later">
+        <p>content</p>
+      </FirstLoginSetupSection>
+    );
+
+    expect(screen.getByText("Your characters")).toBeInTheDocument();
+    expect(screen.getByText("Add more later")).toBeInTheDocument();
+    expect(screen.getByText("content")).toBeInTheDocument();
+  });
+
+  it("titles it the way every other app-shell panel does", () => {
+    // Onboarding used a primary-coloured h6 here, so the first screens a player
+    // saw looked unlike the app they were being set up for.
+    render(<FirstLoginSetupSection title="Your characters">x</FirstLoginSetupSection>);
+
+    const title = screen.getByText("Your characters");
+    expect(title.tagName).not.toBe("H6");
+    expect(title.className).toMatch(/colorTextSecondary|MuiTypography/);
+  });
+
+  it("does without a subtitle", () => {
+    render(<FirstLoginSetupSection title="Your characters">x</FirstLoginSetupSection>);
+
+    expect(screen.getByText("x")).toBeInTheDocument();
+  });
+});

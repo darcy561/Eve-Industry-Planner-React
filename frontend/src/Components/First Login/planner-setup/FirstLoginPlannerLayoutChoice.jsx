@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import { FirstLoginChoiceRow } from "../shared/FirstLoginChoiceRow";
+import SelectableCard from "../../../Styled Components/Paper/SelectableCard";
 
 /**
  * Mutually exclusive classic vs compact planner layout (checkbox-style rows).
@@ -17,13 +17,13 @@ export function FirstLoginPlannerLayoutChoice({
       role="radiogroup"
       aria-label="Planner card layout"
     >
-      <FirstLoginChoiceRow
+      <SelectableCard
         selected={!compact}
         onSelect={onSelectClassic}
         title="Classic cards"
         checkboxChecked={!compact}
       />
-      <FirstLoginChoiceRow
+      <SelectableCard
         selected={compact}
         onSelect={onSelectCompact}
         title="Compact cards"

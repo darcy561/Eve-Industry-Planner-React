@@ -14,8 +14,9 @@ answer it.
   derived and taking the rest from the player.
 - **Sale locations and their rates**: an NPC station's broker fee derived from the character's skill
   and standings, a citadel's supplied by the player because its owner sets it, and the sales tax rate
-  derived from Accounting at both. Only the citadel list is stored; the base rates and coefficients are
-  SPA constants.
+  derived from Accounting at both. The base rates and coefficients are SPA constants; how a saved
+  citadel is *stored* belongs to the custom-structure work, and this project reads one through a single
+  accessor.
 - The **pricing basis** a figure is quoted on — which of the four server-served price modes
   (`buy`, `sell`, `buyP95`, `sellP05`) a row used, and how a player is shown what each does.
 - **Speculative child jobs**: costing a buildable material's build before the player commits to it,
@@ -42,9 +43,14 @@ answer it.
 - **Install cost calculation.** `getJobInstallCostForPlanning` and the system-index inputs are
   unchanged; this project only re-files the figure it returns.
 - **The planner settings split.** Which settings are account-scoped and which are planner-scoped is
-  [shared-planners](../shared-planners/contents.md)' decision. This project adds saved citadels and a
-  tax base rate to both documents and follows the split as it stands — see [plan.md](./plan.md) § What this project
-  inherits.
+  [shared-planners](../shared-planners/contents.md)' decision. This project adds saved citadels to
+  `CustomStructures` and inherits the placement that family already has — see [plan.md](./plan.md)
+  § What this project inherits.
+- **Storing saved citadels.** The `CustomStructures` lane, its schema bump and migration, the settings
+  frame, the store rebuild and the add-a-citadel form all go with the custom-structure work being taken
+  separately. This project stores nothing and reads sale locations through one accessor returning
+  placeholders until that work lands — see [plan.md](./plan.md) § Building against a placeholder, and
+  § Handed to the custom-structure work for what this project worked out and passed on.
 - **Document write granularity.** Settings and job writes keep whatever shape
   [document-write-granularity](../document-write-granularity/contents.md) leaves them in.
 - Live SPA and backend behaviour, promoted only when this project closes.
@@ -60,7 +66,9 @@ answer it.
 | Understand why a station and a citadel are priced differently | [plan.md](./plan.md) § Stage A, § Two location kinds, two mechanisms |
 | See how a rate resolves at each location kind | [plan.md](./plan.md) § Stage A, § The resolution order |
 | Know what is stored and what is an SPA constant | [plan.md](./plan.md) § Stage A, § What is stored, and where |
-| Find where the rate block and citadel form render | [plan.md](./plan.md) § Stage F |
+| Find how consumers read a sale location before the stored list exists | [plan.md](./plan.md) § Stage A, § Building against a placeholder |
+| Find what the custom-structure work inherited from here | [plan.md](./plan.md) § Handed to the custom-structure work |
+| Find where the rate block renders on a job | [plan.md](./plan.md) § Stage F |
 | See what the fee estimate reuses from Selling | [plan.md](./plan.md) § Stage B |
 | Check what is additive and what breaks | [plan.md](./plan.md) § Wire compatibility |
 | Understand the pricing basis and its four modes | [plan.md](./plan.md) § Stage D |

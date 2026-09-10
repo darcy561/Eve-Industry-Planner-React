@@ -63,14 +63,17 @@ detail.
 
 ## Ordering
 
-Backend and shared-model work runs first, and for a specific reason rather than convention: **the SPA
-work depends on figures that do not exist yet.** Cost Breakdown cannot draw a sales-tax row until the
-rates are stored settings, and Returns cannot state a net return until the fee estimate resolves. Doing
-the panels first would mean building them twice — once against placeholder figures and again when the
-real ones land.
+The figure work runs first, and for a specific reason rather than convention: **the panels depend on
+figures that do not exist yet.** Cost Breakdown cannot draw a sales-tax row until a rate resolves, and
+Returns cannot state a net return until the fee estimate does. Doing the panels first would mean
+building them twice.
+
+Stage A supplies those figures without storing anything: a sale location resolves through one accessor
+returning placeholders, so the panels can be built and tested now and the stored rows arrive later
+underneath them.
 
 ```
-Stage A  sale locations and their rates                 backend, Go, schema
+Stage A  sale locations and their rates                 frontend, no stored shape
 Stage B  fee + tax estimation shared with Selling       frontend logic, no UI
 Stage C  Accounting in the skill catalogue              data
    ────────────────────────────────────────────────  UI work starts here
@@ -92,13 +95,13 @@ restyles panels that must exist first.
 
 | Inherited | Where it is decided | What this project assumes |
 |-----------|---------------------|---------------------------|
-| The account / planner settings split | [shared-planners](../shared-planners/plan.md) | That `planner.Settings` is where a setting a job's costing depends on belongs. Stage A adds a saved-citadel list to both documents, following `CustomStructures`, which is already on both |
-| Settings write shape | [document-write-granularity](../document-write-granularity/plan.md) | Nothing. Stage A adds fields; whatever write shape that project settles applies to them unchanged |
+| The account / planner settings split | [shared-planners](../shared-planners/plan.md) | That `planner.Settings` is where a setting a job's costing depends on belongs, and that `CustomStructures` is already on both documents and cloned into a new planner. Saved citadels join that family, so they inherit the placement rather than needing one decided |
+| Settings write shape | [document-write-granularity](../document-write-granularity/plan.md) | Nothing. This project writes no settings; the shape it settles applies to the custom-structure work that stores saved citadels |
 | Server price figures | live SoT, [backend/](../../backend/contents.md) | That `buy`, `sell`, `buyP95` and `sellP05` are served per hub and stay served. This project reads them and adds no querying |
 
 ## Stage A — Sale locations and their rates
 
-**Backend. Go. Schema change with a migration.**
+**Frontend only. No stored shape, no schema, no backend.**
 
 ### Two location kinds, two mechanisms
 
@@ -118,11 +121,17 @@ Both standings are read per character, and the faction one requires knowing whic
 station. This is why a station cannot be treated as "a location with a rate": the rate is a function of
 who is selling, and it differs between two characters standing in the same station.
 
-**A citadel's rate is set by its owner.** It is a flat percentage the structure owner chose, and the
-player either knows it or does not. Standings do not enter into it — there is no faction and no NPC
-corporation to hold standing with. **Broker Relations does not reduce it either**, which is why
-`calcBrokersFee` applies the supplied `citadelBrokersFee` verbatim rather than running it through the
-skill term.
+**A citadel's rate is set by its owner.** The owner chooses a percentage and receives all of it; the SCC
+takes a further flat 0.5%, which no skill reduces. Standings do not enter into it — there is no faction
+and no NPC corporation to hold standing with — and **Broker Relations does not reduce it either**, which
+is why `calcBrokersFee` applies the supplied `citadelBrokersFee` verbatim rather than running it through
+the skill term.
+
+**The stored rate already includes the SCC's 0.5%, and nothing adds it.** A player supplies the figure
+the market window shows them, and that figure is the total charged. Adding the surcharge to a stored
+rate would double-count it on every citadel sale. The consequence worth carrying into the
+add-a-citadel form: 0.5% is the floor a citadel rate can take, since it is what remains when an owner
+charges nothing.
 
 Sales tax is a third case again: it is derived from Accounting alone, at every location, station and
 citadel both. It has no station or structure component, which is why it belongs on the character rather
@@ -131,7 +140,7 @@ than the location.
 | | Broker fee | Sales tax |
 |---|---|---|
 | **NPC station** | Derived: base, less Broker Relations, less faction and corp standings | Derived: base, less Accounting |
-| **Citadel** | The owner's rate, supplied by the player, verbatim | Derived: base, less Accounting |
+| **Citadel** | The rate the player supplies, which is the total they are quoted | Derived: base, less Accounting |
 
 ### The gap
 
@@ -163,41 +172,35 @@ Broker fee and sales tax split the same way:
 | Base sales tax rate and its Accounting coefficient | **SPA constant** | Same. A rate every player is subject to is not per-account data |
 | A station's `race_id` and `owner` | **Neither — fetched** | Already read through `getStationData` and cached by React Query |
 | The character's skills and standings | **Neither — fetched** | Already read through the cached ESI hooks |
-| **A citadel the player sells from, its fee, and the hub it prices against** | **Document** | The fee is the one figure the app can neither derive nor look up — a fact about someone else's structure that only the player knows. The hub is a `MARKET_OPTIONS` id, stored because a structure has no market data and something has to say which prices apply |
+| **A citadel the player sells from: which structure it is, its fee, and the hub it prices against** | **Document** | The fee is the one figure the app can neither derive nor look up — a fact about someone else's structure that only the player knows. The structure id identifies which citadel it is. The hub is a `MARKET_OPTIONS` id, stored because the app has no prices of its own for a structure and something has to say which apply |
 
 So the backend surface is **one list**, not a rate table. Nothing that can be computed from a constant
 or fetched from ESI is persisted, which also means a game change to a base rate ships as an SPA change
 rather than a migration over every account.
 
-### The shape
+### Building against a placeholder
 
-```go
-// SaleCitadel is a structure a player lists orders from. Its broker fee is set by
-// the structure's owner and can be neither derived nor fetched, so the player
-// supplies it. PriceHub names which of MARKET_OPTIONS its figures are priced
-// against, since a structure carries no market data of its own. Nothing else is
-// stored: sales tax comes from the character's Accounting skill, and the base rates
-// are SPA constants.
-type SaleCitadel struct {
-    ID            string  `bson:"id" json:"id"`
-    Name          string  `bson:"name" json:"name"`
-    BrokerFeeRate float64 `bson:"brokerFeeRate" json:"brokerFeeRate"`
-    PriceHub      string  `bson:"priceHub" json:"priceHub"`
-    Default       bool    `bson:"default" json:"default"`
-}
-```
+The stored list is not built here, so nothing downstream may read the settings document directly. Every
+consumer goes through `Functions/MarketOrders/saleLocations.js`, which answers two questions and hides
+where the answer came from:
 
-This follows `CustomStructure`, which is already a user-defined named location carrying its own rate
-and selectable per setup. It carries no `SkillsApply` flag and no standings: **a citadel fee is not
-reduced by Broker Relations**, so there is nothing to opt in or out of. An earlier draft of this stage
-had such a flag; it was wrong, and it would have produced fees the Selling stage disagrees with.
+| Function | Answers |
+|----------|---------|
+| `getSaleStructures` / `getDefaultSaleStructure` | Which citadels can be sold from, and which is used when a job names none |
+| `resolveSaleLocation` | For a hub id or a saved row's id, one normalised location: its name, the station whose prices apply, and its broker fee — `null` at a hub, where the rate is derived from the seller instead |
 
-`PriceHub` is a `MARKET_OPTIONS` id, not a copy of anything from it. A citadel has no market data, so
-a job selling from one still prices against a hub, and asking once per citadel beats asking on every
-job. It also makes the assembly explicit rather than hidden: **prices from one location, fee from
-another**, which the rate block states wherever a figure is shown.
+Today `getSaleStructures` returns one fixed placeholder carrying the full stored shape. When the lane
+lands, that function reads it instead and **nothing else changes**: the placeholder is not exported, so
+nothing outside this file — panel, test or fee calculation — can name it. The module's own tests read
+their subject back through the accessors for the same reason, so they hold unchanged too.
 
-A preset hub is not stored — it stays an entry in `MARKET_OPTIONS` and takes the derived path.
+Normalising both kinds into one `SaleLocation` is what makes that true. A caller pricing a sale never
+branches on hub-versus-structure — it reads `brokerFee` and prices against `priceHubStationID` — so the
+branch exists in one place rather than in every consumer, and a structure's split of *prices from one
+location, fee from another* is resolved before a caller sees it.
+
+**Done when the lane lands:** `getSaleStructures` reads the stored lane, the placeholder constant is
+deleted, and no other file is edited.
 
 ### The resolution order
 
@@ -218,33 +221,191 @@ worth surfacing in Stage I rather than hiding.
 
 ### The work
 
-- Lift the base rates and coefficients out of `calcBrokersFee` into `defaultValues.jsx`, beside
-  `structureOptions`. They are game constants and currently magic numbers; this is the one source of
-  truth both stages read.
-- Add `SaleCitadels []SaleCitadel` to `models.ApplicationSettings` and `planner.Settings`, following
-  `CustomStructures`, which is already on both documents. **This is the only new stored field.**
-- `DefaultCitadelBrokersFee` **stays as it is.** The Selling stage reads it for real orders and that
-  path is out of scope. Seed a player's first saved citadel from it so an existing setting is not
-  silently dropped, but do not migrate the field away.
-- Bump `ApplicationSettingsSchemaCurrent` and `planner.SettingsSchemaCurrent`, and teach
-  `documentschema.Upgrader` to seed the new fields on read. `LoadApplicationSettings` already upgrades
-  on read and persists the upgrade back, so no separate migration pass is needed.
-- Extend the doc-shape and schema-upgrade parity tests, which assert the persisted field set.
-- Expose the field wherever the settings endpoint already exposes `customStructures`.
+- Lift the broker fee rates out of `calcBrokersFee` into `defaultValues.jsx`, beside `structureOptions`,
+  as `brokerFeeRates` — base, the Broker Relations, faction and corporation coefficients, and the ISK
+  floor — plus `marketSkillIDs` for the skill type ids the fee depends on. They are game constants and
+  were magic numbers; this is the one source of truth both stages read.
+- Give every consumer one accessor over the sale locations, returning placeholders until the stored
+  list exists — § Building against a placeholder.
 
-The interface these rates are read and edited through is settled in the design reference — the rate
-block that shows a station's working and a citadel's single line, the location picker, and the
-add-a-citadel form. It is built in Stage F, where the panels that consume the figures are built; this
-stage supplies the data it reads.
+- Add `salesTaxRates` beside them — base and the Accounting coefficient — with Accounting's type id in
+  `marketSkillIDs`. Nothing calculates sales tax today, so these are new rather than lifted.
 
-**Back up before writing.** The upgrade-on-read path rewrites `application_settings` and the planner
-settings collection. Both must be copied before the first write, and the copies restorable through an
-`eip cli` command, with a round-trip test — back up, mutate, revert, compare.
+**Three further charges are real and out of this project's scope**, recorded so they are not
+rediscovered as defects. A broker fee is charged on **buy** orders too, so buying materials through
+orders costs more than the price paid — this project models the cost of *selling*, not of purchasing.
+**Relisting** an order costs a discounted broker fee, reduced further by Advanced Broker Relations; the
+Planning stage estimates a first listing, and a relist is a Selling-stage event. And the round-trip
+break-even a trader quotes — two broker fees plus tax — is not a builder's: a build pays one listing fee
+and one tax, so Stage F must not borrow the trading figure.
 
-**Done when:** a fresh account and a fresh planner carry the field at the current schema version; a
-document at the previous version is upgraded on read, persisted back, and its first citadel seeded from
-the existing fee; the base rates resolve from the SPA constant with no request; parity tests cover
-both; the backup and its revert exist with a round-trip test.
+**Sales tax reduces multiplicatively, and the broker fee does not.** Accounting takes a fraction of the
+base per level — `base × (1 − 0.11 × level)` — where the broker fee subtracts each coefficient from its
+base. The two sit next to each other and read alike, so applying the broker fee's form to tax is the
+easy mistake: it gives 6.95% at Accounting V instead of 3.375%. Stage B implements them as two
+formulas, not one with different inputs.
+
+**No document, schema or backend change.** Storing saved citadels moves to the custom-structure work;
+this stage neither adds a field nor bumps a schema version, so there is nothing to migrate and no
+collection to back up before writing. § Handed to the custom-structure work carries the shape and the
+migration it will need.
+
+The rate *block* — a station's full working, a citadel's single line, and the picker that chooses
+between saved locations on a job — is settled in the design reference and built in Stage F with the
+panels that consume the figures.
+
+**Done when:** a caller can resolve a sale location and its rates through one accessor without knowing
+whether the row is stored or a placeholder; two placeholder citadels differing in fee, hub and default
+prove a consumer reads the chosen row rather than assuming one; the broker fee rates resolve from the
+SPA constant with no request and no literal of them survives in `calcBrokersFee`.
+
+## Handed to the custom-structure work
+
+Storing saved citadels, and the surface for editing them, is **not this project's work** — it goes with
+the wider custom-structure work being taken separately. This project reads them through the placeholder
+accessor above and never touches the settings document.
+
+What follows is what this project worked out before handing it over. It is written down so it does not
+have to be worked out twice, and it is a proposal for that work rather than a decision it is bound by.
+
+### The shape it should take
+
+A citadel is not a fifth kind of thing beside the structures the app already stores — it is another
+lane of `CustomStructures`, which is already a per-planner list of named, player-defined locations
+each carrying its own rate.
+
+```go
+// SaleStructure is a citadel a player lists orders from, chosen from the
+// structures their characters hold assets in. Its broker fee is set by the
+// structure's owner and can be neither derived nor fetched, so the player
+// supplies it. PriceHub names which of MARKET_OPTIONS its figures are priced
+// against, since the app holds no prices for a structure of its own.
+type SaleStructure struct {
+    ID          string  `bson:"id" json:"id"`
+    StructureID int64   `bson:"structureID" json:"structureID"`
+    Name        string  `bson:"name" json:"name"`
+    BrokerFee   float64 `bson:"brokerFee" json:"brokerFee"`
+    PriceHub    string  `bson:"priceHub" json:"priceHub"`
+    Default     bool    `bson:"default" json:"default"`
+}
+
+type CustomStructures struct {
+    Manufacturing []CustomStructure       `bson:"manufacturing" json:"manufacturing"`
+    Reaction      []CustomStructure       `bson:"reaction" json:"reaction"`
+    Reprocessing  []ReprocessingStructure `bson:"reprocessing" json:"reprocessing"`
+    Invention     []InventionStructure    `bson:"invention" json:"invention"`
+    Sale          []SaleStructure         `bson:"sale" json:"sale"`
+}
+```
+
+**A lane rather than a new field, because the lane machinery already exists.** `CustomStructures` is
+on both the account and the planner document and is cloned into a new planner by `SettingsFromAccount`;
+the SPA store rebuilds each lane from a class by name; the settings page already frames the family. The
+Invention lane was added this same way at schema v0→v1, so the upgrader step has a worked precedent to
+copy rather than a pattern to invent.
+
+**The custom-structure work itself is not this project's to do.** Building the lane's editing surface —
+the settings frame, the add-a-citadel form, the store rebuild — belongs with the wider custom-structure
+work being taken separately. This project builds against a placeholder instead, and the full lane slides
+in at the end. § Building against a placeholder says how that stays a change to one file.
+
+**The lane belongs to the planner**, which the family it joins has already decided.
+[shared-planners](../shared-planners/plan.md) § Settings split between the planner and the account puts
+`CustomStructures` and `DefaultCitadelBrokersFee` both on the planner side, under the rule that a
+setting deciding how work is done in a planner belongs to it. The account's copy is the seed a new
+planner is built from, not a thing resolved against. So a shared planner offers every member the same
+citadels, while the parts of a fee that come from a person — Broker Relations, standings, Accounting —
+stay per character and are read through the setup's selected character. Locations are shared; skills
+are personal.
+
+**`StructureID` is the in-game structure**, chosen from the locations the player's characters hold
+assets in. It is captured now so that a later project can query the structure's own market for the
+types priced against it; **nothing in this project queries it.** Storing the id is the whole of the
+capability being added here.
+
+It is stored raw, as `int64`. Location ids are already stored in the clear across the tree —
+`DefaultStationIDForAssets` and `CustomStructure.SystemID` are both `int64` — and the deterministic
+entity-ref machinery covers owner identity (corporation, character, alliance) rather than places.
+
+**No character is stored on the row.** Which characters can reach a structure is a question only the
+project that queries its market has to answer, and a `CharacterHash` on a planner-owned row would put a
+personal value on a shared one — the defect the settings split exists to prevent.
+
+The lane carries no `SkillsApply` flag and no standings: **a citadel fee is not reduced by Broker
+Relations**, so there is nothing to opt in or out of. An earlier draft of this stage had such a flag; it
+was wrong, and it would have produced fees the Selling stage disagrees with. It also carries no
+`JobType`, which every other lane has: selling is not one of the `jobTypes`, and `customStructureMap`
+keys lanes by job type, so the field would hold a meaningless number in every row.
+
+`PriceHub` is a `MARKET_OPTIONS` id, not a copy of anything from it. The app holds no prices for a
+structure, so a job selling from one still prices against a hub, and asking once per citadel beats
+asking on every job. It also makes the assembly explicit rather than hidden: **prices from one
+location, fee from another**, which the rate block states wherever a figure is shown.
+
+A preset hub is not stored — it stays an entry in `MARKET_OPTIONS` and takes the derived path.
+
+### Backing up before the upgrader writes
+
+The upgrade-on-read path rewrites `application_settings` and the planner settings collection, so both
+must be copied before the first write, with the copies restorable and a round-trip test — back up,
+mutate, revert, compare.
+
+Most of that exists. `services/core/commands` holds a copy / revert / drop framework behind
+`eip cli prepareRelease`, `revertRelease` and `dropReleaseBackups`, with a round-trip test, and
+`application_settings` is already in its collection list. Two gaps: the planner settings collection is
+not, and the list is derived from what a release's *cutover steps* touch — while an upgrade-on-read
+change writes through a different path entirely. Extend that framework rather than building a second
+backup beside it.
+
+### Choosing the structure
+
+The picker reads the list the app already builds. `getAssetLocationList` walks every character's
+assets, resolves nested containers to their parent location, dedupes to unique location ids, resolves
+names through `getWorldData` retrying per character because access differs between them, drops what
+stays unresolvable, and sorts by name. `jobSettingsFrame` already renders that list as a location
+picker for `defaultStationIDForAssets`.
+
+**Structures reach that list through the extended branch, not the direct one.** Only `station` and
+`solar_system` are accepted directly; an asset sitting in a citadel comes back as `item`, and
+`retrieveAssetLocation` finds no asset row whose `item_id` matches a structure id, so it returns the
+asset itself and the structure's `location_id` is what lands in the list. This is worth stating because
+reading the direct filter alone suggests structures are dropped, and they are not.
+
+What the list does not do is separate a station from a structure — both are ids in it, told apart only
+by range. `resolveLocationKind` in `assetLocationConstants.js` already answers that, and the form calls
+it rather than carrying a second copy of the ranges; it also covers what a bare `STATIONID_RANGE`
+comparison does not — solar systems, abyssal space, and the asset-safety sentinel.
+
+**The kind alone is not the filter, though.** A structure kind covers customs offices as well as
+citadels: they share an id range, and ESI documents customs offices as not resolvable, so nothing
+separates them from the id. What separates them is the name — `getAssetLocationList` tries each
+character in turn and drops what stays unresolvable through `isNoAccessLocation`, which is exactly the
+step that leaves a citadel the player can actually reach. So the form filters on kind **and** keeps the
+name resolution; a candidate set taken from the kind alone would offer unnamable customs offices as
+sale locations.
+
+One category is excluded and should stay excluded: the `parentLocation.location_type !== "other"` guard
+drops asset safety, which is what ESI reports as `other`. That is right for a sale location — nothing is
+listed for sale from asset safety — but it is a behaviour decision living in a comparison rather than
+anywhere stated, and it is the line to look at if a later surface needs everywhere an account holds
+assets rather than everywhere it can sell from.
+
+The player picks a structure, names its fee, and picks the hub it prices against.
+
+**This surface is moving.** [esi-collections](../esi-collections/plan.md) is reshaping the asset
+functions: its Stage D replaces the resolve-and-write step with one shared name query and reshapes
+`getAssetLocationList` around a node collection, and its Stage E deletes `retrieveAssetLocation` once
+its callers move. `getAssetLocationList` itself is expected to survive. Build the form against it, and
+expect the internals under it to change.
+
+This is why the stage is not purely backend: **the row cannot be created without the picker**, so the
+picker ships with the field. The rate *block* that displays the working stays in Stage F with the
+panels that consume it.
+
+A sale structure's name comes from one member's ESI access, so a shared planner shows other members a
+structure they may not be able to reach. That is intended — they need to know where the planner sells —
+but it sits beside `ShareCitadelNames`, the existing opt-in for contributing citadel names, and should
+not land without being noticed.
 
 ## Stage B — Fee and tax estimation
 
@@ -253,9 +414,16 @@ both; the backup and its revert exist with a round-trip test.
 `calcBrokersFee` takes an order-shaped object and returns ISK. Planning needs the same rates against a
 planned sale rather than a real order, and against a location that may be one the player defined.
 
-- **Split the rate from the ISK.** Extract rate resolution into its own function so both stages share
-  one formula rather than the planner growing a second copy. `calcBrokersFee` then becomes that
-  function plus a multiplication and the existing floor.
+- **Split the rate from the ISK, for the tax as much as the fee.** Extract rate resolution into its own
+  function so both stages share one formula rather than the planner growing a second copy.
+  `calcBrokersFee` then becomes that function plus a multiplication and the existing floor.
+
+  **The tax is built in that same split shape**, even though nothing calculates it today and there is
+  therefore nothing to extract. It would be quicker to write a single Planning-only helper that returns
+  a tax figure, and that is the thing to avoid: the Selling stage will need the same rate against a real
+  sale, and a helper shaped for one caller has to be taken apart before the second can use it. A rate
+  function and an amount function from the start costs nothing now and means Selling adds tax by calling
+  what already exists.
 - The rate function takes a **sale location** rather than a `location_id`, and branches the way
   `calcBrokersFee` already does: a preset hub derives from `stationID` — `MARKET_OPTIONS` carries one
   per hub — and a saved citadel returns its stored rate verbatim.
@@ -282,18 +450,24 @@ that way.
 **Signed out:** base rates with no skill or standing reduction, and preset hubs only. The figure is
 conservative rather than absent, and no authenticated read is required to produce it.
 
-**Done when:** one rate function serves both stages; the station path derives from skill and standings
-and the citadel path does not; tax derives from Accounting at both; the estimate is derivable for a
-signed-out user; tests cover the station path, the citadel path, and the signed-out fallback, and agree
-with the existing `calcBrokersFee` tests.
+**Done when:** one rate function per charge serves both stages, each paired with an amount function;
+the station path derives from skill and standings and the citadel path does not; tax derives from
+Accounting at both kinds of location; the estimate is derivable for a signed-out user; `calcBrokersFee`
+is those functions rather than a second copy of the formula; tests cover the station path, the citadel
+path, and the signed-out fallback, and agree with the existing `calcBrokersFee` tests.
 
 ## Stage C — Accounting in the skill catalogue
 
 **Data.**
 
-`bpSkills.json` carries Broker Relations (3446) but not Accounting. Stage I needs both, and Stage B
-needs Accounting to apply a skill reduction to the tax rate. One entry, in the file that is already the
-catalogue.
+`bpSkills.json` carries Broker Relations (3446) but not Accounting (16622). Stage I needs both, and
+Stage B needs Accounting to apply a skill reduction to the tax rate. One entry, in the file that is
+already the catalogue.
+
+The catalogue is what makes a skill id usable at all: `getSkills` builds its map by walking every entry
+in `bpSkills.json` and looking each id up in the ESI response, so a skill absent from the catalogue is
+not merely unlisted — it reads as untrained, and its reduction silently never applies. A test asserts
+every id in `marketSkillIDs` resolves there, so the pair cannot drift apart.
 
 **Done when:** Accounting resolves by type id through the same lookup as every other skill.
 
@@ -305,13 +479,23 @@ percentiles are computed by the worker, served by the API, labelled by `getListi
 effectively invisible, because a row prints the resolved choice as 10px caption text with nothing to
 say why one mode would beat another.
 
-- The basis moves into the **panel header** it governs — Materials & Sourcing owns the material basis,
-  Returns owns the sale hub, Cost Breakdown owns the build-vs-buy model. `AppShellPanel` already takes
-  an `action` for exactly this.
+- The basis becomes a **picker built to sit in a panel header**, and this stage builds the picker
+  rather than mounting it. The headers it belongs in — Materials & Sourcing owns the material basis,
+  Returns owns the sale hub, Cost Breakdown owns the build-vs-buy model — are created in Stages E and
+  F, which mount it through the `action` that `AppShellPanel` already takes.
+
+  It is built before its mount points for the reason the backend work came first: a picker built into
+  today's `MaterialCostPanel` would be built onto the old `ContentPanel` shell, in a panel Stages E
+  and F delete. Like Stages A–C, this stage ships no visible UI on its own.
 - The picker shows the four modes **with what each does to this job's total**, so the trimmed figures
   stop reading as jargon.
-- A per-row override widens to name the mode as well as the hub, and a row whose material has a Price
-  Entry purchase price says **Paid** rather than showing an estimate for something already bought.
+- A row whose material has a Price Entry purchase price says **Paid** rather than showing an estimate
+  for something already bought, and one bought in part says both — what was paid, and what is left to
+  buy.
+
+  The per-row override already names the mode as well as the hub: `materialPriceOverrides` stores
+  `marketDisplay` and `orderDisplay`, and the popover sets both. Nothing to widen — what the override
+  lacks is a place to live other than a centre-screen popover, which Stage E gives it.
 
 **No stored shape changes.** `layout.localMarketDisplay`, `layout.localOrderDisplay` and
 `materialPriceOverrides` already hold exactly a hub id and one of the four listing ids. This stage is
@@ -321,8 +505,11 @@ The pricing basis is the first of two shared inputs; the second is the sale loca
 renders inside Returns. They are separate because one decides what materials cost and the other what
 selling costs, and a job can price at one hub while selling from a structure beside another.
 
-**Done when:** the basis is set from the header of each panel that uses it; the four modes are
-selectable with their effect shown; overrides behave as they do today.
+**Done when:** the picker renders the four modes with each one's effect on this job's total; a row's
+override names a mode as well as a hub; a row whose material has a Price Entry purchase price reads
+**Paid** rather than quoting an estimate; overrides resolve exactly as they do today. Mounting is
+Stage E and F's — this stage is done when the picker and its figures are tested and ready to be
+placed.
 
 ## Stage E — Materials & Sourcing
 
@@ -462,14 +649,12 @@ both open as sheets.
 
 | Surface | Change | Compatibility |
 |---------|--------|---------------|
-| `models.ApplicationSettings` | New `saleCitadels` list | **Additive.** Upgrade-on-read seeds it; an older client ignores an unknown field |
-| `planner.Settings` | Same field | **Additive**, same mechanism |
+| Stored document shapes | **None** | This project stores nothing new. Saved citadels move to the custom-structure work, which owns the lane, the schema bump and the migration — § Handed to the custom-structure work |
 | Base rates and coefficients | Moved into `defaultValues.jsx` | **No wire surface.** SPA constants; a game change ships as a release, not a migration |
-| Settings schema versions | Both bumped | **Migrate-required** on read, handled by the existing upgrader; a document at the old version is upgraded and persisted back |
-| `defaultCitadelBrokersFee` | Unchanged | **Compatible.** Kept for the Selling stage; a first saved citadel is seeded from it rather than migrating it away |
+| `defaultCitadelBrokersFee` | Unchanged | **Compatible.** Kept for the Selling stage, and left alone here |
 | `/api/v1/market-prices` | None | Unchanged. All four figures are already served |
 | `layout.*` price overrides | None | Stage D is presentation over the existing shape |
-| Job document | None | Speculative jobs live in `temporaryChildJobs`, which is not persisted |
+| Job document — speculative children | None | Speculative jobs live in `temporaryChildJobs`, which is not persisted |
 
 ## Design reference
 
@@ -497,10 +682,10 @@ so neither failure mode is repeated.
 | Stage | Surface | Status |
 |-------|---------|--------|
 | Phase 1 — project folder and docs | docs | **Done** |
-| A — sale locations and their rates | backend, Go, schema | Not started |
-| B — fee and tax estimation | frontend logic | Not started |
-| C — Accounting in skill catalogue | data | Not started |
-| D — pricing basis in panel headers | SPA | Not started |
+| A — sale locations and their rates | SPA | **Done.** Storing citadels is handed to the custom-structure work |
+| B — fee and tax estimation | frontend logic | **Done** |
+| C — Accounting in skill catalogue | data | **Done** |
+| D — pricing basis in panel headers | SPA | **Done** — picker built; Stages E and F mount it |
 | E — Materials & Sourcing | SPA | Not started |
 | F — Cost Breakdown and Returns | SPA | Not started |
 | G — speculative child jobs | SPA, behavioural | Not started |
@@ -510,9 +695,29 @@ so neither failure mode is repeated.
 
 ## Start here
 
-Phase 1 is complete. Stage A is the next work, and is backend: it needs `go fix -diff` on
-`services/shared/models`, `services/shared/models/planner` and `services/shared/mongo` before the
-fields are added, and the collection backup in place before the upgrader writes anything.
+Consumers read sale locations through `Functions/MarketOrders/saleLocations.js`, which returns two
+placeholder citadels until the stored list exists — so Stages B, D and F can be built and tested now,
+and the stored rows slide in as a change to that one file.
+
+Stage A is complete. `brokerFeeRates`, `salesTaxRates` and `marketSkillIDs` are in `defaultValues.jsx`,
+and `calcBrokersFee` reads the fee ones rather than holding literals.
+
+Stages B and C are done too. `Functions/MarketOrders/sellingRates.js` holds a rate function and an
+amount function for each charge, and `calcBrokersFee` is now those functions rather than a second copy
+of the formula. Nothing calls the tax half yet — it is built so the Selling stage can, without the
+Planning stage having shaped it for itself first.
+
+Stage D is done: `Styled Components/Select/pricingBasis.jsx` is the picker, and
+`Functions/MarketData/materialPricing.js` holds the figures behind it — what the job's materials cost
+on each basis, and whether a row is an estimate or already paid. Nothing mounts them yet.
+
+**Stage E is next**: Materials & Sourcing, which absorbs Raw Resources and is the first panel to mount
+the picker.
+
+**Storing saved citadels is no longer this project's.** The lane, its schema bump, its migration and its
+editing surface all go with the custom-structure work being taken separately; § Handed to the
+custom-structure work carries what this project worked out, including the collection backup that work
+will need before its upgrader writes anything.
 
 ## Open questions
 
@@ -525,13 +730,15 @@ These are named rather than decided, because each changes what gets built:
   unbounded.
 - **Does a Price Entry purchase price override the basis automatically, or only when the row is told
   to?** Automatic is what a player probably expects; explicit is predictable.
-- **Does a saved citadel belong to the account or the planner?** `CustomStructures` is on both
-  documents, so the precedent says both — but a planner shared between members raises whose structure
-  rates apply when two members sell from different places.
-- **Where is a saved citadel edited from — Returns, or application settings?** The design reaches the
-  picker and the form from the rate block inside Returns, which is where a player notices the rate is
-  wrong. A settings page is the conventional home and `CustomStructures` already has one; both is
-  probably right, and the question is which is built first.
+- **Can a job override the planner's default sale location, or is the lane's `Default` the whole
+  selection?** Stage F draws a rate block on Returns but specifies no stored per-job choice, so today
+  the answer is one citadel per planner. A per-job override means a new setup-time field — `JobSetup`
+  is where the comparable `CustomStructureID` lives — and a job document change this project does not
+  otherwise make.
+- **Where is a saved citadel edited from — Returns, or application settings?** Settings is where the
+  form is built, since it is where the rest of the `CustomStructures` family is managed and where the
+  asset-location picker already exists. Whether the rate block inside Returns also reaches it — the
+  place a player notices a rate is wrong — is the part still open.
 - **Is the fee estimate quoted for the setup's selected character, or the account's main?** Standings
   are per character, so the two can differ materially at a station. The setup character is the
   consistent choice, but a player planning a build to be sold by an alt would want to say so.

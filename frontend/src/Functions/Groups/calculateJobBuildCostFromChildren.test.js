@@ -194,3 +194,145 @@ describe("build cost from children", () => {
     ).toBe(250);
   });
 });
+
+/**
+ * The cases below exist to make this function safe to change. They pin what it
+ * does today rather than what it ought to do, including where it copes with bad
+ * input and where it does not, so a rewrite can be checked against them.
+ */
+describe("what it does with awkward input", () => {
+  it("treats a job with no materials as costing only its own install and extras", () => {
+    const outputJob = job({ produced: 2, installCost: 100, extras: 50 });
+    delete outputJob.build.materials;
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(75);
+  });
+
+  it("treats a material with no child job list as bought", () => {
+    const outputJob = job({ produced: 1, materials: [toBuild(35, 10, 500)] });
+    delete outputJob.build.childJobs;
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(500);
+  });
+
+  it("treats a child job entry that is not a list as no children at all", () => {
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 10, 500)],
+      childJobs: { 35: "child-1" },
+    });
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(500);
+  });
+
+  it("reads a numeric string as the number it looks like", () => {
+    const outputJob = job({
+      produced: 2,
+      materials: [{ ...bought(34, "250"), quantity: 1 }],
+    });
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(125);
+  });
+
+  it("reads an unusable purchased cost as nothing rather than spreading NaN", () => {
+    const outputJob = job({
+      produced: 1,
+      materials: [{ ...bought(34, "not a number"), quantity: 1 }],
+    });
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(0);
+  });
+
+  it("is nothing when the output quantity is unusable", () => {
+    expect(
+      calculateCurrentJobBuildCostFromChildren(
+        job({ produced: "many", installCost: 100 })
+      )
+    ).toBe(0);
+    expect(
+      calculateCurrentJobBuildCostFromChildren(
+        job({ produced: -5, installCost: 100 })
+      )
+    ).toBe(0);
+  });
+
+  it("sums every material rather than stopping at the first", () => {
+    const outputJob = job({
+      produced: 1,
+      materials: [bought(34, 100), bought(35, 200), bought(36, 300)],
+    });
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(600);
+  });
+
+  it("skips a child job that has no build without dropping its siblings", () => {
+    jobsById.set("shell", { totalQuantityProduced: 100 });
+    job({ id: "child-1", produced: 100, installCost: 1000 });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 10)],
+      childJobs: { 35: ["shell", "child-1"] },
+    });
+
+    // The shell contributes neither cost nor output, so the figure is child-1's.
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(100);
+  });
+
+  it("counts a child named twice twice, cost and output alike", () => {
+    job({ id: "child-1", produced: 50, installCost: 500 });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 10)],
+      childJobs: { 35: ["child-1", "child-1"] },
+    });
+
+    // 1000 over 100 units is the same per unit as 500 over 50, so a duplicate
+    // does not change the rate — only a per-unit reading makes that true.
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(100);
+  });
+
+  it("charges nothing for a material the job needs none of", () => {
+    job({ id: "child-1", produced: 100, installCost: 1000 });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 0)],
+      childJobs: { 35: ["child-1"] },
+    });
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(0);
+  });
+
+  it("charges a child's extras as well as its install", () => {
+    job({ id: "child-1", produced: 10, installCost: 40, extras: 60 });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 10)],
+      childJobs: { 35: ["child-1"] },
+    });
+
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(100);
+  });
+
+  it("runs out of stack on a child job that leads back to itself", () => {
+    // A cycle is not guarded against: the walk has no visited set and no depth
+    // limit, so it recurses until the stack gives out. Pinned because a rewrite
+    // should either keep this loud or fix it deliberately — not turn it into a
+    // silently wrong figure.
+    const looping = job({
+      id: "loop",
+      produced: 10,
+      materials: [toBuild(35, 1)],
+      childJobs: { 35: ["loop"] },
+    });
+    jobsById.set("loop", looping);
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 1)],
+      childJobs: { 35: ["loop"] },
+    });
+
+    expect(() => calculateCurrentJobBuildCostFromChildren(outputJob)).toThrow(
+      RangeError
+    );
+  });
+});

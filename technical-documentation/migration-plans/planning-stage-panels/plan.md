@@ -610,10 +610,9 @@ line and a sentence saying Broker Relations does not apply, since the absence of
 information. The block names the character it is quoting, and where the location is a citadel it also
 names the hub its prices came from.
 
-**The block states the location and the seller; Stage L is where it chooses them.** A picker needs
-somewhere to write the choice, and `JobSale.Plan` is that somewhere — it does not exist until Stage L,
-so through Stage F the block reads the resolved defaults and shows their working. The add-a-citadel
-form is the custom-structure work's throughout.
+**The block chooses the location and the seller, writing to `JobSale.Plan`** — Stage L. Both are nil on
+a job that sells the usual way, and one link puts a job that has departed back on the account's
+defaults. The add-a-citadel form is the custom-structure work's throughout.
 
 **Archive figures are one query, three placements.** `useAccountTotalsQuery` already runs on this stage
 for the current type id. The Build History panel keeps the cost-over-time chart and the output
@@ -893,17 +892,157 @@ account default; a job that names neither is byte-identical on the wire to one w
 stage; and a shared planner's member reading a job whose seller they do not hold sees the rates for
 their own default seller.
 
+## Stage M — What a child job actually covers
+
+A child job is sized to the parent's requirement when it is created and not again until the parent is
+closed — and only then when `enableAutomaticJobRecalculation` is on. Every change to the parent's runs,
+efficiency or setup therefore leaves its children producing the wrong amount, and the stage said
+nothing: the requirement was costed at the child's per-unit rate whatever the child produced, so a
+child making half of what was needed cost exactly as much as one making all of it.
+
+### The cost was an assumption presented as a figure
+
+`calculateMaterialCostFromChildJobs` returns `jobCost / totalQuantityProduced` and the parent multiplies
+by `material.quantity`. Extrapolating like that is right when the job is going to be resized and a
+fabrication when it is not, and nothing distinguished the two. The same loop also added
+`unitCost × the whole requirement` **per contributing job**, so a material built by two child jobs cost
+twice what it should.
+
+### Three cases, because the answer depends on what happens next
+
+| The child job is | What happens to it | How the shortfall is costed |
+|------------------|--------------------|-----------------------------|
+| Not committed yet | Resized to the requirement when it is committed | At the child's own rate. Nothing is assumed — committing makes it true |
+| Committed, automatic recalculation **on** | Resized when the parent closes | At the child's own rate, **stated as an assumption** |
+| Committed, automatic recalculation **off** | Never resized | The covered part at the child's rate, the rest **bought at market** |
+
+`Functions/Groups/childJobCoverage.js` holds the model: it allocates the requirement across the
+contributing jobs once — which is what fixes the sibling double-count — and reports what they cover,
+what they fall short by, and which of the three ways the difference was costed.
+
+The uncommitted case is a promise the panel makes, so `finaliseCreatedChildJobs` keeps it: committing a
+single child job resizes it to the requirement first. Two cases are deliberately exempt. Several jobs
+producing one item divide the requirement between them, so resizing each to the whole of it would
+multiply the output. And a job the **group** already runs is linked rather than built, and may already
+be feeding another job in the group — sizing it to one row's requirement would take that job's supply
+away without either of them being told.
+
+A row that is both short and partly paid covers what is still needed from the child jobs first: the
+jobs produce what they produce whatever was bought separately, so the paid units come off the shortfall
+rather than off the build.
+
+### Where it surfaces
+
+The drawer states the shortfall in words as a warning, replacing two unlabelled figures a reader had to
+diff by eye. Cost Breakdown carries it in the bands: a bought shortfall lands in **Materials bought at
+market** and says so, and a build line covering more than its jobs produce says it assumes a resize on
+close.
+
+The row carries a **shortfall tag** beside its plan chip, naming the affected jobs in its tooltip, and
+takes the same accent stripe a row that is cheaper to build takes. The drawer and Cost Breakdown both
+require an action to reach — opening the row, or reading the cost table — and a player with thirty
+materials has no reason to open the one that drifted. The fact belongs where the list is scanned; the
+detail stays where there is room for it.
+
+**Done when:** a child job that no longer covers its material says so; the cost splits or extrapolates
+according to the account's recalculation setting; committing an uncommitted job sizes it to the
+requirement; and a material built by two child jobs is costed once.
+
+## Stage N — Where a job sells from, and the figures behind the fee
+
+Three faults in one block, found by reading the rate block against what it claimed.
+
+### The list did not say which kind of location it was offering
+
+Citadels and NPC stations were one flat list. They are not interchangeable: a citadel charges the rate
+its owner set, and a station charges one derived from the seller's own skill and standings, so which
+kind a row is decides how the fee beneath it was worked out. They are now two groups.
+
+The account default was a **separate entry** above a list that also contained it, so the same location
+appeared twice and choosing it pinned the job to it. The default is now the item it resolves to,
+marked; choosing it writes nothing, so a job that never departed from the default moves with it.
+
+An NPC station could be chosen and then quietly ignored: `resolveSaleLocation` matched a named id only
+against saved citadels, so a station id fell through to the hub argument — the hub the *materials* were
+priced against. Picking Amarr while pricing from Jita sold from Jita.
+
+### The faction standing never resolved
+
+A station reports the race that built it — Jita 4-4 is `race_id: 1` — while the standing that reduces
+its broker fee is held against that race's faction, Caldari State, 500001. The lookup matched the race
+id against the standing list, found nothing, and quoted **every seller at every NPC station** as having
+no faction standing. `Hooks/React Query/World/raceFactions.js` resolves race to faction through
+`/universe/races/`, whose `alliance_id` field carries the faction id, and the match now also requires
+the standing's `from_type`, since a faction and an NPC corporation can hold the same id in different
+categories.
+
+The fixtures had encoded the same wrong assumption — `race_id: 500001` — which is why no test caught it.
+They now carry the shapes ESI returns.
+
+### A figure that could not be read was reported as zero
+
+`getStandings` turned every failure into `{ data: [] }` — a 403, any 5xx, a network error, a missing
+`CharacterID`, even a 304 — and React Query cached it as a **successful empty result**. The block then
+stated "no standing with them", which is a claim about the seller the app had no basis for.
+`getSkills` did the same with `{}`, reporting "untrained".
+
+Both now throw, and answer a 403 with `data: null` rather than an empty collection. `getSellerSkills`
+and `getStationStandings` return an `unknown` flag that the fee terms and the sales tax working carry,
+and the block says **could not be read** rather than naming a zero.
+
+The trap worth remembering: `getCachedCharacterSkills` and `getCachedCharacterStandings` hand back an
+empty collection **while loading and again after an error**, so the collection cannot be inspected to
+tell the three states apart — the query's own `isLoading` and `isError` have to be read. A first
+attempt at this fix checked only whether the collection was an array and was inert against both cases
+it existed for.
+
+**Not addressed:** the app holds no record of which ESI scopes it needs or whether a character's token
+carries them. A token authorised before a scope was added to `EVE_SCOPE` keeps failing that endpoint
+until the character is re-linked, and nothing detects or reports it. This block now says a figure could
+not be read; it cannot yet say why.
+
+**Done when:** the two kinds of location are distinguishable and separately selectable; the account
+default is the marked item rather than a second entry; a station's faction standing resolves; and no
+figure the app failed to read is reported as a zero.
+
+### Checked against real sales
+
+The formulas were run against the live snapshot rather than only against fixtures —
+[measurements/selling-charges-against-stored-jobs.md](./measurements/selling-charges-against-stored-jobs.md)
+carries the numbers. Sales tax is checkable against evidence the app did not produce, since stored
+transactions carry what EVE actually charged: the 7.5% base and the 11%-per-level Accounting reduction
+reproduce 2025 and 2026 figures exactly, while earlier years show the different bases in force at the
+time. Broker fees fit the published formula on 99.1% of orders that were never repriced; a repriced
+order cannot be checked at all, because the fee was charged on a value the document no longer holds.
+
+Two things worth carrying forward: the 100 ISK minimum has never applied to a real sale, and the share
+of fees showing any standings contribution collapses in 2026 — the shape of standings having stopped
+resolving, which is what the faction-lookup fix addresses.
+
+## Owed to the shared-planners release
+
+**Invention entry ids were minted from the clock and are now uuids.** Two entries minted in the same
+millisecond took the same id, and a row is removed by matching on it, so removing one removed both.
+`models.InventionEntry` decodes either shape — a number is read as its own digits — so a document
+written before the change still loads, and both kinds sit in one job without anything having to know.
+
+**Existing rows want switching, and that rides the shared-planners window** rather than a migration of
+its own: 184 archived jobs and 12 live job documents in the live snapshot carry numeric ids. Recorded
+in [shared-planners](../shared-planners/plan.md) § What the other projects owe, because that project
+owns the release that already stops traffic to rewrite documents.
+
 ## Wire compatibility
 
 | Surface | Change | Compatibility |
 |---------|--------|---------------|
-| Stored document shapes | `JobSale.Plan` (Stage L) | **Additive.** A nested struct of nullable fields; absent decodes to no override, so no schema bump, no migration, and a job that sets neither is unchanged on the wire |
+| Stored document shapes | `JobSale.Plan` (Stage L) | **Additive.** A nested struct of nullable fields; both absent and nulled decode to no override, so no schema bump and no migration. A job that sets neither still carries `plan` with two nulls — the SPA normalises the pair on construction — so the subdocument appears on every job saved after this lands, saying nothing |
 | Stored document shapes | `ApplicationSettings.DefaultMarketCharacter` | **Additive.** A nullable field; absent reads as not chosen, which is its default, so no schema bump and no migration — Stage K. Saved citadels remain the custom-structure work's, which owns that lane, its schema bump and its migration — § Handed to the custom-structure work |
+| Stored document shapes | `InventionEntry.ID` (Stage N) | **Additive.** The field turns from an integer to a uuid string. `models.InventionEntry` decodes either shape, so a document written before the change loads unchanged and both kinds sit in one job; the id is compared only for equality on both sides. No schema bump. Rewriting the existing rows rides the shared-planners release — § Owed to the shared-planners release |
 | Base rates and coefficients | Moved into `defaultValues.jsx` | **No wire surface.** SPA constants; a game change ships as a release, not a migration |
 | `defaultCitadelBrokersFee` | Unchanged | **Compatible.** Kept for the Selling stage, and left alone here |
 | `/api/v1/market-prices` | None | Unchanged. All four figures are already served |
 | `layout.*` price overrides | None | Stage D is presentation over the existing shape |
-| Job document — speculative children | None | Speculative jobs live in `temporaryChildJobs`, which is not persisted |
+| Job document — speculative children | None | Speculative jobs live in `speculativeChildJobs`, their own store slice, which is not persisted. They are kept apart from `temporaryChildJobs` because a job in that slice reads as linked, which would put the row on Build and take the offer away before it was accepted |
 
 ## Design reference
 
@@ -964,12 +1103,25 @@ picture with a table under it.
 - ~~**Colour dots** on each component row~~ — added. Both read `costParts.js`, so a segment and its row
   cannot drift apart.
 - ~~The range bar's **span**, **end ticks**, **labels row** and **note line**~~ — added to `RangeBar`,
-  which now states a range rather than only a position.
+  which now states a range rather than only a position. The scale is **wider than the range**, as the
+  design draws it: mapping the range onto the whole track left the span covering everything, the end
+  ticks on the ends, and a build cheaper or dearer than every previous one clamped onto an end, where
+  it was indistinguishable from one that exactly matched the cheapest or dearest. That is the case the
+  *outside* note exists for, and the bar could not show it.
+
+  Its **size and placement** now match too. The design gives the range `flex: 1` with a 210px floor, so
+  it fills whatever the headline leaves; it was capped at 260px inside a wrapper that did not grow, so
+  it sat narrow against the right edge whatever the panel's width. `PanelHeadline`'s aside slot grows
+  and right-aligns, which leaves an aside made of fixed tiles — Returns' three — where it was.
+
+  The design's success colouring of the current-build marker is still declined: `RangeBar` states a
+  position and no verdict, because a run of builds made in a poor market would make a bad benchmark
+  read as a good one.
 - ~~The **dashed "no archived builds yet" box**~~ — added. It replaces rendering nothing, because a
   first build is information: the estimate has nothing to be checked against.
-- ~~The **cost-over-time disclosure**~~ — added. The chart moved into `costOverTime.jsx` so Build
-  History and Cost Breakdown draw the same one, and `Disclosure` gained an `onOpen` that fires on the
-  way open only, so the timeline is fetched when asked for and not re-fetched on every fold.
+- The **cost-over-time disclosure** was added here and then removed: Build History already draws that
+  chart from the same query, and two copies on one stage is two places to look at one set of figures.
+  `costOverTime.jsx` and `Disclosure`'s `onOpen` stay — Build History uses both.
 - ~~The **build-where-cheaper / buy-everything toggle**~~ — added to the header. It is display-only:
   held in component state, never written to the job. A material already paid for is untouched by either
   model, being a record rather than an estimate. § Open questions still asks whether the model should
@@ -1016,17 +1168,47 @@ behind the total, because a total is only as fresh as the oldest figure in it.
 location, the fee with its working, the tax against Accounting, and the character the rates are quoted
 for. §8 and §9 are Stages G and H, built as the plan describes.
 
-### What is left in the retiring panel's folder
+**Mobile (§10).** The table is the only thing that could not survive a 360px stack, so it becomes
+cards and everything else keeps its shape. Two details came from re-reading §10 after the first build:
+figures **shorten** rather than wrap, with the full value on tap — shortening costs a reader nothing
+they cannot get back, where truncating a label costs them the label — and the basis picker opens as a
+**bottom sheet**, which is where the design says mobile gains most: four full-width rows each stating
+what that basis does to the total, instead of an anchored menu opening against the edge of the screen.
 
-`Material Prices/` now holds two things: the panel the **mobile layout** still mounts until Stage J,
-and four helpers both trees genuinely share — `marketPriceHelpers`, `marketLabelHelpers`,
-`materialChildJobs` and `materialPriceOverridesState`. Everything reachable only from Materials &
-Sourcing has moved there: the drawer's six row components (now `Child Job Drawer/`, named for what
-they are rather than the popover they were), three hooks and two helpers.
+The material drawer stays an inline collapse rather than becoming a sheet. The design asked for a sheet
+because the thing it replaced was a popover anchored to a click target and unusable at 360px; the
+drawer already opens under its own row, so the problem the sheet solved is not there to solve.
 
-The four shared helpers stay where they are on purpose. Moving them would only reverse the direction
-of the cross-folder import — the mobile panel would reach into Materials & Sourcing instead. **Stage J
-is where they get a home**, because retiring the mobile panel is what leaves them with one consumer.
+### Two seams the panels are held together by
+
+Both exist because a panel split lets figures that must agree drift apart, and both were written after
+a drift was found rather than in anticipation of one.
+
+`Hooks/Planner/useJobEconomics.js` is the figures Cost Breakdown and Returns share — a cost stated on
+one and subtracted on the other is the same number because there is only one of it.
+
+`Hooks/Planner/useJobSellingContext.js` is who sells the output and from where. Three panels quote a
+broker fee, a sales tax or a market skill level, and each resolves the pair from three places at once:
+the job's own plan, the account default, and the hub the layout prices against. Skills resolved it
+separately and quoted one character's Accounting against a fee Returns had struck for another.
+
+`Hooks/React Query/Character/useSellingRateInputs.js` is the skills and standings behind every rate,
+and it is the one seam shared with the **Selling** stage rather than between panels. The rates are read
+from caches that never start a fetch, so each stage decided for itself whose reads to begin: Planning
+asked for its seller, while Selling asked for the account's main and then costed each order against
+whoever placed it — so an order from an alt was costed against a cache nobody had filled, and that fee
+is stored on the job rather than re-derived. Its `ensureSellingRateInputs` half covers the case a
+subscription cannot: a figure written to the job the moment an order is linked, for a character no
+panel on the page has asked about.
+
+### Where the shared helpers ended up
+
+Stage J retired the mobile panel, which is what left the four shared helpers with one consumer each and
+so with a home to go to. `Material Prices/` and `Resources Panel/` are both gone.
+
+`marketPriceHelpers` became `Functions/MarketData/marketPriceForType.js` — it is a store lookup rather
+than a component helper, and three panel folders read it. The other three went to
+`Materials And Sourcing/Helpers/`, where every consumer now lives.
 
 ### Known limits
 
@@ -1062,35 +1244,30 @@ real job.
 | G — speculative child jobs | SPA, behavioural | **Done.** Rows cost on demand and stay on Buy, the offer that switches them works, group jobs seed their own rows, and the five buttons are one chip with an undo |
 | H — jobs with parent jobs | SPA, behavioural | **Done.** Committed output carries no sale figures and no charges; a surplus is priced on its own; Contribution replaces Returns where nothing is sellable |
 | I — Skills as a model | SPA | **Done.** Three groups, the selling one read from the seller's own skills, Broker Relations kept and marked at a citadel, the signed-out path states requirements, and what-if re-derives the charges without touching the panels |
-| J — mobile layouts | SPA | Not started |
-| K — default market character in settings | SPA + document field | Not started |
-| L — per-job selling override | SPA + job document field | Not started |
+| J — mobile layouts | SPA | **Done.** Mobile mounts the same panels as the standard layout; the materials table becomes cards below `sm`, figures shorten with the full value on tap, and the basis picker opens as a bottom sheet. Raw Resources and the totals panel are deleted |
+| K — default market character in settings | SPA + document field | **Done.** `DefaultMarketCharacter` on application settings, the picker on Job Settings, and `sellerCharacter.js` reading it. Nil until chosen, standing in with the account's main and saying so |
+| L — per-job selling override | SPA + job document field | **Done.** `JobSale.Plan` holds the seller and the sale location, both nil on a job that uses the account's defaults; the pickers are on the Returns rate block |
+| M — what a child job actually covers | SPA | **Done.** The requirement is allocated across the contributing jobs rather than charged to each; a shortfall is bought, extrapolated or resized away depending on what is going to happen to the job, and the drawer and Cost Breakdown both say which |
+| N — the sale location list and its standings | SPA | **Done.** Citadels and NPC stations are separated, the account default is the marked item rather than a second entry, and a station's faction standing resolves through the race-to-faction map instead of matching a race id against the standing list |
 
 ## Start here
 
-Consumers read sale locations through `Functions/MarketOrders/saleLocations.js`, which returns two
-placeholder citadels until the stored list exists — so Stages B, D and F can be built and tested now,
-and the stored rows slide in as a change to that one file.
+**Every stage is done.** The Planning stage runs the three panels on both layouts, the old market and
+Raw Resources panels are deleted, and the selling charges are counted. What remains is promotion:
+[`overlay.md`](./overlay.md) carries how each part works now, in the shape it takes when it is folded
+into live SoT under [`../../frontend/`](../../frontend/contents.md).
 
-Stage A is complete. `brokerFeeRates`, `salesTaxRates` and `marketSkillIDs` are in `defaultValues.jsx`,
-and `calcBrokersFee` reads the fee ones rather than holding literals.
+Two things deliberately did not land here, and a reader picking this up should not go looking for them:
 
-Stages B and C are done too. `Functions/MarketOrders/sellingRates.js` holds a rate function and an
-amount function for each charge, and `calcBrokersFee` is now those functions rather than a second copy
-of the formula. Nothing calls the tax half yet — it is built so the Selling stage can, without the
-Planning stage having shaped it for itself first.
+- **Storing saved citadels** went to the custom-structure work — the lane, its schema bump, its
+  migration and its editing surface. This project stores nothing and reads sale locations through
+  `Functions/MarketOrders/saleLocations.js`, which returns placeholders until that work lands. See
+  § Handed to the custom-structure work for what was worked out and passed on, including the collection
+  backup that work needs before its upgrader writes anything.
+- **The per-component "vs last build" comparison** needs a statistics endpoint change and belongs to
+  that work. See § Known limits.
 
-Stage D is done: `Styled Components/Select/pricingBasis.jsx` is the picker, and
-`Functions/MarketData/materialPricing.js` holds the figures behind it — what the job's materials cost
-on each basis, and whether a row is an estimate or already paid. Nothing mounts them yet.
-
-**Stage E is next**: Materials & Sourcing, which absorbs Raw Resources and is the first panel to mount
-the picker.
-
-**Storing saved citadels is no longer this project's.** The lane, its schema bump, its migration and its
-editing surface all go with the custom-structure work being taken separately; § Handed to the
-custom-structure work carries what this project worked out, including the collection backup that work
-will need before its upgrader writes anything.
+The open questions below are still open, and none of them blocks promotion.
 
 ## Open questions
 

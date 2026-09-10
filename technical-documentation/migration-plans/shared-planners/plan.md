@@ -2118,6 +2118,26 @@ the first two are only cheap while that project is still open and touching live 
 4. Drop that project's Stage C ownership inference. Its blocking question is answered by § Ownership is decided at
    creation, and the producer it was waiting on is not built.
 
+**[planning-stage-panels](../planning-stage-panels/plan.md)** — one data change owed, small and
+mechanical.
+
+An invention entry's `id` was minted from the clock and stored as a number. Two entries minted in the
+same millisecond took the same id, and a row is removed by matching on it, so removing one removed
+both. It is a uuid now, and `models.InventionEntry` decodes either shape — a number is read as its own
+digits — so nothing breaks while both are in the collection.
+
+**Existing rows still carry numbers, and want switching in the release window.** In the live snapshot
+that is **184 archived jobs and 12 live job documents** holding `build.costs.inventionEntries` with
+int64 ids. Rewriting each to a uuid is one pass over two collections, alongside the other data changes
+this release rides — the entries are not referenced from anywhere else, so nothing points at the old
+value and no second collection needs updating with it. The collision it removes is unlikely rather than
+impossible: two entries added in one millisecond needs a scripted or double-submitted add, which is why
+this is worth doing in a window that already exists rather than one of its own.
+
+Leaving it undone costs nothing immediately — both shapes decode, and the duplicate ids that exist
+today were already there. What it costs is that the guarantee stays partial: a job carrying two rows
+that collided before the change still loses both when either is removed.
+
 **[entity-id-encryption](../entity-id-encryption/plan.md)** — no change owed. This project consumes
 corporation and alliance refs as planner ids at Stage F and mints none. Stages A–E do not depend on it.
 

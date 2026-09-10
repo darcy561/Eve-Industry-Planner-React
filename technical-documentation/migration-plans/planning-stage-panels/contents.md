@@ -25,6 +25,8 @@ answer it.
 - The **Skills panel** as a model of what a build costs rather than a pass/fail gate, including the
   market skills that drive the fee and tax figures.
 - The **archive figures** used as context beside an estimate, and where they render.
+- **Which character the selling figures are quoted for** — an account-level default market character
+  and a per-job override of it, both planning inputs only.
 
 ## Does not own
 
@@ -37,15 +39,15 @@ answer it.
 - **The Price Entry dialogue's own behaviour** — how a purchase price is captured and distributed
   across jobs. This project only surfaces *that a material has one* on the material row.
 - **The Selling stage.** The sale-line matching stays as it is, and the Selling stage remains
-  authoritative for what was actually charged. This project splits the rate out of `calcBrokersFee` so
+  authoritative for what was actually charged. This project splits the rate out of the fee calculation so
   both stages share one formula, and leaves `defaultCitadelBrokersFee` in place for the real-order
   path.
 - **Install cost calculation.** `getJobInstallCostForPlanning` and the system-index inputs are
   unchanged; this project only re-files the figure it returns.
 - **The planner settings split.** Which settings are account-scoped and which are planner-scoped is
-  [shared-planners](../shared-planners/contents.md)' decision. This project adds saved citadels to
-  `CustomStructures` and inherits the placement that family already has — see [plan.md](./plan.md)
-  § What this project inherits.
+  [shared-planners](../shared-planners/contents.md)' decision. The default market character this
+  project adds is account-scoped, and inherits the placement application settings already have — see
+  [plan.md](./plan.md) § What this project inherits.
 - **Storing saved citadels.** The `CustomStructures` lane, its schema bump and migration, the settings
   frame, the store rebuild and the add-a-citadel form all go with the custom-structure work being taken
   separately. This project stores nothing and reads sale locations through one accessor returning
@@ -74,6 +76,18 @@ answer it.
 | Understand the pricing basis and its four modes | [plan.md](./plan.md) § Stage D |
 | See the speculative child job change and its cost | [plan.md](./plan.md) § Stage G |
 | Know what a job with parents shows | [plan.md](./plan.md) § Stage H |
+| See how the Skills panel models a build's cost | [plan.md](./plan.md) § Stage I |
+| Know what changes on mobile and what does not | [plan.md](./plan.md) § Stage J |
+| Find where the seller character is chosen and resolved | [plan.md](./plan.md) § Stage K |
+| Know how a job overrides the seller or the sale location | [plan.md](./plan.md) § Stage L |
+| Know what happens when a child job stops covering its material | [plan.md](./plan.md) § Stage M |
+| See how the sale location list and its fee figures work | [plan.md](./plan.md) § Stage N |
+| Check the fee and tax formulas against real sales | [measurements/selling-charges-against-stored-jobs.md](./measurements/selling-charges-against-stored-jobs.md) |
+| Find what this project owes another release | [plan.md](./plan.md) § Owed to the shared-planners release |
+| See what each panel was owed visually and what was built | [plan.md](./plan.md) § Design fidelity |
+| Find where a shared helper moved to | [plan.md](./plan.md) § Where the shared helpers ended up |
+| Know which hooks keep the panels agreeing | [plan.md](./plan.md) § Two seams the panels are held together by |
+| Know what this project could not finish and why | [plan.md](./plan.md) § Known limits |
 | See the stages and their order | [plan.md](./plan.md) § Stages |
 | Check what has landed | [plan.md](./plan.md) § Stage status |
 | See the visual design the stages build to | [plan.md](./plan.md) § Design reference |

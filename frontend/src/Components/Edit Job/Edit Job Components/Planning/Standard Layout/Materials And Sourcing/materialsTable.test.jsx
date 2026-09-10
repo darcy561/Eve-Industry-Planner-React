@@ -246,9 +246,52 @@ describe("the mark at the head of a row", () => {
 
     const glyph = screen.getByLabelText("Manufacturing Job — exempt from builds");
     expect(glyph).toBeInTheDocument();
-    // Visible without hovering: the old row's icon was amber on sight, and a
-    // long list is scanned rather than hovered row by row.
-    expect(glyph).toHaveStyle({ color: "rgb(237, 108, 2)" });
+    // Legible without hovering: the old row's icon said it on sight, and a long
+    // list is scanned rather than hovered row by row.
+    expect(glyph.querySelector("svg")).toHaveAttribute(
+      "data-testid",
+      "BlockIcon"
+    );
+  });
+
+  it("does not say the same thing for exempt as for pending", () => {
+    // They were two icons in two panels before those panels merged, and they
+    // mean opposite things: pending wants a decision, exempt wants nothing.
+    const pending = {
+      kind: "pending",
+      label: "Manufacturing Job Pending",
+      jobType: 1,
+      isUnsettled: true,
+      isExempt: false,
+    };
+    const exemptAndPending = { ...pending, isExempt: true, label: "exempt too" };
+
+    const first = render(
+      <MaterialsTable
+        rows={[row({ mark: pending })]}
+        formatIsk={formatIsk}
+        formatQuantity={formatQuantity}
+      />
+    );
+    const pendingGlyph = screen
+      .getByLabelText("Manufacturing Job Pending")
+      .querySelector("svg")
+      .getAttribute("data-testid");
+    first.unmount();
+
+    render(
+      <MaterialsTable
+        rows={[row({ mark: exemptAndPending })]}
+        formatIsk={formatIsk}
+        formatQuantity={formatQuantity}
+      />
+    );
+    const exemptGlyph = screen
+      .getByLabelText("exempt too")
+      .querySelector("svg")
+      .getAttribute("data-testid");
+
+    expect(exemptGlyph).not.toBe(pendingGlyph);
   });
 
   it("draws no mark for a row that carries none", () => {

@@ -538,8 +538,13 @@ the design — the design says what the new panel shows, not what the old ones l
 | Per-material hub and basis override — clearing them | "Manage Material Sources" | **Carried.** The picker offers to put every overridden row back |
 | Per-material hub and basis override — setting one | "Manage Material Sources" | **Carried, and closer to hand.** The row's own drawer holds the market and listing selects, so a player changes the row they are looking at rather than finding it in a list of every material |
 | Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Carried.** A dot becomes a tick once a child job is linked, in the job type's colour, amber where something is pending against a material nothing is linked to yet |
-| Exempt-from-builds marker | The info icon turned amber | **Carried.** The row's mark says it without anything being opened |
+| Exempt-from-builds marker | The info icon turned amber | **Carried, and told apart.** The mark is struck out and greyed rather than amber: it was a separate icon in a separate panel, and merging the panels put it on the same glyph as pending, which means the opposite thing |
 | Create All Child Jobs | The market panel's kebab | **Deliberately not carried.** Stage G replaces it with "build all where cheaper"; a bulk create of jobs nobody has costed is the thing that change exists to stop, so it is not reinstated in the meantime |
+
+**Two signals merged into one glyph is a loss even when both are carried.** Raw Resources marked a
+pending build and the market panel marked an exempt material, each in its own icon in its own panel. One
+merged row has one mark, so carrying both means telling them apart — and they mean opposite things, so
+giving them the same treatment says neither.
 
 **Done when:** the material list renders once on the stage; every row states its own comparison; the
 drawer replaces the popover on desktop; and every row of the table above is either carried over or

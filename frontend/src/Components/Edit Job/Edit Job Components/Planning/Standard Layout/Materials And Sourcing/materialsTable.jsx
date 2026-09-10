@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 
+import BlockIcon from "@mui/icons-material/Block";
 import DoneIcon from "@mui/icons-material/Done";
 import LensIcon from "@mui/icons-material/Lens";
 import {
@@ -177,10 +178,14 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
  * What kind of material this is, and whether anything is building it.
  *
  * A tick where a child job is linked, a dot where none is, in the job type's
- * accent colour. Two states take the colour instead: something pending against a
- * material nothing is linked to yet, and a material the account excludes from
- * builds. Both are amber because both are read at a glance down a long list —
- * a fact only a tooltip carries is a fact nobody scanning the list will find.
+ * accent colour. Amber where something is pending against a material nothing is
+ * linked to yet.
+ *
+ * A material the account excludes from builds is struck out and greyed instead.
+ * It was a separate icon in a separate panel before the two were merged, and
+ * giving it amber too would say the same thing as pending — which is the
+ * opposite meaning. Pending wants a decision; exempt wants nothing. Both are
+ * legible without hovering, which a tooltip alone is not.
  *
  * @param {object} props
  * @param {import("../../../../../../Functions/MarketData/materialMark").MaterialMark} [props.mark]
@@ -189,12 +194,17 @@ function MaterialMark({ mark }) {
   const theme = useTheme();
   if (!mark) return null;
 
-  const colour =
-    mark.isUnsettled || mark.isExempt
+  const colour = mark.isExempt
+    ? theme.palette.text.disabled
+    : mark.isUnsettled
       ? theme.palette.warning.main
       : getJobTypeAccentColour(theme, mark.jobType);
 
-  const Glyph = mark.kind === MATERIAL_MARK.PLAIN ? LensIcon : DoneIcon;
+  const Glyph = mark.isExempt
+    ? BlockIcon
+    : mark.kind === MATERIAL_MARK.PLAIN
+      ? LensIcon
+      : DoneIcon;
 
   return (
     <Tooltip title={mark.label} placement="left-start" arrow>

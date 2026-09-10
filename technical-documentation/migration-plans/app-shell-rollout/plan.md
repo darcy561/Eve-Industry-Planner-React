@@ -80,6 +80,17 @@ needs it; before that it stays where it is.
   the conversion had nothing to check itself against until they were written.
 - **Do not invent an atom for one caller.** If a shape appears once, leave it in the screen.
 - **Standardising a drifted value is a visual change.** Say so rather than folding it in silently.
+- **Spacing is behaviour.** A section that wrapped its children in a spaced stack is spacing every
+  sibling a caller passes it, and a panel component may not. A test rendering one child cannot see the
+  difference, so render several.
+
+## Known, not caused here
+
+- **A radiogroup of `SelectableCard`s is not a roving tab stop.** Every card is independently
+  reachable by Tab and there is no arrow-key navigation, where the ARIA pattern expects one tab stop
+  moved by arrows. It behaves as a set of independently tabbable controls. This predates the component
+  and came with it unchanged; fixing it means the card taking its index in the group, which is a change
+  to both consumers as well.
 
 ## What this project does not do
 

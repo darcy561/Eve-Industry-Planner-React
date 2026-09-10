@@ -21,13 +21,11 @@ export function FirstLoginPlannerLayoutChoice({
         selected={!compact}
         onSelect={onSelectClassic}
         title="Classic cards"
-        checkboxChecked={!compact}
       />
       <SelectableCard
         selected={compact}
         onSelect={onSelectCompact}
         title="Compact cards"
-        checkboxChecked={compact}
       />
     </Stack>
   );

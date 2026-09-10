@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 
 import AppShellPanel from "../../../Styled Components/Paper/AppShellPanel";
 
@@ -17,12 +17,16 @@ import AppShellPanel from "../../../Styled Components/Paper/AppShellPanel";
 export function FirstLoginSetupSection({ title, subtitle, children }) {
   return (
     <AppShellPanel title={title} componentName="FirstLoginSetupSection">
-      {subtitle ? (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-          {subtitle}
-        </Typography>
-      ) : null}
-      {children}
+      {/* A step passes several siblings as its children and expects them spaced;
+          the panel's own content box does not space them. */}
+      <Stack spacing={1.5}>
+        {subtitle ? (
+          <Typography variant="body2" color="text.secondary">
+            {subtitle}
+          </Typography>
+        ) : null}
+        {children}
+      </Stack>
     </AppShellPanel>
   );
 }

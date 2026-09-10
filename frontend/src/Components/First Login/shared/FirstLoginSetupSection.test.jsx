@@ -32,3 +32,31 @@ describe("FirstLoginSetupSection", () => {
     expect(screen.getByText("x")).toBeInTheDocument();
   });
 });
+
+describe("spacing between a step's children", () => {
+  it("spaces the several siblings a step passes it", () => {
+    // Every step passes more than one child and relied on the section to space
+    // them; rendering one child cannot see that.
+    const { container } = render(
+      <FirstLoginSetupSection title="Your characters">
+        <p>first</p>
+        <p>second</p>
+        <p>third</p>
+      </FirstLoginSetupSection>
+    );
+
+    const stack = container.querySelector(".MuiStack-root");
+    expect(stack).not.toBeNull();
+    expect(stack.children).toHaveLength(3);
+  });
+
+  it("spaces the subtitle from the content below it", () => {
+    const { container } = render(
+      <FirstLoginSetupSection title="Your characters" subtitle="Add more later">
+        <p>content</p>
+      </FirstLoginSetupSection>
+    );
+
+    expect(container.querySelector(".MuiStack-root").children).toHaveLength(2);
+  });
+});

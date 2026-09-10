@@ -15,6 +15,9 @@ const row = (overrides) => ({
 const lineValue = (band, id) =>
   band.lines.find((line) => line.id === id)?.value;
 
+const lineDetail = (band, id) =>
+  band.lines.find((line) => line.id === id)?.detail;
+
 describe("what a build costs", () => {
   it("prices a bought material at the market", () => {
     const cost = buildCostBreakdown({ rows: [row()] });
@@ -118,5 +121,40 @@ describe("what a breakdown leaves out", () => {
 
     expect(cost.total).toBe(0);
     expect(cost.toBuild.lines).toHaveLength(0);
+  });
+});
+
+describe("what each line says about itself", () => {
+  it("says how much of the list the market line covers", () => {
+    const cost = buildCostBreakdown({
+      rows: [row(), row(), row({ plan: MATERIAL_PLAN.BUILD, buildPrice: 8 })],
+    });
+
+    expect(lineDetail(cost.toBuild, "bought")).toBe(
+      "2 of 3 · 1 replaced by child builds"
+    );
+  });
+
+  it("does not mention child builds where there are none", () => {
+    const cost = buildCostBreakdown({ rows: [row(), row()] });
+
+    expect(lineDetail(cost.toBuild, "bought")).toBe("2 of 2");
+  });
+
+  it("carries the rates behind the selling figures", () => {
+    const cost = buildCostBreakdown({
+      rows: [row()],
+      brokerFee: 100,
+      salesTax: 200,
+      sellDetail: {
+        brokerFee: "1.5% at Jita · Broker Relations IV",
+        salesTax: "2.25% of revenue · Accounting IV",
+      },
+    });
+
+    expect(lineDetail(cost.toSell, "brokerFee")).toBe(
+      "1.5% at Jita · Broker Relations IV"
+    );
+    expect(lineDetail(cost.toSell, "salesTax")).toContain("Accounting IV");
   });
 });

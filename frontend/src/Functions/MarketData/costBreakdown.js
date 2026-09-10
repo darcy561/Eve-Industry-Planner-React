@@ -9,8 +9,16 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
  */
 
 /**
+ * @typedef {object} CostLine
+ * @property {string} id
+ * @property {string} label
+ * @property {string} [detail] - What the figure is made of, in words
+ * @property {number} value
+ */
+
+/**
  * @typedef {object} CostBand
- * @property {Array<{id: string, label: string, value: number}>} lines
+ * @property {CostLine[]} lines
  * @property {number} total
  */
 
@@ -37,6 +45,8 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
  * @param {number} params.brokerFee - ISK, from brokerFeeAmount
  * @param {number} params.salesTax - ISK, from salesTaxAmount
  * @param {number} params.quantityProduced
+ * @param {{brokerFee?: string, salesTax?: string}} [params.sellDetail] - The rates
+ *   behind the two selling figures, in words
  * @returns {CostBreakdown}
  */
 export function buildCostBreakdown({
@@ -46,6 +56,7 @@ export function buildCostBreakdown({
   brokerFee = 0,
   salesTax = 0,
   quantityProduced = 0,
+  sellDetail = {},
 }) {
   let bought = 0;
   let built = 0;
@@ -63,17 +74,44 @@ export function buildCostBreakdown({
     bought += (row.buyPrice ?? 0) * row.quantity;
   }
 
+  const counts = countRows(rows);
+
   const toBuild = band([
-    { id: "bought", label: "Materials bought", value: bought },
-    { id: "built", label: "Materials built", value: built },
-    { id: "paid", label: "Materials already paid for", value: paid },
-    { id: "install", label: "Install cost", value: installCost },
+    {
+      id: "bought",
+      label: "Materials bought at market",
+      detail: materialsDetail(counts),
+      value: bought,
+    },
+    {
+      id: "built",
+      label: "Child job builds",
+      detail: "their materials and install, not counted above",
+      value: built,
+    },
+    {
+      id: "paid",
+      label: "Materials already bought",
+      detail: `${counts.paid} of ${counts.total} at what you paid`,
+      value: paid,
+    },
+    { id: "install", label: "Install cost", detail: "this job only", value: installCost },
     { id: "extras", label: "Extras", value: extras },
   ]);
 
   const toSell = band([
-    { id: "brokerFee", label: "Broker fee", value: brokerFee },
-    { id: "salesTax", label: "Sales tax", value: salesTax },
+    {
+      id: "brokerFee",
+      label: "Broker fee to list",
+      detail: sellDetail.brokerFee,
+      value: brokerFee,
+    },
+    {
+      id: "salesTax",
+      label: "Sales tax",
+      detail: sellDetail.salesTax,
+      value: salesTax,
+    },
   ]);
 
   const total = toBuild.total + toSell.total;
@@ -85,6 +123,32 @@ export function buildCostBreakdown({
     // A job producing nothing has no per-unit cost rather than an infinite one.
     perUnit: quantityProduced > 0 ? total / quantityProduced : 0,
   };
+}
+
+/**
+ * @param {Array<object>} rows
+ * @returns {{total: number, bought: number, built: number, paid: number}}
+ */
+function countRows(rows) {
+  const counts = { total: rows.length, bought: 0, built: 0, paid: 0 };
+  for (const row of rows) {
+    if (row.plan === MATERIAL_PLAN.PAID) counts.paid += 1;
+    else if (row.plan === MATERIAL_PLAN.BUILD && row.buildPrice !== null) {
+      counts.built += 1;
+    } else counts.bought += 1;
+  }
+  return counts;
+}
+
+/**
+ * Says how much of the list this line covers, since the figure alone does not.
+ *
+ * @param {{total: number, bought: number, built: number}} counts
+ * @returns {string}
+ */
+function materialsDetail({ total, bought, built }) {
+  const of = `${bought} of ${total}`;
+  return built > 0 ? `${of} · ${built} replaced by child builds` : of;
 }
 
 /**

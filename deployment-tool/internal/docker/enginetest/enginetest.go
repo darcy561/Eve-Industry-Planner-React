@@ -39,6 +39,10 @@ type Engine struct {
 	ServiceUpdateStatus int
 	// ServiceUpdateBody overrides the JSON response (empty → {}).
 	ServiceUpdateBody string
+	// ServiceUpdateStaleVersions maps a service id to how many updates answer
+	// "update out of sequence" before one succeeds, so a caller that re-reads and
+	// retries can be told from one that writes a stale version once and gives up.
+	ServiceUpdateStaleVersions map[string]int
 
 	// ContainerList is the GET /containers/json queue: each call pops the
 	// next entry, and the last entry repeats once drained. Empty → [].
@@ -345,7 +349,15 @@ func (e *Engine) serve(w http.ResponseWriter, r *http.Request) {
 		})
 		status := e.ServiceUpdateStatus
 		body := e.ServiceUpdateBody
+		stale := e.ServiceUpdateStaleVersions[id]
+		if stale > 0 {
+			e.ServiceUpdateStaleVersions[id] = stale - 1
+		}
 		e.mu.Unlock()
+		if stale > 0 {
+			http.Error(w, `{"message":"rpc error: code = Unknown desc = update out of sequence"}`, http.StatusInternalServerError)
+			return
+		}
 		if status == 0 {
 			status = http.StatusOK
 		}

@@ -1,6 +1,7 @@
 package images
 
 import (
+	"slices"
 	"strings"
 	"testing"
 )
@@ -47,5 +48,42 @@ func TestSwarmLocalTag(t *testing.T) {
 		if got := swarmLocalTag(repo, tc.img); got != tc.want {
 			t.Fatalf("swarmLocalTag(%q)=%q want %q", tc.img, got, tc.want)
 		}
+	}
+}
+
+func TestBakeArgs(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name    string
+		noCache bool
+		stream  bool
+		roles   []string
+		want    []string
+	}{
+		{
+			name: "every role, quiet",
+			want: []string{"buildx", "bake", "-f", "-", "--provenance=false", "--progress=quiet", "swarm"},
+		},
+		{
+			name:   "named roles, streaming",
+			stream: true,
+			roles:  []string{"api", "worker"},
+			want:   []string{"buildx", "bake", "-f", "-", "--provenance=false", "--progress=plain", "api", "worker"},
+		},
+		{
+			name:    "no cache",
+			noCache: true,
+			roles:   []string{"core"},
+			want:    []string{"buildx", "bake", "-f", "-", "--no-cache", "--provenance=false", "--progress=quiet", "core"},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			got := bakeArgs(c.noCache, c.stream, c.roles)
+			if !slices.Equal(got, c.want) {
+				t.Fatalf("got %v, want %v", got, c.want)
+			}
+		})
 	}
 }

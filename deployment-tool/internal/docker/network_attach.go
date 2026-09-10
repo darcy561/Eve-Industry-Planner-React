@@ -21,51 +21,42 @@ func FullServiceName(stackPrefix, short string) string {
 	return stackPrefix + "_" + short
 }
 
-// EnsureServiceNetwork attaches or detaches networkName on a Swarm service (ServiceUpdate).
+// EnsureServiceNetwork attaches or detaches networkName on a Swarm service (ServiceUpdate),
+// reporting whether the service needed changing.
 // Aliases are applied only when attach is true. Matching uses network name or ID.
 // Missing service → no-op (nil). Does not invent network/service names — callers resolve from stack docs.
-func EnsureServiceNetwork(ctx context.Context, apiClient *client.Client, serviceName, networkName string, attach bool, aliases ...string) error {
+func EnsureServiceNetwork(ctx context.Context, apiClient *client.Client, serviceName, networkName string, attach bool, aliases ...string) (bool, error) {
 	serviceName = strings.TrimSpace(serviceName)
 	networkName = strings.TrimSpace(networkName)
 	if serviceName == "" {
-		return fmt.Errorf("ensure service network: empty service name")
+		return false, fmt.Errorf("ensure service network: empty service name")
 	}
 	if networkName == "" {
-		return fmt.Errorf("ensure service network: empty network name")
+		return false, fmt.Errorf("ensure service network: empty network name")
 	}
 
-	result, err := apiClient.ServiceInspect(ctx, serviceName, client.ServiceInspectOptions{})
-	if err != nil {
-		if errdefs.IsNotFound(err) {
-			return nil
+	moved := false
+	err := MutateService(ctx, apiClient, serviceName, func(spec *swarmtypes.ServiceSpec) (bool, error) {
+		netID, err := networkID(ctx, apiClient, networkName)
+		if err != nil {
+			if attach || !errdefs.IsNotFound(err) {
+				return false, err
+			}
+			// Detach when the network is already gone: match by name only.
+			netID = ""
 		}
-		return fmt.Errorf("inspect service %s: %w", serviceName, err)
-	}
-
-	netID, err := networkID(ctx, apiClient, networkName)
-	if err != nil {
-		if attach || !errdefs.IsNotFound(err) {
-			return err
+		next, changed := desireNetworks(spec.TaskTemplate.Networks, networkName, netID, attach, aliases)
+		if !changed {
+			return false, nil
 		}
-		// Detach when the network is already gone: match by name only.
-		netID = ""
+		spec.TaskTemplate.Networks = next
+		moved = true
+		return true, nil
+	})
+	if err != nil && errdefs.IsNotFound(err) {
+		return false, nil
 	}
-
-	spec := result.Service.Spec
-	nets := spec.TaskTemplate.Networks
-	next, changed := desireNetworks(nets, networkName, netID, attach, aliases)
-	if !changed {
-		return nil
-	}
-	spec.TaskTemplate.Networks = next
-
-	if _, err := apiClient.ServiceUpdate(ctx, result.Service.ID, client.ServiceUpdateOptions{
-		Version: result.Service.Version,
-		Spec:    spec,
-	}); err != nil {
-		return fmt.Errorf("update service %s networks: %w", serviceName, err)
-	}
-	return nil
+	return moved, err
 }
 
 func networkID(ctx context.Context, apiClient *client.Client, name string) (string, error) {

@@ -185,24 +185,33 @@ func parseBakeArgs(args []string) (noCache bool, roles []string, err error) {
 	return noCache, roles, nil
 }
 
-func runBuildxBake(ctx context.Context, home string, envMap map[string]string, appVersion string, noCache bool, roles []string) error {
+// bakeArgs builds the buildx command line. Roles are the targets; empty means the swarm group.
+func bakeArgs(noCache, stream bool, roles []string) []string {
 	args := []string{"buildx", "bake", "-f", "-"}
 	if noCache {
 		args = append(args, "--no-cache")
 	}
+	// A provenance attestation records when the build ran, and on the containerd image
+	// store an image's id is the digest of the index that carries it — so with provenance
+	// on, a rebuild of unchanged sources still lands a new id and every role promotes on
+	// every rebuild. These images are local and never pushed, so the attestation has no
+	// consumer to lose.
+	args = append(args, "--provenance=false")
 	// Quiet hides all BuildKit output. Under TUI (and EIP_VERBOSE) use plain so
 	// the OUTPUT pane keeps moving — buildx writes progress on stderr.
-	stream := dockercli.Verbose() || msg.Enabled()
 	if stream {
 		args = append(args, "--progress=plain")
 	} else {
 		args = append(args, "--progress=quiet")
 	}
 	if len(roles) == 0 {
-		args = append(args, "swarm")
-	} else {
-		args = append(args, roles...)
+		return append(args, "swarm")
 	}
+	return append(args, roles...)
+}
+
+func runBuildxBake(ctx context.Context, home string, envMap map[string]string, appVersion string, noCache bool, roles []string) error {
+	args := bakeArgs(noCache, dockercli.Verbose() || msg.Enabled(), roles)
 
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Dir = home

@@ -40,17 +40,22 @@ func ApplyServiceNetworkMemberships(ctx context.Context, apiClient *client.Clien
 		if item.Attach {
 			action = "attach"
 		}
-		msg.Line(fmt.Sprintf("plan %s: %s %s on %s", short, action, svc, netName))
 		if dryRun {
+			msg.Line(fmt.Sprintf("plan %s: %s %s on %s", short, action, svc, netName))
 			msg.Line("dry-run: would " + action + " " + svc)
 			continue
 		}
 		if apiClient == nil {
 			return fmt.Errorf("service network membership: nil API client")
 		}
-		if err := docker.EnsureServiceNetwork(ctx, apiClient, svc, netName, item.Attach, item.Aliases...); err != nil {
+		moved, err := docker.EnsureServiceNetwork(ctx, apiClient, svc, netName, item.Attach, item.Aliases...)
+		if err != nil {
 			return fmt.Errorf("%s network membership: %w", short, err)
 		}
+		if !moved {
+			continue
+		}
+		msg.Line(fmt.Sprintf("plan %s: %s %s on %s", short, action, svc, netName))
 		msg.Line(action + "ed " + svc + " ↔ " + netName)
 	}
 	return nil

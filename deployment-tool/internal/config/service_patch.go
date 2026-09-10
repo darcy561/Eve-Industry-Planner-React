@@ -8,6 +8,7 @@ import (
 	swarmtypes "github.com/moby/moby/api/types/swarm"
 	"github.com/moby/moby/client"
 
+	"eve-industry-planner/deployment-tool/internal/docker"
 	"eve-industry-planner/deployment-tool/internal/msg"
 )
 
@@ -33,49 +34,43 @@ func ApplyServiceSpecPatch(ctx context.Context, apiClient *client.Client, patch 
 		msg.Line("dry-run: would update " + name)
 		return nil
 	}
-	result, err := apiClient.ServiceInspect(ctx, name, client.ServiceInspectOptions{})
-	if err != nil {
-		return fmt.Errorf("inspect service %s: %w", name, err)
-	}
-	spec := result.Service.Spec
-	if len(patch.Labels) > 0 {
-		if spec.Labels == nil {
-			spec.Labels = map[string]string{}
-		}
-		mergeStringMap(spec.Labels, patch.Labels)
-	}
-	needEnv := len(patch.Env) > 0 || len(patch.EnvUnset) > 0
-	if needEnv {
-		if spec.TaskTemplate.ContainerSpec == nil {
-			return fmt.Errorf("update service %s: missing ContainerSpec", name)
-		}
-		env := spec.TaskTemplate.ContainerSpec.Env
-		if len(patch.EnvUnset) > 0 {
-			keys := map[string]struct{}{}
-			for _, k := range patch.EnvUnset {
-				keys[k] = struct{}{}
+	if err := docker.MutateService(ctx, apiClient, name, func(spec *swarmtypes.ServiceSpec) (bool, error) {
+		if len(patch.Labels) > 0 {
+			if spec.Labels == nil {
+				spec.Labels = map[string]string{}
 			}
-			env = removeEnv(env, keys)
+			mergeStringMap(spec.Labels, patch.Labels)
 		}
-		if len(patch.Env) > 0 {
-			keys := map[string]struct{}{}
-			for k := range patch.Env {
-				keys[k] = struct{}{}
+		needEnv := len(patch.Env) > 0 || len(patch.EnvUnset) > 0
+		if needEnv {
+			if spec.TaskTemplate.ContainerSpec == nil {
+				return false, fmt.Errorf("update service %s: missing ContainerSpec", name)
 			}
-			env = setEnv(env, patch.Env, keys)
+			env := spec.TaskTemplate.ContainerSpec.Env
+			if len(patch.EnvUnset) > 0 {
+				keys := map[string]struct{}{}
+				for _, k := range patch.EnvUnset {
+					keys[k] = struct{}{}
+				}
+				env = removeEnv(env, keys)
+			}
+			if len(patch.Env) > 0 {
+				keys := map[string]struct{}{}
+				for k := range patch.Env {
+					keys[k] = struct{}{}
+				}
+				env = setEnv(env, patch.Env, keys)
+			}
+			spec.TaskTemplate.ContainerSpec.Env = env
 		}
-		spec.TaskTemplate.ContainerSpec.Env = env
-	}
-	if patch.Mutate != nil {
-		if err := patch.Mutate(&spec); err != nil {
-			return err
+		if patch.Mutate != nil {
+			if err := patch.Mutate(spec); err != nil {
+				return false, err
+			}
 		}
-	}
-	if _, err := apiClient.ServiceUpdate(ctx, result.Service.ID, client.ServiceUpdateOptions{
-		Version: result.Service.Version,
-		Spec:    spec,
+		return true, nil
 	}); err != nil {
-		return fmt.Errorf("update service %s: %w", name, err)
+		return err
 	}
 	msg.Line("updated " + name)
 	return nil

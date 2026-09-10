@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Skeleton, Typography } from "@mui/material";
 
 /**
  * The figure atoms of the app-shell design.
@@ -24,11 +24,23 @@ export const FIGURE_TONE = {
 };
 
 const TONE_COLOUR = {
-  [FIGURE_TONE.PLAIN]: "inherit",
+  [FIGURE_TONE.PLAIN]: "text.primary",
   [FIGURE_TONE.GOOD]: "success.main",
   [FIGURE_TONE.BAD]: "error.main",
   [FIGURE_TONE.WARN]: "warning.main",
 };
+
+/**
+ * The theme colour a tone resolves to, for the places a tone has to reach
+ * something that is not a Figure — an icon beside one, a border, a chart series.
+ *
+ * @param {string} tone - One of FIGURE_TONE
+ * @returns {string} A theme palette path
+ */
+export function figureToneColour(tone) {
+  return TONE_COLOUR[tone] ?? TONE_COLOUR[FIGURE_TONE.PLAIN];
+}
+
 
 /**
  * A number, lined up with the numbers above and below it.
@@ -242,6 +254,97 @@ export function HeadlineStat({ caption, value, tone = FIGURE_TONE.PLAIN, childre
         {value}
       </Figure>
       {children}
+    </Box>
+  );
+}
+
+/**
+ * A measure on its own card: what it is, what it is now, how that compares, and
+ * what it was before.
+ *
+ * The shape the archive statistics already use and the returns header repeats.
+ * A tile states its parts and lets this decide the sizes, the tones and where
+ * the comparison sits, so two tiles beside each other cannot disagree.
+ *
+ * @param {object} props
+ * @param {React.ReactNode} props.label - What the measure is
+ * @param {React.ReactNode} props.value - Already formatted
+ * @param {string} [props.tone] - One of FIGURE_TONE, for the value
+ * @param {React.ReactNode} [props.icon] - Sits before the value, sized to it
+ * @param {React.ReactNode} [props.change] - Beside the value, e.g. "+12.4%"
+ * @param {string} [props.changeTone] - One of FIGURE_TONE, for the change
+ * @param {React.ReactNode} [props.comparison] - Under the figure, quieter
+ * @param {boolean} [props.isLoading] - Shows the tile's shape rather than zeroes
+ */
+export function StatTile({
+  label,
+  value,
+  tone = FIGURE_TONE.PLAIN,
+  icon,
+  change,
+  changeTone = FIGURE_TONE.PLAIN,
+  comparison,
+  isLoading = false,
+}) {
+  if (isLoading) {
+    return (
+      <Box>
+        <Skeleton width="60%" />
+        <Skeleton width="80%" height={36} />
+        <Skeleton width="70%" />
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ minWidth: 0 }}>
+      <Typography
+        color="text.secondary"
+        sx={{ typography: { xs: "caption", md: "body2" } }}
+      >
+        {label}
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "nowrap",
+          mt: 0.5,
+        }}
+      >
+        {icon}
+        <Figure
+          tone={tone}
+          sx={{
+            typography: { xs: "h6", md: "h5" },
+            width: "fit-content",
+            lineHeight: 1.2,
+          }}
+        >
+          {value}
+        </Figure>
+        {change === undefined || change === null ? null : (
+          <Figure
+            tone={changeTone}
+            variant="caption"
+            sx={{ ml: 0.75, lineHeight: 1.2 }}
+          >
+            {change}
+          </Figure>
+        )}
+      </Box>
+      {comparison === undefined || comparison === null ? null : (
+        <Typography
+          sx={{
+            typography: "caption",
+            mt: 0.25,
+            width: "fit-content",
+            color: "text.secondary",
+          }}
+        >
+          {comparison}
+        </Typography>
+      )}
     </Box>
   );
 }

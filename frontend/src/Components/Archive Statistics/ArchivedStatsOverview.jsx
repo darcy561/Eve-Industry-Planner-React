@@ -1,8 +1,13 @@
-import { Grid, Paper, Skeleton, Tooltip, Typography } from "@mui/material";
+import { Grid, Paper, Tooltip, Typography } from "@mui/material";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { appShellSetupSectionPaperSx } from "../../Context/appShell";
+import {
+  FIGURE_TONE,
+  StatTile,
+  figureToneColour,
+} from "../../Styled Components/Typography/figures";
 import {
   formatNumberForLocale,
   numberToShortText,
@@ -58,10 +63,10 @@ function changeDisplay(current, previous, favourable) {
   const isFlat = Math.abs(amount) < Number.EPSILON;
   const isUp = amount > 0;
 
-  let tone = "text.primary";
+  let tone = FIGURE_TONE.PLAIN;
   if (!isFlat) {
     const isGood = favourable === "up" ? isUp : !isUp;
-    tone = isGood ? "success.main" : "error.main";
+    tone = isGood ? FIGURE_TONE.GOOD : FIGURE_TONE.BAD;
   }
 
   const percent = percentChange(current, previous);
@@ -94,16 +99,6 @@ function MetricCard({
   signed = false,
   isLoading,
 }) {
-  if (isLoading) {
-    return (
-      <Paper variant="outlined" sx={{ ...appShellSetupSectionPaperSx, p: 2 }}>
-        <Skeleton width="60%" />
-        <Skeleton width="80%" height={36} />
-        <Skeleton width="70%" />
-      </Paper>
-    );
-  }
-
   const {
     tone,
     label: changeLabel,
@@ -113,55 +108,35 @@ function MetricCard({
   // The figure says what it is; the arrow says how it compares. Only a signed
   // measure has a good and a bad side of zero — spend is a magnitude.
   const valueTone = !signed
-    ? "text.primary"
+    ? FIGURE_TONE.PLAIN
     : value < 0
-      ? "error.main"
-      : "success.main";
+      ? FIGURE_TONE.BAD
+      : FIGURE_TONE.GOOD;
 
   return (
     <Paper variant="outlined" sx={{ ...appShellSetupSectionPaperSx, p: 2 }}>
-      <Typography
-        color="text.secondary"
-        sx={{ typography: { xs: "caption", md: "body2" } }}
-      >
-        {label}
-      </Typography>
-      <Grid container wrap="nowrap" sx={{ mt: 0.5, alignItems: "center" }}>
-        <ArrowIcon sx={{ fontSize: 16, mr: 0.5, color: tone }} />
-        <Tooltip title={numberToShortText(value, 2)} arrow placement="top">
-          <Typography
-            sx={{
-              typography: { xs: "h6", md: "h5" },
-              width: "fit-content",
-              lineHeight: 1.2,
-              color: valueTone,
-            }}
+      <StatTile
+        isLoading={isLoading}
+        label={label}
+        value={
+          <Tooltip title={numberToShortText(value, 2)} arrow placement="top">
+            <span>{formatNumberForLocale(value)}</span>
+          </Tooltip>
+        }
+        tone={valueTone}
+        icon={<ArrowIcon sx={{ fontSize: 16, mr: 0.5, color: figureToneColour(tone) }} />}
+        change={changeLabel}
+        changeTone={tone}
+        comparison={
+          <Tooltip
+            title={numberToShortText(previousValue, 2)}
+            arrow
+            placement="top"
           >
-            {formatNumberForLocale(value)}
-          </Typography>
-        </Tooltip>
-        <Typography
-          sx={{ typography: "caption", ml: 0.75, lineHeight: 1.2, color: tone }}
-        >
-          {changeLabel}
-        </Typography>
-      </Grid>
-      <Tooltip
-        title={numberToShortText(previousValue, 2)}
-        arrow
-        placement="top"
-      >
-        <Typography
-          sx={{
-            typography: "caption",
-            mt: 0.25,
-            width: "fit-content",
-            color: "text.secondary",
-          }}
-        >
-          Last month: {formatNumberForLocale(previousValue)}
-        </Typography>
-      </Tooltip>
+            <span>Last month: {formatNumberForLocale(previousValue)}</span>
+          </Tooltip>
+        }
+      />
     </Paper>
   );
 }

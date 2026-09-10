@@ -9,6 +9,8 @@ import {
   HeadlineStat,
   PanelFooterMeta,
   SignedPercent,
+  StatTile,
+  figureToneColour,
 } from "./figures";
 
 describe("Figure", () => {
@@ -171,5 +173,51 @@ describe("HeadlineStat", () => {
     );
 
     expect(screen.getByText("per unit")).toBeInTheDocument();
+  });
+});
+
+describe("StatTile", () => {
+  it("states a measure, its figure and what it was before", () => {
+    render(
+      <StatTile
+        label="Amount Spent"
+        value="1,160.00"
+        change="+12.4%"
+        comparison="Last month: 1,080.00"
+      />
+    );
+
+    expect(screen.getByText("Amount Spent")).toBeInTheDocument();
+    expect(screen.getByText("1,160.00")).toBeInTheDocument();
+    expect(screen.getByText("+12.4%")).toBeInTheDocument();
+    expect(screen.getByText("Last month: 1,080.00")).toBeInTheDocument();
+  });
+
+  it("shows its shape rather than zeroes while the figures load", () => {
+    // A tile of zeroes reads as a real month with no activity.
+    const { container } = render(
+      <StatTile label="Amount Spent" value="0.00" isLoading />
+    );
+
+    expect(screen.queryByText("0.00")).toBeNull();
+    expect(container.querySelectorAll(".MuiSkeleton-root").length).toBe(3);
+  });
+
+  it("leaves out a change and a comparison it was not given", () => {
+    render(<StatTile label="Amount Spent" value="1,160.00" />);
+
+    expect(screen.getByText("1,160.00")).toBeInTheDocument();
+    expect(screen.queryByText(/Last month/)).toBeNull();
+  });
+});
+
+describe("figureToneColour", () => {
+  it("gives a tone's colour to things that are not figures", () => {
+    expect(figureToneColour(FIGURE_TONE.GOOD)).toBe("success.main");
+    expect(figureToneColour(FIGURE_TONE.BAD)).toBe("error.main");
+  });
+
+  it("falls back rather than returning nothing for an unknown tone", () => {
+    expect(figureToneColour("nonsense")).toBe("text.primary");
   });
 });

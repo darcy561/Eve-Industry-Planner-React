@@ -98,6 +98,7 @@ Each has a stage that closes it.
 | A6 | The character location-flag page omits the query's loading state from its effect dependencies and guards, so it can build from an empty list and never rebuild. Reproduce by switching character while on Deliveries | character `assetLocationFlagPage.jsx` |
 | A7 | `sort()` runs during render on arrays owned by component state, mutating them in place and re-sorting every render | `topLevelFolder.jsx`, `parentFolder.jsx`, `officesParentFolder.jsx` |
 | A8 | None of the build effects cancel, so switching character or corporation twice quickly leaves whichever chain resolves last | all four asset library pages, both dialogue effects |
+| A10 | The per-character retry for location names does not retry. A structure a character cannot see resolves to a **named placeholder** rather than an absence, and the walk skips any id it already holds a value for, so the second and third characters are never asked about it | `getAssetLocations.js`, against `getCitadelData.js` |
 | A9 | The parent row hardcodes the item icon URL instead of calling `findAssetImageURL`, so a blueprint container renders the wrong art and the URL exists in two places | `parentFolder.jsx` |
 
 #### Blueprints
@@ -111,7 +112,8 @@ Each has a stage that closes it.
 | B5 | `reactionLayout` writes `owner_id` onto cached rows inside a `useMemo`, mutating React Query's cached objects | `reactionLayout.jsx` |
 | B6 | Four of the six library filters run `itemList.some(...)` inside `allBlueprints.filter(...)`, scanning the whole search index per row on every filter change | `blueprintFiltering.js` |
 | B7 | `sortBlueprints` orders by `a.quantity.toString().localeCompare(...)`; it happens to place originals before copies, undocumented and fragile | `blueprintFiltering.js` |
-| B9 | A stack of originals arrives as **one row with a positive `quantity`**. `originalCount` counts matching rows, so a stack of five reads as one and runs are split across one slot instead of five. Routine rather than rare: a manufacturing original only stacks untouched from the market, but a reaction formula carries no research or job state and restacks after every use, so a stacked formula is its ordinary condition | `setupHelpers.js` `distributeRunsAcrossOwnedOriginals` |
+| B10 | A corporation order's `CharacterHash` named whoever's token fetched the list, not the member who placed it. The two were the same only because the fetcher discarded other members' orders; without that filter the broker fee — worked out from the issuer's skills and standings, and written onto the job permanently — would be taken from the wrong character, or from none, and charged at the base rate | `getMarketOrders.js`, `getHistoricMarketOrders.js`, `findMarketOrdersForItem.js` |
+| B9 | A stack of originals arrives as **one row with a positive `quantity`**. `originalCount` counts matching rows, so a stack of five reads as one and runs are split across one slot instead of five. Routine rather than rare: a manufacturing original only stacks untouched from the market, but a reaction formula carries no research or job state and restacks after every use, so a stacked formula is its ordinary condition | `setupHelpers.js` `calculateSetupQuantitiesAcrossOwnedBlueprintOriginals` |
 | B8 | Dead code: `Hooks/EveEsi/Corporation/useGetCorporationBlueprints.js` has no caller for either export; `allBlueprints` inside `groupBlueprintsByCorporation` is computed and unused; `manufacturingLayout` re-stamps `is_corporation`, which the fetch layer already sets | as listed |
 
 #### Login and call path
@@ -455,8 +457,8 @@ later cleanup wave.
 |-------|--------|
 | A — shapes and builders | A4, A5, B7 |
 | B — query surface | A1, B1, B2, B8 |
-| C — collection table and login call path | L1–L8 |
-| D — shared name resolution | none directly; removes the duplicated resolve step the others depend on |
+| C — collection table and login call path | L1–L6, and B10 with the corporation re-keys. L7 and L8 were closed before the project reached them |
+| D — shared name resolution | A10; removes the duplicated resolve step the others depend on |
 | E — consumer cutover | A2, A3, A6, A8, B3, B4, B5, B6, B9 |
 | F — renderers | A7, A9 |
 | G — page reshape | none; presentation only |
@@ -469,8 +471,8 @@ later cleanup wave.
 | A — shapes and builders | Done |
 | B — query surface | Done |
 | C — collection table and login call path | Done |
-| D — shared name resolution | Not started |
-| E — consumer cutover | Not started |
+| D — shared name resolution | Done — the shared query; consumers adopt it in Stage E |
+| E — consumer cutover | In progress — every blueprint consumer and the shopping list's quantity path have moved; the asset pages, the dialogue and the location dropdowns are open |
 | F — renderers | Not started |
 | G — page reshape | Not started, in-scope decision open |
 
@@ -492,8 +494,24 @@ On go-ahead:
 
 ## Handoff status
 
-Phase 1 complete, no product work started. Start at Stage A: it is self-contained, changes no
-consumer, and is where the correctness defects are closed. Stages B, C and D can proceed in any order
-once A lands; E depends on B and D. The corporation blueprints re-key in Stage B is the only step
-that must move all of its readers at once, and Stage C is what makes that re-key pay — until the
-login path stops fanning corporation work over every character, the key change saves nothing.
+Stages A through D have landed. **Start at Stage E**, the consumer cutover: its dependencies, the
+query surface and the shared name resolution, are both done.
+
+Stage E moves one consumer at a time onto the normalised collections, deleting each old helper as
+its last caller goes. Three things converge there, and each consumer takes all three in one edit
+rather than being visited once per stage:
+
+- the node and row collections, through `useAssetIndex` and `useBlueprintIndex`
+- `useLocationNames`, replacing the resolve-and-write-`worldData` step each consumer runs itself
+- the narrowing that decides whose work a surface shows — a corporation planner shows the whole
+  corporation, a personal planner only that character
+
+Two things Stage E has to settle, both recorded where they were found:
+
+- The selling surfaces offer every member's corporation orders for linking, narrowed only to what
+  the account can attribute. Whose orders a planner should *show* is the open half of that.
+- `useLocationNames` keys on the ids still missing, so two screens asking for overlapping but
+  different sets can see that key change under a running query as the store fills. Nothing is lost;
+  the second screen can repeat work.
+
+Stage F depends on E. Stage G remains open on the in-scope decision.

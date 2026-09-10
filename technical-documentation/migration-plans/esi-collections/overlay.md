@@ -249,6 +249,12 @@ yields one item per character, a `corporation` collection one item per distinct 
 `on-demand` collection none. For an account with five characters across two corporations, a
 corporation-scoped collection is two fetches rather than five.
 
+One queue serves the whole page rather than one per caller. Login warms the main character from
+the session-apply step and the linked characters from the account sync, and a queue each meant a
+phase and a budget each: the second caller's first-paint work sat behind the first caller's
+deferred work, and the two together allowed twice the requests in flight. Work is claimed by query
+key as it is queued, so two callers reaching for the same corporation schedule it once.
+
 It walks the phases in order and holds at most eight collections in flight. The bound is
 **collections**, not characters: capping characters meant three at a time each carrying the whole
 table, so the ceiling grew with the account. It is not yet a bound on ESI requests — the corporation
@@ -258,6 +264,11 @@ its own scheduled item, which is what will make the bound mean requests; that is
 outstanding re-key work. Before firing an item it consults that item's rate-limit
 bucket, and defers an item whose bucket is spent to the back of the phase rather than firing it into
 a refusal; when every remaining item is deferred the phase stops and those consumers fetch on mount.
+
+A drain that finds nothing left clears the queue and releases its guard without awaiting in
+between. The gap matters: a caller enqueueing into a drain that has already stopped asking for work
+would be handed that drain's promise, and its collections would be dropped while its await resolved
+as a success — the same silent shape as a write whose paired read cannot find it.
 
 Each query decides for itself whether it may run — a logged-out session or a Tranquility outage
 disables it — and the scheduler honours that instead of forcing every query enabled, so a login
@@ -306,11 +317,106 @@ Closes L1 through L6.
 
 ## Stage D — location names as one shared query
 
-_Not landed._
+_Landed: the shared query. The consumers adopt it with their Stage E cutover, so each is edited
+once rather than twice — they are rewritten again in Stage F._
+
+`Hooks/EveEsi/useLocationNames.js` takes the locations a view needs named and returns the names,
+alongside its loading and error state. It asks only for what `worldData` does not already hold, so a
+second consumer wanting the same locations resolves nothing and shares through the store. A consumer
+that counts quantities rather than rendering a location simply does not call it — which is the point,
+because the seven copies of this step each made every consumer wait on a station-name round trip.
+
+`Functions/EveESI/World/resolveLocationNames.js` is the walk beneath it, and `worldData` is written
+from there, once.
+
+**The per-character retry now retries.** Access to a structure's name is per character — one pilot
+holds docking rights where another does not — which is why the walk exists. But a refusal comes back
+from ESI as a *named placeholder* rather than an absence, and the existing walk skipped any id it
+already held a value for, so the second and third characters were never asked. A placeholder is now
+held without being treated as settled, and a structure only settles as unreachable once every
+character has failed to name it. That is defect A10.
+
+The store is written once at the end rather than per character for the same reason: `getWorldData`
+skips whatever the store already holds, so a placeholder written mid-walk would hide the id from the
+characters still to be tried.
+
+**Known for Stage E:** the query is keyed on the ids still missing, so two screens asking for
+overlapping but different sets can see that key change under a running query when the store fills.
+Nothing is lost — the walk still writes what it resolved — but the second screen can repeat work and
+show a stale loading state. It costs nothing while no consumer calls this; it wants settling as the
+consumers move.
 
 ## Stage E — consumer cutover
 
-_Not landed._
+_In progress. Landed: the blueprint helpers that are called rather than rendered._
+
+### Reading a collection without rendering
+
+`getCachedBlueprintIndex(queryClient, { scope, id })` is the counterpart to `useBlueprintIndex`, for
+the helpers that take a query client rather than being rendered. It shares the builder **and** the
+cache with the hook, so a consumer moved between the two reads the identical object — which is what
+makes the two shapes of one value that defect B1 describes impossible to reintroduce.
+
+### The helpers that moved
+
+| Helper | Now |
+|--------|-----|
+| `findBlueprintType` | `byItemId.get(id)?.isCopy` |
+| `getAvailableBlueprintByBlueprintID` | a `Set` of the rows' `typeId` |
+| `getAvailableBlueprintsByMaterialID` | a `Set` of the rows' `productTypeId`, and **no longer async** — it awaited the search index only to perform a join the row now carries |
+| `findHighestMaterialEfficiencyBlueprint` | the first row of the type's group, which the builder ordered originals-first then most researched |
+| `calculateSetupQuantitiesAcrossOwnedBlueprintOriginals` | the sum of the group's `originalCount` |
+
+That last one closes defect B9. It counted matching rows, so a stack of originals offered one job
+slot rather than as many as the stack holds — routine rather than rare, because a reaction formula
+restacks after every use.
+
+### The blueprint panels and the recipe search
+
+The recipe search's buildable filter ran in a `useMemo` whose only blueprint dependency was the
+query client, which never changes — so blueprints arriving after the first render never reached it
+and the search offered nothing buildable. It subscribes through `useBlueprintIndex` now, and the
+collection's identity changing is what re-runs the filter (defect B4).
+
+The Edit Job manufacturing and reaction panels read the same collection. The reaction panel used to
+write `owner_id` onto the cached rows inside its `useMemo` — a panel mutating what every other
+consumer reads (defect B5). It groups by the `ownerType` and `ownerId` the rows already carry, and
+writes nothing. The manufacturing panel's own filter, deduplication and sort are gone: the builder
+did all three when the collection was built, so the panel takes `byTypeId.get(...)` as it is.
+
+Both panels count a stack as the blueprints it holds rather than as one row, the same correction as
+B9 on the job setup.
+
+### The shopping list
+
+Its hooks asked "what is at this location" by walking the raw rows. `Functions/Assets/assetsAtLocation.js` answers it from the node's resolved location instead, optionally narrowed to a compartment, and the reducer keeps receiving the `Map<typeId, rows[]>` it already took — its own redesign is not part of this.
+
+Two things that walk fixes. A character's location quantities missed anything inside a container inside a container, because the descent only recursed on the first child placed in a new bucket. And the two corporation hooks disagreed with each other: one collected a hangar's containers' contents through a recursive walk of its own, the other counted only what sat directly in the hangar. Both now count everything under the division, because `rootFlag` carries down.
+
+`findAssetsInLocation`, `convertAssetArrayIntoMapByTypeID` and their share of the facade are deleted, along with two hook files nothing imported — duplicates of the two the dialogue actually mounts. The map builders stay until the asset pages move.
+
+### The blueprint library
+
+The library read its blueprints from the cache during render, so its filter and sort re-ran on every
+render and the page picked up newly arrived rows only because a sibling query happened to re-render
+it. It subscribes now, and the collection's stable identity is what makes the memo mean something
+(defect B3).
+
+`Functions/Blueprints/filterLibraryBlueprints.js` replaces `blueprintFiltering.js`, which is
+deleted. Four of the six filters ran `itemList.some(...)` inside `allBlueprints.filter(...)`,
+scanning the whole search index once per blueprint every time a filter changed; each is now an
+equality check against the `jobType` and `isCopy` the row already carries (defect B6). The sort that
+ordered by stringified quantity is gone with it (defect B7).
+
+The two group and two entry components read the row shape rather than raw ESI names, and the compact
+view's grouping key names one owner rather than choosing between a character hash and a corporation
+id.
+
+Two guards went with the move. The readiness check each helper ran for itself is gone, because the
+reader owns it: a collection still arriving, or one whose refetch failed over rows fetched earlier,
+is reported as nothing rather than as a partial or stale set — the same answer the hook gives, which
+is what the shared builder is for. No originals then takes the same fallback the readiness check used
+to. And the local copy test is gone, because `isCopy` is decided once when the row is built.
 
 ## Stage F — the renderers
 
@@ -361,7 +467,11 @@ lands, in the depth labels that module uses, and promotes with the rest.
 | Asset and blueprint index hooks | Tested | `Hooks/EveEsi/useAssetIndex.test.jsx`, `Hooks/EveEsi/useBlueprintIndex.test.jsx` — each scope's subscription, a corporation fetched once however many members it has, a corporation asset union across members, two consumers receiving the same collection object, and loading and error states |
 | Derived collection cache | Tested | `Functions/Shared/collectionCache.test.js` — a hit on unchanged sources, and a rebuild when any source, the source count, or the extra dependency changes |
 | Character blueprint aggregate | Tested | `Hooks/EveEsi/Character/useGetAllCharacterBlueprints.test.jsx` — that the hook and the cache reader return the same shape |
-| Collection table and prefetch scheduler | Tested | `Functions/EveESI/prefetch/scheduler.test.js` — the table's contents pinned by name, per-character and per-corporation expansion, on-demand collections planning nothing, phase order, the concurrency cap holding, deferral when a bucket is spent, the query gate closing the prefetch, and a failure being reported without abandoning the rest |
+| Collection table and prefetch scheduler | Tested | `Functions/EveESI/prefetch/scheduler.test.js` — the table's contents pinned by name, per-character, per-corporation and per-division expansion, on-demand collections planning nothing, phase order within and across callers, the concurrency cap holding for one caller and for two, one fetch claimed once across callers, a caller arriving after an earlier drain finished, deferral when a bucket is spent, the query gate closing the prefetch, and a failure being reported without abandoning the rest |
+| Location name resolution | Tested | `Functions/EveESI/World/resolveLocationNames.test.js` — the walk stopping once every location is named, retrying past a refusal, settling on a refusal only when every character has failed, asking a later character only about what is still unnamed, and writing the store exactly once; `Hooks/EveEsi/useLocationNames.test.jsx` — asking only for what the store lacks, not asking at all when it holds everything or the account has no characters, reporting a failure, and two consumers asking once |
+| Assets at a location | Tested | `Functions/Assets/assetsAtLocation.test.js` — assets placed directly, one container deep and two deep, another location excluded, an empty location, a missing collection, and a hangar division including a crate's contents within it |
+| Blueprint consumer cutover | Tested | `Functions/Blueprints/filterLibraryBlueprints.test.js` — each of the six library filters, and that a reaction formula belongs to neither the original nor the copy view; `Components/Edit Job/.../manufacturingLayout.test.jsx` and `reactionLayout.test.jsx` — the values each panel renders, a stack counted as the blueprints it holds, and that neither writes to the rows it renders; `Components/Blueprint Library/Compact/compactBlueprintGroup.test.jsx` — the researched values each group shows |
+| Blueprint helper cutover | Tested | `Functions/Shared/findBlueprintType.test.js`, `Functions/Helper/getAvailableBlueprints.test.js`, `Functions/Job Build/setupHelpers.test.js` — originals against copies against reaction formulas, a blueprint the account does not hold, the owned and producible sets, the best researched original, and a stack of originals offering every slot it holds rather than one |
 | Blueprint row builder | Tested | `Functions/Blueprints/buildBlueprintRows.test.js` — the search-index join and a blueprint missing from it, a missing index entirely, originals against copies against a market stack, both owner types, type grouping and its order, the owned and producible sets, and that repeated corporation rows stay visible |
 
 Raw ESI rows live in `frontend/src/tests/assetFixtures.js` and

@@ -2,16 +2,17 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableRow,
   Typography,
 } from "@mui/material";
 
 import {
+  BandCaption,
   FIGURE_TONE,
   Figure,
-  FigureCaption,
+  totalRowSx,
 } from "../../../../../../Styled Components/Typography/figures";
+import { ColumnHeaderRow } from "../../../../../../Styled Components/Table/tableParts";
 
 /**
  * What the cost is made of, one line per part.
@@ -40,15 +41,7 @@ export default function CostTable({ cost, formatIsk }) {
 
   return (
     <Table size="small" aria-label="Cost breakdown">
-      <TableHead>
-        <TableRow>
-          {COLUMNS.map((column) => (
-            <TableCell key={column.id} align={column.align} sx={{ py: 0.5 }}>
-              <FigureCaption>{column.label}</FigureCaption>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
+      <ColumnHeaderRow columns={COLUMNS} />
       <TableBody>
         {cost.toBuild.lines.map((line) => (
           <CostRow key={line.id} line={line} formatIsk={formatIsk} perUnit={perUnit} />
@@ -111,23 +104,22 @@ function CostRow({ line, formatIsk, perUnit }) {
 }
 
 /**
- * Closes a band. Ruled above rather than below, so it reads as the sum of what
- * is over it rather than the start of what is under it.
+ * Closes a band, drawn the way every total in the app is.
  *
  * @param {object} props
  */
 function SubtotalRow({ label, value, valuePerUnit, formatIsk, perUnit }) {
   return (
     <TableRow>
-      <TableCell sx={{ borderTop: 1, borderColor: "divider", fontWeight: 500 }}>
+      <TableCell sx={totalRowSx}>
         <Typography variant="body2" sx={{ fontWeight: 500 }}>
           {label}
         </Typography>
       </TableCell>
-      <TableCell align="right" sx={{ borderTop: 1, borderColor: "divider" }}>
+      <TableCell align="right" sx={totalRowSx}>
         <Figure sx={{ fontWeight: 500 }}>{formatIsk(value)}</Figure>
       </TableCell>
-      <TableCell align="right" sx={{ borderTop: 1, borderColor: "divider" }}>
+      <TableCell align="right" sx={totalRowSx}>
         <Figure sx={{ fontWeight: 500 }}>{perUnit(valuePerUnit)}</Figure>
       </TableCell>
     </TableRow>
@@ -135,8 +127,8 @@ function SubtotalRow({ label, value, valuePerUnit, formatIsk, perUnit }) {
 }
 
 /**
- * Names the band beneath it. The selling costs are a separate question from the
- * build's, and are only paid if the output is listed at all.
+ * Puts a band caption in a table row. The caption itself is table-free, so a
+ * panel stacking rows rather than tabulating them uses the same one.
  *
  * @param {object} props
  */
@@ -144,9 +136,7 @@ function BandRow({ label }) {
   return (
     <TableRow>
       <TableCell colSpan={COLUMNS.length} sx={{ borderBottom: 0, pt: 2 }}>
-        <Figure tone={FIGURE_TONE.WARN} variant="caption">
-          {label}
-        </Figure>
+        <BandCaption tone={FIGURE_TONE.WARN}>{label}</BandCaption>
       </TableCell>
     </TableRow>
   );

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import {
+  BandCaption,
   FIGURE_TONE,
   Figure,
   FigureCaption,
@@ -11,6 +12,7 @@ import {
   SignedPercent,
   StatTile,
   figureToneColour,
+  totalRowSx,
 } from "./figures";
 
 describe("Figure", () => {
@@ -219,5 +221,30 @@ describe("figureToneColour", () => {
 
   it("falls back rather than returning nothing for an unknown tone", () => {
     expect(figureToneColour("nonsense")).toBe("text.primary");
+  });
+});
+
+describe("BandCaption", () => {
+  it("names a group of rows", () => {
+    render(<BandCaption>Cost to sell</BandCaption>);
+
+    expect(screen.getByText("Cost to sell")).toBeInTheDocument();
+  });
+
+  it("does without a table, so a stacked panel uses the same one", () => {
+    // BandRow wraps this for its table; nothing here requires one.
+    const { container } = render(<BandCaption>Required to build</BandCaption>);
+
+    expect(container.querySelector("table")).toBeNull();
+    expect(screen.getByText("Required to build")).toBeInTheDocument();
+  });
+});
+
+describe("totalRowSx", () => {
+  it("rules a total above rather than below", () => {
+    // One decision about what a total looks like, read by a flex row and a
+    // table cell alike.
+    expect(totalRowSx).toMatchObject({ borderTop: 1, borderColor: "divider" });
+    expect(totalRowSx).not.toHaveProperty("borderBottom");
   });
 });

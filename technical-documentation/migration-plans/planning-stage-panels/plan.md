@@ -566,6 +566,23 @@ the table above is either carried over or recorded here as a deliberate removal 
 
 ## Stage F — Cost Breakdown and Returns
 
+**Four shapes are shared between the panels this stage builds, and building each
+once is the point of having a component layer at all.** The design's own note says
+the archive figures are "one query, three placements", and the same is true of the
+shapes that draw them.
+
+| Shape | Where it appears | State |
+|-------|------------------|-------|
+| The range bar placing this build among previous ones | Cost Breakdown's header, Returns' context rows | Not built |
+| The proportion bar showing what the cost is made of | Cost Breakdown | Not built |
+| A disclosure that opens a section | Cost Breakdown's cost-over-time, Returns' ledger | Not built |
+| A context row — a relationship between two figures, stated without a verdict | Returns | Not built; a variant of `PanelFooterMeta` rather than a new shape |
+
+`HeadlineStat` also needs checking against Returns before it is used there: Returns
+leads with a figure and **three** normalisations beside it, and the atom carries one
+slot beneath rather than three alongside.
+
+
 The totals block currently renders the same five rows twice, once per pricing model, marking neither
 as the one in effect.
 

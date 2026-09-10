@@ -116,6 +116,43 @@ export function SignedPercent({
 }
 
 /**
+ * How a row that closes a block is drawn: ruled above rather than below, so it
+ * reads as the sum of what is over it rather than the start of what is under it.
+ *
+ * Shared because it is a decision about what a total looks like, and a table
+ * cell and a flex row were each making it separately.
+ *
+ * @type {object}
+ */
+export const totalRowSx = {
+  borderTop: 1,
+  borderColor: "divider",
+  fontWeight: 500,
+};
+
+/**
+ * Names a group of rows beneath it.
+ *
+ * Kept free of any table so a panel laying rows out in a stack can use the same
+ * caption a table's band row does.
+ *
+ * @param {object} props
+ * @param {React.ReactNode} props.children
+ * @param {string} [props.tone] - One of FIGURE_TONE
+ */
+export function BandCaption({ children, tone = FIGURE_TONE.PLAIN }) {
+  return (
+    <Figure
+      tone={tone}
+      variant="caption"
+      sx={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase" }}
+    >
+      {children}
+    </Figure>
+  );
+}
+
+/**
  * A label and its figure, on one line.
  *
  * The shape every cost and return breakdown is made of. A row can carry a
@@ -147,7 +184,7 @@ export function FigureRow({
         gap: 2,
         py: 0.75,
         ...(isTotal
-          ? { borderTop: 1, borderColor: "divider", mt: 0.5, fontWeight: 500 }
+          ? { ...totalRowSx, mt: 0.5 }
           : { borderBottom: 1, borderColor: "divider" }),
         "&:last-of-type": isTotal ? {} : { borderBottom: 0 },
       }}

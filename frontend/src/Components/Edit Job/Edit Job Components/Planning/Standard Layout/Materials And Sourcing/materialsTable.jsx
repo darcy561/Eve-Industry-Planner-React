@@ -8,7 +8,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableRow,
   Tooltip,
   Typography,
@@ -18,9 +17,9 @@ import {
 import {
   FIGURE_TONE,
   Figure,
-  FigureCaption,
   SignedPercent,
 } from "../../../../../../Styled Components/Typography/figures";
+import { ColumnHeaderRow } from "../../../../../../Styled Components/Table/tableParts";
 import MaterialPopoverIconButtons from "../../../../../../Styled Components/Popover/iconButtons";
 import { getJobTypeAccentColour } from "../../../../../../Functions/Helper/jobTypeDividerColour";
 import { MATERIAL_MARK } from "../../../../../../Functions/MarketData/materialMark";
@@ -79,19 +78,7 @@ export default function MaterialsTable({
 
   return (
     <Table size="small" aria-label="Materials and sourcing">
-      <TableHead>
-        <TableRow>
-          {COLUMNS.map((column) => (
-            <TableCell
-              key={column.id}
-              align={column.align}
-              sx={{ whiteSpace: "nowrap", py: 0.5 }}
-            >
-              <FigureCaption>{column.label}</FigureCaption>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
+      <ColumnHeaderRow columns={COLUMNS} />
       <TableBody>
         {rows.map((row) => (
           <Fragment key={row.typeID}>

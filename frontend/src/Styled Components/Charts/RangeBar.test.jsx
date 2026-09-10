@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import { ProportionBar, RangeBar } from "./bars";
+import { RangeBar } from "./RangeBar";
 
 describe("RangeBar", () => {
   const bar = (props) =>
@@ -45,32 +45,34 @@ describe("RangeBar", () => {
 
     expect(screen.getByRole("img", { name: /mid-range of 7/ })).toBeInTheDocument();
   });
-});
 
-describe("ProportionBar", () => {
-  const parts = [
-    { id: "materials", label: "Materials", value: 750 },
-    { id: "install", label: "Install", value: 250 },
-  ];
+  it("labels the ends of the range where a panel gives it words", () => {
+    bar({ labels: ["46.1M", "58.4M"] });
 
-  it("sizes each part by its share of the total", () => {
-    render(<ProportionBar parts={parts} />);
-
-    expect(screen.getByTestId("proportion-materials")).toHaveStyle({ width: "75%" });
-    expect(screen.getByTestId("proportion-install")).toHaveStyle({ width: "25%" });
+    expect(screen.getByText("46.1M")).toBeInTheDocument();
+    expect(screen.getByText("58.4M")).toBeInTheDocument();
   });
 
-  it("leaves out a part that is nothing", () => {
-    render(<ProportionBar parts={[...parts, { id: "extras", label: "Extras", value: 0 }]} />);
-
-    expect(screen.queryByTestId("proportion-extras")).toBeNull();
-  });
-
-  it("draws nothing at all when the total is nothing", () => {
-    const { container } = render(
-      <ProportionBar parts={[{ id: "a", label: "A", value: 0 }]} />
+  it("shows what a panel offers instead when there is no range", () => {
+    // A first build has nothing to be placed among.
+    render(
+      <RangeBar
+        low={undefined}
+        high={undefined}
+        value={undefined}
+        label="range"
+        empty={<span>No previous builds</span>}
+      />
     );
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByText("No previous builds")).toBeInTheDocument();
+  });
+
+  it("takes its marker the way a chart series does", () => {
+    bar({ marker: { colour: "rgb(1, 2, 3)" } });
+
+    expect(screen.getByTestId("range-value")).toHaveStyle({
+      backgroundColor: "rgb(1, 2, 3)",
+    });
   });
 });

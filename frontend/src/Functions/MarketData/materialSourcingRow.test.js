@@ -4,6 +4,7 @@ import JobMaterial from "../../Classes/jobMaterial";
 import {
   MATERIAL_PLAN,
   buildMaterialSourcingRow,
+  hasSavingAvailable,
   priceDelta,
   summariseSourcing,
 } from "./materialSourcingRow";
@@ -187,5 +188,23 @@ describe("a row stating one setup's requirement", () => {
     });
 
     expect(stated.volume).toBeCloseTo(2.5);
+  });
+});
+
+describe("what a row can and cannot say at once", () => {
+  it("cannot be priced to build and planned to buy in the same breath", () => {
+    // A build price only exists once child jobs are linked, and being linked
+    // makes the plan Build — so no row reaches the state the offer above the
+    // table looks for. Speculative child jobs are what break the tie, and they
+    // are Stage G's. Until then the offer is inert by construction.
+    const linkedAndCheaper = row({ isLinked: true, buildPrice: 8, buyPrice: 10 });
+
+    expect(linkedAndCheaper.plan).toBe(MATERIAL_PLAN.BUILD);
+    expect(hasSavingAvailable(linkedAndCheaper)).toBe(false);
+
+    const notLinked = row({ isLinked: false, buildPrice: null });
+
+    expect(notLinked.plan).toBe(MATERIAL_PLAN.BUY);
+    expect(hasSavingAvailable(notLinked)).toBe(false);
   });
 });

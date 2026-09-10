@@ -539,7 +539,7 @@ the design — the design says what the new panel shows, not what the old ones l
 | Per-material hub and basis override — setting one | "Manage Material Sources" | **Outstanding.** A row can still hold its own hub and basis; nothing sets one |
 | Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Carried.** A dot becomes a tick once a child job is linked, in the job type's colour, amber where something is pending against a material nothing is linked to yet |
 | Exempt-from-builds marker | The info icon turned amber | **Carried.** The row's mark says it without anything being opened |
-| Create All Child Jobs | The market panel's kebab | **Dropped.** Stage G replaces it with "build all where cheaper", but Stage E removes it before that exists |
+| Create All Child Jobs | The market panel's kebab | **Deliberately not carried.** Stage G replaces it with "build all where cheaper"; a bulk create of jobs nobody has costed is the thing that change exists to stop, so it is not reinstated in the meantime |
 
 **Done when:** the material list renders once on the stage; every row states its own comparison; the
 drawer replaces the popover on desktop; and every row of the table above is either carried over or
@@ -697,6 +697,24 @@ superseded by live docs on promote. Sections worth reading before building the s
 It also records two **rejected drafts** of the Returns panel — one that mixed a toggle, a ledger and
 the exit routes, and one that led with a graded verdict word — both worth reading before rebuilding it,
 so neither failure mode is repeated.
+
+### The offer strip cannot fire until Stage G
+
+"Building N of M saves X" is built, tested and unreachable, and will stay so until speculative child
+jobs land.
+
+A row only has a build price once child jobs are linked to it, and being linked makes its plan **Build**
+— so no row is ever both priced to build and planned to buy, which is the state the offer looks for.
+The two conditions are mutually exclusive by construction rather than by accident, and a test says so
+next to the rule.
+
+Stage G is what breaks the tie: a speculative job gives every buildable row a build price without
+committing to it, so a row can be costed and still be on Buy. `onApplyBuildable` is declared on the
+panel and implemented then, against the set `summariseSourcing` already computes.
+
+Kept rather than removed because the code is correct and the figures behind it are already used by the
+footer. Nothing pretends to work — the strip renders nothing when there is nothing to offer, which is
+its own designed behaviour and happens to be every case for now.
 
 ### Known limits
 

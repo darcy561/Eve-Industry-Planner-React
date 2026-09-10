@@ -4,7 +4,7 @@ import { resolveMaterialChildJobStatus } from "../Helpers/materialChildJobs";
 
 export function useChildJobPopoverData({
   state,
-  displayPopover,
+  isOpen,
   material,
   matchedChildJobs,
   childJobsLocation,
@@ -18,7 +18,7 @@ export function useChildJobPopoverData({
 
   useEffect(() => {
     async function fetchData() {
-      if (!displayPopover) return;
+      if (!isOpen) return;
       const baseChildJobs = [...matchedChildJobs];
       const matchedGroupJob = findMaterialJobInGroup(
         material.typeID,
@@ -57,7 +57,7 @@ export function useChildJobPopoverData({
   }, [
     buildSingleChildJobPreview,
     childJobsLocation,
-    displayPopover,
+    isOpen,
     matchedChildJobs,
     material,
     state,

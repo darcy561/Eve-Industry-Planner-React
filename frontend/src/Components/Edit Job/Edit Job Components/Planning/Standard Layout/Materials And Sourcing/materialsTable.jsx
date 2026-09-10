@@ -1,3 +1,5 @@
+import { Fragment } from "react";
+
 import {
   Table,
   TableBody,
@@ -45,6 +47,8 @@ const COLUMNS = [
  * @param {(value: number) => string} props.formatQuantity
  * @param {(typeID: number) => void} [props.onToggleRow] - Opens the row's drawer
  * @param {number[]} [props.openTypeIDs] - Rows currently expanded
+ * @param {(row: object, isOpen: boolean) => React.ReactNode} [props.renderDrawer]
+ *   What an opened row shows beneath itself
  */
 export default function MaterialsTable({
   rows = [],
@@ -52,6 +56,7 @@ export default function MaterialsTable({
   formatQuantity,
   onToggleRow,
   openTypeIDs = [],
+  renderDrawer,
 }) {
   if (rows.length === 0) {
     return (
@@ -80,14 +85,25 @@ export default function MaterialsTable({
       </TableHead>
       <TableBody>
         {rows.map((row) => (
-          <MaterialRow
-            key={row.typeID}
-            row={row}
-            formatIsk={formatIsk}
-            formatQuantity={formatQuantity}
-            isOpen={open.has(row.typeID)}
-            onToggleRow={onToggleRow}
-          />
+          <Fragment key={row.typeID}>
+            <MaterialRow
+              row={row}
+              formatIsk={formatIsk}
+              formatQuantity={formatQuantity}
+              isOpen={open.has(row.typeID)}
+              onToggleRow={onToggleRow}
+            />
+            {renderDrawer ? (
+              <TableRow>
+                {/* The drawer belongs to its row, so it spans the table rather
+                    than floating over it: more than one can be open, and each
+                    stays with its row as the list scrolls. */}
+                <TableCell colSpan={COLUMNS.length} sx={{ p: 0, border: 0 }}>
+                  {renderDrawer(row, open.has(row.typeID))}
+                </TableCell>
+              </TableRow>
+            ) : null}
+          </Fragment>
         ))}
       </TableBody>
     </Table>

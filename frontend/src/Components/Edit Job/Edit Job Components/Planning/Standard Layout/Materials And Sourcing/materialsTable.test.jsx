@@ -154,3 +154,52 @@ describe("the materials table", () => {
     });
   });
 });
+
+describe("the drawer under a row", () => {
+  const drawerFor = (row, isOpen) => (
+    <div data-testid={`drawer-${row.typeID}`}>{isOpen ? "open" : "shut"}</div>
+  );
+
+  it("gives every row somewhere of its own to open", () => {
+    renderTable([row(), row({ typeID: 35, name: "Isogen" })], {
+      renderDrawer: drawerFor,
+    });
+
+    expect(screen.getByTestId("drawer-34")).toBeInTheDocument();
+    expect(screen.getByTestId("drawer-35")).toBeInTheDocument();
+  });
+
+  it("tells the drawer whether its row is open", () => {
+    renderTable([row(), row({ typeID: 35, name: "Isogen" })], {
+      renderDrawer: drawerFor,
+      openTypeIDs: [35],
+    });
+
+    expect(screen.getByTestId("drawer-34")).toHaveTextContent("shut");
+    expect(screen.getByTestId("drawer-35")).toHaveTextContent("open");
+  });
+
+  it("lets more than one row be open at once", () => {
+    // The popover this replaces could only ever show one material.
+    renderTable([row(), row({ typeID: 35, name: "Isogen" })], {
+      renderDrawer: drawerFor,
+      openTypeIDs: [34, 35],
+    });
+
+    expect(screen.getByTestId("drawer-34")).toHaveTextContent("open");
+    expect(screen.getByTestId("drawer-35")).toHaveTextContent("open");
+  });
+
+  it("spans the table so the drawer sits under its own row", () => {
+    renderTable([row()], { renderDrawer: drawerFor });
+
+    const cell = screen.getByTestId("drawer-34").closest("td");
+    expect(cell).toHaveAttribute("colspan", "6");
+  });
+
+  it("draws no extra rows when nothing renders a drawer", () => {
+    renderTable([row()]);
+
+    expect(screen.getAllByRole("row")).toHaveLength(2);
+  });
+});

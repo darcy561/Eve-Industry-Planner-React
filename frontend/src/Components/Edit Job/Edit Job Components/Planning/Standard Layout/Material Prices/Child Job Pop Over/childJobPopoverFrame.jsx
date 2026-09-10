@@ -42,7 +42,7 @@ export function ChildJobPopoverFrame(props) {
     isExistingJobInGroup,
   } = useChildJobPopoverData({
     state,
-    displayPopover,
+    isOpen: Boolean(displayPopover),
     material,
     matchedChildJobs,
     childJobsLocation,

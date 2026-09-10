@@ -23,7 +23,7 @@ Requires `docker` on PATH for `docker stack deploy` and (dev) `docker buildx bak
 | `templates` | `WriteMissingEnv` / `WriteMissingConfig`, `CheckOperatorDocs` |
 | `config` | Load/Validate + SyncEnvMap for expand |
 | `engine.Ready` | Swarm init, attachable `eip-core` overlay, volumes. Does **not** change cluster-wide orchestration settings (e.g. `task-history-limit`). |
-| `images` | Live: parallel `ImagePull` + progress (`pane.progress`). Dev: bake → `:bake`, promote `TAG_*` on digest change; writes `.eip-local-build.env` for `docker-stack.dev.yml` expand |
+| `images` | Live: parallel `ImagePull` + progress (`pane.progress`). Dev: bake → `:bake`, promote `TAG_*` on digest change; writes `.eip-local-build.env` for `docker-stack.dev.yml` expand. Local bakes run `--provenance=false`: an attestation records when the build ran, and on the containerd image store an image's id is the digest of the index carrying it, so an unchanged rebuild would otherwise promote every role |
 | `swarm` | Versioned secrets/configs via Moby Secret*/Config*; inject hashed externals at expand |
 | `stack` | Membership SoT + Expand/Inject. Obs `configs.*.file` stubs rewritten in memory; relative binds absoluteized against project home. |
 | Two-pass deploy | Data (no prune) → `dataplane.Ready` → data+app (`--prune`). Ready (including index builds) before app deploy. |
@@ -49,3 +49,15 @@ Registries → [variables.md](./variables.md). Persist UX → [builders.md](../t
 ## Swarm roll order
 
 SoT in stack YAML: app `start-first` (`x-app-deploy`); data/obs `stop-first` (`x-data-deploy` / `x-obs-deploy`); socket proxies `stop-first` (`x-proxy-deploy`). Honoured by up/dev/rebuild/rematerialise.
+
+## Patching a service after the deploy
+
+The labelled network ensures and the Grafana path apply run immediately after the stack deploy that
+precedes them, while the services they touch are still rolling. A `ServiceUpdate` carries the version
+its spec was read at, and Swarm bumps that version as a rollout progresses, so a spec read inside that
+window is stale by the time it is written and the engine answers `update out of sequence`.
+
+Every service mutation therefore goes through `docker.MutateService`, which re-reads the service and
+re-applies the change when a write is rejected that way — `ApplyServiceSpecPatch`, `EnsureServiceNetwork`
+and `ForceUpdateService` all sit on it. A mutation that finds nothing to change writes nothing, and the
+network ensures report only the attaches and detaches that actually moved.

@@ -11,7 +11,7 @@ go test ./internal/docker/...
 
 ## Coverage map
 
-**Depth:** Endpoint resolution, health rollup helpers, and `enginetest` classification are covered. Most live SDK call sites (`client`, `service_update`, logs, teardown) are untested by design in default CI. **`dockercli` has no tests.**
+**Depth:** Endpoint resolution, health rollup helpers, the service-mutation retry, and `enginetest` classification are covered. Most other live SDK call sites (`client`, logs, teardown) are untested by design in default CI. **`dockercli` has no tests.**
 
 ### Tested
 
@@ -20,11 +20,12 @@ go test ./internal/docker/...
 | Endpoint | `ResolveDockerEndpoint` from context / `DOCKER_HOST` / config JSON (many edge cases) |
 | Health / status helpers | Health rollup; no-stack summary; friendly ports; replica detail |
 | Logs / version helpers | Service log line formatting; deployed app version from env/image; running image digest |
-| `enginetest` | Fake Engine httptest — service inspect 404 vs error; `SetServiceOK` + ServiceUpdate body capture (used by config `ApplyServiceSpecPatch` tests); queued `/containers/json` lists (used by the `ops` capacity wait tests) |
+| Service mutation | `MutateService` — a write rejected as out of sequence re-read and re-applied, the patch surviving the retry, an unchanged spec not written, a missing service classified as not-found, and a non-version failure attempted once |
+| `enginetest` | Fake Engine httptest — service inspect 404 vs error; `SetServiceOK` + ServiceUpdate body capture (used by config `ApplyServiceSpecPatch` tests); `ServiceUpdateStaleVersions` failing a set number of writes as out of sequence; queued `/containers/json` lists (used by the `ops` capacity wait tests) |
 
 ### Thin
 
-- `stack.go`, `client.go`, `probe.go`, `service_update`, `service_logs`, `labels`, `stack_teardown` — most live SDK paths
+- `stack.go`, `client.go`, `probe.go`, `service_logs`, `labels`, `stack_teardown` — most live SDK paths
 
 ### Little / none
 

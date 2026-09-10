@@ -30,4 +30,5 @@ Same as other testing modules: **Tested** / **Thin** / **Little / none** (not co
 | I need to… | Read |
 |------------|------|
 | SPA auth test depth — credentials, planner session, login | [auth.md](./auth.md) |
+| Asset and blueprint collection test depth — builders, index hooks, scheduler, library rendering | [esi-collections.md](./esi-collections.md) |
 | _(add rows as topic files land — e.g. document-lock, planner)_ | |

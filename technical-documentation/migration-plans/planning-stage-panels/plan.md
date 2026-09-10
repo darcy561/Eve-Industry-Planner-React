@@ -397,11 +397,10 @@ assets rather than everywhere it can sell from.
 
 The player picks a structure, names its fee, and picks the hub it prices against.
 
-**This surface is moving.** [esi-collections](../esi-collections/plan.md) is reshaping the asset
-functions: its Stage D replaces the resolve-and-write step with one shared name query and reshapes
-`getAssetLocationList` around a node collection, and its Stage E deletes `retrieveAssetLocation` once
-its callers move. `getAssetLocationList` itself is expected to survive. Build the form against it, and
-expect the internals under it to change.
+The places an account holds things come from `Hooks/EveEsi/useAssetLocations.js`, which pairs the
+asset node collection with the shared location-name query — see
+[frontend/esi-collections/assets.md](../../frontend/esi-collections/assets.md). Build the form
+against that hook rather than walking raw ESI rows.
 
 This is why the stage is not purely backend: **the row cannot be created without the picker**, so the
 picker ships with the field. The rate *block* that displays the working stays in Stage F with the

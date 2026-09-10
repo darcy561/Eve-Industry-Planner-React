@@ -48,7 +48,7 @@ import {
 } from "../../Functions/Auth/buildAccountData";
 import { AppEvent } from "../../analytics/appEventNames";
 import { trackAppEvent } from "../../analytics/trackAppEvent";
-import { FirstLoginChoiceRow } from "../First Login/shared/FirstLoginChoiceRow";
+import SelectableCard from "../../Styled Components/Paper/SelectableCard";
 
 const firstLoginPanelSx = {
   p: { xs: 2, sm: 2.5 },
@@ -349,7 +349,7 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
                 aria-label="Additional account storage mode"
               >
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <FirstLoginChoiceRow
+                  <SelectableCard
                     selected={!cloudAccounts}
                     disabled={cloudModeChanging}
                     onSelect={() => {
@@ -361,7 +361,7 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <FirstLoginChoiceRow
+                  <SelectableCard
                     selected={cloudAccounts}
                     disabled={cloudModeChanging}
                     onSelect={() => {

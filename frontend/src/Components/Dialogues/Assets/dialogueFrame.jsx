@@ -1,5 +1,5 @@
 import useAssetsDialogueReducer from "./Hooks/useAssetsDialogueReducer";
-import { AssetsDataProvider } from "./dialogueDataProviders";
+import AssetsDialogueContent from "./dialogueContent";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useSyncedDialogueEventState } from "../../../Styled Components/Dialogue/ContentDialogue";
 
@@ -33,7 +33,7 @@ function AssetsDialogue() {
   if (!isLoggedIn) return null;
   if (!state.isOpen) return null;
 
-  return <AssetsDataProvider state={state} actions={actions} />;
+  return <AssetsDialogueContent state={state} actions={actions} />;
 }
 
 export default AssetsDialogue;

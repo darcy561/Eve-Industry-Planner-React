@@ -1,13 +1,12 @@
 import { Divider, Grid, Stack, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import useUsersStore from "../../../Zustand/usersStore";
 import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Debounce/userDocumentsPersistSchedule";
 import FirstLoginCustomStructures from "./FirstLoginCustomStructures";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../../Styled Components/Select/marketListing";
-import { useGetAllCharacterAssets } from "../../../Hooks/EveEsi/Character/useGetAllCharacterAssets";
-import { getAssetLocationList } from "../../../Functions/Assets/getAssetLocations";
+import useAssetLocations from "../../../Hooks/EveEsi/useAssetLocations";
 import { FirstLoginSetupSection } from "../shared/FirstLoginSetupSection";
 import { FirstLoginJobCardPreview } from "./FirstLoginJobCardPreview";
 import { FirstLoginAssetLocationSelect } from "../shared/FirstLoginAssetLocationSelect";
@@ -24,8 +23,6 @@ export function FirstLoginPlannerSetupStep() {
     [theme],
   );
 
-  const [userAssetLocationResults, setUserAssetLocationResults] = useState([]);
-
   const {
     defaultMarketLocation,
     defaultOrderType,
@@ -41,19 +38,11 @@ export function FirstLoginPlannerSetupStep() {
     setEnableCompactLayoutView,
   } = useUsersStore((state) => state.applicationSettings.actions);
 
-  const { isLoading: userAssetsLoading, data: userAssetsData } =
-    useGetAllCharacterAssets();
-
-  useEffect(() => {
-    async function loadAssetLocations() {
-      if (userAssetsLoading || !userAssetsData) return;
-      const { itemLocations, newEveIDs } =
-        await getAssetLocationList(userAssetsData);
-      setUserAssetLocationResults(itemLocations);
-      useUsersStore.getState().worldData.actions.addUniverseIDs(newEveIDs);
-    }
-    void loadAssetLocations();
-  }, [userAssetsLoading, userAssetsData]);
+  const {
+    locations,
+    isLoading: locationsLoading,
+    isError: locationsError,
+  } = useAssetLocations();
 
   return (
     <Stack spacing={2}>
@@ -92,7 +81,9 @@ export function FirstLoginPlannerSetupStep() {
           <Grid size={{ xs: 12, md: 6 }}>
             <FirstLoginAssetLocationSelect
               value={defaultStationIDForAssets}
-              locationIds={userAssetLocationResults}
+              locations={locations}
+              isLoading={locationsLoading}
+              isError={locationsError}
               onChange={(locationId) => {
                 updateDefaultAssetLocation(locationId);
                 scheduleDebouncedApplicationSettingsSave();

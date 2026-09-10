@@ -1,28 +1,25 @@
-import {
-  FormControl,
-  FormHelperText,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import { FormControl, FormHelperText, MenuItem, Select } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import useUsersStore from "../../../Zustand/usersStore";
 import {
   appShellHelperTextSx,
   appShellOutlinedFormControl,
   getAppShellSelectMenuProps,
 } from "../../../Context/appShell";
-import { isNoAccessLocation } from "../../../Functions/Assets/assetLocationConstants";
+import { locationPickerLabel } from "../../../Functions/Assets/assetPresentation";
 
 /**
  * Default asset location dropdown with the same outlined look as other first-login selects.
  */
 export function FirstLoginAssetLocationSelect({
   value,
-  locationIds,
+  locations,
   onChange,
+  isLoading = false,
+  isError = false,
   labelText = "Default Asset Location",
 }) {
   const theme = useTheme();
+
   return (
     <FormControl
       fullWidth
@@ -35,7 +32,10 @@ export function FirstLoginAssetLocationSelect({
         variant="outlined"
         size="small"
         displayEmpty
-        value={locationIds.includes(value) ? value : ""}
+        value={
+          locations.some(({ locationId }) => locationId === value) ? value : ""
+        }
+        disabled={locations.length === 0}
         onChange={(e) => {
           if (!e.target.value) return;
           onChange(e.target.value);
@@ -43,24 +43,19 @@ export function FirstLoginAssetLocationSelect({
         MenuProps={getAppShellSelectMenuProps(theme)}
       >
         <MenuItem value="">
-          <em>Select location</em>
+          <em>
+            {locationPickerLabel({
+              count: locations.length,
+              isLoading,
+              isError,
+            })}
+          </em>
         </MenuItem>
-        {locationIds.map((entry) => {
-          const locationNameData = useUsersStore
-            .getState()
-            .worldData.actions.findUniverseData(entry);
-          if (
-            !locationNameData ||
-            isNoAccessLocation(locationNameData)
-          ) {
-            return null;
-          }
-          return (
-            <MenuItem key={entry} value={entry}>
-              {locationNameData.name}
-            </MenuItem>
-          );
-        })}
+        {locations.map(({ locationId, name }) => (
+          <MenuItem key={locationId} value={locationId}>
+            {name}
+          </MenuItem>
+        ))}
       </Select>
       <FormHelperText variant="standard" sx={appShellHelperTextSx}>
         {labelText}

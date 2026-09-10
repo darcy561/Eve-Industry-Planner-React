@@ -1,13 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getCachedSingleCorporationAssets } from "../../../../Hooks/EveEsi/useGetSingleCorporationAssets";
-import { countAssetQuantityFromMap } from "../../../../Functions/Assets/assetHelpers";
+import { countAssetQuantityFromMap } from "../../../../Functions/Assets/assetQuantities";
 import assetsAtLocation from "../../../../Functions/Assets/assetsAtLocation";
 import {
   ASSET_SCOPE,
   getCachedAssetIndex,
 } from "../../../../Hooks/EveEsi/useAssetIndex";
 import useUsersStore from "../../../../Zustand/usersStore";
+import { OFFICE_FOLDER_FLAG } from "../../../../Functions/Assets/buildAssetNodes";
 import getWorldData from "../../../../Functions/EveESI/World/getWorldData";
 
 /**
@@ -67,6 +68,8 @@ export function useShoppingListCorporationAssets({
               .account.actions.setCorporationOffices(
                 state.selectedCorporation,
                 corporationAssets
+                  .filter(({ location_flag }) => location_flag === OFFICE_FOLDER_FLAG)
+                  .map(({ location_id }) => location_id)
               );
             corporationOfficesSetRef.current.add(officesKey);
 

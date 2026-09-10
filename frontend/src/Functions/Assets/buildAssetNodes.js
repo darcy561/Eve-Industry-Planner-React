@@ -1,6 +1,46 @@
 import { resolveLocationKind } from "./assetLocationConstants";
 
-const OFFICE_FOLDER_FLAG = "OfficeFolder";
+/**
+ * The wrapper ESI puts between a station and a corporation's hangar divisions.
+ *
+ * @type {string}
+ */
+export const OFFICE_FOLDER_FLAG = "OfficeFolder";
+
+/**
+ * Flags that only ever describe sitting at a place — a station or a structure — rather than being
+ * inside something held there.
+ *
+ * A corporation owns the structures it built, so the structure is one of its own asset rows, sitting
+ * in the solar system the way a ship in space does. Without this, an office inside it resolves past
+ * the structure to that system, and everything in the office reads as being in space.
+ *
+ * @type {Set<string>}
+ */
+const PLACE_FLAGS = new Set([
+  OFFICE_FOLDER_FLAG,
+  "Hangar",
+  "Deliveries",
+  "CorpDeliveries",
+  "CorporationGoalDeliveries",
+  "AssetSafety",
+]);
+
+/**
+ * Which kind of holder a set of rows was fetched for.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const ASSET_OWNER_KIND = Object.freeze({
+  CHARACTER: "character",
+  CORPORATION: "corporation",
+});
+
+/**
+ * @typedef {Object} AssetOwner
+ * @property {string} kind - see {@link ASSET_OWNER_KIND}
+ * @property {string|number} id - CharacterHash, or corporation id
+ */
 
 /**
  * @typedef {Object} AssetNode
@@ -14,6 +54,8 @@ const OFFICE_FOLDER_FLAG = "OfficeFolder";
  * @property {string} locationKind - what that location is; see `LOCATION_KIND`
  * @property {string} rootFlag - the compartment it sits in at that location
  * @property {number} depth - distance from that location
+ * @property {boolean} isSingleton - assembled, or otherwise unable to stack
+ * @property {AssetOwner|null} owner - whose set the row came from; null when nothing said
  */
 
 /**
@@ -32,31 +74,52 @@ const OFFICE_FOLDER_FLAG = "OfficeFolder";
  * @returns {AssetCollection}
  */
 export default function buildAssetNodes(rows = []) {
+  return buildAssetCollection([rows], [null]);
+}
+
+/**
+ * One collection from several owners' rows at once.
+ *
+ * Nothing on an ESI asset row says whose it is — the answer is which request returned it — so the
+ * owner is attached here, where the sets are still separate. Merged afterwards there is no way back
+ * to it, and a view spanning several characters cannot say which of them holds a stack.
+ *
+ * @param {Array<Array<Object>>} [sources] - raw ESI asset rows, one array per owner
+ * @param {Array<AssetOwner|null>} [owners] - parallel to `sources`
+ * @returns {AssetCollection}
+ */
+export function buildAssetCollection(sources = [], owners = []) {
   const byItemId = new Map();
   const nodes = [];
 
-  for (const row of rows) {
-    if (!row || row.item_id == null) continue;
-    // A corporation's set is the union of its members' views, so the same row arrives once per
-    // member that can see it.
-    if (byItemId.has(row.item_id)) continue;
+  sources.forEach((rows, index) => {
+    const owner = owners[index] ?? null;
 
-    const node = {
-      itemId: row.item_id,
-      typeId: row.type_id,
-      quantity: row.quantity ?? 0,
-      flag: row.location_flag,
-      parentId: null,
-      childIds: [],
-      locationId: row.location_id,
-      locationKind: resolveLocationKind(row.location_id),
-      rootFlag: row.location_flag,
-      depth: 0,
-    };
+    for (const row of rows ?? []) {
+      if (!row || row.item_id == null) continue;
+      // A corporation's set is the union of its members' views, so the same row arrives once per
+      // member that can see it.
+      if (byItemId.has(row.item_id)) continue;
 
-    byItemId.set(node.itemId, node);
-    nodes.push(node);
-  }
+      const node = {
+        itemId: row.item_id,
+        typeId: row.type_id,
+        quantity: row.quantity ?? 0,
+        flag: row.location_flag,
+        parentId: null,
+        childIds: [],
+        locationId: row.location_id,
+        locationKind: resolveLocationKind(row.location_id),
+        rootFlag: row.location_flag,
+        depth: 0,
+        isSingleton: Boolean(row.is_singleton),
+        owner,
+      };
+
+      byItemId.set(node.itemId, node);
+      nodes.push(node);
+    }
+  });
 
   for (const node of nodes) {
     // A holder outside the set is a location: resolution stops there. That is routine rather
@@ -64,6 +127,9 @@ export default function buildAssetNodes(rows = []) {
     // flying in space is absent from the set while its fitted modules are not.
     const holder = byItemId.get(node.locationId);
     if (!holder || holder === node) continue;
+    // A holder the set does contain is still the answer when the flag says the node sits at a
+    // place: that holder is the station or structure, and it has a location of its own.
+    if (PLACE_FLAGS.has(node.flag)) continue;
 
     node.parentId = holder.itemId;
     holder.childIds.push(node.itemId);

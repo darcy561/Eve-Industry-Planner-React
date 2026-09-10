@@ -1,28 +1,87 @@
-import { Typography, Grid } from "@mui/material";
+import { Avatar, Box, Typography } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 
 import AssetLocationLogic_AssetDialogueWindow from "./templateLogic";
-import { buildAssetName } from "../../../../Functions/Assets/assetHelpers";
+import {
+  assetImageUrl,
+  assetName,
+} from "../../../../Functions/Assets/assetPresentation";
+import { ownerName } from "../../../../Functions/Shared/eveOwner";
+import OwnerAvatar from "../../../../Styled Components/Avatar/OwnerAvatar";
 
-export default function AssetContainerTemplate_AssetDialogueWindow(props) {
-  const { state, assetObject, matchedAssets } = props;
-  const itemName = buildAssetName(assetObject, state.assetLocationNames, state.useCorporationAssets, state.selectedCorporation, state.fullItemList)
+/**
+ * A container holding what was asked for, and what is inside it.
+ *
+ * @param {{branch: Object, fullItemList: Object, containerNames: Map, compartmentNames: Map, showOwner?: boolean}} props
+ */
+export default function AssetContainerTemplate_AssetDialogueWindow({
+  branch,
+  fullItemList,
+  containerNames,
+  compartmentNames,
+  showOwner = false,
+}) {
+  const itemName = assetName(
+    branch.node,
+    fullItemList,
+    containerNames,
+    compartmentNames?.get(branch.node.rootFlag)
+  );
 
   return (
-    <Grid container size={12}>
-      <Grid size={12}>
-        <Typography variant="body2">{itemName}</Typography>
-      </Grid>
-      <Grid container size={12}>
-        {matchedAssets.map((asset) => {
-          return (
-            <AssetLocationLogic_AssetDialogueWindow
-              key={asset.item_id}
-              {...props}
-              assetObject={asset}
-            />
-          );
-        })}
-      </Grid>
-    </Grid>
+    <Box
+      sx={{
+        width: "100%",
+        borderLeft: (theme) =>
+          `1px solid ${alpha(theme.palette.primary.main, 0.16)}`,
+        paddingLeft: 1.5,
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          marginBottom: 0.5,
+        }}
+      >
+        <Avatar
+          src={assetImageUrl(branch.node)}
+          alt=""
+          variant="square"
+          sx={{ height: 24, width: 24 }}
+        />
+        <Typography variant="body2" color="text.secondary">
+          {itemName}
+        </Typography>
+        {showOwner && (
+          <>
+            <OwnerAvatar owner={branch.node.owner} size={18} />
+            <Typography variant="caption" color="text.secondary">
+              {ownerName(branch.node.owner)}
+            </Typography>
+          </>
+        )}
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          gap: 1.5,
+        }}
+      >
+        {branch.children.map((child) => (
+          <AssetLocationLogic_AssetDialogueWindow
+            key={child.node.itemId}
+            branch={child}
+            fullItemList={fullItemList}
+            containerNames={containerNames}
+            compartmentNames={compartmentNames}
+            showOwner={showOwner}
+          />
+        ))}
+      </Box>
+    </Box>
   );
 }

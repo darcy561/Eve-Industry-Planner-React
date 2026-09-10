@@ -1,36 +1,67 @@
-import { Avatar, Box, Typography, Grid } from "@mui/material";
+import { Avatar, Badge, Box, Tooltip, Typography } from "@mui/material";
 
-import { findAssetImageURL } from "../../../../Functions/Assets/assetHelpers";
+import { appShellNestedCardSx } from "../../../../Context/appShell";
+import {
+  assetImageUrl,
+  assetName,
+} from "../../../../Functions/Assets/assetPresentation";
+import { ownerName } from "../../../../Functions/Shared/eveOwner";
 import { formatNumberForLocale } from "../../../../Functions/Helper/numberParser";
+import OwnerAvatar from "../../../../Styled Components/Avatar/OwnerAvatar";
 
-export default function AssetTemplate_AssetDialogueWindow(props) {
-  const { state, assetObject } = props;
-  if (!assetObject) return null;
-
-  const itemName =
-    state.fullItemList[assetObject.type_id]?.name ||
-    `Unknown Item-${assetObject.type_id}`;
-
-  const imageURL = findAssetImageURL(assetObject);
+/**
+ * One stack of what was asked for.
+ *
+ * @param {{branch: Object, fullItemList: Object, showOwner?: boolean}} props
+ */
+export default function AssetTemplate_AssetDialogueWindow({
+  branch,
+  fullItemList,
+  showOwner = false,
+}) {
+  const { node } = branch;
+  const itemName = assetName(node, fullItemList);
+  const holder = showOwner ? ownerName(node.owner) : "";
 
   return (
-    <Grid container size={2}>
-      <Grid size={12}>
-        <Box
-          sx={{
-            height: "100%",
+    <Tooltip
+      title={[itemName, holder].filter(Boolean).join(" \u2014 ")}
+      arrow
+      placement="top"
+    >
+      <Box
+        sx={[
+          appShellNestedCardSx,
+          {
+            // Not the `border` shorthand: it would reset the tinted colour the token sets.
+            borderWidth: 1,
+            borderStyle: "solid",
             display: "flex",
-            justifyContent: "left",
-            alignItems: "center"
-          }}>
-          <Avatar src={imageURL} alt={itemName} variant="square" />
-        </Box>
-      </Grid>
-      <Grid size={12}>
-        <Typography variant="caption">
-          {formatNumberForLocale(assetObject.quantity, { max: 0 })}
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 0.5,
+            minWidth: 72,
+          },
+        ]}
+      >
+        {showOwner ? (
+          <Badge
+            overlap="circular"
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            badgeContent={<OwnerAvatar owner={node.owner} size={18} />}
+          >
+            <Avatar src={assetImageUrl(node)} alt={itemName} variant="square" />
+          </Badge>
+        ) : (
+          <Avatar src={assetImageUrl(node)} alt={itemName} variant="square" />
+        )}
+        <Typography
+          variant="caption"
+          sx={{ fontVariantNumeric: "tabular-nums" }}
+        >
+          {formatNumberForLocale(node.quantity, { max: 0 })}
         </Typography>
-      </Grid>
-    </Grid>
+      </Box>
+    </Tooltip>
   );
 }

@@ -36,11 +36,12 @@ export function ShoppingListDialogueContent({
   corporationAssetsLoading = undefined,
   corporationAssetsError = undefined,
 }) {
-  useShoppingListCharacterAssets({
-    state,
-    actions,
-    allCharacterAssetsLoading,
-  });
+  const { assetLocationsLoading, assetLocationsError } =
+    useShoppingListCharacterAssets({
+      state,
+      actions,
+      allCharacterAssetsLoading,
+    });
 
   useShoppingListCorporationAssets({
     state,
@@ -90,9 +91,7 @@ export function ShoppingListDialogueContent({
     actions.resetState();
   }
 
-  const hasAssetError = !!(
-    allCharacterAssetsError || corporationAssetsError
-  );
+  const hasAssetError = !!(allCharacterAssetsError || corporationAssetsError);
   const assetErrorParts = [
     allCharacterAssetsError &&
       `Character assets: ${allCharacterAssetsError.message || "Failed to load character assets"}`,
@@ -136,7 +135,8 @@ export function ShoppingListDialogueContent({
         isLoading,
         isError,
         error: contentError,
-        loadingMessage: state.loadingMessage ?? "Building shopping list and prices…",
+        loadingMessage:
+          state.loadingMessage ?? "Building shopping list and prices…",
       }}
     >
       <Grid
@@ -195,10 +195,7 @@ export function ShoppingListDialogueContent({
                   </Typography>
                 </Grid>
               </Grid>
-              <Grid
-                container
-                sx={{ marginTop: "10px", marginBottom: "10px" }}
-              >
+              <Grid container sx={{ marginTop: "10px", marginBottom: "10px" }}>
                 <Grid size={4}>
                   <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                     Estimated Value
@@ -206,9 +203,7 @@ export function ShoppingListDialogueContent({
                 </Grid>
                 <Grid align="right" size={8}>
                   <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
-                    {formatNumberForLocale(
-                      state.shoppingList?.totalValue ?? 0,
-                    )}{" "}
+                    {formatNumberForLocale(state.shoppingList?.totalValue ?? 0)}{" "}
                     ISK
                   </Typography>
                 </Grid>
@@ -285,6 +280,8 @@ export function ShoppingListDialogueContent({
             <SelectAssetLocation_ShoppingListDialogue
               state={state}
               actions={actions}
+              assetLocationsLoading={assetLocationsLoading}
+              assetLocationsError={assetLocationsError}
             />
             <AssetsFromClipboardButton_ShoppingList
               actions={actions}
@@ -318,10 +315,7 @@ export function ShoppingListDialogueContent({
                       state.shoppingList.buildStringForClipboard(),
                     );
                   } catch (error) {
-                    if (
-                      error.message &&
-                      error.message.includes("Clipboard")
-                    ) {
+                    if (error.message && error.message.includes("Clipboard")) {
                       showSnackbarError(
                         "Clipboard access denied. Please enable clipboard permissions in your browser settings.",
                         3,

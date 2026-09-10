@@ -4,10 +4,13 @@ import {
   ASSET_SAFETY_ID,
   characterAssetRows,
   corporationAssetRows,
+  corporationOwnedStructureRows,
   cyclicAssetRows,
   inSpaceAssetRows,
   JITA_STATION_ID,
+  OIJAMON_SYSTEM_ID,
   orphanedAssetRow,
+  OWNED_STRUCTURE_ID,
   RAITARU_STRUCTURE_ID,
   selfHoldingAssetRow,
 } from "../../tests/assetFixtures";
@@ -236,5 +239,30 @@ describe("buildAssetNodes", () => {
     const { nodes } = buildAssetNodes([null, { type_id: 34 }, ...characterAssetRows]);
 
     expect(nodes).toHaveLength(characterAssetRows.length);
+  });
+});
+
+// A corporation owns the structures it built, so the structure is one of its own asset rows and the
+// chain would otherwise walk through it to the system it sits in.
+describe("a corporation's own structure", () => {
+  const { byItemId } = buildAssetNodes(corporationOwnedStructureRows);
+
+  it("holds the office at the structure rather than in space", () => {
+    expect(byItemId.get(2101).locationId).toBe(OWNED_STRUCTURE_ID);
+    expect(byItemId.get(2101).parentId).toBe(null);
+  });
+
+  it("holds what is in the office there too", () => {
+    expect(byItemId.get(2102).locationId).toBe(OWNED_STRUCTURE_ID);
+    expect(byItemId.get(2102).rootFlag).toBe("CorpSAG1");
+  });
+
+  it("holds a stack in the structure's hangar at the structure", () => {
+    expect(byItemId.get(2103).locationId).toBe(OWNED_STRUCTURE_ID);
+    expect(byItemId.get(2103).parentId).toBe(null);
+  });
+
+  it("leaves the structure itself in the system", () => {
+    expect(byItemId.get(OWNED_STRUCTURE_ID).locationId).toBe(OIJAMON_SYSTEM_ID);
   });
 });

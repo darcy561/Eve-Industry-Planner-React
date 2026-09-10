@@ -93,14 +93,10 @@ describe("the characters a corporation knows about", () => {
 });
 
 describe("where a corporation keeps things", () => {
-  it("reads its offices from the assets that are office folders", () => {
+  it("records the locations it rents an office at", () => {
     const corp = corporation();
 
-    corp.addOfficeLocations([
-      { location_flag: "OfficeFolder", location_id: 60003760 },
-      { location_flag: "Hangar", location_id: 60008494 },
-      { location_flag: "OfficeFolder", location_id: 1035466617946 },
-    ]);
+    corp.addOfficeLocations([60003760, 1035466617946]);
 
     expect(corp.officeLocations).toEqual([60003760, 1035466617946]);
   });
@@ -109,13 +105,8 @@ describe("where a corporation keeps things", () => {
   it("keeps one entry per office as more assets arrive", () => {
     const corp = corporation();
 
-    corp.addOfficeLocations([
-      { location_flag: "OfficeFolder", location_id: 60003760 },
-    ]);
-    corp.addOfficeLocations([
-      { location_flag: "OfficeFolder", location_id: 60003760 },
-      { location_flag: "OfficeFolder", location_id: 60008494 },
-    ]);
+    corp.addOfficeLocations([60003760]);
+    corp.addOfficeLocations([60003760, 60008494]);
 
     expect(corp.officeLocations).toEqual([60003760, 60008494]);
   });

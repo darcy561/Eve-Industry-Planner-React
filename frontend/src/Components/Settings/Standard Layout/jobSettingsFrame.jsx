@@ -6,26 +6,19 @@ import {
   Grid,
   MenuItem,
   Select,
-  Skeleton,
   Switch,
   TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../../Styled Components/Select/marketListing";
 import useUsersStore from "../../../Zustand/usersStore";
-import { useGetAllCharacterAssets } from "../../../Hooks/EveEsi/Character/useGetAllCharacterAssets";
+import useAssetLocations from "../../../Hooks/EveEsi/useAssetLocations";
+import { locationPickerLabel } from "../../../Functions/Assets/assetPresentation";
 import CustomSystemIndexes from "./Job Settings/customSystemIndexes";
 import CustomExtrasFrame from "./Job Settings/customExtrasFrame";
-import { getAssetLocationList } from "../../../Functions/Assets/getAssetLocations";
-import { isNoAccessLocation } from "../../../Functions/Assets/assetLocationConstants";
 
 function JobSettingsFrame() {
-  const [userAssetLocationResults, updateUserAssetLocationResults] = useState(
-    []
-  );
-
   const {
     defaultMarketLocation: defaultMarket,
     defaultOrderType: defaultOrders,
@@ -33,8 +26,6 @@ function JobSettingsFrame() {
     hideCompleteMaterials,
     defaultCitadelBrokersFee: citadelBrokersFee,
   } = useUsersStore((state) => state.applicationSettings);
-
-  const characters = useUsersStore((state) => state.account.characters);
 
   const {
     updateDefaultMarket,
@@ -44,18 +35,11 @@ function JobSettingsFrame() {
     updateCitadelBrokersFee,
   } = useUsersStore((state) => state.applicationSettings.actions);
 
-  const { isLoading: userAssetsLoading, isError: userAssetsError, data: userAssetsData } = useGetAllCharacterAssets()
-
-  useEffect(() => {
-    async function getAsset() {
-      if (!userAssetsLoading && userAssetsData) {
-        const { itemLocations, newEveIDs } = await getAssetLocationList(userAssetsData);
-        updateUserAssetLocationResults(itemLocations);
-        useUsersStore.getState().worldData.actions.addUniverseIDs(newEveIDs);
-      }
-    }
-    getAsset();
-  }, [userAssetsLoading, userAssetsData, characters]);
+  const {
+    locations,
+    isLoading: locationsLoading,
+    isError: locationsError,
+  } = useAssetLocations();
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
@@ -65,8 +49,9 @@ function JobSettingsFrame() {
           sx={{ paddingX: "20px" }}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <MarketLocationSelect
             value={defaultMarket}
             onChange={(e) => {
@@ -81,8 +66,9 @@ function JobSettingsFrame() {
           sx={{ paddingX: "20px" }}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <MarketListingSelect
             value={defaultOrders}
             onChange={(e) => {
@@ -96,8 +82,9 @@ function JobSettingsFrame() {
           align="center"
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <FormControlLabel
             label={"Hide Complete Materials"}
             labelPlacement="start"
@@ -118,52 +105,56 @@ function JobSettingsFrame() {
           sx={{ paddingX: "20px" }}
           size={{
             xs: 12,
-            sm: 6
-          }}>
-          {userAssetsLoading ? (
-            <Skeleton
-              variant="rectangular"
-              sx={{ height: "100%", width: "100%" }}
-            />
-          ) : (
-            <FormControl fullWidth>
-              <Select
-                value={userAssetLocationResults.includes(defaultAssetLocation) ? defaultAssetLocation : ""}
-                variant="standard"
-                onChange={(e) => {
-                  if (!e.target.value) return;
-                  updateDefaultAssetLocation(e.target.value);
-                  scheduleDebouncedApplicationSettingsSave();
-                }}
-              >
-                {userAssetLocationResults.map((entry) => {
-                  const locationNameData = useUsersStore.getState().worldData.actions.findUniverseData(entry);
-                  if (
-                    !locationNameData ||
-                    isNoAccessLocation(locationNameData)
-                  )
-                    return null;
-
-                  return (
-                    <MenuItem key={entry} value={entry}>
-                      {locationNameData.name}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-              <FormHelperText variant="standard">
-                Default Asset Location
-              </FormHelperText>
-            </FormControl>
-          )}
+            sm: 6,
+          }}
+        >
+          <FormControl fullWidth>
+            <Select
+              value={
+                locations.some(
+                  ({ locationId }) => locationId === defaultAssetLocation,
+                )
+                  ? defaultAssetLocation
+                  : ""
+              }
+              variant="standard"
+              displayEmpty
+              disabled={locations.length === 0}
+              renderValue={(locationId) =>
+                locationId
+                  ? (locations.find((l) => l.locationId === locationId)?.name ??
+                    "")
+                  : locationPickerLabel({
+                      count: locations.length,
+                      isLoading: locationsLoading,
+                      isError: locationsError,
+                    })
+              }
+              onChange={(e) => {
+                if (!e.target.value) return;
+                updateDefaultAssetLocation(e.target.value);
+                scheduleDebouncedApplicationSettingsSave();
+              }}
+            >
+              {locations.map(({ locationId, name }) => (
+                <MenuItem key={locationId} value={locationId}>
+                  {name}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText variant="standard">
+              Default Asset Location
+            </FormHelperText>
+          </FormControl>
         </Grid>
         <Grid
           align="center"
           sx={{ paddingX: "20px" }}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <TextField
             fullWidth
             defaultValue={citadelBrokersFee}
@@ -173,9 +164,9 @@ function JobSettingsFrame() {
                 color: (theme) => theme.palette.secondary.main,
               },
               "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-              {
-                display: "none",
-              },
+                {
+                  display: "none",
+                },
             }}
             helperText="Citadel Brokers Fee Percentage"
             type="number"
@@ -183,7 +174,7 @@ function JobSettingsFrame() {
               if (!e.target.value) return;
               updateCitadelBrokersFee(
                 Math.round((Number(e.target.value) + Number.EPSILON) * 100) /
-                100
+                  100,
               );
               scheduleDebouncedApplicationSettingsSave();
             }}

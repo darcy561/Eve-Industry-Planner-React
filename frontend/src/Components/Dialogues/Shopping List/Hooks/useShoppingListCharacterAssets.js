@@ -1,14 +1,13 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAllCachedCharacterAssets } from "../../../../Hooks/EveEsi/Character/useGetAllCharacterAssets";
-import { countAssetQuantityFromMap } from "../../../../Functions/Assets/assetHelpers";
+import { countAssetQuantityFromMap } from "../../../../Functions/Assets/assetQuantities";
 import assetsAtLocation from "../../../../Functions/Assets/assetsAtLocation";
 import {
   ASSET_SCOPE,
   getCachedAssetIndex,
 } from "../../../../Hooks/EveEsi/useAssetIndex";
-import { getAssetLocationList } from "../../../../Functions/Assets/getAssetLocations";
-import useUsersStore from "../../../../Zustand/usersStore";
+import useAssetLocations from "../../../../Hooks/EveEsi/useAssetLocations";
 
 /**
  * Hook for processing character assets in the shopping list.
@@ -19,6 +18,8 @@ import useUsersStore from "../../../../Zustand/usersStore";
  * @param {Object} params.state - Shopping list state
  * @param {Object} params.actions - Shopping list actions
  * @param {boolean|undefined} params.allCharacterAssetsLoading - Character assets loading state
+ * @returns {{assetLocationsLoading: boolean, assetLocationsError: boolean}} the state of the
+ *   locations there are to choose from
  */
 export function useShoppingListCharacterAssets({
     state,
@@ -33,42 +34,19 @@ export function useShoppingListCharacterAssets({
         selectedAssetLocation: null,
     });
 
-    // Separate effect to fetch asset locations when assets finish loading
+    const {
+        locations,
+        isLoading: assetLocationsLoading,
+        isError: assetLocationsError,
+    } = useAssetLocations({ enabled: state.assetType === "character" });
+
+    // The dropdown offers the same locations the settings and first-login pickers do, already
+    // named, readable and in display order.
     useEffect(() => {
-        if (state.assetType !== "character") {
-            return;
-        }
+        if (state.assetType !== "character") return;
 
-        if (
-            allCharacterAssetsLoading !== undefined &&
-            !allCharacterAssetsLoading
-        ) {
-            async function fetchAssetLocations() {
-                const { data: allCharacterAssets } =
-                    getAllCachedCharacterAssets(queryClient);
-
-                if (allCharacterAssets) {
-                    // Get locations from all available assets (only if not already set)
-                    if (!state.assetLocations || state.assetLocations.length === 0) {
-                        const allAvailableAssets = Object.values(allCharacterAssets).flat();
-                        const { itemLocations, newEveIDs } = await getAssetLocationList(
-                            allAvailableAssets
-                        );
-                        actions.setAssetLocations(itemLocations || []);
-                        useUsersStore.getState().worldData.actions.addUniverseIDs(newEveIDs);
-                    }
-                }
-            }
-
-            fetchAssetLocations();
-        }
-    }, [
-        state.assetType,
-        allCharacterAssetsLoading,
-        state.assetLocations,
-        queryClient,
-        actions.setAssetLocations,
-    ]);
+        actions.setAssetLocations(locations.map(({ locationId }) => locationId));
+    }, [state.assetType, locations, actions.setAssetLocations]);
 
     useEffect(() => {
         // Only process character assets
@@ -226,5 +204,6 @@ export function useShoppingListCharacterAssets({
         actions.setAssetLocations,
         actions.applyAssetsFromMap,
     ]);
-}
 
+    return { assetLocationsLoading, assetLocationsError };
+}

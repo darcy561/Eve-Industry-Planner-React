@@ -23,6 +23,7 @@ const (
 var requiredFiles = map[string]string{
 	"blueprints.jsonl":      "Blueprints",
 	"types.jsonl":           "Types",
+	"groups.jsonl":          "Groups",
 	"typeMaterials.jsonl":   "TypeMaterials",
 	"marketGroups.jsonl":    "MarketGroups",
 	"dogmaAttributes.jsonl": "DogmaAttributes",

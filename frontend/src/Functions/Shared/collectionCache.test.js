@@ -72,4 +72,24 @@ describe("createCollectionCache", () => {
 
     expect(build).toHaveBeenCalledTimes(2);
   });
+
+  // The blueprint library asks for every scope while an asset page asks for one, and both lists
+  // start with the same character's rows.
+  it("holds an entry for each scope sharing a first source", () => {
+    const builds = [];
+    const derive = createCollectionCache((sources) => {
+      builds.push(sources.length);
+      return sources.flat();
+    }, { rows: [] });
+    const first = [{ id: 1 }];
+    const second = [{ id: 2 }];
+
+    derive([first]);
+    derive([first, second]);
+    expect(builds).toHaveLength(2);
+
+    derive([first]);
+    derive([first, second]);
+    expect(builds).toHaveLength(2);
+  });
 });

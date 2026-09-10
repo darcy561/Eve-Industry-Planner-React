@@ -95,6 +95,8 @@ type ItemName struct {
 type FullItem struct {
 	TypeID int    `json:"type_id"`
 	Name   string `json:"name"`
+	// CategoryID is the SDE inventory category the type's group belongs to; 0 when unknown.
+	CategoryID int `json:"category_id,omitempty"`
 }
 
 type ReprocessingItem struct {

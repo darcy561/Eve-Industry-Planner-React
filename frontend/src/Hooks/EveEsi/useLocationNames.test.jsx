@@ -3,10 +3,11 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { store, resolveCalls, resolveResult } = vi.hoisted(() => ({
+const { store, resolveCalls, resolveResult, resolveGate } = vi.hoisted(() => ({
   store: { account: { characters: [] }, worldData: { universeIDs: {} } },
   resolveCalls: [],
   resolveResult: { current: {} },
+  resolveGate: { current: null },
 }));
 
 vi.mock("../../Zustand/usersStore", () => ({
@@ -18,8 +19,11 @@ vi.mock("../../Zustand/usersStore", () => ({
 vi.mock("../../Functions/EveESI/World/resolveLocationNames", () => ({
   default: async (ids) => {
     resolveCalls.push([...ids]);
-    if (resolveResult.current === null) throw new Error("esi down");
-    return resolveResult.current;
+    // What this call answers with is decided when it is made, not when it is let go.
+    const answer = resolveResult.current;
+    if (resolveGate.current) await resolveGate.current;
+    if (answer === null) throw new Error("esi down");
+    return answer;
   },
 }));
 
@@ -27,6 +31,7 @@ import useLocationNames from "./useLocationNames";
 
 const JITA = 60003760;
 const RAITARU = 1035466617946;
+const SECOND_STRUCTURE = 1035466617947;
 
 function render(ids) {
   const client = new QueryClient({
@@ -43,6 +48,7 @@ beforeEach(() => {
   store.worldData = { universeIDs: {} };
   resolveCalls.length = 0;
   resolveResult.current = {};
+  resolveGate.current = null;
 });
 
 describe("useLocationNames", () => {
@@ -100,6 +106,65 @@ describe("useLocationNames", () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBeTruthy();
     expect(result.current.names).toEqual({});
+  });
+
+  // The id set grows as a collection arrives, and each growth is a new query. Without this the new
+  // query asks again for everything the running one has not finished.
+  it("does not ask again for ids a running resolution already covers", async () => {
+    let release;
+    resolveGate.current = new Promise((resolve) => {
+      release = resolve;
+    });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+    });
+    const wrapper = ({ children }) =>
+      createElement(QueryClientProvider, { client }, children);
+
+    const { rerender } = renderHook(({ ids }) => useLocationNames(ids), {
+      wrapper,
+      initialProps: { ids: [RAITARU] },
+    });
+    await waitFor(() => expect(resolveCalls).toHaveLength(1));
+
+    // The collection grows: the same consumer now wants one more location.
+    rerender({ ids: [RAITARU, SECOND_STRUCTURE] });
+    await waitFor(() => expect(resolveCalls).toHaveLength(2));
+
+    expect(resolveCalls[1]).toEqual([SECOND_STRUCTURE]);
+
+    release();
+    await waitFor(() => expect(resolveCalls).toHaveLength(2));
+  });
+
+  // A resolution that fails writes nothing, so a consumer that stood aside for it has nothing else
+  // to tell it the claim was dropped.
+  it("asks for itself when the resolution it stood aside for fails", async () => {
+    let failFirst;
+    resolveGate.current = new Promise((resolve) => {
+      failFirst = resolve;
+    });
+    resolveResult.current = null;
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+    });
+    const wrapper = ({ children }) =>
+      createElement(QueryClientProvider, { client }, children);
+
+    // One array for the life of the test, as a caller that memoises its ids gives.
+    const ids = [RAITARU];
+    const first = renderHook(() => useLocationNames(ids), { wrapper });
+    await waitFor(() => expect(resolveCalls).toHaveLength(1));
+
+    const second = renderHook(() => useLocationNames(ids), { wrapper });
+    expect(second.result.current.isError).toBe(false);
+
+    failFirst();
+    await waitFor(() => expect(first.result.current.isError).toBe(true));
+
+    // Once the claim is dropped the consumer that stood aside takes the id up again — here that
+    // means joining the failure rather than waiting on it for the rest of the session.
+    await waitFor(() => expect(second.result.current.isError).toBe(true));
   });
 
   it("asks once when two consumers want the same locations", async () => {

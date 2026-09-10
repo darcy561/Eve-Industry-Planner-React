@@ -1,23 +1,19 @@
-import {
-  FormControl,
-  FormHelperText,
-  MenuItem,
-  Select,
-} from "@mui/material";
+import { FormControl, FormHelperText, MenuItem, Select } from "@mui/material";
 import useUsersStore from "../../../Zustand/usersStore";
 import CorporationSelect from "../../../Styled Components/Select/corporations";
 import CorporationOfficesSelect from "../../../Styled Components/Select/corporationOffices";
 import CorporationHangarsSelect from "../../../Styled Components/Select/corporationHangars";
-import { isNoAccessLocation } from "../../../Functions/Assets/assetLocationConstants";
+import { locationPickerLabel } from "../../../Functions/Assets/assetPresentation";
 
 export default function SelectAssetLocation_ShoppingListDialogue({
   state,
-  actions
+  actions,
+  assetLocationsLoading,
+  assetLocationsError,
 }) {
   const characters = useUsersStore((state) => state.account.characters);
-
-  // Don't render if loading
-  if (state.isLoading) return null;
+  const universeIDs = useUsersStore((state) => state.worldData.universeIDs);
+  const locations = state.assetLocations ?? [];
 
   // Show character asset dropdowns when assetType is "character"
   if (state.assetType === "character") {
@@ -45,7 +41,10 @@ export default function SelectAssetLocation_ShoppingListDialogue({
             )}
             {characters.map((character) => {
               return (
-                <MenuItem key={character.CharacterHash} value={character.CharacterHash}>
+                <MenuItem
+                  key={character.CharacterHash}
+                  value={character.CharacterHash}
+                >
                   {character.CharacterName}
                 </MenuItem>
               );
@@ -55,44 +54,41 @@ export default function SelectAssetLocation_ShoppingListDialogue({
             Character Selection
           </FormHelperText>
         </FormControl>
-        {/* Only show location dropdown if assetLocations are loaded */}
-        {state.assetLocations && state.assetLocations.length > 0 && (
-          <FormControl
-            fullWidth
-            sx={{
-              "& .MuiFormHelperText-root": {
-                color: (theme) => theme.palette.secondary.main,
-              },
+        {/* The dropdown holds its place rather than appearing once the locations are in. */}
+        <FormControl
+          fullWidth
+          sx={{
+            "& .MuiFormHelperText-root": {
+              color: (theme) => theme.palette.secondary.main,
+            },
+          }}
+        >
+          <Select
+            value={state.selectedAssetLocation || ""}
+            size="small"
+            displayEmpty
+            disabled={locations.length === 0}
+            renderValue={(locationId) =>
+              locationId
+                ? (universeIDs[locationId]?.name ?? "")
+                : locationPickerLabel({
+                    count: locations.length,
+                    isLoading: assetLocationsLoading,
+                    isError: assetLocationsError,
+                  })
+            }
+            onChange={(e) => {
+              actions.setSelectedAssetLocation(e.target.value);
             }}
           >
-            <Select
-              value={state.selectedAssetLocation || ""}
-              size="small"
-              onChange={(e) => {
-                actions.setSelectedAssetLocation(e.target.value);
-              }}
-            >
-              {state.assetLocations.map((entry) => {
-                const locationNameData = useUsersStore
-                  .getState()
-                  .worldData.actions.findUniverseData(entry);
-
-                if (
-                  !locationNameData ||
-                  isNoAccessLocation(locationNameData)
-                ) {
-                  return null;
-                }
-                return (
-                  <MenuItem key={entry} value={entry}>
-                    {locationNameData.name}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-            <FormHelperText variant="standard">Asset Location</FormHelperText>
-          </FormControl>
-        )}
+            {locations.map((locationId) => (
+              <MenuItem key={locationId} value={locationId}>
+                {universeIDs[locationId]?.name ?? ""}
+              </MenuItem>
+            ))}
+          </Select>
+          <FormHelperText variant="standard">Asset Location</FormHelperText>
+        </FormControl>
       </>
     );
   }

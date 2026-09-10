@@ -82,13 +82,13 @@ export const corporationsActions = (set, get) => ({
     );
   },
 
-  setCorporationOffices: (corporationID, assetsArray) => {
+  setCorporationOffices: (corporationID, officeLocationIDs) => {
     const state = get();
     const idx = findCorporationIndex(state.account.corporations, corporationID);
     if (idx < 0) return;
 
     const corp = state.account.corporations[idx];
-    corp.addOfficeLocations(assetsArray);
+    corp.addOfficeLocations(officeLocationIDs);
 
     set(
       (s) => ({

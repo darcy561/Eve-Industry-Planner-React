@@ -22,11 +22,12 @@ func runSDEConversionStage(mapResult *sdeMapBuildResult) (*sdeConversionResult, 
 
 	blueprintsData := mapResult.StructuredData["Blueprints"]
 	typesData := mapResult.StructuredData["Types"]
+	groupsData := mapResult.StructuredData["Groups"]
 	typeMaterialsData := mapResult.StructuredData["TypeMaterials"]
 	marketGroupsData := mapResult.StructuredData["MarketGroups"]
 	dogmaAttributesData := mapResult.StructuredData["DogmaAttributes"]
 	typeDogmaData := mapResult.StructuredData["TypeDogma"]
-	if blueprintsData == nil || typesData == nil || typeMaterialsData == nil || marketGroupsData == nil ||
+	if blueprintsData == nil || typesData == nil || groupsData == nil || typeMaterialsData == nil || marketGroupsData == nil ||
 		dogmaAttributesData == nil || typeDogmaData == nil {
 		return nil, fmt.Errorf("missing one or more required structured data maps")
 	}
@@ -38,7 +39,7 @@ func runSDEConversionStage(mapResult *sdeMapBuildResult) (*sdeConversionResult, 
 	conversion.MergeReactionFormulaOntoProduct(combinedItemMap, conversion.BuildReactionProductByBlueprintTypeID(blueprintsData, typesData), typesData)
 	recipeList := conversion.GenerateRecipeListOutput(combinedItemMap)
 	searchIndex := conversion.GenerateSearchIndexOutput(recipeList)
-	fullItemList := conversion.GenerateFullItemListOutput(combinedItemMap, marketGroupsData)
+	fullItemList := conversion.GenerateFullItemListOutput(combinedItemMap, marketGroupsData, conversion.BuildCategoryByGroupID(groupsData))
 	reprocessingObjects := conversion.GenerateReprocessingDataOutput(typeMaterialsData, combinedItemMap, marketGroupsData)
 	inventionModifiers, err := conversion.GenerateInventionModifiersOutput(typesData, dogmaAttributesData, typeDogmaData)
 	if err != nil {

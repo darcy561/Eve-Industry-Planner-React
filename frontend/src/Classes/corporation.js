@@ -33,7 +33,7 @@ import { canonicalCharacterHashKey } from "../Functions/Auth/characterHashCanoni
  *
  * @example
  * // Add office locations from assets
- * corp.addOfficeLocations(assetsArray);
+ * corp.addOfficeLocations(officeLocationIDs);
  */
 class Corporation {
   /**
@@ -120,21 +120,16 @@ class Corporation {
   }
 
   /**
-   * Adds office locations from assets array.
+   * Records the stations and structures the corporation rents an office at.
    *
-   * This method extracts office locations from assets and adds them to the corporation:
-   * - Filters assets with "OfficeFolder" location flag
-   * - Extracts location IDs from office assets
-   * - Merges with existing office locations (removes duplicates)
+   * Assets arrive in pages and each caller sees only what its own roles reveal, so what arrives is
+   * merged with what is already held rather than replacing it.
    *
-   * @param {Array<Object>} assetsArray - Array of asset objects
+   * @param {Array<number>} locationIDs
    */
-  addOfficeLocations(assetsArray) {
-    const officeLocations = assetsArray
-      .filter((asset) => asset.location_flag === "OfficeFolder")
-      .map((asset) => asset.location_id);
+  addOfficeLocations(locationIDs = []) {
     this.officeLocations = [
-      ...new Set([...officeLocations, ...this.officeLocations]),
+      ...new Set([...locationIDs, ...this.officeLocations]),
     ];
   }
 }

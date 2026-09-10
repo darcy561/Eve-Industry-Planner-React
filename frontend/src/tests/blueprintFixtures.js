@@ -124,6 +124,26 @@ export const characterBlueprintRows = [
 ];
 
 /**
+ * Three interchangeable copies of the same blueprint: same owner, same research, same runs left.
+ *
+ * What the library consolidates onto one card — and what a job running on one of them breaks up,
+ * since that one is unavailable until the job finishes.
+ */
+export const identicalCopyRows = [7020, 7021, 7022].map((itemId) => ({
+  item_id: itemId,
+  type_id: RIFTER_BLUEPRINT_TYPE_ID,
+  material_efficiency: 10,
+  time_efficiency: 20,
+  runs: 10,
+  quantity: -2,
+  location_id: 60003760,
+  location_flag: "Hangar",
+  CharacterHash: CHARACTER_HASH,
+  character_id: 2114000001,
+  is_corporation: false,
+}));
+
+/**
  * A stack of reaction formulas. Formulas carry no research values and cannot be copied, and they
  * restack after every use — so unlike a manufacturing original, a stacked quantity is their normal
  * condition rather than a sign they are untouched.

@@ -1,47 +1,57 @@
-// import { AssetLocationLogic_AssetDialogueWindow } from "./AssetTemplates/templateLogic";
-import { Typography, Grid } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
-import useUsersStore from "../../../Zustand/usersStore";
 import AssetLocationLogic_AssetDialogueWindow from "./AssetTemplates/templateLogic";
+import InsetSurface from "../../../Styled Components/Paper/InsetSurface";
 
-export default function AssetLocations_AssetDialogueWindow(props) {
-  const { state } = props;
-  const defaultAssetLocation = useUsersStore(
-    (state) => state.applicationSettings.defaultStationIDForAssets
-  );
-
-  if (
-    !state.topLevelAssets ||
-    !state.assetLocations ||
-    !state.assetLocationNames ||
-    state.isLoading
-  )
-    return null;
-
+/**
+ * Where a material is held: a heading per location, and under it the containers holding it.
+ *
+ * @param {{locations: Array<Object>, fullItemList: Object, containerNames: Map, compartmentNames: Map, showOwner?: boolean}} props
+ */
+export default function AssetLocations_AssetDialogueWindow({
+  locations,
+  fullItemList,
+  containerNames,
+  compartmentNames,
+  showOwner,
+}) {
   return (
-    <>
-      {Array.from(state.topLevelAssets).map(([locationID, assets]) => {
-        if (locationID === defaultAssetLocation) return null;
-
-        const itemLocationName =
-          useUsersStore.getState().worldData.universeIDs[locationID]?.name || "Unknown Location";
-        return (
-          <Grid key={locationID} container>
-            <Grid size={12}>
-              <Typography>{itemLocationName} </Typography>
-            </Grid>
-            {assets.map((assetObject) => {
-              return (
-                <AssetLocationLogic_AssetDialogueWindow
-                  key={assetObject.item_id}
-                  {...props}
-                  assetObject={assetObject}
-                />
-              );
-            })}
-          </Grid>
-        );
-      })}
-    </>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {locations.map(({ locationId, name, rows }) => (
+        <Box key={locationId}>
+          <InsetSurface
+            sx={{
+              paddingX: 1.5,
+              paddingY: 0.75,
+              marginBottom: 1,
+            }}
+          >
+            <Typography noWrap sx={{ fontWeight: 600 }}>
+              {name || "Unknown Location"}
+            </Typography>
+          </InsetSurface>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              gap: 1.5,
+              paddingLeft: 1,
+            }}
+          >
+            {rows.map((branch) => (
+              <AssetLocationLogic_AssetDialogueWindow
+                key={branch.node.itemId}
+                branch={branch}
+                fullItemList={fullItemList}
+                containerNames={containerNames}
+                compartmentNames={compartmentNames}
+                showOwner={showOwner}
+              />
+            ))}
+          </Box>
+        </Box>
+      ))}
+    </Box>
   );
 }

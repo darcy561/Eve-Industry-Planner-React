@@ -3,10 +3,20 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { account, characterRows, corporationRows } = vi.hoisted(() => ({
+const {
+  account,
+  characterRows,
+  corporationRows,
+  fetched,
+  slowCharacters,
+  slowRelease,
+} = vi.hoisted(() => ({
   account: { characters: [], corporations: [] },
   characterRows: new Map(),
   corporationRows: new Map(),
+  fetched: [],
+  slowCharacters: new Set(),
+  slowRelease: { current: null },
 }));
 
 vi.mock("../../Zustand/usersStore", () => ({
@@ -19,7 +29,11 @@ vi.mock("../React Query/Character/assets", () => ({
   characterAssetsQueryKey: "characterAssets",
   characterAssetsQuery: (characterHash) => ({
     queryKey: ["characterAssets", characterHash],
-    queryFn: async () => characterRows.get(characterHash) ?? [],
+    queryFn: async () => {
+      fetched.push(characterHash);
+      if (slowCharacters.has(characterHash)) await slowRelease.current;
+      return characterRows.get(characterHash) ?? [];
+    },
     enabled: true,
   }),
 }));
@@ -67,6 +81,9 @@ beforeEach(() => {
   ];
   characterRows.clear();
   corporationRows.clear();
+  fetched.length = 0;
+  slowCharacters.clear();
+  slowRelease.current = null;
 });
 
 describe("useAssetIndex", () => {
@@ -74,6 +91,19 @@ describe("useAssetIndex", () => {
     const { result } = render({ scope: "nonsense" });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.data.nodes).toEqual([]);
+  });
+
+  it("fetches nothing while it is not enabled", async () => {
+    characterRows.set("hash-a", [station(1)]);
+
+    const { result } = render({
+      scope: ASSET_SCOPE.CHARACTERS,
+      enabled: false,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(fetched).toEqual([]);
     expect(result.current.data.nodes).toEqual([]);
   });
 
@@ -100,6 +130,19 @@ describe("useAssetIndex", () => {
     expect(
       result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b)
     ).toEqual([1, 2]);
+  });
+
+  it("takes every character and every corporation for the all scope", async () => {
+    characterRows.set("hash-a", [station(1)]);
+    corporationRows.set("hash-a", [station(10)]);
+    corporationRows.set("hash-b", [station(11)]);
+
+    const { result } = render({ scope: ASSET_SCOPE.ALL });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(
+      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b)
+    ).toEqual([1, 10, 11]);
   });
 
   it("unions a corporation's members and keeps one node per item", async () => {

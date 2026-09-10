@@ -11,14 +11,42 @@ var (
 	reactionRegex = regexp.MustCompile(`(?i)reaction `)
 )
 
-func GenerateFullItemListOutput(combinedItemMap map[string]*EVEType, marketGroupsMap map[string]any) map[string]*FullItem {
+func GenerateFullItemListOutput(combinedItemMap map[string]*EVEType, marketGroupsMap map[string]any, categoryByGroupID map[int]int) map[string]*FullItem {
 	fullItemList := make(map[string]*FullItem)
 	for key, value := range combinedItemMap {
 		if !shouldRemoveItem(value, marketGroupsMap) {
-			fullItemList[key] = &FullItem{TypeID: value.ItemID, Name: value.Name}
+			fullItemList[key] = &FullItem{
+				TypeID:     value.ItemID,
+				Name:       value.Name,
+				CategoryID: categoryByGroupID[value.GroupID],
+			}
 		}
 	}
 	return fullItemList
+}
+
+// BuildCategoryByGroupID maps each group to the category it belongs to.
+//
+// A type names only its group, and what the SPA asks of an item — whether it is a ship — is a
+// question about its category, so the two have to be joined before the item list is written.
+func BuildCategoryByGroupID(groupsMap map[string]any) map[int]int {
+	byGroupID := make(map[int]int, len(groupsMap))
+	for key, value := range groupsMap {
+		groupID, err := strconv.Atoi(key)
+		if err != nil {
+			continue
+		}
+		group, ok := value.(map[string]any)
+		if !ok {
+			continue
+		}
+		categoryID, ok := group["categoryID"].(float64)
+		if !ok {
+			continue
+		}
+		byGroupID[groupID] = int(categoryID)
+	}
+	return byGroupID
 }
 
 func shouldRemoveItem(item *EVEType, marketGroupsMap map[string]any) bool {

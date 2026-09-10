@@ -1,12 +1,10 @@
-import { useMemo } from "react";
 import { Paper, Popover, Typography, Grid } from "@mui/material";
 import { ImportingStateLayout_ChildJobPopoverFrame } from "./fetchState";
 import { ChildJobMaterials_ChildJobPopoverFrame } from "./childJobMaterials";
 import { ChildJobSwitcher_ChildJobPopoverFrame } from "./switchChildJob";
 import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./misMatchedTotals";
 import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./childJobTotalCosts";
-import { calculateMaterialCostFromChildJobs } from "../../../../../../../Functions/Groups/materialCostFromChildJobs.js";
-import { getJobInstallCostForPlanning } from "../../../../../../../Functions/Installation Costs/installCosts.js";
+import { calculateChildJobTotals } from "../../../../../../../Functions/Groups/childJobTotals.js";
 import { ButtonSelectionLogic_ChildJobPopoverFrame } from "./buttonSelectionLogic";
 import { STANDARD_TEXT_FORMAT } from "../../../../../../../Context/defaultValues";
 import useUsersStore from "../../../../../../../Zustand/usersStore";
@@ -26,7 +24,9 @@ export function ChildJobPopoverFrame(props) {
   } = props;
   const checkTypeIDisExempt =
     useUsersStore.getState().applicationSettings.actions.checkTypeIDisExempt;
-  const worldMarketData = useUsersStore((state) => state.worldData.marketData);
+  // Subscribed, not read: a price refresh has to re-render this so the shared
+  // totals are worked out again.
+  useUsersStore((state) => state.worldData.marketData);
   const { buildSingleChildJobPreview } = useChildJobBuildActions({
     state,
     actions: props.actions,
@@ -62,36 +62,17 @@ export function ChildJobPopoverFrame(props) {
     updateDisplayPopover(null);
   };
 
-  const totalCostOfMaterials = useMemo(() => {
-    return (currentJob?.build?.materials || []).reduce((prev, rowMaterial) => {
-      const childJobs = currentJob.build.childJobs[rowMaterial.typeID];
-      return (
-        prev +
-        calculateMaterialCostFromChildJobs(
-          rowMaterial,
-          childJobs,
-          state.temporaryChildJobs[rowMaterial.typeID],
-          {},
-          marketSelect,
-          listingSelect
-        )
-      );
-    }, 0);
-  }, [
+  const {
+    totalCostOfMaterials,
+    totalInstallCosts,
+    quantityProduced,
+    totalCostPerItem,
+  } = calculateChildJobTotals(
     currentJob,
-    listingSelect,
-    marketSelect,
     state.temporaryChildJobs,
-    worldMarketData,
-  ]);
-
-  const totalInstallCosts = getJobInstallCostForPlanning(currentJob);
-
-  const quantityProduced = currentJob?.totalQuantityProduced ?? 0;
-  const totalCostPerItem =
-    quantityProduced !== 0
-      ? (totalCostOfMaterials + totalInstallCosts) / quantityProduced
-      : 0;
+    marketSelect,
+    listingSelect
+  );
 
   return (
     <Popover

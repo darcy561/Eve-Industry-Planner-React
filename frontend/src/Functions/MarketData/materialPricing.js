@@ -1,4 +1,5 @@
 import { listingType } from "../../Context/defaultValues";
+import { MATERIAL_PLAN } from "./materialSourcingRow";
 
 /**
  * How a material row is priced on the Planning stage: what the job's materials
@@ -124,7 +125,7 @@ export function summariseBasisUse(rows, marketSelect, listingSelect) {
         (row.marketSelect && row.marketSelect !== marketSelect) ||
         (row.listingSelect && row.listingSelect !== listingSelect)
     ).length,
-    purchased: list.filter((row) => row.plan === "paid").length,
+    purchased: list.filter((row) => row.plan === MATERIAL_PLAN.PAID).length,
   };
 }
 

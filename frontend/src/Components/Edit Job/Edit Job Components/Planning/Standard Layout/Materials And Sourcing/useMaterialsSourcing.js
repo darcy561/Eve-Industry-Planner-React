@@ -6,6 +6,7 @@ import checkJobTypeIsBuildable from "../../../../../../Functions/Helper/checkJob
 import {
   getEffectiveMaterialPriceHub,
   materialCostByBasis,
+  summariseBasisUse,
 } from "../../../../../../Functions/MarketData/materialPricing.js";
 import {
   buildMaterialSourcingRow,
@@ -83,6 +84,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
       summary: summariseSourcing(rows),
       marketSelect,
       listingSelect,
+      basisUsage: summariseBasisUse(rows, marketSelect, listingSelect),
       basisOptions: materialCostByBasis({
         materials,
         layout,

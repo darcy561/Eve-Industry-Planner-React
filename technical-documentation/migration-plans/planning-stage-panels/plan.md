@@ -698,6 +698,16 @@ It also records two **rejected drafts** of the Returns panel — one that mixed 
 the exit routes, and one that led with a graded verdict word — both worth reading before rebuilding it,
 so neither failure mode is repeated.
 
+### Known limits
+
+**The sourcing memo re-runs on every dispatch, and narrowing its dependencies did not stop it.** Some
+members of the Edit Job `actions` object read `state` directly, so the object cannot be memoised with
+an empty dependency list without capturing stale state, and memoising it against `state` would gain
+nothing. Until the dispatch-only members are separated from the state-reading ones — a change to a hook
+every part of the page uses — a row rebuild happens on unrelated interactions. It costs a re-walk of
+each material's child jobs; the measured cost of that walk is well under a millisecond on the largest
+real job.
+
 ## Stage status
 
 | Stage | Surface | Status |

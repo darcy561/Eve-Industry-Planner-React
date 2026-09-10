@@ -6,25 +6,30 @@ import { jobTypes } from "../../Context/defaultValues";
  * Unknown or missing job types fall back to `theme.palette.primary.main` (not divider), so this
  * helper stays suitable for general UI accents.
  *
+ * The industry colours are the app theme's own additions, so a theme without
+ * them falls back rather than throwing: an accent is decoration, and losing one
+ * should not take down whatever was being decorated.
+ *
  * @param {object} theme - MUI theme
  * @param {number | undefined | null} jobType
  * @returns {string}
  */
 export function getJobTypeAccentColour(theme, jobType) {
+  const fallback = theme?.palette?.primary?.main ?? "currentColor";
+  const accent = (name) => theme?.palette?.[name]?.main ?? fallback;
+
   switch (jobType) {
     case jobTypes.manufacturing:
-      return theme.palette.manufacturing.main;
+      return accent("manufacturing");
     case jobTypes.reaction:
-      return theme.palette.reaction.main;
+      return accent("reaction");
     case jobTypes.pi:
-      return theme.palette.pi.main;
+      return accent("pi");
     case jobTypes.baseMaterial:
-      return theme.palette.baseMat.main;
+      return accent("baseMat");
     case jobTypes.invention:
-      return theme.palette.warning.main;
-    case jobTypes.reprocessing:
-      return theme.palette.primary.main;
+      return accent("warning");
     default:
-      return theme.palette.primary.main;
+      return fallback;
   }
 }

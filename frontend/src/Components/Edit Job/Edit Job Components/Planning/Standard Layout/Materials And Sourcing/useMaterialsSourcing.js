@@ -13,7 +13,12 @@ import {
   summariseSourcing,
 } from "../../../../../../Functions/MarketData/materialSourcingRow.js";
 import { getMarketPriceForType } from "../Material Prices/marketPriceHelpers";
-import { resolveMaterialChildJobs } from "../Material Prices/Helpers/materialChildJobs";
+import {
+  resolveMaterialChildJobStatus,
+  resolveMaterialChildJobs,
+} from "../Material Prices/Helpers/materialChildJobs";
+import { materialMark } from "../../../../../../Functions/MarketData/materialMark.js";
+import useUsersStore from "../../../../../../Zustand/usersStore.js";
 
 /**
  * What Materials & Sourcing draws: a row per material, the figures the panel
@@ -35,6 +40,10 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
   const { marketDisplay: marketSelect, orderDisplay: listingSelect } =
     useEffectiveMarketHubFromLayout(layout);
 
+  const checkTypeIDisExempt = useUsersStore(
+    (store) => store.applicationSettings.actions.checkTypeIDisExempt
+  );
+
   return useMemo(() => {
     const materials = Array.isArray(activeJob.build?.materials)
       ? activeJob.build.materials
@@ -54,6 +63,13 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
           materialTypeID: material.typeID,
         });
       const matchedChildJobs = Array.from(childJobsById.values());
+      const { hasLinked, hasTemp, hasPendingAdd } = resolveMaterialChildJobStatus(
+        {
+          state,
+          materialTypeID: material.typeID,
+          childJobsLocation: activeJob.build.childJobs[material.typeID] || [],
+        }
+      );
 
       const quantity = quantityFor(activeJob, material, displayType);
 
@@ -74,6 +90,12 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         isBuildable: checkJobTypeIsBuildable(material.jobType),
         isLinked: hasChildJobs,
         matchedChildJobs,
+        mark: materialMark({
+          jobType: material.jobType,
+          hasLinked,
+          hasPending: hasTemp || hasPendingAdd,
+          isExempt: checkTypeIDisExempt(material.typeID),
+        }),
         marketSelect: resolved.marketSelect,
         listingSelect: resolved.listingSelect,
       });
@@ -101,6 +123,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
     displayType,
     layout,
     listingSelect,
+    checkTypeIDisExempt,
     marketSelect,
     state.parentChildToEdit.childJobs,
     state.temporaryChildJobs,

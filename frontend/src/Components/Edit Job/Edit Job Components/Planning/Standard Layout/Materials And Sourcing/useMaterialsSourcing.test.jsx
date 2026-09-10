@@ -17,6 +17,17 @@ vi.mock("../Material Prices/Helpers/materialChildJobs", () => ({
     childJobIDs: [],
     hasChildJobs: false,
   }),
+  resolveMaterialChildJobStatus: () => ({
+    hasLinked: false,
+    hasTemp: false,
+    hasPendingAdd: false,
+  }),
+}));
+vi.mock("../../../../../../Zustand/usersStore.js", () => ({
+  default: (selector) =>
+    selector({
+      applicationSettings: { actions: { checkTypeIDisExempt: () => false } },
+    }),
 }));
 vi.mock("../../../../../../Functions/Helper/checkJobTypeIsBuildable.js", () => ({
   default: (jobType) => jobType === 1,
@@ -68,6 +79,13 @@ describe("useMaterialsSourcing", () => {
 
     expect(result.rows).toHaveLength(2);
     expect(result.rows[0]).toMatchObject({ typeID: 34, buyPrice: 10 });
+  });
+
+  it("marks each row with what kind of material it is", () => {
+    expect(render(setup()).rows[0].mark).toMatchObject({
+      label: "Manufacturing Job",
+      isExempt: false,
+    });
   });
 
   it("carries what a drawer opened on a row needs", () => {

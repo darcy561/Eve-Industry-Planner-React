@@ -1,12 +1,17 @@
 import { Fragment } from "react";
 
+import DoneIcon from "@mui/icons-material/Done";
+import LensIcon from "@mui/icons-material/Lens";
 import {
+  Box,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 
 import {
@@ -15,6 +20,9 @@ import {
   FigureCaption,
   SignedPercent,
 } from "../../../../../../Styled Components/Typography/figures";
+import MaterialPopoverIconButtons from "../../../../../../Styled Components/Popover/iconButtons";
+import { getJobTypeAccentColour } from "../../../../../../Functions/Helper/jobTypeDividerColour";
+import { MATERIAL_MARK } from "../../../../../../Functions/MarketData/materialMark";
 import StatusChip, {
   STATUS_TONE,
 } from "../../../../../../Styled Components/Chip/statusChip";
@@ -132,7 +140,16 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
         "& td:first-of-type": accentStripe(building, saving),
       }}
     >
-      <TableCell>{row.name}</TableCell>
+      <TableCell>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <MaterialMark mark={row.mark} />
+          <MaterialPopoverIconButtons typeID={row.typeID}>
+            <Typography variant="body2" component="span">
+              {row.name}
+            </Typography>
+          </MaterialPopoverIconButtons>
+        </Box>
+      </TableCell>
       <TableCell align="right">
         <Figure>{formatQuantity(row.quantity)}</Figure>
       </TableCell>
@@ -153,6 +170,40 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
         <PlanCell plan={row.plan} saving={saving} />
       </TableCell>
     </TableRow>
+  );
+}
+
+/**
+ * What kind of material this is, and whether anything is building it.
+ *
+ * A tick where a child job is linked, a dot where none is, in the job type's
+ * accent colour — except where something is pending against a material nothing
+ * is linked to yet, which is amber because it is the state a player is midway
+ * through.
+ *
+ * @param {object} props
+ * @param {import("../../../../../../Functions/MarketData/materialMark").MaterialMark} [props.mark]
+ */
+function MaterialMark({ mark }) {
+  const theme = useTheme();
+  if (!mark) return null;
+
+  const colour = mark.isUnsettled
+    ? theme.palette.warning.main
+    : getJobTypeAccentColour(theme, mark.jobType);
+
+  const Glyph = mark.kind === MATERIAL_MARK.PLAIN ? LensIcon : DoneIcon;
+
+  return (
+    <Tooltip title={mark.label} placement="left-start" arrow>
+      <Box
+        component="span"
+        aria-label={mark.label}
+        sx={{ display: "inline-flex", color: colour }}
+      >
+        <Glyph fontSize="small" />
+      </Box>
+    </Tooltip>
   );
 }
 

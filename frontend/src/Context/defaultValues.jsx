@@ -117,6 +117,22 @@ export let jobTypes = {
  * @property {string} 4 - "invention"
  * @property {string} 5 - "reprocessing"
  */
+/**
+ * What each job type is called where a player reads it.
+ *
+ * `jobTypeMapping` names them for code; these are the words.
+ *
+ * @type {Object<number, string>}
+ */
+export const jobTypeNames = {
+  [jobTypes.baseMaterial]: "Base Material",
+  [jobTypes.manufacturing]: "Manufacturing Job",
+  [jobTypes.reaction]: "Reaction Job",
+  [jobTypes.pi]: "Planetary Interaction",
+  [jobTypes.invention]: "Invention Job",
+  [jobTypes.reprocessing]: "Reprocessing Job",
+};
+
 export const jobTypeMapping = {
   [jobTypes.manufacturing]: "manufacturing",
   [jobTypes.reaction]: "reaction",

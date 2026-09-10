@@ -533,12 +533,12 @@ the design — the design says what the new panel shows, not what the old ones l
 | Child job totals in the drawer | The popover computed them itself from `currentJob` | **Carried.** `calculateChildJobTotals` is the shared figure, worked out in the drawer because it follows whichever child job is on show |
 | The hub and basis a child's own materials price at | Popover children read `marketSelect` / `listingSelect` | **Carried.** The row resolves them and the drawer passes them down |
 | The material itself, and its matched child jobs | Row components held them | **Carried.** A row carries them, so a row is enough to open a drawer on |
-| The material's own popover and type icon | Both old row components | **Dropped silently.** The name is plain text |
+| The material's own popover | Both old row components | **Carried.** The name opens it as it did |
 | Per-material hub and basis override — seeing one | "Manage Material Sources" | **Carried, and better.** The basis picker counts the rows that depart from it, so an override is discoverable without opening a dialogue that lists every material |
 | Per-material hub and basis override — clearing them | "Manage Material Sources" | **Carried.** The picker offers to put every overridden row back |
 | Per-material hub and basis override — setting one | "Manage Material Sources" | **Outstanding.** A row can still hold its own hub and basis; nothing sets one |
-| Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Dropped.** The stripe says building or worth building, and nothing about job type or whether a link is pending |
-| Exempt-from-builds marker | The info icon turned amber | **Only inside the drawer**, so invisible until one is open |
+| Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Carried.** A dot becomes a tick once a child job is linked, in the job type's colour, amber where something is pending against a material nothing is linked to yet |
+| Exempt-from-builds marker | The info icon turned amber | **Carried.** The row's mark says it without anything being opened |
 | Create All Child Jobs | The market panel's kebab | **Dropped.** Stage G replaces it with "build all where cheaper", but Stage E removes it before that exists |
 
 **Done when:** the material list renders once on the stage; every row states its own comparison; the

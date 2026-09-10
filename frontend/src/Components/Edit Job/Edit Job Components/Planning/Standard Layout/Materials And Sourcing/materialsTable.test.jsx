@@ -18,6 +18,7 @@ const row = (overrides) => ({
   plan: MATERIAL_PLAN.BUILD,
   isBuildable: true,
   isLinked: true,
+  mark: { kind: "linked", label: "Manufacturing Job Linked", jobType: 1, isUnsettled: false, isExempt: false },
   volume: 100,
   ...overrides,
 });
@@ -218,5 +219,39 @@ describe("the drawer under a row", () => {
     renderTable([row()]);
 
     expect(screen.getAllByRole("row")).toHaveLength(2);
+  });
+});
+
+describe("the mark at the head of a row", () => {
+  it("says what the material is and whether anything builds it", () => {
+    renderTable([row()]);
+
+    expect(screen.getByLabelText("Manufacturing Job Linked")).toBeInTheDocument();
+  });
+
+  it("marks a material the account excludes from builds", () => {
+    // The old row turned its icon amber for this; it was otherwise invisible
+    // until a popover was opened.
+    renderTable([
+      row({
+        mark: {
+          kind: "plain",
+          label: "Manufacturing Job — exempt from builds",
+          jobType: 1,
+          isUnsettled: false,
+          isExempt: true,
+        },
+      }),
+    ]);
+
+    expect(
+      screen.getByLabelText("Manufacturing Job — exempt from builds")
+    ).toBeInTheDocument();
+  });
+
+  it("draws no mark for a row that carries none", () => {
+    renderTable([row({ mark: null })]);
+
+    expect(screen.getByText("Tritanium")).toBeInTheDocument();
   });
 });

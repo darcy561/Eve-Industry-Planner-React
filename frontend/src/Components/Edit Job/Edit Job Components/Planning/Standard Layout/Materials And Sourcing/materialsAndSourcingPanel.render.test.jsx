@@ -158,3 +158,16 @@ describe("the Materials and Sourcing panel", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+describe("how the panel sits in the stage's layout", () => {
+  it("does not try to fill a height the Masonry has not decided", () => {
+    // AppShellPanel is full height by default. In a Masonry that measures its
+    // children, a panel filling 100% of an undecided height renders as a huge
+    // empty box and pushes its siblings into a phantom column — a blank page
+    // that scrolls. Every other panel on this stage sets height auto too.
+    renderPanel();
+
+    const paper = document.querySelector(".MuiPaper-root");
+    expect(paper).not.toHaveStyle({ height: "100%" });
+  });
+});

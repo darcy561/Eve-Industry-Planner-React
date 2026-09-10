@@ -62,6 +62,10 @@ export default function MaterialsAndSourcingPanel({
     <AppShellPanel
       title="Materials & Sourcing"
       componentName="MaterialsAndSourcingPanel"
+      // The stage lays its panels out in a Masonry, which measures each one.
+      // AppShellPanel is full height by default, and a panel that fills a height
+      // the Masonry has not decided yet grows without bound.
+      paperSx={{ height: "auto" }}
       action={
         <PricingBasisSelect
           options={basisOptions}

@@ -36,7 +36,7 @@ export function ReactionLayout_BlueprintOptions({ state }) {
 
     // Blueprints owned by each logged-in character
     characters.forEach((character) => {
-      const rows = characterBlueprints?.[character.CharacterHash]?.data ?? [];
+      const rows = characterBlueprints?.[character.CharacterHash] ?? [];
       if (rows && rows.length > 0) {
         const temp = rows.filter(
           (i) => i.type_id === state.activeJob.blueprintTypeID

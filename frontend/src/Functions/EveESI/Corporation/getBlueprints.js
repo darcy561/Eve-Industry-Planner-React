@@ -61,10 +61,13 @@ async function getCorpBlueprints({ character, page = 1, existingData = {}, confi
         console.warn(
           `Access forbidden for corporation blueprints for ${character.CharacterName}: ${corporation_id}`
         );
+        // Reported rather than folded into an empty result: the caller tries another member on a
+        // refusal, and cannot tell one from a corporation that genuinely owns no blueprints.
         return {
           data: [],
           etag: "",
           totalPages: 1,
+          forbidden: true,
         };
       }
       // Other client errors - throw

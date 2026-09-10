@@ -5,6 +5,8 @@ import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustom
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
 
 const characterHistoricMarketOrdersQueryKey = "characterHistoricMarketOrders";
+/** ESI rate-limit bucket this collection spends from. */
+const characterHistoricMarketOrdersQueryGroup = "character";
 
 /**
  * React Query configuration for fetching character historic market orders from EVE ESI API.
@@ -57,7 +59,7 @@ function characterHistoricMarketOrdersQuery(characterHash) {
             page: page,
             config: {
               characterHash,
-              group: 'character',
+              group: characterHistoricMarketOrdersQueryGroup,
               priority: 'normal',
               batchable: true
             }
@@ -91,4 +93,4 @@ function characterHistoricMarketOrdersQuery(characterHash) {
   };
 }
 
-export { characterHistoricMarketOrdersQuery, characterHistoricMarketOrdersQueryKey };
+export { characterHistoricMarketOrdersQuery, characterHistoricMarketOrdersQueryKey, characterHistoricMarketOrdersQueryGroup };

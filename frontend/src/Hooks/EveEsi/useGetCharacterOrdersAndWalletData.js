@@ -1,260 +1,86 @@
 import { useQueries } from "@tanstack/react-query";
+import { useCallback } from "react";
 import useUsersStore from "../../Zustand/usersStore";
-import { characterJournalQuery, characterJournalQueryKey } from "../React Query/Character/journal";
-import { characterTransactionsQuery, characterTransactionsQueryKey } from "../React Query/Character/transactions";
-import { characterMarketOrdersQuery, characterMarketOrdersQueryKey } from "../React Query/Character/marketOrders";
-import { characterHistoricMarketOrdersQuery, characterHistoricMarketOrdersQueryKey } from "../React Query/Character/historicMarketOrders";
-import { corporationMarketOrdersQuery, corporationMarketOrdersQueryKey } from "../React Query/Corporation/marketOrders";
-import { corporationHistoricMarketOrdersQuery, corporationHistoricMarketOrdersQueryKey } from "../React Query/Corporation/historicMarketOrders";
-import { corporationJournalQuery, corporationJournalQueryKey } from "../React Query/Corporation/journal";
-import { corporationTransactionsQuery, corporationTransactionsQueryKey } from "../React Query/Corporation/transactions";
-import { isQueryStateLoading } from "./queryLoadingState";
+import { characterJournalQuery } from "../React Query/Character/journal";
+import { characterTransactionsQuery } from "../React Query/Character/transactions";
+import { characterMarketOrdersQuery } from "../React Query/Character/marketOrders";
+import { characterHistoricMarketOrdersQuery } from "../React Query/Character/historicMarketOrders";
+import { corporationMarketOrdersQuery } from "../React Query/Corporation/marketOrders";
+import { corporationHistoricMarketOrdersQuery } from "../React Query/Corporation/historicMarketOrders";
+import {
+  corporationJournalQuery,
+  CORPORATION_WALLET_DIVISIONS,
+} from "../React Query/Corporation/journal";
+import { corporationTransactionsQuery } from "../React Query/Corporation/transactions";
+import { isQueryObserverResultLoading } from "./queryLoadingState";
+
+const CHARACTER_QUERIES = [
+  characterMarketOrdersQuery,
+  characterHistoricMarketOrdersQuery,
+  characterTransactionsQuery,
+  characterJournalQuery,
+];
+
+const CORPORATION_QUERIES = [
+  corporationMarketOrdersQuery,
+  corporationHistoricMarketOrdersQuery,
+];
+
+const CORPORATION_DIVISION_QUERIES = [
+  corporationJournalQuery,
+  corporationTransactionsQuery,
+];
 
 /**
- * Empty character data model template for initialising character data structures.
- * Contains empty arrays and eTags objects for all character and corporation data types.
+ * Whether the order and wallet collections behind a set of characters are ready.
  *
- * @constant {Object}
- * @private
- */
-const emptyCharacterDataModel = {
-  [characterMarketOrdersQueryKey]: { data: [], eTags: {} },
-  [characterHistoricMarketOrdersQueryKey]: { data: [], eTags: {} },
-  [characterTransactionsQueryKey]: { data: [], eTags: {} },
-  [characterJournalQueryKey]: { data: [], eTags: {} },
-  [corporationMarketOrdersQueryKey]: { data: [], eTags: {} },
-  [corporationHistoricMarketOrdersQueryKey]: { data: [], eTags: {} },
-  [corporationTransactionsQueryKey]: { data: [], eTags: {} },
-  [corporationJournalQueryKey]: { data: [], eTags: {} },
-};
-
-/**
- * Custom hook that fetches character orders and wallet data for specified characters.
+ * The selling surfaces read those collections through their own helpers; this reports only whether
+ * they have arrived, so a panel can show a spinner rather than an empty table. Corporation
+ * collections are subscribed once per corporation, and the wallet ones once per division.
  *
- * The fetching process:
- * 1. Validates character hashes and finds corresponding user objects
- * 2. Creates queries for all required data types (8 queries per character)
- * 3. Fetches data in parallel using React Query's useQueries
- * 4. Organises data by character hash with structured data models
- * 5. Handles pagination and data flattening for consistent access
- *
- * @param {string|Array<string>} characterHashes - Character hash(es) to fetch data for
- * @returns {Object} Object containing character orders and wallet data
- * @returns {Object} returns.data - Object with character hashes as keys and data structures as values
- * @returns {boolean} returns.isLoading - Whether any queries are still loading
- * @returns {boolean} returns.isError - Whether any queries have errors
- * @returns {Error|null} returns.error - First error encountered, if any
+ * @param {string[]|string} characterHashes
+ * @returns {{isLoading: boolean, isError: boolean, error: Error|null}}
  */
 export function useGetCharacterOrdersAndWalletData(characterHashes) {
-  const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
+  const characters = useUsersStore((store) => store.account.characters);
 
-  // Convert single hash to array for consistent handling
   const hashes = Array.isArray(characterHashes)
-    ? characterHashes
-    : [characterHashes];
+    ? characterHashes.filter(Boolean)
+    : [characterHashes].filter(Boolean);
 
-  // Get all requested characters
-  const requestedCharacters = hashes
-    .map((hash) =>
-      useUsersStore.getState().account.actions.findCharacterByHash(hash)
-    )
-    .filter(Boolean);
-
-  if (!requestedCharacters.length) {
-    return {
-      data: {},
-      isLoading: false,
-      isError: false,
-      error: null,
-    };
-  }
-
-  // Define the required queries for each character
-  const requiredQueries = [
-    characterMarketOrdersQuery,
-    characterHistoricMarketOrdersQuery,
-    characterTransactionsQuery,
-    characterJournalQuery,
-    corporationMarketOrdersQuery,
-    corporationHistoricMarketOrdersQuery,
-    corporationTransactionsQuery,
-    corporationJournalQuery,
-  ];
-
-  // Create query configs for all characters and functions
-  const queryConfigs = requestedCharacters.flatMap((character) =>
-    requiredQueries.map((queryFunction) => queryFunction(character.CharacterHash))
+  const requested = (characters ?? []).filter((character) =>
+    hashes.includes(character.CharacterHash)
   );
 
-  const allQueries = useQueries({
-    queries: queryConfigs,
-  });
-
-  // Initialise data structure for all characters
-  const characterData = requestedCharacters.reduce((acc, character) => {
-    acc[character.CharacterHash] = { ...emptyCharacterDataModel };
-    return acc;
-  }, {});
-
-  // Process queries and populate data
-  requestedCharacters.forEach((character, charIndex) => {
-    const queriesForCharacter = allQueries.slice(
-      charIndex * requiredQueries.length,
-      (charIndex + 1) * requiredQueries.length
-    );
-
-    queriesForCharacter.forEach((query, funcIndex) => {
-      if (query?.data) {
-        const dataKey = getDataKeyFromQueryIndex(funcIndex);
-        // Extract data from the pages structure that the existing queries return
-        const flatData = query.data.pages?.flatMap(page => page.data || []) || [];
-        characterData[character.CharacterHash][dataKey] = {
-          data: flatData,
-          eTags: {}, // The existing queries don't use eTags, so we'll keep this empty
-        };
-      }
-    });
-  });
-
-  return {
-    data: characterData,
-    isLoading: allQueries.some((query) => query?.isLoading),
-    isError: allQueries.some((query) => query?.isError),
-    error: allQueries.find((query) => query?.isError)?.error,
-  };
-}
-
-/**
- * Helper function to map query index to data key for character orders and wallet data.
- * Maps the index of a query function to its corresponding data key constant.
- *
- * @param {number} index - Index of the query function in the requiredQueries array
- * @returns {string} Corresponding data key constant
- * 
- * @private
- */
-function getDataKeyFromQueryIndex(index) {
-  const dataKeys = [
-    characterJournalQueryKey,
-    characterTransactionsQueryKey, 
-    characterMarketOrdersQueryKey,
-    characterHistoricMarketOrdersQueryKey,
-    corporationMarketOrdersQueryKey,
-    corporationHistoricMarketOrdersQueryKey,
-    corporationTransactionsQueryKey,
-    corporationJournalQueryKey,
-  ];
-  return dataKeys[index];
-}
-
-/**
- * Retrieves cached character orders and wallet data from React Query cache.
- *
- * The caching process:
- * 1. Validates character hashes and finds corresponding user objects
- * 2. Checks query states for all required data types
- * 3. Determines overall loading and error states
- * 4. Extracts cached data from successful queries
- * 5. Organises data by character hash with structured models
- *
- * @param {string|Array<string>} characterHashes - Character hash(es) to get cached data for
- * @param {Object} queryClient - React Query client instance
- * @returns {Object} Object containing cached character orders and wallet data
- * @returns {Object} returns.data - Object with character hashes as keys and data structures as values
- * @returns {boolean} returns.isLoading - Whether any queries are still loading
- * @returns {boolean} returns.isError - Whether any queries have errors
- * @returns {Error|null} returns.error - First error encountered, if any
- */
-export function fetchCachedCharacterOrdersAndWalletData(
-  characterHashes,
-  queryClient
-) {
-  const hashes = Array.isArray(characterHashes)
-    ? characterHashes
-    : [characterHashes];
-  const requestedCharacters = hashes
-    .map((hash) =>
-      useUsersStore.getState().account.actions.findCharacterByHash(hash)
-    )
-    .filter(Boolean);
-
-  if (!requestedCharacters.length) {
-    return {
-      data: {},
-      isLoading: false,
-      isError: false,
-    };
-  }
-
-  const characterData = requestedCharacters.reduce((acc, character) => {
-    acc[character.CharacterHash] = { ...emptyCharacterDataModel };
-    return acc;
-  }, {});
-
-  // Define the required queries for each character
-  const requiredQueries = [
-    characterJournalQuery,
-    characterTransactionsQuery,
-    characterMarketOrdersQuery,
-    characterHistoricMarketOrdersQuery,
-    corporationMarketOrdersQuery,
-    corporationHistoricMarketOrdersQuery,
-    corporationTransactionsQuery,
-    corporationJournalQuery,
+  const corporationIds = [
+    ...new Set(requested.map((c) => c.corporation_id).filter(Boolean)),
   ];
 
-  const isLoading = requestedCharacters.some((character) =>
-    requiredQueries.some((queryFunction) => {
-      const queryState = queryClient.getQueryState(queryFunction(character.CharacterHash).queryKey);
-      return isQueryStateLoading(queryState);
-    })
-  );
-
-  if (isLoading) {
+  const combine = useCallback((results) => {
+    const error = results.find((result) => result.error)?.error ?? null;
     return {
-      data: characterData,
-      isLoading: true,
-      isError: false,
-      error: null,
+      isLoading: results.some(isQueryObserverResultLoading),
+      isError: Boolean(error),
+      error,
     };
-  }
+  }, []);
 
-  const isError = requestedCharacters.find((character) =>
-    requiredQueries.find((queryFunction) => {
-      const queryState = queryClient.getQueryState(queryFunction(character.CharacterHash).queryKey);
-      return queryState?.error;
-    })
-  );
-
-  if (isError) {
-    return {
-      data: characterData,
-      isLoading: false,
-      isError: true,
-      error: isError,
-    };
-  }
-
-  requestedCharacters.forEach((character) => {
-    requiredQueries.forEach((queryFunction, index) => {
-      const dataKey = getDataKeyFromQueryIndex(index);
-      const queryKey = queryFunction(character.CharacterHash).queryKey;
-      const cachedData = queryClient.getQueryData(queryKey);
-      if (cachedData) {
-        // Extract data from the pages structure that the existing queries return
-        const flatData = cachedData.pages?.flatMap(page => page.data || []) || [];
-        characterData[character.CharacterHash][dataKey] = {
-          data: flatData,
-          eTags: {}, // The existing queries don't use eTags, so we'll keep this empty
-        };
-      }
-    });
+  return useQueries({
+    queries: [
+      ...requested.flatMap(({ CharacterHash }) =>
+        CHARACTER_QUERIES.map((query) => query(CharacterHash))
+      ),
+      ...corporationIds.flatMap((corporationId) =>
+        CORPORATION_QUERIES.map((query) => query(corporationId))
+      ),
+      ...corporationIds.flatMap((corporationId) =>
+        CORPORATION_DIVISION_QUERIES.flatMap((query) =>
+          CORPORATION_WALLET_DIVISIONS.map((division) =>
+            query(corporationId, division)
+          )
+        )
+      ),
+    ],
+    combine,
   });
-
-  return {
-    data: characterData,
-    isLoading: false,
-    isError: false,
-    error: null,
-  };
 }

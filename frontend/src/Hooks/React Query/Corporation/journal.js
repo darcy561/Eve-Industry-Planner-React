@@ -1,103 +1,97 @@
 import getCorpJournal from "../../../Functions/EveESI/Corporation/getJournal";
-import useUsersStore from "../../../Zustand/usersStore";
 import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutionEnabled";
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
+import {
+  corporationMembers,
+  readAsAuthorisedMember,
+} from "../../../Functions/EveESI/corporationAccess";
 
 const corporationJournalQueryKey = "corporationJournal";
+/** ESI rate-limit bucket this collection spends from. */
+const corporationJournalQueryGroup = "corporation";
+
+/** Wallet divisions a corporation holds. */
+export const CORPORATION_WALLET_DIVISIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7]);
 
 /**
- * React Query configuration for fetching corporation journal from EVE ESI API.
+ * React Query configuration for one wallet division's journal.
  *
- * This query handles corporation journal data fetching with:
+ * Keyed by **corporation and division**, because ESI grants wallet access one division at a time:
+ * a member may read division 1 and be refused division 3. A division is therefore fetched once by
+ * whichever member can read it, rather than every member fetching all seven.
  *
- * The query process:
- * 1. Checks ESI rate limits for corporation group
- * 2. Fetches journal entries for all 7 wallet divisions in parallel
- * 3. For each division, fetches the first page to determine total pages
- * 4. Fetches remaining pages for each division in parallel
- * 5. Combines all division data into a single flattened array
- * 6. Handles rate limiting errors with appropriate wait times
- * 7. Caches data for 1 hour with 30-minute stale time
- *
- * @param {string} characterHash - Character hash identifier for the user
+ * @param {number|string} corporationId
+ * @param {number} division - 1-7
  * @returns {Object} React Query configuration object
- * @returns {Array} returns.queryKey - Query key array for React Query
- * @returns {Function} returns.queryFn - Async function to fetch corporation journal
- * @returns {boolean} returns.enabled - Whether the query is enabled
- * @returns {number} returns.staleTime - Time before data is considered stale (30 minutes)
- * @returns {number} returns.gcTime - Inactive cache retention in ms (1 hour)
- * @returns {number} returns.retry - Number of retry attempts (3)
- * @returns {Function} returns.retryDelay - Function to calculate retry delay
- * @returns {boolean} returns.refetchOnWindowFocus - Whether to refetch on window focus (false)
- * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
-function corporationJournalQuery(characterHash) {
-  const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
-  return {
-    queryKey: [corporationJournalQueryKey, characterHash],
-    queryFn: async () => {
-      const userObject = findCharacterByHash(characterHash);
-      
-      // Check if corporation group is rate limited for this specific character
-      // Use config.group as hint, will be updated from headers if different
-      const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
+function corporationJournalQuery(corporationId, division) {
+  const memberHashes = corporationMembers(corporationId);
+  // The rate-limit bucket is per character; members are tried in order, so the first is the one
+  // whose budget this query normally spends.
+  const budgetHash = memberHashes[0];
 
-      if (corporationStatus && corporationStatus.availableTokens <= 0 && corporationStatus.maxTokens && corporationStatus.windowSize) {
-        const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
-        const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
+  return {
+    queryKey: [corporationJournalQueryKey, corporationId, division],
+    queryFn: async () => {
+      const status = getESIRateLimitStatus(
+        corporationJournalQueryGroup,
+        budgetHash
+      );
+
+      if (
+        status &&
+        status.availableTokens <= 0 &&
+        status.maxTokens &&
+        status.windowSize
+      ) {
+        const tokensPerMs = status.maxTokens / status.windowSize;
+        const tokensToRecover = status.maxTokens - status.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`
+        );
       }
-      const maxDivisions = 7;
 
-      try {
-        // Fetch all divisions in parallel, with each division's pages also fetched in parallel
-        const divisionPromises = Array.from({ length: maxDivisions }, async (_, divisionIndex) => {
-          const division = divisionIndex + 1;
-          try {
-            return await fetchPaginatedDataParallel(async (page) => {
-              return await getCorpJournal({
-                character: userObject,
-                division: division,
-                page: page,
-                config: {
-                  characterHash,
-                  group: 'corporation',
-                  priority: 'normal',
-                  batchable: true
-                }
-              });
+      const data = await readAsAuthorisedMember(
+        memberHashes,
+        async (member, memberHash) => {
+          let forbidden = false;
+          const rows = await fetchPaginatedDataParallel(async (page) => {
+            const result = await getCorpJournal({
+              character: member,
+              division,
+              page,
+              config: {
+                characterHash: memberHash,
+                group: corporationJournalQueryGroup,
+                priority: "normal",
+                batchable: true,
+              },
             });
-          } catch (error) {
-            console.error(`Error fetching corporation journal for division ${division}:`, error);
-            throw new Error(`Failed to fetch corporation journal for division ${division}: ${error.message}`);
-          }
-        });
+            if (result?.forbidden) forbidden = true;
+            return result;
+          });
+          return { rows, forbidden };
+        }
+      );
 
-        const divisionResults = await Promise.all(divisionPromises);
-
-        // Combine all division results into a single array
-        const allData = divisionResults.flatMap((result) => result || []);
-
-        return allData;
-      } catch (error) {
-        console.error('Error fetching corporation journal:', error);
-        throw new Error(`Failed to fetch corporation journal: ${error.message}`);
-      }
+      return { data, corporation_id: Number(corporationId), division };
     },
     enabled: isQueryExecutionEnabled(),
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
-        // Get status for this specific character's corporation bucket
-        const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
-        if (corporationStatus && corporationStatus.maxTokens && corporationStatus.windowSize) {
-          const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
-          const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
+      if (error?.message?.includes("rate limited")) {
+        const status = getESIRateLimitStatus(
+          corporationJournalQueryGroup,
+          budgetHash
+        );
+        if (status && status.maxTokens && status.windowSize) {
+          const tokensPerMs = status.maxTokens / status.windowSize;
+          const tokensToRecover = status.maxTokens - status.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -109,4 +103,8 @@ function corporationJournalQuery(characterHash) {
   };
 }
 
-export { corporationJournalQueryKey, corporationJournalQuery };
+export {
+  corporationJournalQueryKey,
+  corporationJournalQuery,
+  corporationJournalQueryGroup,
+};

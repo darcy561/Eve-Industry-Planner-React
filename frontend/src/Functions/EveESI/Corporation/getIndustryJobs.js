@@ -67,10 +67,13 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
         console.warn(
           `Access forbidden for corporation industry jobs: ${corporation_id}`
         );
+        // Reported rather than folded into empty rows: the caller tries another member on a
+        // refusal, and cannot tell one from a corporation that genuinely holds nothing.
         return {
           data: [],
           etag: "",
           totalPages: 1,
+          forbidden: true,
         };
       }
       // Other client errors - throw
@@ -93,13 +96,14 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
 
     // Filter jobs based on date period and installer
     const currentDate = Date.now();
+    // Every member's jobs are kept. Which of them a surface shows is decided by the planner
+    // being viewed, not here — a corporation planner shows the whole corporation's work.
     data = data
       .filter(
         (job) =>
           !job.completed_date ||
-          (currentDate - Date.parse(job.completed_date) <=
-            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 &&
-            job.installer_id === CharacterID)
+          currentDate - Date.parse(job.completed_date) <=
+            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
       )
       .map((job) => ({ ...job, is_corporation: true, corporation_id, character_id: CharacterID }));
 

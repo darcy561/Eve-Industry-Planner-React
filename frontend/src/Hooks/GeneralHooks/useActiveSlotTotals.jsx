@@ -4,7 +4,7 @@ import { getCachedCharacterIndustryJobs } from "../EveEsi/Character/useGetCharac
 import { getCachedCorporationIndustryJobs } from "../EveEsi/Corporation/useGetCorporationIndustryJobs";
 import useGetAllCharacterIndustryJobs from "../EveEsi/Character/useGetAllCharacterIndustryJobs";
 import useGetAllCharacterSkills from "../EveEsi/Character/useGetAllCharacterSkills";
-import useGetAllCorporationIndustryJobs from "../EveEsi/Corporation/useGetAllCorporationIndustryJobs";
+import { useGetAllCorporationIndustryJobs } from "../EveEsi/Corporation/useGetAllCorporationIndustryJobs";
 import { calculateActiveSlotsSingleFromData } from "../../Functions/Helper/activeSlotTotalsCore";
 
 /**
@@ -109,12 +109,11 @@ export function useActiveSlotTotals() {
     const userIndJobs =
       getCachedCharacterIndustryJobs(queryClient, CharacterHash)?.data || [];
 
-    const userCorpIndJobs =
-      Object.entries(
-        getCachedCorporationIndustryJobs(queryClient, CharacterHash)?.data || {}
-      )
-        .filter(([, job]) => job.installer_id === CharacterID)
-        .map(([, job]) => job) || [];
+    // A corporation's list carries every member's jobs, and these are this character's slots.
+    const userCorpIndJobs = (
+      getCachedCorporationIndustryJobs(queryClient, character.corporation_id)
+        ?.data || []
+    ).filter((job) => job.installer_id === CharacterID);
 
     const userSkills =
       getCachedCharacterSkills(queryClient, CharacterHash)?.data || {};

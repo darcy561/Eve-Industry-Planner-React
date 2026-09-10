@@ -1,56 +1,48 @@
 import getCorpTransactions from "../../../Functions/EveESI/Corporation/getTransactions";
-import useUsersStore from "../../../Zustand/usersStore";
 import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutionEnabled";
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
+import {
+  corporationMembers,
+  readAsAuthorisedMember,
+} from "../../../Functions/EveESI/corporationAccess";
 
 const corporationTransactionsQueryKey = "corporationTransactions";
+/** ESI rate-limit bucket this collection spends from. */
+const corporationTransactionsQueryGroup = "corporation";
 
 /**
- * React Query configuration for fetching corporation transactions from EVE ESI API.
+ * React Query configuration for one wallet division's transactions.
  *
- * This query handles corporation transaction data fetching with:
+ * Keyed by **corporation and division**, because ESI grants wallet access one division at a time:
+ * a member may read division 1 and be refused division 3. A division is therefore fetched once by
+ * whichever member can read it, rather than every member fetching all seven.
  *
- * The query process:
- * 1. Checks ESI rate limits for corporation group
- * 2. Fetches corporation transactions for all wallet divisions
- * 3. Flattens division data into a single array
- * 4. Handles rate limiting errors with appropriate wait times
- * 5. Caches data for 1 hour with 30-minute stale time
- *
- * @param {string} characterHash - Character hash identifier for the user
+ * @param {number|string} corporationId
+ * @param {number} division - 1-7
  * @returns {Object} React Query configuration object
- * @returns {Array} returns.queryKey - Query key array for React Query
- * @returns {Function} returns.queryFn - Async function to fetch corporation transactions
- * @returns {boolean} returns.enabled - Whether the query is enabled
- * @returns {number} returns.staleTime - Time before data is considered stale (30 minutes)
- * @returns {number} returns.gcTime - Inactive cache retention in ms (1 hour)
- * @returns {number} returns.retry - Number of retry attempts (3)
- * @returns {Function} returns.retryDelay - Function to calculate retry delay
- * @returns {boolean} returns.refetchOnWindowFocus - Whether to refetch on window focus (false)
- * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
-function corporationTransactionsQuery(characterHash) {
-  const findCharacterByHash =
-    useUsersStore.getState().account.actions.findCharacterByHash;
+function corporationTransactionsQuery(corporationId, division) {
+  const memberHashes = corporationMembers(corporationId);
+  // The rate-limit bucket is per character; members are tried in order, so the first is the one
+  // whose budget this query normally spends.
+  const budgetHash = memberHashes[0];
+
   return {
-    queryKey: [corporationTransactionsQueryKey, characterHash],
+    queryKey: [corporationTransactionsQueryKey, corporationId, division],
     queryFn: async () => {
-      const userObject = findCharacterByHash(characterHash);
-      
-      // Check if corporation group is rate limited for this specific character
-      // Use config.group as hint, will be updated from headers if different
-      const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
+      const status = getESIRateLimitStatus(
+        corporationTransactionsQueryGroup,
+        budgetHash
+      );
 
       if (
-        corporationStatus &&
-        corporationStatus.availableTokens <= 0 &&
-        corporationStatus.maxTokens &&
-        corporationStatus.windowSize
+        status &&
+        status.availableTokens <= 0 &&
+        status.maxTokens &&
+        status.windowSize
       ) {
-        const tokensPerMs =
-          corporationStatus.maxTokens / corporationStatus.windowSize;
-        const tokensToRecover =
-          corporationStatus.maxTokens - corporationStatus.availableTokens;
+        const tokensPerMs = status.maxTokens / status.windowSize;
+        const tokensToRecover = status.maxTokens - status.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
         throw new Error(
@@ -58,31 +50,24 @@ function corporationTransactionsQuery(characterHash) {
         );
       }
 
-      try {
-        // Fetch all divisions for the current page
+      const data = await readAsAuthorisedMember(
+        memberHashes,
+        async (member, memberHash) => {
+          const result = await getCorpTransactions({
+            character: member,
+            division,
+            config: {
+              characterHash: memberHash,
+              group: corporationTransactionsQueryGroup,
+              priority: "normal",
+              batchable: true,
+            },
+          });
+          return { rows: result?.data ?? [], forbidden: Boolean(result?.forbidden) };
+        }
+      );
 
-        const result = await getCorpTransactions({
-          character: userObject,
-          config: {
-            characterHash,
-            group: "corporation",
-            priority: "normal",
-            batchable: true,
-          },
-        });
-
-        const divisionData = (result?.data || [])
-          .map((result) => result?.data || [])
-          .flat();
-
-        // Combine all division results for this page
-        return divisionData;
-      } catch (error) {
-        console.error("Error fetching corporation transactions:", error);
-        throw new Error(
-          `Failed to fetch corporation transactions: ${error.message}`
-        );
-      }
+      return { data, corporation_id: Number(corporationId), division };
     },
     enabled: isQueryExecutionEnabled(),
     staleTime: 30 * 60 * 1000, // 30 minutes
@@ -90,17 +75,13 @@ function corporationTransactionsQuery(characterHash) {
     retry: 3,
     retryDelay: (attemptIndex, error) => {
       if (error?.message?.includes("rate limited")) {
-        // Get status for this specific character's corporation bucket
-        const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
-        if (
-          corporationStatus &&
-          corporationStatus.maxTokens &&
-          corporationStatus.windowSize
-        ) {
-          const tokensPerMs =
-            corporationStatus.maxTokens / corporationStatus.windowSize;
-          const tokensToRecover =
-            corporationStatus.maxTokens - corporationStatus.availableTokens;
+        const status = getESIRateLimitStatus(
+          corporationTransactionsQueryGroup,
+          budgetHash
+        );
+        if (status && status.maxTokens && status.windowSize) {
+          const tokensPerMs = status.maxTokens / status.windowSize;
+          const tokensToRecover = status.maxTokens - status.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -112,4 +93,8 @@ function corporationTransactionsQuery(characterHash) {
   };
 }
 
-export { corporationTransactionsQuery, corporationTransactionsQueryKey };
+export {
+  corporationTransactionsQueryKey,
+  corporationTransactionsQuery,
+  corporationTransactionsQueryGroup,
+};

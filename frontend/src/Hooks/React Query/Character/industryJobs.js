@@ -4,6 +4,8 @@ import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutio
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 
 const characterIndustryJobsQueryKey = "characterIndustryJobs";
+/** ESI rate-limit bucket this collection spends from. */
+const characterIndustryJobsQueryGroup = "industry";
 
 /**
  * React Query configuration for fetching character industry jobs from EVE ESI API.
@@ -57,7 +59,7 @@ function characterIndustryJobsQuery(characterHash) {
           },
           config: {
             characterHash,
-            group: 'industry',
+            group: characterIndustryJobsQueryGroup,
             priority: 'normal',
             batchable: true
           }
@@ -89,4 +91,4 @@ function characterIndustryJobsQuery(characterHash) {
   };
 }
 
-export { characterIndustryJobsQuery, characterIndustryJobsQueryKey };
+export { characterIndustryJobsQuery, characterIndustryJobsQueryKey, characterIndustryJobsQueryGroup };

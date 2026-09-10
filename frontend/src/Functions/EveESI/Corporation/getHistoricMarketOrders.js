@@ -13,7 +13,7 @@ async function getCorpHistoricMarketOrders({
       throw new Error("Character information is incomplete.");
     }
 
-    const { CharacterID, corporation_id } = character;
+    const { corporation_id } = character;
     const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     const endpointURL = `https://esi.evetech.net/corporations/${corporation_id}/orders/history/?datasource=tranquility&page=${page}`;
 
@@ -65,10 +65,13 @@ async function getCorpHistoricMarketOrders({
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
         console.warn(`Access forbidden for corporation historic market orders: ${corporation_id}`);
+        // Reported rather than folded into empty rows: the caller tries another member on a
+        // refusal, and cannot tell one from a corporation that genuinely holds nothing.
         return {
           data: [],
           etag: "",
           totalPages: 1,
+          forbidden: true,
         };
       }
       // Other client errors - throw
@@ -90,11 +93,12 @@ async function getCorpHistoricMarketOrders({
     let data = await response.json();
 
     const currentDate = Date.now();
+    // Every member's orders are kept. ESI returns the whole corporation's list to one authorised
+    // member, so filtering to the requesting character here would lose the rest of them.
     data = data
       .filter(
         (item) =>
           !item.is_buy_order &&
-          item.issued_by === CharacterID &&
           currentDate - Date.parse(item.issued) <=
             GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
       )

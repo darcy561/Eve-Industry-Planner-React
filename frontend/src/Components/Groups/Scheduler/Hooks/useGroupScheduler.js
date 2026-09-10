@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { scheduleGroup, SchedulingStrategy } from "../../../../Functions/Scheduler/groupSchedulerCore";
 import { calculateActiveSlotsSingleFromData } from "../../../../Functions/Helper/activeSlotTotalsCore";
 import useGetAllCharacterIndustryJobs from "../../../../Hooks/EveEsi/Character/useGetAllCharacterIndustryJobs";
-import useGetAllCorporationIndustryJobs from "../../../../Hooks/EveEsi/Corporation/useGetAllCorporationIndustryJobs";
+import { useGetAllCorporationIndustryJobs } from "../../../../Hooks/EveEsi/Corporation/useGetAllCorporationIndustryJobs";
 import useGetAllCharacterSkills from "../../../../Hooks/EveEsi/Character/useGetAllCharacterSkills";
 import { characterIndustryJobsQueryKey } from "../../../../Hooks/React Query/Character/industryJobs";
 import calculateTimeForSetup from "../../../../Functions/Blueprint Calculations/calculateTimeForSetup";

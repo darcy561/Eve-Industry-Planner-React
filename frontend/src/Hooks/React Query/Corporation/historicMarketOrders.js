@@ -1,84 +1,73 @@
 import getCorpHistoricMarketOrders from "../../../Functions/EveESI/Corporation/getHistoricMarketOrders";
-import useUsersStore from "../../../Zustand/usersStore";
 import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutionEnabled";
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
+import { corporationMembers, readAsAuthorisedMember } from "../../../Functions/EveESI/corporationAccess";
 
 const corporationHistoricMarketOrdersQueryKey = "corporationHistoricMarketOrders";
+/** ESI rate-limit bucket this collection spends from. */
+const corporationHistoricMarketOrdersQueryGroup = "corporation";
 
 /**
- * React Query configuration for fetching corporation historic market orders from EVE ESI API.
+ * React Query configuration for a corporation's historic market orders from EVE ESI.
  *
- * This query handles corporation historic market order data fetching with:
+ * Keyed by **corporation**: ESI returns the whole list to any member holding the role, so one
+ * fetch serves every member. Members are tried in order and the walk stops at the first that is
+ * not refused.
  *
- * The query process:
- * 1. Checks ESI rate limits for corporation group
- * 2. Fetches corporation historic market orders page by page until all data is retrieved
- * 3. Combines all pages into a single array
- * 4. Handles rate limiting errors with appropriate wait times
- * 5. Caches data for 1 hour with 30-minute stale time
- *
- * @param {string} characterHash - Character hash identifier for the user
+ * @param {number|string} corporationId
  * @returns {Object} React Query configuration object
- * @returns {Array} returns.queryKey - Query key array for React Query
- * @returns {Function} returns.queryFn - Async function to fetch corporation historic market orders
- * @returns {boolean} returns.enabled - Whether the query is enabled
- * @returns {number} returns.staleTime - Time before data is considered stale (30 minutes)
- * @returns {number} returns.gcTime - Inactive cache retention in ms (1 hour)
- * @returns {number} returns.retry - Number of retry attempts (3)
- * @returns {Function} returns.retryDelay - Function to calculate retry delay
- * @returns {boolean} returns.refetchOnWindowFocus - Whether to refetch on window focus (false)
- * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
-function corporationHistoricMarketOrdersQuery(characterHash) {
-  const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
-  return {
-    queryKey: [corporationHistoricMarketOrdersQueryKey, characterHash],
-    queryFn: async () => {
-      const userObject = findCharacterByHash(characterHash);
-      
-      // Check if corporation group is rate limited for this specific character
-      // Use config.group as hint, will be updated from headers if different
-      const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
+function corporationHistoricMarketOrdersQuery(corporationId) {
+  const memberHashes = corporationMembers(corporationId);
+  // The rate-limit bucket is per character; members are tried in order, so the first is the one
+  // whose budget this query normally spends.
+  const budgetHash = memberHashes[0];
 
-      if (corporationStatus && corporationStatus.availableTokens <= 0 && corporationStatus.maxTokens && corporationStatus.windowSize) {
-        const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
-        const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
+  return {
+    queryKey: [corporationHistoricMarketOrdersQueryKey, corporationId],
+    queryFn: async () => {
+      const status = getESIRateLimitStatus(corporationHistoricMarketOrdersQueryGroup, budgetHash);
+
+      if (status && status.availableTokens <= 0 && status.maxTokens && status.windowSize) {
+        const tokensPerMs = status.maxTokens / status.windowSize;
+        const tokensToRecover = status.maxTokens - status.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
         throw new Error(`Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
       }
 
-      try {
-        return await fetchPaginatedDataParallel(async (page) => {
-          return await getCorpHistoricMarketOrders({
-            character: userObject,
-            page: page,
+      const data = await readAsAuthorisedMember(memberHashes, async (member, memberHash) => {
+        let forbidden = false;
+        const rows = await fetchPaginatedDataParallel(async (page) => {
+          const result = await getCorpHistoricMarketOrders({
+            character: member,
+            page,
             config: {
-              characterHash,
-              group: 'corporation',
+              characterHash: memberHash,
+              group: corporationHistoricMarketOrdersQueryGroup,
               priority: 'normal',
-              batchable: true
-            }
+              batchable: true,
+            },
           });
+          if (result?.forbidden) forbidden = true;
+          return result;
         });
+        return { rows, forbidden };
+      });
 
-      } catch (error) {
-        console.error('Error fetching corporation historic market orders:', error);
-        throw new Error(`Failed to fetch corporation historic market orders: ${error.message}`);
-      }
+      return { data, corporation_id: Number(corporationId) };
     },
     enabled: isQueryExecutionEnabled(),
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 30 * 60 * 1000, // 30 minutes,
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
       if (error?.message?.includes('rate limited')) {
-        // Get status for this specific character's corporation bucket
-        const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
-        if (corporationStatus && corporationStatus.maxTokens && corporationStatus.windowSize) {
-          const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
-          const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
+        const status = getESIRateLimitStatus(corporationHistoricMarketOrdersQueryGroup, budgetHash);
+        if (status && status.maxTokens && status.windowSize) {
+          const tokensPerMs = status.maxTokens / status.windowSize;
+          const tokensToRecover = status.maxTokens - status.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -90,4 +79,4 @@ function corporationHistoricMarketOrdersQuery(characterHash) {
   };
 }
 
-export { corporationHistoricMarketOrdersQueryKey, corporationHistoricMarketOrdersQuery };
+export { corporationHistoricMarketOrdersQueryKey, corporationHistoricMarketOrdersQuery, corporationHistoricMarketOrdersQueryGroup };

@@ -4,6 +4,8 @@ import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutio
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 
 const characterSkillsQueryKey = "characterSkills";
+/** ESI rate-limit bucket this collection spends from. */
+const characterSkillsQueryGroup = "character";
 
 /**
  * React Query configuration for fetching character skills from EVE ESI API.
@@ -51,7 +53,7 @@ function characterSkillsQuery(characterHash) {
         character: userObject,
         config: {
           characterHash,
-          group: 'character',
+          group: characterSkillsQueryGroup,
           priority: 'normal',
           batchable: true
         }
@@ -80,4 +82,4 @@ function characterSkillsQuery(characterHash) {
   };
 }
   
-export { characterSkillsQuery, characterSkillsQueryKey };
+export { characterSkillsQuery, characterSkillsQueryKey, characterSkillsQueryGroup };

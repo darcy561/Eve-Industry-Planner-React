@@ -1,0 +1,184 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createElement } from "react";
+
+const {
+  account,
+  characterPayloads,
+  corporationPayloads,
+  corporationFetches,
+  searchIndex,
+} = vi.hoisted(() => ({
+  account: { characters: [], corporations: [] },
+  characterPayloads: new Map(),
+  corporationPayloads: new Map(),
+  corporationFetches: [],
+  searchIndex: [{ blueprintID: 686, itemID: 587, jobType: 1 }],
+}));
+
+vi.mock("../../Zustand/usersStore", () => ({
+  default: Object.assign((selector) => selector({ account }), {
+    getState: () => ({ account }),
+  }),
+}));
+
+vi.mock("../React Query/Character/blueprints", () => ({
+  characterBlueprintsQueryKey: "characterBlueprints",
+  characterBlueprintsQuery: (characterHash) => ({
+    queryKey: ["characterBlueprints", characterHash],
+    queryFn: async () => ({
+      data: characterPayloads.get(characterHash) ?? [],
+      characterHash,
+    }),
+    enabled: true,
+  }),
+}));
+
+vi.mock("../React Query/Corporation/blueprints", () => ({
+  corporationBlueprintsQueryKey: "corporationBlueprints",
+  corporationBlueprintsQuery: (corporationId) => ({
+    queryKey: ["corporationBlueprints", corporationId],
+    queryFn: async () => {
+      corporationFetches.push(corporationId);
+      return {
+        data: corporationPayloads.get(corporationId) ?? [],
+        corporation_id: corporationId,
+      };
+    },
+    enabled: true,
+  }),
+}));
+
+// searchIndex is stable across renders, as the real query's data is — the derived collection is
+// cached against the search index's identity as well as the rows'.
+vi.mock("../App/useCachedData", () => ({
+  useCachedData: () => ({ data: searchIndex, isLoading: false, error: null }),
+}));
+
+import useBlueprintIndex, { BLUEPRINT_SCOPE } from "./useBlueprintIndex";
+
+function blueprint(itemId, overrides = {}) {
+  return {
+    item_id: itemId,
+    type_id: 686,
+    material_efficiency: 0,
+    time_efficiency: 0,
+    runs: -1,
+    quantity: -1,
+    location_id: 60003760,
+    location_flag: "Hangar",
+    ...overrides,
+  };
+}
+
+function render(request) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+  });
+  return renderHook(() => useBlueprintIndex(request), {
+    wrapper: ({ children }) =>
+      createElement(QueryClientProvider, { client }, children),
+  });
+}
+
+beforeEach(() => {
+  account.characters = [
+    { CharacterHash: "hash-a" },
+    { CharacterHash: "hash-b" },
+  ];
+  account.corporations = [
+    { corporation_id: 98000001, members: ["hash-a", "hash-b"] },
+  ];
+  characterPayloads.clear();
+  corporationPayloads.clear();
+  corporationFetches.length = 0;
+});
+
+describe("useBlueprintIndex", () => {
+  it("resolves the product join for the rows it returns", async () => {
+    characterPayloads.set("hash-a", [blueprint(1)]);
+
+    const { result } = render({
+      scope: BLUEPRINT_SCOPE.CHARACTER,
+      id: "hash-a",
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.data.byItemId.get(1)).toMatchObject({
+      productTypeId: 587,
+      jobType: 1,
+    });
+  });
+
+  it("fetches a corporation once however many members it has", async () => {
+    corporationPayloads.set(98000001, [
+      blueprint(10, { is_corporation: true, corporation_id: 98000001 }),
+    ]);
+
+    const { result } = render({
+      scope: BLUEPRINT_SCOPE.CORPORATION,
+      id: 98000001,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    // Two members, one fetch — the query is keyed by corporation, not by character.
+    expect(corporationFetches).toEqual([98000001]);
+    expect(result.current.data.rows.map((row) => row.itemId)).toEqual([10]);
+  });
+
+  it("does not repeat a corporation's rows across its members", async () => {
+    characterPayloads.set("hash-a", [blueprint(1)]);
+    characterPayloads.set("hash-b", [blueprint(2)]);
+    corporationPayloads.set(98000001, [
+      blueprint(10, { is_corporation: true, corporation_id: 98000001 }),
+    ]);
+
+    const { result } = render({ scope: BLUEPRINT_SCOPE.ALL });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(
+      result.current.data.rows.map((row) => row.itemId).sort((a, b) => a - b)
+    ).toEqual([1, 2, 10]);
+    expect(corporationFetches).toEqual([98000001]);
+  });
+
+  it("returns only the requested character for the character scope", async () => {
+    characterPayloads.set("hash-a", [blueprint(1)]);
+    characterPayloads.set("hash-b", [blueprint(2)]);
+
+    const { result } = render({
+      scope: BLUEPRINT_SCOPE.CHARACTER,
+      id: "hash-a",
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.data.rows.map((row) => row.itemId)).toEqual([1]);
+  });
+
+  it("gives two consumers of one scope the same collection", async () => {
+    characterPayloads.set("hash-a", [blueprint(1)]);
+
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, gcTime: Infinity } },
+    });
+    const wrapper = ({ children }) =>
+      createElement(QueryClientProvider, { client }, children);
+    const request = { scope: BLUEPRINT_SCOPE.CHARACTER, id: "hash-a" };
+
+    const first = renderHook(() => useBlueprintIndex(request), { wrapper });
+    const second = renderHook(() => useBlueprintIndex(request), { wrapper });
+
+    await waitFor(() => expect(first.result.current.isLoading).toBe(false));
+    await waitFor(() => expect(second.result.current.isLoading).toBe(false));
+
+    expect(second.result.current.data).toBe(first.result.current.data);
+  });
+
+  it("returns an empty collection for an unknown scope", async () => {
+    const { result } = render({ scope: "nonsense" });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.data.rows).toEqual([]);
+  });
+});

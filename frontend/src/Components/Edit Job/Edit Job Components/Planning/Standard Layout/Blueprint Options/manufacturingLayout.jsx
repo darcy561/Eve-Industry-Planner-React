@@ -180,9 +180,7 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
     // Combine and filter blueprints more efficiently
     const characterBps = characterBlueprints
       ? (() => {
-          const data = Object.values(characterBlueprints)
-            .map(({ data }) => data)
-            .flat();
+          const data = Object.values(characterBlueprints).flat();
           return data.length > 0
             ? data.reduce((acc, bp) => {
                 if (bp && bp.type_id && bp.item_id) {

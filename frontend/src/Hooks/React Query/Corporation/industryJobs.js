@@ -1,90 +1,73 @@
 import getCorpIndustryJobs from "../../../Functions/EveESI/Corporation/getIndustryJobs";
-import useUsersStore from "../../../Zustand/usersStore";
 import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutionEnabled";
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
+import { corporationMembers, readAsAuthorisedMember } from "../../../Functions/EveESI/corporationAccess";
 
 const corporationIndustryJobsQueryKey = "corporationIndustryJobs";
+/** ESI rate-limit bucket this collection spends from. */
+const corporationIndustryJobsQueryGroup = "industry";
 
 /**
- * React Query configuration for fetching corporation industry jobs from EVE ESI API.
+ * React Query configuration for a corporation's industry jobs from EVE ESI.
  *
- * This query handles corporation industry job data fetching with:
+ * Keyed by **corporation**: ESI returns the whole list to any member holding the role, so one
+ * fetch serves every member. Members are tried in order and the walk stops at the first that is
+ * not refused.
  *
- * The query process:
- * 1. Checks ESI rate limits for industry group
- * 2. Fetches corporation industry jobs page by page until all data is retrieved
- * 3. Combines all pages into a single array
- * 4. Returns data with corporation ID for identification
- * 5. Handles rate limiting errors with appropriate wait times
- * 6. Caches data for 1 hour with 30-minute stale time
- *
- * @param {string} characterHash - Character hash identifier for the user
+ * @param {number|string} corporationId
  * @returns {Object} React Query configuration object
- * @returns {Array} returns.queryKey - Query key array for React Query
- * @returns {Function} returns.queryFn - Async function to fetch corporation industry jobs
- * @returns {boolean} returns.enabled - Whether the query is enabled
- * @returns {number} returns.staleTime - Time before data is considered stale (30 minutes)
- * @returns {number} returns.gcTime - Inactive cache retention in ms (1 hour)
- * @returns {number} returns.retry - Number of retry attempts (3)
- * @returns {Function} returns.retryDelay - Function to calculate retry delay
- * @returns {boolean} returns.refetchOnWindowFocus - Whether to refetch on window focus (false)
- * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
-function corporationIndustryJobsQuery(characterHash) {
-  const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
+function corporationIndustryJobsQuery(corporationId) {
+  const memberHashes = corporationMembers(corporationId);
+  // The rate-limit bucket is per character; members are tried in order, so the first is the one
+  // whose budget this query normally spends.
+  const budgetHash = memberHashes[0];
 
   return {
-    queryKey: [corporationIndustryJobsQueryKey, characterHash],
+    queryKey: [corporationIndustryJobsQueryKey, corporationId],
     queryFn: async () => {
-      const userObject = findCharacterByHash(characterHash);
-      
-      // Check if industry group is rate limited for this specific character
-      // Use config.group as hint, will be updated from headers if different
-      const industryStatus = getESIRateLimitStatus('industry', characterHash);
+      const status = getESIRateLimitStatus(corporationIndustryJobsQueryGroup, budgetHash);
 
-      if (industryStatus && industryStatus.availableTokens <= 0 && industryStatus.maxTokens && industryStatus.windowSize) {
-        const tokensPerMs = industryStatus.maxTokens / industryStatus.windowSize;
-        const tokensToRecover = industryStatus.maxTokens - industryStatus.availableTokens;
+      if (status && status.availableTokens <= 0 && status.maxTokens && status.windowSize) {
+        const tokensPerMs = status.maxTokens / status.windowSize;
+        const tokensToRecover = status.maxTokens - status.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Industry group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(`Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
       }
 
-      try {
-        const allData = await fetchPaginatedDataParallel(async (page) => {
-          return await getCorpIndustryJobs({
-            character: userObject,
-            page: page,
+      const data = await readAsAuthorisedMember(memberHashes, async (member, memberHash) => {
+        let forbidden = false;
+        const rows = await fetchPaginatedDataParallel(async (page) => {
+          const result = await getCorpIndustryJobs({
+            character: member,
+            page,
             config: {
-              characterHash,
-              group: 'industry',
+              characterHash: memberHash,
+              group: corporationIndustryJobsQueryGroup,
               priority: 'normal',
-              batchable: true
-            }
+              batchable: true,
+            },
           });
+          if (result?.forbidden) forbidden = true;
+          return result;
         });
+        return { rows, forbidden };
+      });
 
-        return {
-          data: allData,
-          corporation_id: userObject.corporation_id,
-        };
-      } catch (error) {
-        console.error('Error fetching corporation industry jobs:', error);
-        throw new Error(`Failed to fetch corporation industry jobs: ${error.message}`);
-      }
+      return { data, corporation_id: Number(corporationId) };
     },
     enabled: isQueryExecutionEnabled(),
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 30 * 60 * 1000, // 30 minutes,
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
       if (error?.message?.includes('rate limited')) {
-        // Get status for this specific character's industry bucket
-        const industryStatus = getESIRateLimitStatus('industry', characterHash);
-        if (industryStatus && industryStatus.maxTokens && industryStatus.windowSize) {
-          const tokensPerMs = industryStatus.maxTokens / industryStatus.windowSize;
-          const tokensToRecover = industryStatus.maxTokens - industryStatus.availableTokens;
+        const status = getESIRateLimitStatus(corporationIndustryJobsQueryGroup, budgetHash);
+        if (status && status.maxTokens && status.windowSize) {
+          const tokensPerMs = status.maxTokens / status.windowSize;
+          const tokensToRecover = status.maxTokens - status.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -96,4 +79,4 @@ function corporationIndustryJobsQuery(characterHash) {
   };
 }
 
-export { corporationIndustryJobsQueryKey, corporationIndustryJobsQuery };
+export { corporationIndustryJobsQueryKey, corporationIndustryJobsQuery, corporationIndustryJobsQueryGroup };

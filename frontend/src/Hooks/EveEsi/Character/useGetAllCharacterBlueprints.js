@@ -7,22 +7,6 @@ import {
   isQueryStateLoading,
 } from "../queryLoadingState";
 
-/**
- * Utility function to extract blueprints from query results.
- * Handles the data structure returned by character blueprints queries.
- *
- * @param {Array<Object>} results - Array of query result objects
- * @returns {Array<Object>} Flattened array of blueprint objects
- * 
- * @private
- */
-function extractBlueprintsFromResults(results) {
-  return results.flatMap((result) => {
-    // The query returns { data: allData, characterHash: characterHash }
-    // So we need to access result.data
-    return result.data || [];
-  });
-}
 
 /**
  * Utility function to check loading state from query results.
@@ -144,12 +128,9 @@ export function getAllCachedCharacterBlueprints(queryClient) {
     return createErrorObject(error);
   }
 
-  // Extract cached blueprints organised by character hash
   const blueprintsByCharacter = {};
   queryStates.forEach(({ CharacterHash, cachedData }) => {
-    // The cached data structure is { data: allData, characterHash: characterHash }
-    const characterBlueprints = cachedData?.data || [];
-    blueprintsByCharacter[CharacterHash] = characterBlueprints;
+    blueprintsByCharacter[CharacterHash] = cachedData?.data ?? [];
   });
 
   return createSuccessObject(blueprintsByCharacter);
@@ -186,14 +167,12 @@ export function useGetAllCharacterBlueprints() {
       return createErrorObject(error);
     }
 
-    // Organise blueprints by character hash
     const blueprintsByCharacter = {};
     results.forEach((result, index) => {
       const { CharacterHash } = characters[index];
-      // Extract blueprints from the single result object
-      // The query returns { data: allData, characterHash: characterHash }
-      const characterBlueprints = result.data || [];
-      blueprintsByCharacter[CharacterHash] = characterBlueprints;
+      // The query resolves to { data, characterHash }; consumers want the rows, and the cache
+      // reader below hands them the same thing.
+      blueprintsByCharacter[CharacterHash] = result.data?.data ?? [];
     });
 
     return createSuccessObject(blueprintsByCharacter);

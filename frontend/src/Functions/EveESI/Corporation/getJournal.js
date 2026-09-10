@@ -68,7 +68,9 @@ async function getCorpJournal({
         console.warn(
           `Access forbidden for corporation journal: ${corporation_id}`
         );
-        return getDefaultResponse();
+        // Reported rather than folded into empty rows: role access is granted per wallet division,
+        // so a refusal here means try another member for this division.
+        return { ...getDefaultResponse(), forbidden: true };
       }
       // Other client errors - throw
       throw new Error(

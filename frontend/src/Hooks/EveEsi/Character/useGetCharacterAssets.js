@@ -38,10 +38,12 @@ import { isQueryStateLoading } from "../queryLoadingState";
  * }
  */
 export function useGetCharacterAssets(characterHash) {
-  if (!characterHash) {
-    return { data: [], isLoading: false, isError: true };
-  }
-  return useQuery(characterAssetsQuery(characterHash));
+  // Disabled rather than skipped: a hash that arrives late must not change the hook count.
+  const query = characterAssetsQuery(characterHash);
+  return useQuery({
+    ...query,
+    enabled: Boolean(characterHash) && query.enabled,
+  });
 }
 
 /**

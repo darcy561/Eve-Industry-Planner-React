@@ -4,6 +4,8 @@ import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutio
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 
 const characterStandingsQueryKey = "characterStandings";
+/** ESI rate-limit bucket this collection spends from. */
+const characterStandingsQueryGroup = "character";
 
 /**
  * React Query configuration for fetching character standings from EVE ESI API.
@@ -52,7 +54,7 @@ function characterStandingsQuery(characterHash) {
         character: userObject,
         config: {
           characterHash,
-          group: 'character',
+          group: characterStandingsQueryGroup,
           priority: 'normal',
           batchable: true
         }
@@ -81,4 +83,4 @@ function characterStandingsQuery(characterHash) {
   }
 }
 
-export { characterStandingsQuery, characterStandingsQueryKey };
+export { characterStandingsQuery, characterStandingsQueryKey, characterStandingsQueryGroup };

@@ -11,7 +11,7 @@ import {
   getSystemIndexDataFromUserStructures,
 } from "../../Functions/Auth/buildAccountData";
 import { clearQueryTimings } from "../../Functions/Debugging/queryWaterfallLogger";
-import { prefetchMultipleCharacters } from "../../Functions/Character/prefetchCharacterData";
+import { prefetchCollections } from "../../Functions/EveESI/prefetch/scheduler";
 import {
   emitLoginError,
   emitLoginStepComplete,
@@ -113,7 +113,7 @@ export async function runPostLoginAccountSync({
     clearQueryTimings();
 
     const characterHashes = newUserArray.map(({ CharacterHash }) => CharacterHash);
-    prefetchMultipleCharacters(queryClient, characterHashes, true).catch((error) => {
+    prefetchCollections(queryClient, characterHashes, true).catch((error) => {
       console.error("Error during character data prefetch:", error);
     });
 

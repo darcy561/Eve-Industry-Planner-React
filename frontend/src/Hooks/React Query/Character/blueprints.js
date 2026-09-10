@@ -5,6 +5,8 @@ import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustom
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
 
 const characterBlueprintsQueryKey = "characterBlueprints";
+/** ESI rate-limit bucket this collection spends from. */
+const characterBlueprintsQueryGroup = "character";
 
 /**
  * React Query configuration for fetching character blueprints from EVE ESI API.
@@ -56,7 +58,7 @@ function characterBlueprintsQuery(characterHash) {
             page: page,
             config: {
               characterHash,
-              group: 'character',
+              group: characterBlueprintsQueryGroup,
               priority: 'normal',
               batchable: true
             }
@@ -94,4 +96,4 @@ function characterBlueprintsQuery(characterHash) {
   };
 }
 
-export { characterBlueprintsQuery, characterBlueprintsQueryKey };
+export { characterBlueprintsQuery, characterBlueprintsQueryKey, characterBlueprintsQueryGroup };

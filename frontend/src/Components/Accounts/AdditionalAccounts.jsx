@@ -21,7 +21,7 @@ import {
 import refreshAccountSessionGrants from "../../Functions/Auth/refreshAccountSessionGrants.js";
 import useUsersStore from "../../Zustand/usersStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { prefetchCharacterData } from "../../Functions/Character/prefetchCharacterData";
+import { prefetchCollections } from "../../Functions/EveESI/prefetch/scheduler";
 import { buildCorporationObjectFromUserObject } from "../../Functions/Corporations/buildCorporationObject";
 import {
   flushPendingUserDocumentSaves,
@@ -154,7 +154,7 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
         ? AppEvent.ADD_ADDITIONAL_CHARACTER_CLOUD
         : AppEvent.ADD_ADDITIONAL_CHARACTER_LOCAL,
     );
-    prefetchCharacterData(queryClient, newUser.CharacterHash);
+    prefetchCollections(queryClient, [newUser.CharacterHash]);
     showSnackbarSuccess(`${newUser.CharacterName} Imported`, 3);
   };
 

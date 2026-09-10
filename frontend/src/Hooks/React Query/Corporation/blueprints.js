@@ -4,21 +4,32 @@ import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutio
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
 const corporationBlueprintsQueryKey = "corporationBlueprints";
+/** ESI rate-limit bucket this collection spends from. */
+const corporationBlueprintsQueryGroup = "corporation";
 
 /**
- * React Query configuration for fetching corporation blueprints from EVE ESI API.
+ * Resolves the members whose tokens may fetch a corporation's blueprints.
  *
- * This query handles corporation blueprint data fetching with:
+ * @param {number|string} corporationId
+ * @returns {string[]} CharacterHashes, in the order they will be tried
+ */
+function findCorporationMembers(corporationId) {
+  const { corporations } = useUsersStore.getState().account;
+  const corporation = corporations?.find(
+    (c) => Number(c.corporation_id) === Number(corporationId)
+  );
+  return corporation?.members ?? [];
+}
+
+/**
+ * React Query configuration for fetching a corporation's blueprints from EVE ESI.
  *
- * The query process:
- * 1. Checks ESI rate limits for corporation group
- * 2. Fetches corporation blueprints page by page until all data is retrieved
- * 3. Combines all pages into a single array
- * 4. Returns data with corporation ID for identification
- * 5. Handles rate limiting errors with appropriate wait times
- * 6. Caches data for 1 hour with 30-minute stale time
+ * Keyed by **corporation**, not by character. ESI treats the corporation blueprint list as a
+ * single access point — any member with the role returns the whole list — so one fetch serves
+ * every member. Members are tried in order and the walk stops at the first that is not refused,
+ * which keeps a corporation visible when its first tracked character lacks the role.
  *
- * @param {string} characterHash - Character hash identifier for the user
+ * @param {number|string} corporationId
  * @returns {Object} React Query configuration object
  * @returns {Array} returns.queryKey - Query key array for React Query
  * @returns {Function} returns.queryFn - Async function to fetch corporation blueprints
@@ -30,16 +41,17 @@ const corporationBlueprintsQueryKey = "corporationBlueprints";
  * @returns {boolean} returns.refetchOnWindowFocus - Whether to refetch on window focus (false)
  * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
-function corporationBlueprintsQuery(characterHash) {
+function corporationBlueprintsQuery(corporationId) {
   const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
+  const memberHashes = findCorporationMembers(corporationId);
+  // The rate-limit bucket is per character. Members are tried in order, so the first is the one
+  // whose budget this query normally spends.
+  const budgetHash = memberHashes[0];
+
   return {
-    queryKey: [corporationBlueprintsQueryKey, characterHash],
+    queryKey: [corporationBlueprintsQueryKey, corporationId],
     queryFn: async () => {
-      const userObject = findCharacterByHash(characterHash);
-      
-      // Check if corporation group is rate limited for this specific character
-      // Use config.group as hint, will be updated from headers if different
-      const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
+      const corporationStatus = getESIRateLimitStatus('corporation', budgetHash);
 
       if (corporationStatus && corporationStatus.availableTokens <= 0 && corporationStatus.maxTokens && corporationStatus.windowSize) {
         const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
@@ -50,24 +62,35 @@ function corporationBlueprintsQuery(characterHash) {
       }
 
       try {
-        const allData = await fetchPaginatedDataParallel(async (page) => {
-          return await getCorpBlueprints({
-            character: userObject,
-            page: page,
-            config: {
-              characterHash,
-              group: 'corporation',
-              priority: 'normal',
-              batchable: true
-            }
+        for (const memberHash of memberHashes) {
+          const member = findCharacterByHash(memberHash);
+          if (!member) continue;
+
+          let forbidden = false;
+          const allData = await fetchPaginatedDataParallel(async (page) => {
+            const result = await getCorpBlueprints({
+              character: member,
+              page: page,
+              config: {
+                characterHash: memberHash,
+                group: corporationBlueprintsQueryGroup,
+                priority: 'normal',
+                batchable: true
+              }
+            });
+            if (result?.forbidden) forbidden = true;
+            return result;
           });
 
-        });
+          if (forbidden) continue;
 
-        return {
-          data: allData,
-          corporation_id: userObject.corporation_id,
-        };
+          return {
+            data: allData,
+            corporation_id: Number(corporationId),
+          };
+        }
+
+        return { data: [], corporation_id: Number(corporationId) };
       } catch (error) {
         console.error('Error fetching corporation blueprints:', error);
         throw new Error(`Failed to fetch corporation blueprints: ${error.message}`);
@@ -79,8 +102,7 @@ function corporationBlueprintsQuery(characterHash) {
     retry: 3,
     retryDelay: (attemptIndex, error) => {
       if (error?.message?.includes('rate limited')) {
-        // Get status for this specific character's corporation bucket
-        const corporationStatus = getESIRateLimitStatus('corporation', characterHash);
+        const corporationStatus = getESIRateLimitStatus('corporation', budgetHash);
         if (corporationStatus && corporationStatus.maxTokens && corporationStatus.windowSize) {
           const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
           const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
@@ -95,4 +117,4 @@ function corporationBlueprintsQuery(characterHash) {
   };
 }
 
-export { corporationBlueprintsQueryKey, corporationBlueprintsQuery };
+export { corporationBlueprintsQueryKey, corporationBlueprintsQuery, corporationBlueprintsQueryGroup };

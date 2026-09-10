@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  mockPrefetchMultipleCharacters,
+  mockPrefetchCollections,
   mockBuildUsersFromRefreshTokens,
   mockHydrateLinkedCharacters,
   mockRefreshAccountSessionGrants,
 } = vi.hoisted(() => ({
-  mockPrefetchMultipleCharacters: vi.fn().mockResolvedValue(undefined),
+  mockPrefetchCollections: vi.fn().mockResolvedValue(undefined),
   mockBuildUsersFromRefreshTokens: vi.fn().mockResolvedValue([]),
   mockHydrateLinkedCharacters: vi.fn().mockResolvedValue([]),
   mockRefreshAccountSessionGrants: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("../../Functions/Character/prefetchCharacterData", () => ({
-  prefetchMultipleCharacters: mockPrefetchMultipleCharacters,
+vi.mock("../../Functions/EveESI/prefetch/scheduler", () => ({
+  prefetchCollections: mockPrefetchCollections,
 }));
 vi.mock("../../Functions/Auth/buildAccountData", () => ({
   buildUsersFromRefreshTokens: mockBuildUsersFromRefreshTokens,
@@ -37,7 +37,7 @@ const queryClient = { fetchQuery: vi.fn() };
 
 describe("post-login account sync", () => {
   beforeEach(() => {
-    mockPrefetchMultipleCharacters.mockClear();
+    mockPrefetchCollections.mockClear();
     mockBuildUsersFromRefreshTokens.mockClear().mockResolvedValue([]);
     mockHydrateLinkedCharacters.mockClear().mockResolvedValue([]);
     mockRefreshAccountSessionGrants.mockClear();
@@ -53,14 +53,14 @@ describe("post-login account sync", () => {
 
     await runPostLoginAccountSync({ queryClient, userDocument: { userCloudAccounts: false } });
 
-    expect(mockPrefetchMultipleCharacters).toHaveBeenCalledWith(queryClient, ["a", "b"], true);
+    expect(mockPrefetchCollections).toHaveBeenCalledWith(queryClient, ["a", "b"], true);
   });
 
   // Warming a cache must not hold up the rest of login: a prefetch that never answers would
   // otherwise stall the steps behind it.
   it("does not wait for the prefetch to finish", async () => {
     mockBuildUsersFromRefreshTokens.mockResolvedValue([{ CharacterHash: "a" }]);
-    mockPrefetchMultipleCharacters.mockReturnValue(new Promise(() => {}));
+    mockPrefetchCollections.mockReturnValue(new Promise(() => {}));
 
     await expect(
       runPostLoginAccountSync({ queryClient, userDocument: { userCloudAccounts: false } })
@@ -71,7 +71,7 @@ describe("post-login account sync", () => {
   // Prefetching is warming a cache: login must not fail because ESI would not answer.
   it("completes when the prefetch rejects", async () => {
     mockBuildUsersFromRefreshTokens.mockResolvedValue([{ CharacterHash: "a" }]);
-    mockPrefetchMultipleCharacters.mockRejectedValue(new Error("esi down"));
+    mockPrefetchCollections.mockRejectedValue(new Error("esi down"));
 
     await expect(
       runPostLoginAccountSync({ queryClient, userDocument: { userCloudAccounts: false } })
@@ -82,6 +82,6 @@ describe("post-login account sync", () => {
   it("does nothing when the login carried no user document", async () => {
     await runPostLoginAccountSync({ queryClient, userDocument: null });
 
-    expect(mockPrefetchMultipleCharacters).not.toHaveBeenCalled();
+    expect(mockPrefetchCollections).not.toHaveBeenCalled();
   });
 });

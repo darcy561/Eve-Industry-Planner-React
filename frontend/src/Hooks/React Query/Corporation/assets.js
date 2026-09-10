@@ -5,6 +5,8 @@ import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustom
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
 
 const corporationAssetsQueryKey = "corporationAssets";
+/** ESI rate-limit bucket this collection spends from. */
+const corporationAssetsQueryGroup = "assets";
 
 /**
  * React Query configuration for fetching corporation assets from EVE ESI API.
@@ -57,7 +59,7 @@ function corporationAssetsQuery(characterHash) {
             page: page,
             config: {
               characterHash,
-              group: 'assets',
+              group: corporationAssetsQueryGroup,
               priority: 'normal',
               batchable: true
             }
@@ -92,4 +94,4 @@ function corporationAssetsQuery(characterHash) {
   };
 }
 
-export { corporationAssetsQuery, corporationAssetsQueryKey };
+export { corporationAssetsQuery, corporationAssetsQueryKey, corporationAssetsQueryGroup };

@@ -5,6 +5,8 @@ import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustom
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
 
 const characterTransactionsQueryKey = "characterTransactions";
+/** ESI rate-limit bucket this collection spends from. */
+const characterTransactionsQueryGroup = "character";
 
 /**
  * React Query configuration for fetching character transactions from EVE ESI API.
@@ -55,7 +57,7 @@ function characterTransactionsQuery(characterHash) {
             page: page,
             config: {
               characterHash,
-              group: 'character',
+              group: characterTransactionsQueryGroup,
               priority: 'normal',
               batchable: true
             }
@@ -90,4 +92,4 @@ function characterTransactionsQuery(characterHash) {
   };
 }
 
-export { characterTransactionsQuery, characterTransactionsQueryKey };
+export { characterTransactionsQuery, characterTransactionsQueryKey, characterTransactionsQueryGroup };

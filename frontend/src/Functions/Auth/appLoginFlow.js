@@ -14,8 +14,8 @@ import {
 import useUsersStore from "../../Zustand/usersStore";
 import { emitUserDataUpdate } from "../../Events/loginEvents";
 import { buildCorporationObjectFromUserObject } from "../Corporations/buildCorporationObject";
+import { prefetchCollections } from "../EveESI/prefetch/scheduler";
 import { runPostLoginAccountSync } from "../../Components/Auth/runPostLoginAccountSync";
-import { prefetchCharacterData } from "../Character/prefetchCharacterData";
 import { bootstrapJobGroupsLoginStep } from "../../Components/Auth/bootstrapJobGroupsLoginStep";
 import { bootstrapJobDocumentsLoginStep } from "../../Components/Auth/bootstrapJobDocumentsLoginStep.js";
 import { bootstrapWatchlistLoginStep } from "../../Components/Auth/bootstrapWatchlistLoginStep.js";
@@ -181,7 +181,9 @@ export async function applyClientSessionAfterAppTokens(input) {
     await buildCorporationObjectFromUserObject(character);
 
     useUsersStore.getState().account.actions.updateCharacters([character]);
-    prefetchCharacterData(queryClient, character.CharacterHash);
+    // The account sync below builds only the characters not already in the store, so the main
+    // character is never in its list and is warmed here.
+    prefetchCollections(queryClient, [character.CharacterHash]);
 
     emitUserDataUpdate({
       eveLoginComplete: true,

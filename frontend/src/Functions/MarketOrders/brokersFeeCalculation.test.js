@@ -134,3 +134,44 @@ describe("the fee that reaches the job", () => {
     ]);
   });
 });
+
+// The rates and skill ids are constants rather than literals in the calculation,
+// and a skill id is only useful if the catalogue can resolve it — getSkills builds
+// its map by walking bpSkills, so a skill missing there reads as untrained.
+describe("the constants selling costs are worked out from", () => {
+  it("pins the published broker fee rates", async () => {
+    const { brokerFeeRates } = await import("../../Context/defaultValues");
+
+    expect(brokerFeeRates).toMatchObject({
+      base: 3,
+      brokerRelations: 0.3,
+      factionStanding: 0.03,
+      corporationStanding: 0.02,
+      minimumFee: 100,
+    });
+  });
+
+  it("pins the published sales tax rates", async () => {
+    const { salesTaxRates } = await import("../../Context/defaultValues");
+
+    expect(salesTaxRates).toMatchObject({ base: 7.5, accounting: 0.11 });
+    // Accounting takes a fraction of the base per level rather than subtracting
+    // from it, which is what puts the rate at 3.375% rather than 6.95% at V.
+    expect(salesTaxRates.base * (1 - salesTaxRates.accounting * 5)).toBeCloseTo(
+      3.375
+    );
+  });
+
+  it("resolves every market skill through the catalogue", async () => {
+    const { marketSkillIDs } = await import("../../Context/defaultValues");
+    const { default: catalogue } = await import(
+      "../../RawData/bpSkills.json"
+    );
+
+    for (const [name, typeID] of Object.entries(marketSkillIDs)) {
+      expect(catalogue[typeID], `${name} (${typeID}) missing`).toMatchObject({
+        id: typeID,
+      });
+    }
+  });
+});

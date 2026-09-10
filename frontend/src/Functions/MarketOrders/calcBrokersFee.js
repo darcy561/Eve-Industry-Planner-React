@@ -1,7 +1,6 @@
 import { STATIONID_RANGE } from "../../Context/defaultValues";
-import getStationData from "../EveESI/World/getStationData";
-import { getCachedCharacterSkills } from "../../Hooks/EveEsi/Character/useGetCharacterSkills";
-import { getCachedCharacterStandings } from "../../Hooks/EveEsi/Character/useGetCharacterStandings";
+import { SALE_LOCATION_KIND } from "./saleLocations";
+import { brokerFeeAmount, brokerFeeRate } from "./sellingRates";
 
 /**
  * Calculates broker fee for a market order.
@@ -16,41 +15,30 @@ export default async function calcBrokersFee(
   queryClient,
   citadelBrokersFee
 ) {
-  let brokerFeePercentage = citadelBrokersFee;
-
-  if (
+  const atStation =
     marketOrder.location_id >= STATIONID_RANGE.low &&
-    marketOrder.location_id <= STATIONID_RANGE.high
-  ) {
-    const { data: characterSkills } = getCachedCharacterSkills(
-      queryClient,
-      marketOrder.CharacterHash
-    );
-    const { data: characterStandings } = getCachedCharacterStandings(
-      queryClient,
-      marketOrder.CharacterHash
-    );
+    marketOrder.location_id <= STATIONID_RANGE.high;
 
-    const brokerSkill = characterSkills?.[3446];
-    const stationInfo = await getStationData(marketOrder.location_id);
+  // A real order names where it was placed, so its location is turned into the
+  // shape the shared rate function reads rather than the rate being worked out a
+  // second way here.
+  const saleLocation = atStation
+    ? {
+        kind: SALE_LOCATION_KIND.HUB,
+        priceHubStationID: marketOrder.location_id,
+        brokerFee: null,
+      }
+    : {
+        kind: SALE_LOCATION_KIND.STRUCTURE,
+        priceHubStationID: null,
+        brokerFee: citadelBrokersFee,
+      };
 
-    const factionStanding =
-      characterStandings?.find((i) => i.from_id === stationInfo.race_id)
-        ?.standing ?? 0;
-    const corpStanding =
-      characterStandings?.find((i) => i.from_id === stationInfo.owner)
-        ?.standing ?? 0;
+  const rate = await brokerFeeRate(
+    saleLocation,
+    queryClient,
+    marketOrder.CharacterHash
+  );
 
-    brokerFeePercentage =
-      3 -
-      0.3 * (brokerSkill?.activeLevel ?? 0) -
-      0.03 * factionStanding -
-      0.02 * corpStanding;
-  }
-
-  const brokersFee =
-    (brokerFeePercentage / 100) *
-    (marketOrder.price * marketOrder.volume_total);
-
-  return Math.max(brokersFee, 100);
+  return brokerFeeAmount(rate, marketOrder.price * marketOrder.volume_total);
 }

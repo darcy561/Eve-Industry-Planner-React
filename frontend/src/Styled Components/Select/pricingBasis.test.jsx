@@ -1,0 +1,120 @@
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+import PricingBasisSelect from "./pricingBasis";
+
+const formatValue = (value) => `${value} ISK`;
+
+const options = [
+  { id: "buy", label: "Buy Orders", total: 100, delta: -50, isCurrent: false },
+  { id: "sell", label: "Sell Orders", total: 150, delta: 0, isCurrent: true },
+  {
+    id: "buyP95",
+    label: "Buy Orders (95th %ile)",
+    total: 120,
+    delta: -30,
+    isCurrent: false,
+  },
+  {
+    id: "sellP05",
+    label: "Sell Orders (5th %ile)",
+    total: 140,
+    delta: -10,
+    isCurrent: false,
+  },
+];
+
+async function open(props = {}) {
+  const user = userEvent.setup();
+  render(
+    <PricingBasisSelect
+      options={options}
+      formatValue={formatValue}
+      onChange={() => {}}
+      {...props}
+    />
+  );
+  await user.click(screen.getByRole("button"));
+  return user;
+}
+
+describe("PricingBasisSelect", () => {
+  it("shows the basis in effect without opening", () => {
+    render(
+      <PricingBasisSelect
+        options={options}
+        formatValue={formatValue}
+        onChange={() => {}}
+      />
+    );
+
+    expect(screen.getByRole("button")).toHaveTextContent("Sell Orders");
+  });
+
+  it("offers every basis with what each one costs", async () => {
+    await open();
+
+    const items = screen.getAllByRole("option");
+    expect(items).toHaveLength(options.length);
+    options.forEach((option, index) => {
+      expect(within(items[index]).getByText(option.label)).toBeInTheDocument();
+      expect(
+        within(items[index]).getByText(`${option.total} ISK`)
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("marks the basis in effect as selected", async () => {
+    await open();
+
+    const items = screen.getAllByRole("option");
+    expect(items[1]).toHaveAttribute("aria-selected", "true");
+    expect(items[0]).toHaveAttribute("aria-selected", "false");
+  });
+
+  it("shows how far each other basis sits from the one in effect", async () => {
+    await open();
+
+    const buyP95 = screen.getAllByRole("option")[2];
+    expect(within(buyP95).getByText("−30 ISK")).toBeInTheDocument();
+  });
+
+  it("shows no delta against the basis already in effect", async () => {
+    await open();
+
+    const sell = screen.getAllByRole("option")[1];
+    expect(within(sell).queryByText(/ISK/)).toHaveTextContent("150 ISK");
+    expect(within(sell).queryByText(/^[+−]/)).toBeNull();
+  });
+
+  it("reports the basis a player picks", async () => {
+    const onChange = vi.fn();
+    const user = await open({ onChange });
+
+    await user.click(screen.getAllByRole("option")[2]);
+
+    expect(onChange).toHaveBeenCalledWith("buyP95");
+  });
+
+  it("does not report a change when the basis in effect is picked again", async () => {
+    const onChange = vi.fn();
+    const user = await open({ onChange });
+
+    await user.click(screen.getAllByRole("option")[1]);
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("renders nothing when there are no bases to offer", () => {
+    const { container } = render(
+      <PricingBasisSelect
+        options={[]}
+        formatValue={formatValue}
+        onChange={() => {}}
+      />
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+});

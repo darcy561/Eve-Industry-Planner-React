@@ -174,6 +174,63 @@ export const blueprintOptions = {
     { value: 10, label: "20" },
   ],
 };
+
+/**
+ * What an NPC station charges to list an order, before the seller reduces it.
+ * A citadel uses none of these: its owner sets the rate, and Broker Relations does
+ * not reduce it.
+ *
+ * With the coefficients below, maximum skill and standings reach exactly 1%, so
+ * the published NPC floor needs no clamp of its own. Negative standings raise the
+ * rate above base, which is correct.
+ *
+ * @type {Object}
+ * @property {number} base - Percentage charged before any reduction
+ * @property {number} brokerRelations - Percentage removed per level of Broker Relations
+ * @property {number} factionStanding - Percentage removed per point of standing with the station's faction
+ * @property {number} corporationStanding - Percentage removed per point of standing with its owner
+ * @property {number} minimumFee - Floor in ISK, charged when the percentage comes to less
+ */
+export const brokerFeeRates = {
+  base: 3,
+  brokerRelations: 0.3,
+  factionStanding: 0.03,
+  corporationStanding: 0.02,
+  minimumFee: 100,
+};
+
+/**
+ * What every sale is taxed, before the seller reduces it.
+ *
+ * Accounting reduces this **multiplicatively** — `base × (1 − accounting × level)`
+ * — where the broker fee above subtracts its coefficients. The two read alike and
+ * do not behave alike, so applying one form to the other is the easy mistake:
+ * subtracting here would give 6.95% at Accounting V instead of 3.375%.
+ *
+ * Tax is charged at NPC stations and citadels alike, since it has no station or
+ * structure component.
+ *
+ * @type {Object}
+ * @property {number} base - Percentage charged before any reduction
+ * @property {number} accounting - Fraction of the base removed per level of Accounting
+ */
+export const salesTaxRates = {
+  base: 7.5,
+  accounting: 0.11,
+};
+
+/**
+ * Type IDs of the skills that change what selling costs.
+ *
+ * @type {Object}
+ * @property {number} brokerRelations - Reduces an NPC station's broker fee
+ * @property {number} accounting - Reduces sales tax everywhere
+ */
+export const marketSkillIDs = {
+  brokerRelations: 3446,
+  accounting: 16622,
+};
+
 /**
  * Structure options for EVE Online industry calculations.
  *

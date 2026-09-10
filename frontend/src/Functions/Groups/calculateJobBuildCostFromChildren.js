@@ -1,3 +1,5 @@
+import { captureException } from "@sentry/react";
+
 import useUsersStore from "../../Zustand/usersStore.js";
 import { getJobInstallCostForPlanning } from "../Installation Costs/installCosts.js";
 
@@ -39,13 +41,18 @@ export function calculateCurrentJobBuildCostFromChildren(
   let finalBuildCost =
     getInstallCost(outputJob) + outputJob.totalExtrasCost;
 
+  // The job being costed opens the walk's ancestry so a job listing itself as
+  // its own child is caught on the first descent rather than the second.
+  const ancestry = outputJob.jobID ? new Set([outputJob.jobID]) : new Set();
+
   for (const material of outputJob.build.materials ?? []) {
     const childJobs = outputJob.build.childJobs?.[material.typeID];
     finalBuildCost += findItemBuildCost(
       material,
       childJobs,
       findJobInJobArray,
-      getInstallCost
+      getInstallCost,
+      ancestry
     );
   }
 
@@ -57,12 +64,14 @@ export function calculateCurrentJobBuildCostFromChildren(
  * @param {unknown} inputChildJobs
  * @param {(id: string) => import("../../Classes/job").default | null | undefined} findJobInJobArray
  * @param {(job: import("../../Classes/job").default) => number} getInstallCost
+ * @param {Set<string>} ancestry - Job ids already being walked on this path
  */
 function findItemBuildCost(
   material,
   inputChildJobs,
   findJobInJobArray,
-  getInstallCost
+  getInstallCost,
+  ancestry
 ) {
   const childIds = Array.isArray(inputChildJobs) ? inputChildJobs : [];
 
@@ -74,6 +83,15 @@ function findItemBuildCost(
   let totalProduced = 0;
 
   for (const childJobID of childIds) {
+    // Skipping costs the branch nothing, so a material whose only child cycles
+    // falls to the purchased-cost fallback below rather than a part-counted
+    // figure. The displayed cost is understated with no on-screen sign of it,
+    // which is why the skip is reported.
+    if (ancestry.has(childJobID)) {
+      reportChildJobCycle(childJobID, ancestry);
+      continue;
+    }
+
     const childJob = findJobInJobArray(childJobID);
     if (!childJob?.build) {
       continue;
@@ -83,13 +101,18 @@ function findItemBuildCost(
     returnTotal += childJob.totalExtrasCost;
     totalProduced += toFinite(childJob.totalQuantityProduced);
 
+    // Ancestry is per path, not per walk: the same job reached down two separate
+    // branches is two real contributions and must still be counted twice.
+    const branchAncestry = new Set(ancestry).add(childJobID);
+
     for (const cMaterial of childJob.build.materials ?? []) {
       const nestedChildIds = childJob.build.childJobs?.[cMaterial.typeID];
       returnTotal += findItemBuildCost(
         cMaterial,
         nestedChildIds,
         findJobInJobArray,
-        getInstallCost
+        getInstallCost,
+        branchAncestry
       );
     }
   }
@@ -104,4 +127,32 @@ function findItemBuildCost(
   }
 
   return toFinite(perUnit) * toFinite(material.quantity);
+}
+
+/**
+ * Cycles already reported this session, so one is not sent again.
+ *
+ * This runs inside a render rather than behind a user action, so a card showing
+ * a cyclic job would otherwise report the same cycle on every re-render for as
+ * long as it stays mounted. One id per distinct cycle is enough to find it.
+ */
+const reportedChildJobCycles = new Set();
+
+/**
+ * @param {string} childJobID
+ * @param {Set<string>} ancestry
+ */
+function reportChildJobCycle(childJobID, ancestry) {
+  const path = Array.from(ancestry);
+  const key = `${childJobID}:${path.join(">")}`;
+  if (reportedChildJobCycles.has(key)) return;
+  reportedChildJobCycles.add(key);
+
+  captureException(
+    new Error("Child job cycle while costing a build; branch skipped"),
+    {
+      tags: { feature: "buildCost", errorType: "childJobCycle" },
+      extra: { childJobID, ancestry: path },
+    }
+  );
 }

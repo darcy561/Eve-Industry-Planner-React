@@ -14,6 +14,11 @@ vi.mock("../../Zustand/usersStore.js", () => ({
   },
 }));
 
+const captureException = vi.fn();
+vi.mock("@sentry/react", () => ({
+  captureException: (...args) => captureException(...args),
+}));
+
 vi.mock("../Installation Costs/installCosts.js", () => ({
   getJobInstallCostForPlanning: (job) => job.plannedInstallCost ?? 0,
 }));
@@ -63,6 +68,7 @@ const toBuild = (typeID, quantity, fallbackCost = 0) => ({
 
 beforeEach(() => {
   jobsById.clear();
+  captureException.mockClear();
 });
 
 describe("build cost from children", () => {
@@ -313,26 +319,143 @@ describe("what it does with awkward input", () => {
     expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(100);
   });
 
-  it("runs out of stack on a child job that leads back to itself", () => {
-    // A cycle is not guarded against: the walk has no visited set and no depth
-    // limit, so it recurses until the stack gives out. Pinned because a rewrite
-    // should either keep this loud or fix it deliberately — not turn it into a
-    // silently wrong figure.
+  it("stops a child job that leads back to itself, and says so", () => {
     const looping = job({
       id: "loop",
       produced: 10,
-      materials: [toBuild(35, 1)],
+      installCost: 500,
+      materials: [toBuild(35, 1, 42)],
       childJobs: { 35: ["loop"] },
     });
     jobsById.set("loop", looping);
     const outputJob = job({
       produced: 1,
-      materials: [toBuild(35, 1)],
+      materials: [toBuild(35, 10, 777)],
       childJobs: { 35: ["loop"] },
     });
 
-    expect(() => calculateCurrentJobBuildCostFromChildren(outputJob)).toThrow(
-      RangeError
+    // The cycle is skipped rather than walked, so the branch still costs what
+    // the reachable part of it costs: 500 install plus the cycling material's
+    // own purchased cost, over 10 units, for 10 units.
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(542);
+    expect(captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops a job listed as its own child", () => {
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 10, 777)],
+      childJobs: { 35: ["self"] },
+    });
+    outputJob.jobID = "self";
+    jobsById.set("self", outputJob);
+
+    // Nothing reachable, so the material falls to what was paid for it.
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(777);
+    expect(captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops a cycle that runs through a second job before returning", () => {
+    // A→B→A is the shape a real linking mistake takes; the self-loop above is
+    // the degenerate case. Ancestry accumulates on the way down, so B's list of
+    // A is caught without the walk ever revisiting A.
+    job({
+      id: "cycle-b",
+      produced: 10,
+      installCost: 200,
+      materials: [toBuild(34, 1, 11)],
+      childJobs: { 34: ["cycle-a"] },
+    });
+    job({
+      id: "cycle-a",
+      produced: 10,
+      installCost: 300,
+      materials: [toBuild(35, 1, 0)],
+      childJobs: { 35: ["cycle-b"] },
+    });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(36, 10, 999)],
+      childJobs: { 36: ["cycle-a"] },
+    });
+    outputJob.jobID = "output-with-cycle";
+
+    // A costs 300, plus B's 200 and B's cycling material falling back to 11,
+    // over B's 10 units for A's 1 unit = 21.1. A's total 321.1 over 10 units is
+    // 32.11 each, for 10 units.
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBeCloseTo(
+      321.1
     );
+    expect(captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it("still counts a job reached down two separate branches twice", () => {
+    // The guard tracks one path, not the whole walk: a component built once for
+    // each of two children is two real costs, and collapsing them would
+    // understate the build.
+    job({ id: "shared", produced: 10, installCost: 100 });
+    job({
+      id: "child-a",
+      produced: 10,
+      installCost: 0,
+      materials: [toBuild(34, 10)],
+      childJobs: { 34: ["shared"] },
+    });
+    job({
+      id: "child-b",
+      produced: 10,
+      installCost: 0,
+      materials: [toBuild(34, 10)],
+      childJobs: { 34: ["shared"] },
+    });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 20)],
+      childJobs: { 35: ["child-a", "child-b"] },
+    });
+
+    // Each child costs 100 for 10 units, so 20 units across both cost 200.
+    expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBe(200);
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it("says nothing when there is no cycle to report", () => {
+    job({ id: "child-1", produced: 10, installCost: 100 });
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 10)],
+      childJobs: { 35: ["child-1"] },
+    });
+
+    calculateCurrentJobBuildCostFromChildren(outputJob);
+
+    expect(captureException).not.toHaveBeenCalled();
+  });
+});
+
+describe("how often a cycle is reported", () => {
+  it("reports a cycle once however many times the cost is worked out", () => {
+    // The cost is worked out inside a render, so a card showing a cyclic job
+    // re-runs this walk on every re-render. Reporting each time would fill
+    // Sentry with the same event for as long as the card stays mounted.
+    const looping = job({
+      id: "repeat-loop",
+      produced: 10,
+      installCost: 100,
+      materials: [toBuild(35, 1, 5)],
+      childJobs: { 35: ["repeat-loop"] },
+    });
+    jobsById.set("repeat-loop", looping);
+    const outputJob = job({
+      produced: 1,
+      materials: [toBuild(35, 1, 0)],
+      childJobs: { 35: ["repeat-loop"] },
+    });
+
+    calculateCurrentJobBuildCostFromChildren(outputJob);
+    calculateCurrentJobBuildCostFromChildren(outputJob);
+    calculateCurrentJobBuildCostFromChildren(outputJob);
+
+    expect(captureException).toHaveBeenCalledTimes(1);
   });
 });

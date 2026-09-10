@@ -41,7 +41,7 @@ export default async function buildNextMaterialsTree(
     const requestedJobObjects = await jobsFromIdsOrObjects(inputJobIDs);
 
     const availableBlueprints = ignoreItemsWithoutBlueprints
-      ? await getAvailableBlueprintsByMaterialID(queryClient)
+      ? getAvailableBlueprintsByMaterialID(queryClient)
       : new Set();
 
     const typeIDMap = buildTypeIDMap(allJobObjects, activeGroupID);

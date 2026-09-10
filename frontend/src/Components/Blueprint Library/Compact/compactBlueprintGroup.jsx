@@ -8,6 +8,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { BLUEPRINT_OWNER } from "../../../Functions/Blueprints/buildBlueprintRows";
 import { useCachedData } from "../../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES, STANDARD_TEXT_FORMAT } from "../../../Context/defaultValues";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
@@ -31,7 +32,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults, currentFilter = 
 
   let bpData = blueprintIDs?.find((i) => i.blueprintID === bpID);
   let filteredResults = blueprintResults.blueprints.filter(
-    (bp) => bp.type_id === bpID
+    (bp) => bp.typeId === bpID
   );
 
   // Filtered again even though the parent already filtered: the parent keeps
@@ -42,7 +43,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults, currentFilter = 
       // Check if this specific blueprint has an active job
       // Match by blueprint_id (the job's blueprint) to item_id (the blueprint's unique ID)
       const hasActiveJob = esiJobs.some(
-        (job) => job.blueprint_id === bp.item_id && job.status === "active"
+        (job) => job.blueprint_id === bp.itemId && job.status === "active"
       );
       return hasActiveJob;
     })
@@ -52,7 +53,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults, currentFilter = 
   // This is especially important for the active filter where we want accurate counts
   // The parent component may pass duplicate blueprints, so we deduplicate here
   resultsToGroup = Array.from(
-    new Map(resultsToGroup.map((bp) => [bp.item_id, bp])).values()
+    new Map(resultsToGroup.map((bp) => [bp.itemId, bp])).values()
   );
 
   function sortObjectsIntoArrays(objects) {
@@ -65,25 +66,23 @@ export function CompactBlueprintGroup({ bpID, blueprintResults, currentFilter = 
       if (!obj) return;
 
       // Handle undefined/null values in key generation
-      const me = obj["material_efficiency"] ?? 0;
-      const te = obj["time_efficiency"] ?? 0;
-      const qty = obj["quantity"] ?? 0;
-      const runs = obj["runs"] ?? -1;
-      const isCorp = obj["is_corporation"] ?? false;
+      const me = obj.me ?? 0;
+      const te = obj.te ?? 0;
+      const qty = obj.quantity ?? 0;
+      const runs = obj.runs ?? -1;
+      const isCorp = obj.ownerType === BLUEPRINT_OWNER.CORPORATION;
 
       // Check if this blueprint has an active job
       // This splits active and non-active blueprints into separate groups
       const hasActiveJob = esiJobs.some(
-        (job) => job.blueprint_id === obj.item_id && job.status === "active"
+        (job) => job.blueprint_id === obj.itemId && job.status === "active"
       );
 
       let key = `${me}-${te}-${qty}-${runs}-${isCorp}-${hasActiveJob ? "active" : "inactive"}`;
 
-      // Use CharacterHash (capital C) to match blueprint object structure
-      if (obj.CharacterHash) {
-        key += `-${obj.CharacterHash}`;
-      } else if (obj.corporation_id) {
-        key += `-${obj.corporation_id}`;
+      // One owner per group: the row names whoever holds it, whichever kind that is.
+      if (obj.ownerId) {
+        key += `-${obj.ownerId}`;
       }
 
       if (!result[key]) {
@@ -97,7 +96,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults, currentFilter = 
     // This prevents the same blueprint from being counted multiple times in a group
     return Object.values(result).map((group) => {
       return Array.from(
-        new Map(group.map((bp) => [bp.item_id, bp])).values()
+        new Map(group.map((bp) => [bp.itemId, bp])).values()
       );
     });
   }
@@ -178,7 +177,7 @@ export function CompactBlueprintGroup({ bpID, blueprintResults, currentFilter = 
                   .map((blueprintGroup) => {
                     return (
                       <CompactBlueprintEntry
-                        key={blueprintGroup[0].item_id}
+                        key={blueprintGroup[0].itemId}
                         blueprintGroup={blueprintGroup}
                         bpData={bpData}
                         esiJobs={esiJobs}

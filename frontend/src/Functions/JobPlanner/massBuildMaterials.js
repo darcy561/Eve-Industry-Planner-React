@@ -42,7 +42,7 @@ export default async function massBuildMaterials(inputJobIDs, options) {
   const selectedJobs = await jobsFromIdsOrObjects(jobIDs);
 
   const availableBlueprints = ignoreItemsWithoutBlueprints
-    ? await getAvailableBlueprintsByMaterialID(queryClient)
+    ? getAvailableBlueprintsByMaterialID(queryClient)
     : new Set();
 
   const buildRequestsByTypeID = new Map();

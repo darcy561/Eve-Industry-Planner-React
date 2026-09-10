@@ -1,7 +1,9 @@
 import useUsersStore from "../../Zustand/usersStore";
 import { jobTypes } from "../../Context/defaultValues";
-import { getAllCachedCharacterBlueprints } from "../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
-import { getAllCachedCorporationBlueprints } from "../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
+import {
+  BLUEPRINT_SCOPE,
+  getCachedBlueprintIndex,
+} from "../../Hooks/EveEsi/useBlueprintIndex";
 
 export function checkForDefaultMaterialEfficiecyValue(inputJobType) {
   if (
@@ -32,29 +34,19 @@ export function findHighestMaterialEfficiencyBlueprint(
     return defaultReturn;
   }
 
-  const characterBlueprints = getAllCachedCharacterBlueprints(queryClient);
-  const corporationBlueprints = getAllCachedCorporationBlueprints(queryClient);
+  const { byTypeId } = getCachedBlueprintIndex(queryClient, {
+    scope: BLUEPRINT_SCOPE.ALL,
+  });
 
-  const filteredBlueprints = [
-    ...Object.values(characterBlueprints.data).flat(),
-    ...Object.values(corporationBlueprints.data).flat(),
-  ].filter((entry) => entry.type_id === blueprintTypeID);
+  // Ordered when the collection was built — originals first, then the most researched — so the
+  // best one is simply the first.
+  const [best] = byTypeId.get(blueprintTypeID) ?? [];
 
-  if (filteredBlueprints.length < 1) {
+  if (!best) {
     return defaultReturn;
   }
 
-  filteredBlueprints.sort(
-    (a, b) =>
-      a.quantity.toString().localeCompare(b.quantity.toString()) ||
-      b.material_efficiency - a.material_efficiency ||
-      b.time_efficiency - a.time_efficiency
-  );
-
-  return {
-    ME: filteredBlueprints[0].material_efficiency,
-    TE: filteredBlueprints[0].time_efficiency / 2,
-  };
+  return { ME: best.me, TE: best.te / 2 };
 }
 
 export function getDefaultStrutureForJobType(inputJobType) {
@@ -113,16 +105,6 @@ export function calculateSetupQuantitiesFromRequiredQuantity(
   return jobs;
 }
 
-/**
- * ESI uses quantity -2 for blueprint copies; anything else is treated as an original here
- * (same rule as {@link ../Shared/findBlueprintType.js}).
- *
- * @param {{ quantity?: number }} entry
- * @returns {boolean}
- */
-function isBlueprintOriginalEntry(entry) {
-  return entry?.quantity !== -2;
-}
 
 /**
  * Split a positive integer total across `parts` buckets as evenly as possible (largest remainders).
@@ -191,16 +173,13 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
   baseQuantity,
   queryClient
 ) {
-  const characterBlueprints = getAllCachedCharacterBlueprints(queryClient);
-  const corporationBlueprints = getAllCachedCorporationBlueprints(queryClient);
+  // No readiness guard of its own: the reader reports nothing for a collection still arriving or
+  // one whose refetch failed, and no originals takes the same fallback below.
+  const { byTypeId } = getCachedBlueprintIndex(queryClient, {
+    scope: BLUEPRINT_SCOPE.ALL,
+  });
 
-  const cacheReady =
-    !characterBlueprints.isLoading &&
-    !characterBlueprints.isError &&
-    !corporationBlueprints.isLoading &&
-    !corporationBlueprints.isError;
-
-  if (!cacheReady || requiredQuantity <= 0) {
+  if (requiredQuantity <= 0) {
     return calculateSetupQuantitiesFromRequiredQuantity(
       maxProductionLimit,
       baseQuantity,
@@ -208,31 +187,13 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
     );
   }
 
-  const merged = [
-    ...Object.values(characterBlueprints.data ?? {}).flat(),
-    ...Object.values(corporationBlueprints.data ?? {}).flat(),
-  ];
-
-  const seenItemIds = new Set();
-  /** @type {unknown[]} */
-  const matchingOriginals = [];
-  for (const entry of merged) {
-    if (
-      !entry ||
-      entry.type_id !== blueprintTypeID ||
-      !isBlueprintOriginalEntry(entry)
-    ) {
-      continue;
-    }
-    const itemId = entry.item_id;
-    if (itemId != null) {
-      if (seenItemIds.has(itemId)) continue;
-      seenItemIds.add(itemId);
-    }
-    matchingOriginals.push(entry);
-  }
-
-  const originalCount = matchingOriginals.length;
+  // Summed rather than counted. A stack of originals is one row carrying several, and each of them
+  // can hold its own job — a count of rows gives one slot where the stack offers as many as it
+  // holds. Reaction formulas restack after every use, so a stack is their ordinary condition.
+  const originalCount = (byTypeId.get(blueprintTypeID) ?? []).reduce(
+    (total, row) => total + row.originalCount,
+    0
+  );
 
   if (originalCount <= 1) {
     return calculateSetupQuantitiesFromRequiredQuantity(

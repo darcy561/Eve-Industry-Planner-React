@@ -4,6 +4,7 @@ import { Avatar, Badge, Icon, Tooltip, Typography, Grid } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import { jobTypes } from "../../../Context/defaultValues";
 import { ActiveBPPopout } from "../ActiveBPPout";
+import { BLUEPRINT_OWNER } from "../../../Functions/Blueprints/buildBlueprintRows";
 import useUsersStore from "../../../Zustand/usersStore";
 
 const inUse = {
@@ -36,19 +37,21 @@ function styleBlueprintEntry(job, bpType, bpRuns) {
 export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
   const [displayPopover, updateDisplayPopover] = useState(null);
 
-  const blueprintType = blueprint.quantity === -2 ? "bpc" : "bp";
+  const blueprintType = blueprint.isCopy ? "bpc" : "bp";
 
   const esiJob = esiJobs.find(
-    (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
+    (i) => i.blueprint_id === blueprint.itemId && i.status === "active"
   );
   const bpOwner = useUsersStore
     .getState()
-    .account.actions.findCharacterByHash(blueprint.CharacterHash);
+    .account.actions.findCharacterByHash(blueprint.ownerId);
 
-  const corpOwner = blueprint.is_corporation
+  const isCorporationOwned =
+    blueprint.ownerType === BLUEPRINT_OWNER.CORPORATION;
+  const corpOwner = isCorporationOwned
     ? useUsersStore
         .getState()
-        .account.actions.getCorporation(blueprint?.corporation_id)
+        .account.actions.getCorporation(blueprint.ownerId)
     : null;
 
   return (
@@ -63,7 +66,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
       }}>
       <Tooltip
         title={
-          blueprint.is_corporation
+          isCorporationOwned
             ? corpOwner?.corporationName || "unknown"
             : bpOwner?.CharacterName || "unknown"
         }
@@ -78,14 +81,14 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
               badgeContent={
                 <Avatar
                   src={
-                    blueprint.is_corporation && blueprint.corporation_id
-                      ? `https://images.evetech.net/corporations/${blueprint?.corporation_id}/logo`
+                    isCorporationOwned && blueprint.ownerId
+                      ? `https://images.evetech.net/corporations/${blueprint.ownerId}/logo`
                       : bpOwner?.CharacterID
                       ? `https://images.evetech.net/characters/${bpOwner.CharacterID}/portrait`
                       : undefined
                   }
                   alt={
-                    blueprint.is_corporation
+                    isCorporationOwned
                       ? "Corp Logo"
                       : bpOwner?.CharacterName || "Unknown"
                   }
@@ -99,7 +102,7 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
             >
               <picture>
                 <img
-                  src={`https://images.evetech.net/types/${blueprint.type_id}/${blueprintType}?size=64`}
+                  src={`https://images.evetech.net/types/${blueprint.typeId}/${blueprintType}?size=64`}
                   alt=""
                 />
               </picture>
@@ -117,12 +120,12 @@ export function BlueprintEntry({ blueprint, esiJobs, bpData }) {
             <>
               <Grid size={12}>
                 <Typography variant="caption">
-                  M.E: {blueprint.material_efficiency}
+                  M.E: {blueprint.me}
                 </Typography>
               </Grid>
               <Grid size={12}>
                 <Typography variant="caption">
-                  T.E: {blueprint.time_efficiency}
+                  T.E: {blueprint.te}
                 </Typography>
               </Grid>
               {blueprint.runs !== -1 && (

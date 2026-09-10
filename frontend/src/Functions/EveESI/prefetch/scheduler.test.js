@@ -276,6 +276,106 @@ describe("prefetchCollections", () => {
     expect(queryClient.fetchQuery).not.toHaveBeenCalled();
   });
 
+  // Login warms the main character from one place and the linked characters from another. Before
+  // the queue was shared, each call walked its own phases, so every one of the first call's
+  // deferred collections ran before any of the second call's first-paint work.
+  it("runs a later caller's first paint before an earlier caller's remaining deferred work", async () => {
+    setAccount([
+      character("hash-a", 98000001),
+      character("hash-b", 98000002),
+    ]);
+    const order = [];
+    const queryClient = {
+      fetchQuery: vi.fn(async (query) => {
+        order.push(query.queryKey);
+      }),
+    };
+
+    const first = prefetchCollections(queryClient, ["hash-a"]);
+    const second = prefetchCollections(queryClient, ["hash-b"]);
+    await Promise.all([first, second]);
+
+    const firstPaintRoots = COLLECTIONS.filter(
+      (c) => c.phase === PHASE.FIRST_PAINT
+    ).map((c) => c.key);
+
+    const lastOfBsFirstPaint = order.findLastIndex(
+      ([root, id]) => firstPaintRoots.includes(root) && id === "hash-b"
+    );
+    const lastDeferred = order.findLastIndex(
+      ([root]) => !firstPaintRoots.includes(root)
+    );
+
+    expect(lastOfBsFirstPaint).toBeGreaterThan(-1);
+    expect(lastOfBsFirstPaint).toBeLessThan(lastDeferred);
+
+    // The invariant, not just the ordering: no deferred collection is picked while first-paint work
+    // is still queued. Only what was already in flight when the last first-paint item arrived may
+    // precede it, which the budget caps at eight.
+    const deferredBeforeFirstPaintFinished = order
+      .slice(0, lastOfBsFirstPaint)
+      .filter(([root]) => !firstPaintRoots.includes(root)).length;
+    expect(deferredBeforeFirstPaintFinished).toBeLessThanOrEqual(8);
+  });
+
+  it("does not schedule the same fetch twice for two callers", async () => {
+    // Both characters are in one corporation, so its collections are one piece of work.
+    setAccount([
+      character("hash-a", 98000001),
+      character("hash-b", 98000001),
+    ]);
+    const queryClient = queryClientSpy();
+
+    await Promise.all([
+      prefetchCollections(queryClient, ["hash-a"]),
+      prefetchCollections(queryClient, ["hash-b"]),
+    ]);
+
+    const corporationBlueprints = queryClient.fetched.filter(
+      ([root]) => root === "corporationBlueprints"
+    );
+    expect(corporationBlueprints).toHaveLength(1);
+  });
+
+  // A caller arriving after a drain has finished starts a new one. The shared queue is cleared on
+  // the way out, so nothing of the first run can hold the second's work back.
+  it("runs a caller that arrives after an earlier prefetch finished", async () => {
+    setAccount([character("hash-a", 98000001)]);
+    const queryClient = queryClientSpy();
+
+    await prefetchCollections(queryClient, ["hash-a"]);
+    const afterFirst = queryClient.fetched.length;
+    await prefetchCollections(queryClient, ["hash-a"]);
+
+    expect(afterFirst).toBeGreaterThan(0);
+    expect(queryClient.fetched.length).toBe(afterFirst * 2);
+  });
+
+  it("holds two callers together to one budget", async () => {
+    setAccount([
+      character("hash-a", 98000001),
+      character("hash-b", 98000002),
+    ]);
+    let inFlight = 0;
+    let peak = 0;
+    const queryClient = {
+      fetchQuery: vi.fn(async () => {
+        inFlight += 1;
+        peak = Math.max(peak, inFlight);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        inFlight -= 1;
+      }),
+    };
+
+    await Promise.all([
+      prefetchCollections(queryClient, ["hash-a"]),
+      prefetchCollections(queryClient, ["hash-b"]),
+    ]);
+
+    // One queue, one cap — not eight per caller.
+    expect(peak).toBeLessThanOrEqual(8);
+  });
+
   it("holds concurrent requests to the budget", async () => {
     setAccount([
       character("hash-a", 98000001),

@@ -360,43 +360,20 @@ export function logWaterfall() {
   });
   
   if (batches.length > 0) {
-    const EXPECTED_QUERIES_PER_CHARACTER = 14; // 8 character queries + 6 corporation queries
-    
+    // Counted, not checked against an expected total. Collections are scoped per character or per
+    // corporation, so a character sharing a corporation another already covered contributes fewer
+    // than one that does not — there is no single number every character owes.
     console.log('');
-    console.log('👥 Character Batches:');
+    console.log('👥 Collections per character:');
     batches.forEach((batch) => {
       const batchOffset = ((batch.startTime - earliestStart) / totalDuration) * 100;
-      const batchDuration = ((batch.endTime - batch.startTime) / totalDuration) * 100;
-      const totalQueries = batch.characters.reduce((sum, c) => sum + c.queryCount, 0);
-      const expectedTotal = batch.characters.length * EXPECTED_QUERIES_PER_CHARACTER;
-      
-      if (batch.characters.length === 1) {
-        const char = batch.characters[0];
-        const isComplete = char.queryCount === EXPECTED_QUERIES_PER_CHARACTER;
-        const statusIcon = isComplete ? '✅' : '⚠️';
-        const statusText = isComplete 
-          ? `${char.queryCount}/${EXPECTED_QUERIES_PER_CHARACTER} queries`
-          : `${char.queryCount}/${EXPECTED_QUERIES_PER_CHARACTER} queries (missing ${EXPECTED_QUERIES_PER_CHARACTER - char.queryCount})`;
-        console.log(`  Batch ${batch.batchNumber}: ${statusIcon} Character ${char.characterHash.slice(0, 8)} - ${statusText}, started at ${batchOffset.toFixed(1)}% of total duration`);
-      } else {
-        const allComplete = batch.characters.every(c => c.queryCount === EXPECTED_QUERIES_PER_CHARACTER);
-        const statusIcon = allComplete ? '✅' : '⚠️';
-        const statusText = totalQueries === expectedTotal 
-          ? `${totalQueries} total queries (${batch.characters.length} × ${EXPECTED_QUERIES_PER_CHARACTER})`
-          : `${totalQueries}/${expectedTotal} total queries (expected ${batch.characters.length} × ${EXPECTED_QUERIES_PER_CHARACTER})`;
-        console.log(`  Batch ${batch.batchNumber}: ${statusIcon} ${batch.characters.length} characters - ${statusText}, started at ${batchOffset.toFixed(1)}% of total duration`);
-        batch.characters.forEach(char => {
-          const isComplete = char.queryCount === EXPECTED_QUERIES_PER_CHARACTER;
-          const charStatus = isComplete ? '✅' : '⚠️';
-          const charText = isComplete 
-            ? `${char.queryCount}/${EXPECTED_QUERIES_PER_CHARACTER} queries`
-            : `${char.queryCount}/${EXPECTED_QUERIES_PER_CHARACTER} queries (missing ${EXPECTED_QUERIES_PER_CHARACTER - char.queryCount})`;
-          console.log(`    ${charStatus} Character ${char.characterHash.slice(0, 8)}: ${charText}`);
-        });
-      }
+      batch.characters.forEach((char) => {
+        console.log(
+          `  ${char.characterHash.slice(0, 8)}: ${char.queryCount} collection(s), first at ${batchOffset.toFixed(1)}% of total duration`
+        );
+      });
     });
   }
-  
   console.log('');
   console.log('📊 Detailed Waterfall:');
   

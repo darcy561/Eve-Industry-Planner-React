@@ -5,7 +5,10 @@ import { characterAssetsQuery } from "../React Query/Character/assets";
 import { corporationAssetsQuery } from "../React Query/Corporation/assets";
 import buildAssetNodes from "../../Functions/Assets/buildAssetNodes";
 import createCollectionCache from "../../Functions/Shared/collectionCache";
-import { isQueryObserverResultLoading } from "./queryLoadingState";
+import {
+  isQueryObserverResultLoading,
+  isQueryStateLoading,
+} from "./queryLoadingState";
 
 /**
  * Scopes an asset collection can be asked for.
@@ -60,6 +63,45 @@ function queriesForScope(scope, id, characters, corporations) {
     default:
       return [];
   }
+}
+
+/**
+ * The same collection, read from the cache without subscribing.
+ *
+ * For the consumers that resolve assets inside an effect with a query client rather than through a
+ * subscription. It shares the builder and the cache with {@link useAssetIndex}, so the two cannot
+ * hand back different readings of one set of rows.
+ *
+ * @param {Object} queryClient - React Query client instance
+ * @param {{scope: string, id?: string|number}} [request]
+ * @returns {import("../../Functions/Assets/buildAssetNodes").AssetCollection}
+ */
+export function getCachedAssetIndex(queryClient, { scope, id } = {}) {
+  const { characters, corporations } = useUsersStore.getState().account;
+
+  const keys = queriesForScope(
+    scope,
+    id,
+    characters ?? [],
+    corporations ?? []
+  ).map((query) => query.queryKey);
+
+  const sources = [];
+
+  for (const key of keys) {
+    const state = queryClient.getQueryState(key);
+
+    // Still arriving, or failed over rows fetched earlier, is not an answer — the same reading the
+    // hook gives, so a consumer moved between the two sees no difference.
+    if (isQueryStateLoading(state) || state?.error) {
+      return EMPTY_COLLECTION;
+    }
+
+    const rows = queryClient.getQueryData(key);
+    if (Array.isArray(rows)) sources.push(rows);
+  }
+
+  return deriveNodes(sources);
 }
 
 /**

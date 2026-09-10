@@ -36,11 +36,11 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
   );
 
   let bpData = blueprintIDs?.find((i) => i.blueprintID === bpID);
-  let output = blueprintResults.blueprints.filter((bp) => bp.type_id === bpID);
+  let output = blueprintResults.blueprints.filter((bp) => bp.typeId === bpID);
 
   // Deduplicate output by item_id to ensure unique keys
   const uniqueOutput = Array.from(
-    new Map(output.map((bp) => [bp.item_id, bp])).values()
+    new Map(output.map((bp) => [bp.itemId, bp])).values()
   );
 
   return (
@@ -135,7 +135,7 @@ export function ClassicBlueprintGroup({ bpID, blueprintResults }) {
               uniqueOutput.map((blueprint) => {
                 return (
                   <BlueprintEntry
-                    key={`${bpID}-${blueprint.item_id}`}
+                    key={`${bpID}-${blueprint.itemId}`}
                     blueprint={blueprint}
                     esiJobs={esiJobs}
                     bpData={bpData}

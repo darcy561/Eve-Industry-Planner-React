@@ -166,28 +166,3 @@ export function buildAssetLocationFlagMaps(assetList, requestedLocationFlag) {
   return { assetsByLocationMap, topLevelAssetLocations, assetIDSet };
 }
 
-export function findAssetsInLocation(assetList, requestedLocationID) {
-  const assetsByLocationMap = new Map();
-  if (!assetList || !requestedLocationID) {
-    return [];
-  }
-
-  const requestedLocationAssets = assetList.filter(
-    (asset) => asset.location_id === requestedLocationID
-  );
-
-  requestedLocationAssets.forEach((item) => {
-    const locationId = item.location_id;
-    if (assetsByLocationMap.has(locationId)) {
-      assetsByLocationMap.get(locationId).push(item);
-    } else {
-      assetsByLocationMap.set(locationId, [item]);
-    }
-  });
-
-  for (const asset of requestedLocationAssets) {
-    findChildAssets(asset, assetList, assetsByLocationMap);
-  }
-
-  return Array.from(assetsByLocationMap.values()).flat();
-}

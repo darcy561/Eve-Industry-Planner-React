@@ -56,7 +56,10 @@ vi.mock("../App/useCachedData", () => ({
   useCachedData: () => ({ data: searchIndex, isLoading: false, error: null }),
 }));
 
-import useBlueprintIndex, { BLUEPRINT_SCOPE } from "./useBlueprintIndex";
+import useBlueprintIndex, {
+  BLUEPRINT_SCOPE,
+  getCachedBlueprintIndex,
+} from "./useBlueprintIndex";
 
 function blueprint(itemId, overrides = {}) {
   return {
@@ -173,6 +176,71 @@ describe("useBlueprintIndex", () => {
     await waitFor(() => expect(second.result.current.isLoading).toBe(false));
 
     expect(second.result.current.data).toBe(first.result.current.data);
+  });
+
+  // The reader is what the helpers called with a query client use. It has to answer the way the
+  // hook does, or the two shapes of one value that defect B1 describes come straight back.
+  describe("read from the cache without subscribing", () => {
+    function cacheOf(entries) {
+      const byKey = new Map(entries.map(([key, value]) => [key.join("|"), value]));
+      return {
+        getQueryState: (key) => byKey.get(key.join("|"))?.state,
+        getQueryData: (key) => byKey.get(key.join("|"))?.data,
+      };
+    }
+
+    it("reads what the cache holds", () => {
+      const queryClient = cacheOf([
+        [
+          ["characterBlueprints", "hash-a"],
+          { state: { status: "success" }, data: { data: [blueprint(1)] } },
+        ],
+      ]);
+
+      const { rows } = getCachedBlueprintIndex(queryClient, {
+        scope: BLUEPRINT_SCOPE.CHARACTER,
+        id: "hash-a",
+      });
+
+      expect(rows.map((row) => row.itemId)).toEqual([1]);
+    });
+
+    // A refetch that fails leaves the rows it fetched earlier in the cache. Handing those back as
+    // current would report ownership nobody has verified.
+    it("reports nothing when a query failed over rows it already held", () => {
+      const queryClient = cacheOf([
+        [
+          ["characterBlueprints", "hash-a"],
+          {
+            state: { status: "error", error: new Error("esi down") },
+            data: { data: [blueprint(1)] },
+          },
+        ],
+      ]);
+
+      const { rows } = getCachedBlueprintIndex(queryClient, {
+        scope: BLUEPRINT_SCOPE.CHARACTER,
+        id: "hash-a",
+      });
+
+      expect(rows).toEqual([]);
+    });
+
+    it("reports nothing while a query is still arriving", () => {
+      const queryClient = cacheOf([
+        [
+          ["characterBlueprints", "hash-a"],
+          { state: { status: "pending", fetchStatus: "fetching" }, data: undefined },
+        ],
+      ]);
+
+      const { rows } = getCachedBlueprintIndex(queryClient, {
+        scope: BLUEPRINT_SCOPE.CHARACTER,
+        id: "hash-a",
+      });
+
+      expect(rows).toEqual([]);
+    });
   });
 
   it("returns an empty collection for an unknown scope", async () => {

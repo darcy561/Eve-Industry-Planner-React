@@ -11,8 +11,9 @@ import {
 import { useCachedData } from "../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES } from "../../Context/defaultValues";
 import VirtualisedRecipeSearch from "../../Styled Components/autocomplete/virtualisedRecipeSearch";
-import { useGetAllCharacterBlueprints } from "../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
-import { useGetAllCorporationBlueprints } from "../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
+import useBlueprintIndex, {
+  BLUEPRINT_SCOPE,
+} from "../../Hooks/EveEsi/useBlueprintIndex";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
 
@@ -32,16 +33,11 @@ export function LibrarySearch() {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) || {};
 
-  const { isLoading: characterBlueprintsLoading } =
-    useGetAllCharacterBlueprints();
-  const {
-    isLoading: corporationBlueprintsLoading } =
-    useGetAllCorporationBlueprints();
+  const { isLoading: blueprintsLoading } = useBlueprintIndex({
+    scope: BLUEPRINT_SCOPE.ALL,
+  });
 
-  const isLoading =
-    characterBlueprintsLoading ||
-    corporationBlueprintsLoading ||
-    itemListLoading;
+  const isLoading = blueprintsLoading || itemListLoading;
 
   const currentFilter = search?.filter || "all";
   const currentPageSize = search?.pageSize || 16;

@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getCachedSingleCorporationAssets } from "../../../../Hooks/EveEsi/useGetSingleCorporationAssets";
+import { countAssetQuantityFromMap } from "../../../../Functions/Assets/assetHelpers";
+import assetsAtLocation from "../../../../Functions/Assets/assetsAtLocation";
 import {
-  buildAssetMapsCorpOffices,
-  convertAssetArrayIntoMapByTypeID,
-  countAssetQuantityFromMap,
-} from "../../../../Functions/Assets/assetHelpers";
+  ASSET_SCOPE,
+  getCachedAssetIndex,
+} from "../../../../Hooks/EveEsi/useAssetIndex";
 import useUsersStore from "../../../../Zustand/usersStore";
 import getWorldData from "../../../../Functions/EveESI/World/getWorldData";
 
@@ -225,6 +226,10 @@ export function useShoppingListCorporationAssets({
 
       async function processCorporationAssets() {
         actions.setIsLoading(true, "Applying corporation assets to list…");
+        const collection = getCachedAssetIndex(queryClient, {
+          scope: ASSET_SCOPE.CORPORATION,
+          id: state.selectedCorporation,
+        });
         const { data: corporationAssets } = getCachedSingleCorporationAssets(
           queryClient,
           state.selectedCorporation
@@ -254,90 +259,13 @@ export function useShoppingListCorporationAssets({
           return;
         }
 
-        // Build asset maps to understand the structure
-        const { assetsByLocationMap } = buildAssetMapsCorpOffices(
-          corporationAssets,
-          corporationObject
+        // The office and its hangar division are resolved onto every node beneath them, so a
+        // division's contents are one filter however deeply they are packed.
+        const assetsByTypeID = assetsAtLocation(
+          collection,
+          state.selectedCorporationOffice,
+          state.selectedCorporationHangar
         );
-
-        // Find the office object location (the item_id of the office container)
-        const officeLocationAssets =
-          assetsByLocationMap.get(state.selectedCorporationOffice) || [];
-        const officeObjectLocation = officeLocationAssets[0]?.item_id;
-
-        if (!officeObjectLocation) {
-          // Apply empty map to reset applied assets info
-          actions.applyAssetsFromMap(new Map(), countAssetQuantityFromMap);
-          actions.setIsLoading(false);
-          return;
-        }
-
-        // Get all assets in the office container
-        let officeAssets =
-          assetsByLocationMap.get(officeObjectLocation) || [];
-
-        // If no assets found at officeObjectLocation, try looking at the office location directly
-        if (officeAssets.length === 0) {
-          officeAssets = assetsByLocationMap.get(state.selectedCorporationOffice) || [];
-        }
-
-        // Find the OfficeFolder asset - hangar assets are nested inside it
-        const officeFolderAsset = officeAssets.find(
-          (asset) => asset.location_flag === "OfficeFolder"
-        );
-
-        // Get all assets inside the OfficeFolder (where location_id matches OfficeFolder's item_id)
-        let hangarContainerAssets = [];
-        if (officeFolderAsset) {
-          hangarContainerAssets = corporationAssets.filter(
-            (asset) => asset.location_id === officeFolderAsset.item_id
-          );
-        } else {
-          // If no OfficeFolder, try looking directly in office assets
-          hangarContainerAssets = officeAssets;
-        }
-
-        // Filter assets by the selected hangar (location_flag must match hangar's assetLocationRef)
-        const directHangarAssets = hangarContainerAssets.filter(
-          (asset) => asset.location_flag === state.selectedCorporationHangar
-        );
-
-        // Recursively collect all child assets from hangar assets
-        const getAllChildAssets = (parentAsset, allAssets) => {
-          const children = allAssets.filter(
-            (asset) => asset.location_id === parentAsset.item_id
-          );
-          const result = [parentAsset];
-          for (const child of children) {
-            result.push(...getAllChildAssets(child, allAssets));
-          }
-          return result;
-        };
-
-        // Collect all hangar assets including nested children
-        const hangarAssets = [];
-        const processedItemIds = new Set();
-        for (const asset of directHangarAssets) {
-          if (!processedItemIds.has(asset.item_id)) {
-            const allRelatedAssets = getAllChildAssets(
-              asset,
-              corporationAssets
-            );
-            for (const relatedAsset of allRelatedAssets) {
-              if (!processedItemIds.has(relatedAsset.item_id)) {
-                hangarAssets.push(relatedAsset);
-                processedItemIds.add(relatedAsset.item_id);
-              }
-            }
-          }
-        }
-
-        // Assets already cleared above when location changed
-
-        // Convert filtered assets to map by type ID (empty if no assets)
-        const assetsByTypeID = hangarAssets.length > 0
-          ? convertAssetArrayIntoMapByTypeID(hangarAssets)
-          : new Map();
 
         // Apply assets to shopping list (always call to reset applied assets info)
         actions.applyAssetsFromMap(assetsByTypeID, countAssetQuantityFromMap);
@@ -356,9 +284,7 @@ export function useShoppingListCorporationAssets({
     corporationAssetsLoading,
     state.isLoading,
     queryClient,
-    convertAssetArrayIntoMapByTypeID,
     countAssetQuantityFromMap,
-    buildAssetMapsCorpOffices,
     actions.setIsLoading,
     actions.applyAssetsFromMap,
   ]);

@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAllCachedCharacterAssets } from "../../../../Hooks/EveEsi/Character/useGetAllCharacterAssets";
+import { countAssetQuantityFromMap } from "../../../../Functions/Assets/assetHelpers";
+import assetsAtLocation from "../../../../Functions/Assets/assetsAtLocation";
 import {
-  findAssetsInLocation,
-  convertAssetArrayIntoMapByTypeID,
-  countAssetQuantityFromMap,
-} from "../../../../Functions/Assets/assetHelpers";
+  ASSET_SCOPE,
+  getCachedAssetIndex,
+} from "../../../../Hooks/EveEsi/useAssetIndex";
 import { getAssetLocationList } from "../../../../Functions/Assets/getAssetLocations";
 import useUsersStore from "../../../../Zustand/usersStore";
 
@@ -168,6 +169,18 @@ export function useShoppingListCharacterAssets({
                     return;
                 }
 
+                // A node's location is resolved when the collection is built, so a container's
+                // contents are counted with whatever holds them.
+                const collection = getCachedAssetIndex(queryClient, {
+                    scope:
+                        state.selectedCharacter === "allUsers"
+                            ? ASSET_SCOPE.CHARACTERS
+                            : ASSET_SCOPE.CHARACTER,
+                    id:
+                        state.selectedCharacter === "allUsers"
+                            ? undefined
+                            : state.selectedCharacter,
+                });
                 const allAssets =
                     state.selectedCharacter === "allUsers"
                         ? Object.values(allCharacterAssets).flat()
@@ -181,15 +194,13 @@ export function useShoppingListCharacterAssets({
                 }
 
                 // Find assets in the selected location
-                const locationAssets = findAssetsInLocation(
-                    allAssets,
-                    state.selectedAssetLocation
-                );
+
 
                 // Convert assets to map by type ID (empty if no assets)
-                const assetsByTypeID = locationAssets.length > 0
-                    ? convertAssetArrayIntoMapByTypeID(locationAssets)
-                    : new Map();
+                const assetsByTypeID = assetsAtLocation(
+                    collection,
+                    state.selectedAssetLocation
+                );
 
                 // Apply assets to shopping list (always call to reset applied assets info)
                 // The reducer will handle calculateVisibleItems, calculateTotalVolume, and calculateTotalValue
@@ -210,8 +221,6 @@ export function useShoppingListCharacterAssets({
         allCharacterAssetsLoading,
         state.isLoading,
         queryClient,
-        findAssetsInLocation,
-        convertAssetArrayIntoMapByTypeID,
         countAssetQuantityFromMap,
         actions.setIsLoading,
         actions.setAssetLocations,

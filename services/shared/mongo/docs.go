@@ -7,6 +7,8 @@ import (
 	"maps"
 	"time"
 
+	"eve-industry-planner/shared/models"
+
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -396,6 +398,13 @@ func applyLastModified(setDoc bson.M, setOnInsert bson.M, doc bson.M, preserveMe
 			if clientID, ok := meta["clientID"].(string); ok && clientID != "" {
 				setDoc["_meta.clientID"] = clientID
 			}
+			// Written on every upsert, not only on insert. The owner is how a scoped read
+			// addresses the document, so leaving it to `$setOnInsert` means an update writes a
+			// document that the read it pairs with can never find again — and a caller that
+			// cannot read what it just wrote merges its save over the top of the stored one.
+			if owner := ownerToWrite(meta); owner != nil {
+				setDoc["_meta."+models.MetaFieldOwner] = owner
+			}
 			for k, v := range meta {
 				if k == "lastModified" {
 					continue
@@ -407,6 +416,28 @@ func applyLastModified(setDoc bson.M, setOnInsert bson.M, doc bson.M, preserveMe
 			}
 		}
 	}
+}
+
+// ownerToWrite returns the owner a preserving-meta upsert should stamp, or nil when the caller
+// named none.
+//
+// A half-filled owner is rejected rather than written: a scoped read matches on kind and id
+// together, so a document carrying one without the other is as unreachable as one carrying
+// neither, and stamping it would satisfy the release's own "carries an owner" check while leaving
+// the document lost.
+func ownerToWrite(meta bson.M) bson.M {
+	owner := AsDocumentM(meta[models.MetaFieldOwner])
+	if owner == nil {
+		return nil
+	}
+
+	kind, _ := owner["kind"].(string)
+	id, _ := owner["id"].(string)
+	if kind == "" || id == "" {
+		return nil
+	}
+
+	return owner
 }
 
 func ensureMetaMap(metaRaw any) bson.M {

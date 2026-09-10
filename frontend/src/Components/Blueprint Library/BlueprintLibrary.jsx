@@ -5,19 +5,13 @@ import { LibrarySearch } from "./LibrarySearch";
 import { ClassicBlueprintGroup } from "./Classic/classicBlueprintGroup";
 import { CompactBlueprintGroup } from "./Compact/compactBlueprintGroup";
 import useUsersStore from "../../Zustand/usersStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { getAllCachedCharacterBlueprints } from "../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
-import { getAllCachedCorporationBlueprints } from "../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
+import useBlueprintIndex, {
+  BLUEPRINT_SCOPE,
+} from "../../Hooks/EveEsi/useBlueprintIndex";
 import useGetAllIndustryJobs from "../../Hooks/EveEsi/useGetAllIndustryJobs";
 import { useCachedData } from "../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES } from "../../Context/defaultValues";
-import {
-  combineBlueprints,
-  sortBlueprints,
-  filterBlueprints,
-  filterBlueprintsByID,
-  getUniqueBlueprintIDs,
-} from "../../Functions/Helper/blueprintFiltering";
+import filterLibraryBlueprints from "../../Functions/Blueprints/filterLibraryBlueprints";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
 import BlueprintArchiveDialogue from "../Dialogues/Blueprint Archive";
 
@@ -25,7 +19,6 @@ export default function BlueprintLibrary() {
   const enableCompactView = useUsersStore(
     (state) => state.applicationSettings.enableCompactLayoutView
   );
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) || {};
 
@@ -65,60 +58,38 @@ export default function BlueprintLibrary() {
     ? parseInt(search.search)
     : undefined;
 
-  // Get blueprint data
-  const characterBlueprints =
-    getAllCachedCharacterBlueprints(queryClient)?.data || {};
-  const corporationBlueprints =
-    getAllCachedCorporationBlueprints(queryClient)?.data || {};
+  // Subscribed rather than read from the cache during render. A cache read hands back a new object
+  // every render, so the filter and sort below re-ran every time and the page picked up new rows
+  // only because a sibling query happened to re-render it.
+  const { data: blueprints } = useBlueprintIndex({ scope: BLUEPRINT_SCOPE.ALL });
   const { data: apiJobs = [] } = useGetAllIndustryJobs();
 
   // Combine and filter blueprints based on URL params
   const filteredBlueprintData = useMemo(() => {
-    const allBlueprints = combineBlueprints(
-      characterBlueprints,
-      corporationBlueprints
+    const matching = searchBlueprintID
+      ? blueprints.byTypeId.get(searchBlueprintID) ?? []
+      : filterLibraryBlueprints(blueprints.rows, currentFilter, apiJobs);
+
+    // Originals before copies, then the most researched — the same order the collection uses within
+    // a type, applied across the whole library.
+    const sorted = [...matching].sort(
+      (a, b) =>
+        Number(a.isCopy) - Number(b.isCopy) || b.me - a.me || b.te - a.te
     );
 
-    let filteredArray;
-    if (searchBlueprintID) {
-      // If there's a search term, filter by blueprint ID
-      filteredArray = filterBlueprintsByID(allBlueprints, searchBlueprintID);
-    } else {
-      // Otherwise, apply the selected filter
-      filteredArray = filterBlueprints(allBlueprints, currentFilter, {
-        itemList,
-        apiJobs,
-        queryClient,
-      });
-    }
+    let ids = [...new Set(sorted.map((row) => row.typeId))];
 
-    const sortedArray = sortBlueprints(filteredArray);
-    let idArray = getUniqueBlueprintIDs(sortedArray);
-
-    // If searching and no blueprints found, but the blueprint ID exists in itemList,
-    // include it in ids so the frame shows (for archive data access)
-    if (searchBlueprintID && idArray.length === 0 && itemList) {
-      const blueprintExists = itemList.some(
+    // A search naming a blueprint the account does not hold still opens its frame, so the archived
+    // jobs for it can be read.
+    if (searchBlueprintID && ids.length === 0) {
+      const known = itemList?.some(
         (item) => item.blueprintID === searchBlueprintID
       );
-      if (blueprintExists) {
-        idArray = [searchBlueprintID];
-      }
+      if (known) ids = [searchBlueprintID];
     }
 
-    return {
-      ids: idArray,
-      blueprints: sortedArray,
-    };
-  }, [
-    characterBlueprints,
-    corporationBlueprints,
-    currentFilter,
-    searchBlueprintID,
-    itemList,
-    apiJobs,
-    queryClient,
-  ]);
+    return { ids, blueprints: sorted };
+  }, [blueprints, currentFilter, searchBlueprintID, itemList, apiJobs]);
 
   // Calculate pagination
   const totalPages = Math.ceil(
@@ -135,8 +106,8 @@ export default function BlueprintLibrary() {
     const returnIDs = Array.from(
       new Set(filteredBlueprintData.ids.slice(from, to))
     );
-    const returnBps = filteredBlueprintData.blueprints.filter((i) =>
-      returnIDs.includes(i.type_id)
+    const returnBps = filteredBlueprintData.blueprints.filter((row) =>
+      returnIDs.includes(row.typeId)
     );
 
     return {

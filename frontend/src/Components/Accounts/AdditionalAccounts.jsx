@@ -154,7 +154,9 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
         ? AppEvent.ADD_ADDITIONAL_CHARACTER_CLOUD
         : AppEvent.ADD_ADDITIONAL_CHARACTER_LOCAL,
     );
-    prefetchCollections(queryClient, [newUser.CharacterHash]);
+    prefetchCollections(queryClient, [newUser.CharacterHash]).catch((error) => {
+      console.error("Error during character data prefetch:", error);
+    });
     showSnackbarSuccess(`${newUser.CharacterName} Imported`, 3);
   };
 

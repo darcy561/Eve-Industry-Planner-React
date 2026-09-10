@@ -4,8 +4,10 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { red, yellow } from "@mui/material/colors";
-import { useGetAllCharacterBlueprints } from "../../../../../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
-import { useGetAllCorporationBlueprints } from "../../../../../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
+import useBlueprintIndex, {
+  BLUEPRINT_SCOPE,
+} from "../../../../../../Hooks/EveEsi/useBlueprintIndex";
+import { BLUEPRINT_OWNER } from "../../../../../../Functions/Blueprints/buildBlueprintRows";
 import useGetAllIndustryJobs from "../../../../../../Hooks/EveEsi/useGetAllIndustryJobs";
 import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
 import recalculateJobFromSetup from "../../../../../../Functions/JobPlanner/recalculateJobFromSetup";
@@ -16,8 +18,8 @@ const expiring = red[600];
 const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
   const queryClient = useQueryClient();
 
-  const blueprintType = print.quantity === -2 ? "copy" : "original";
-  const blueprintTypeUrl = print.quantity === -2 ? "bpc" : "bp";
+  const blueprintType = print.isCopy ? "copy" : "original";
+  const blueprintTypeUrl = print.isCopy ? "bpc" : "bp";
 
   const activityColor = useMemo(
     () => activityStyleSelector(blueprintType, esiJob, print.runs),
@@ -51,8 +53,8 @@ const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
         container
         onClick={async () => {
           const currentSetup = state.activeJob.selectedSetup;
-          currentSetup.updateMEValue(print.material_efficiency);
-          currentSetup.updateTEValue(print.time_efficiency / 2);
+          currentSetup.updateMEValue(print.me);
+          currentSetup.updateTEValue(print.te / 2);
           await recalculateJobFromSetup(
             currentSetup,
             state,
@@ -75,8 +77,8 @@ const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
             badgeContent={
               <Avatar
                 src={
-                  print.is_corporation
-                    ? `https://images.evetech.net/corporations/${print.corporation_id}/logo`
+                  print.ownerType === BLUEPRINT_OWNER.CORPORATION
+                    ? `https://images.evetech.net/corporations/${print.ownerId}/logo`
                     : `https://images.evetech.net/characters/${blueprintOwner.CharacterID}/portrait`
                 }
                 variant="circular"
@@ -90,10 +92,10 @@ const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
             <picture>
               <source
                 media="(max-width:700px)"
-                srcSet={`https://images.evetech.net/types/${print.type_id}/${blueprintTypeUrl}?size=32`}
+                srcSet={`https://images.evetech.net/types/${print.typeId}/${blueprintTypeUrl}?size=32`}
               />
               <img
-                src={`https://images.evetech.net/types/${print.type_id}/${blueprintTypeUrl}?size=64`}
+                src={`https://images.evetech.net/types/${print.typeId}/${blueprintTypeUrl}?size=64`}
                 alt=""
               />
             </picture>
@@ -102,12 +104,12 @@ const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
         <Grid container align="center" size={12}>
           <Grid size={6}>
             <Typography variant="caption" align="center">
-              ME:{print.material_efficiency}
+              ME:{print.me}
             </Typography>
           </Grid>
           <Grid size={6}>
             <Typography variant="caption" align="center">
-              TE:{print.time_efficiency}
+              TE:{print.te}
             </Typography>
           </Grid>
           {blueprintType === "copy" && <Grid size={12}>{runsDisplay}</Grid>}
@@ -156,15 +158,10 @@ const BlueprintLegend = () => (
 
 export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
   const {
-    data: characterBlueprints,
-    isLoading: isLoadingCharacterBlueprints,
-    error: characterBlueprintError,
-  } = useGetAllCharacterBlueprints();
-  const {
-    data: corporationBlueprints,
-    isLoading: isLoadingCorporationBlueprints,
-    error: corporationBlueprintError,
-  } = useGetAllCorporationBlueprints();
+    data: blueprints,
+    isLoading: isLoadingBlueprints,
+    error: blueprintError,
+  } = useBlueprintIndex({ scope: BLUEPRINT_SCOPE.ALL });
   const {
     data: industryJobs,
     isLoading: isLoadingIndustryJobs,
@@ -173,84 +170,18 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
 
   // Memoize the filtered blueprints and job selection with better logic
   const { blueprintOptions, esiJobSelection } = useMemo(() => {
-    if (!characterBlueprints && !corporationBlueprints) {
-      return { blueprintOptions: [], esiJobSelection: [] };
-    }
+    const blueprintOptions =
+      blueprints.byTypeId.get(state.activeJob.blueprintTypeID) ?? [];
 
-    // Combine and filter blueprints more efficiently
-    const characterBps = characterBlueprints
-      ? (() => {
-          const data = Object.values(characterBlueprints).flat();
-          return data.length > 0
-            ? data.reduce((acc, bp) => {
-                if (bp && bp.type_id && bp.item_id) {
-                  acc.push({ ...bp, is_corporation: false });
-                }
-                return acc;
-              }, [])
-            : [];
-        })()
-      : [];
-
-    const corporationBps = corporationBlueprints
-      ? (() => {
-          const data = Object.values(corporationBlueprints).flat();
-          return data.length > 0
-            ? data.reduce((acc, bp) => {
-                if (bp && bp.type_id && bp.item_id) {
-                  acc.push({ ...bp, is_corporation: true });
-                }
-                return acc;
-              }, [])
-            : [];
-        })()
-      : [];
-
-    const allBlueprints = [...characterBps, ...corporationBps];
-
-    // Filter by blueprint type ID
-    const filteredBlueprints = allBlueprints.filter(
-      (bp) => bp.type_id === state.activeJob.blueprintTypeID
-    );
-
-    // Deduplicate by item_id using Map for better performance
-    const uniqueBlueprints = new Map();
-    filteredBlueprints.forEach((bp) => {
-      if (!uniqueBlueprints.has(bp.item_id)) {
-        uniqueBlueprints.set(bp.item_id, bp);
-      }
-    });
-
-    const blueprintArray = Array.from(uniqueBlueprints.values());
-
-    // Sort blueprints more efficiently
-    blueprintArray.sort((a, b) => {
-      // Sort by quantity first (originals before copies)
-      const quantityDiff = b.quantity - a.quantity;
-      if (quantityDiff !== 0) return quantityDiff;
-
-      // Then by material efficiency (higher first)
-      const meDiff = b.material_efficiency - a.material_efficiency;
-      if (meDiff !== 0) return meDiff;
-
-      // Finally by time efficiency (higher first)
-      return b.time_efficiency - a.time_efficiency;
-    });
-    // Filter industry jobs by blueprint type ID
-    const selection = (industryJobs || []).filter(
-      (job) => job.blueprint_type_id === state.activeJob.blueprintTypeID
-    );
-
+    // Ordered and deduplicated when the collection was built — originals before copies, then the
+    // most researched — so there is nothing to sort or collapse here.
     return {
-      blueprintOptions: blueprintArray,
-      esiJobSelection: selection,
+      blueprintOptions,
+      esiJobSelection: (industryJobs ?? []).filter(
+        (job) => job.blueprint_type_id === state.activeJob.blueprintTypeID
+      ),
     };
-  }, [
-    characterBlueprints,
-    corporationBlueprints,
-    state.activeJob.blueprintTypeID,
-    industryJobs,
-  ]);
+  }, [blueprints, state.activeJob.blueprintTypeID, industryJobs]);
 
   // Memoize the job lookup map for better performance
   const jobLookupMap = useMemo(() => {
@@ -265,8 +196,7 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
 
   // Loading state
   if (
-    isLoadingCharacterBlueprints ||
-    isLoadingCorporationBlueprints ||
+    isLoadingBlueprints ||
     isLoadingIndustryJobs
   ) {
     return (
@@ -279,15 +209,8 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
   }
 
   // Error state
-  if (
-    characterBlueprintError ||
-    corporationBlueprintError ||
-    industryJobsError
-  ) {
-    const errorMessage =
-      characterBlueprintError?.message ||
-      corporationBlueprintError?.message ||
-      industryJobsError?.message;
+  if (blueprintError || industryJobsError) {
+    const errorMessage = blueprintError?.message || industryJobsError?.message;
     return (
       <Grid align="center" size={12}>
         <Typography
@@ -327,14 +250,14 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
         size={12}
       >
         {blueprintOptions.map((print) => {
-          const esiJob = jobLookupMap.get(print.item_id);
+          const esiJob = jobLookupMap.get(print.itemId);
           const blueprintOwner = useUsersStore
             .getState()
-            .account.actions.findCharacterByHash(print.CharacterHash);
+            .account.actions.findCharacterByHash(print.ownerId);
 
           return (
             <BlueprintItem
-              key={print.item_id}
+              key={print.itemId}
               print={print}
               esiJob={esiJob}
               blueprintOwner={blueprintOwner}

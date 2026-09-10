@@ -7,7 +7,10 @@ import buildBlueprintRows from "../../Functions/Blueprints/buildBlueprintRows";
 import createCollectionCache from "../../Functions/Shared/collectionCache";
 import { useCachedData } from "../App/useCachedData";
 import { CACHED_DATA_FILES } from "../../Context/defaultValues";
-import { isQueryObserverResultLoading } from "./queryLoadingState";
+import {
+  isQueryObserverResultLoading,
+  isQueryStateLoading,
+} from "./queryLoadingState";
 
 /**
  * Scopes a blueprint collection can be asked for.
@@ -64,6 +67,49 @@ function queriesForScope(scope, id, characters, corporations) {
     default:
       return [];
   }
+}
+
+/**
+ * The same collection, read from the cache without subscribing.
+ *
+ * For the helpers that are called with a query client rather than rendered — the job setup, the
+ * recipe search's filter, the blueprint type lookup. It shares the builder *and* the cache with
+ * {@link useBlueprintIndex}, so a consumer moved between the two reads the identical object rather
+ * than a second shape of the same value.
+ *
+ * @param {Object} queryClient - React Query client instance
+ * @param {{scope: string, id?: string|number}} [request]
+ * @returns {import("../../Functions/Blueprints/buildBlueprintRows").BlueprintCollection}
+ */
+export function getCachedBlueprintIndex(queryClient, { scope, id } = {}) {
+  const { characters, corporations } = useUsersStore.getState().account;
+  const searchIndex =
+    queryClient.getQueryData(["static", CACHED_DATA_FILES.SEARCH_INDEX]) ?? [];
+
+  const keys = queriesForScope(
+    scope,
+    id,
+    characters ?? [],
+    corporations ?? []
+  ).map((query) => query.queryKey);
+
+  const sources = [];
+
+  for (const key of keys) {
+    const state = queryClient.getQueryState(key);
+
+    // A collection still arriving, or one whose refetch failed over data fetched earlier, is not an
+    // answer. The hook reports neither, and a reader handing back a partial or stale set where the
+    // hook hands back nothing would be the second shape of one value all over again.
+    if (isQueryStateLoading(state) || state?.error) {
+      return EMPTY_COLLECTION;
+    }
+
+    const rows = queryClient.getQueryData(key)?.data;
+    if (Array.isArray(rows)) sources.push(rows);
+  }
+
+  return deriveRows(sources, searchIndex);
 }
 
 /**

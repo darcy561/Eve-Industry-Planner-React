@@ -183,7 +183,9 @@ export async function applyClientSessionAfterAppTokens(input) {
     useUsersStore.getState().account.actions.updateCharacters([character]);
     // The account sync below builds only the characters not already in the store, so the main
     // character is never in its list and is warmed here.
-    prefetchCollections(queryClient, [character.CharacterHash]);
+    prefetchCollections(queryClient, [character.CharacterHash]).catch((error) => {
+      console.error("Error during character data prefetch:", error);
+    });
 
     emitUserDataUpdate({
       eveLoginComplete: true,

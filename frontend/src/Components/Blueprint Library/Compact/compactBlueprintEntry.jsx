@@ -2,6 +2,7 @@ import { Card, Tooltip, Typography, Grid } from "@mui/material";
 
 import { jobTypes } from "../../../Context/defaultValues";
 import { blue } from "@mui/material/colors";
+import { BLUEPRINT_OWNER } from "../../../Functions/Blueprints/buildBlueprintRows";
 import useUsersStore from "../../../Zustand/usersStore";
 
 const inUse = {
@@ -34,20 +35,22 @@ function styleBlueprintEntry(job, bpType, bpRuns) {
 export function CompactBlueprintEntry({ blueprintGroup, bpData, esiJobs = [] }) {
   const blueprint = blueprintGroup[0];
 
-  const blueprintType = blueprint.quantity === -2 ? "bpc" : "bp";
+  const blueprintType = blueprint.isCopy ? "bpc" : "bp";
 
   const esiJob = esiJobs.find(
-    (i) => i.blueprint_id === blueprint.item_id && i.status === "active"
+    (i) => i.blueprint_id === blueprint.itemId && i.status === "active"
   );
 
   const bpOwner = useUsersStore
     .getState()
-    .account.actions.findCharacterByHash(blueprint.CharacterHash);
+    .account.actions.findCharacterByHash(blueprint.ownerId);
 
-  const corpOwner = blueprint.is_corporation
+  const isCorporationOwned =
+    blueprint.ownerType === BLUEPRINT_OWNER.CORPORATION;
+  const corpOwner = isCorporationOwned
     ? useUsersStore
         .getState()
-        .account.actions.getCorporation(blueprint?.corporation_id)
+        .account.actions.getCorporation(blueprint.ownerId)
     : null;
 
   return (
@@ -69,7 +72,7 @@ export function CompactBlueprintEntry({ blueprintGroup, bpData, esiJobs = [] }) 
           <Grid container align="center" size={12}>
             <Tooltip
               title={
-                blueprint.is_corporation
+                isCorporationOwned
                   ? corpOwner?.corporationName || "unknown"
                   : bpOwner?.CharacterName || "unknown"
               }
@@ -81,12 +84,12 @@ export function CompactBlueprintEntry({ blueprintGroup, bpData, esiJobs = [] }) 
                   <Grid container size={12}>
                     <Grid size={3}>
                       <Typography variant="caption">
-                        M.E: {blueprint.material_efficiency}
+                        M.E: {blueprint.me}
                       </Typography>
                     </Grid>
                     <Grid size={3}>
                       <Typography variant="caption">
-                        T.E: {blueprint.time_efficiency}
+                        T.E: {blueprint.te}
                       </Typography>
                     </Grid>
                     <Grid size={3}>
@@ -118,7 +121,7 @@ export function CompactBlueprintEntry({ blueprintGroup, bpData, esiJobs = [] }) 
           <Grid
             sx={{
               height: "2px",
-              background: blueprint.quantity === -2 ? blue[300] : blue[700],
+              background: blueprint.isCopy ? blue[300] : blue[700],
               ...styleBlueprintEntry(esiJob, blueprintType, blueprint.runs),
             }}
             size={12} />

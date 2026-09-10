@@ -93,9 +93,13 @@ async function getCorpMarketOrders({
 
     // Every member's orders are kept. ESI returns the whole corporation's list to one authorised
     // member, so filtering to the requesting character here would lose the rest of them.
+    //
+    // No CharacterHash is stamped for the same reason: it would name whoever's token made the call,
+    // and a row is issued by whichever member `issued_by` records. Attribution belongs to the reader
+    // that knows the account, not to whoever happened to fetch.
     data = data
       .filter((item) => !item.is_buy_order)
-      .map((order) => ({ ...order, is_corporation: true, corporation_id, CharacterHash: character.CharacterHash }));
+      .map((order) => ({ ...order, is_corporation: true, corporation_id }));
 
     return {
       data,

@@ -75,14 +75,15 @@ vi.mock("../Zustand/usersStore", () => ({
   },
 }));
 
-// The blueprint cache the recalculating user holds: none, which is what makes the
-// derived ME fall back to their own default rather than the job's stored value.
-vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterBlueprints", () => ({
-  getAllCachedCharacterBlueprints: () => ({ data: {}, isLoading: false, isError: false }),
-}));
-
-vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints", () => ({
-  getAllCachedCorporationBlueprints: () => ({ data: {}, isLoading: false, isError: false }),
+// The blueprints the recalculating user holds: none, which is what makes the derived ME fall back
+// to their own default rather than the job's stored value.
+vi.mock("../Hooks/EveEsi/useBlueprintIndex", () => ({
+  BLUEPRINT_SCOPE: { ALL: "all" },
+  getCachedBlueprintIndex: () => ({
+    rows: [],
+    byItemId: new Map(),
+    byTypeId: new Map(),
+  }),
 }));
 
 const { default: recalculateJobForNewTotal } = await import(

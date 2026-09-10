@@ -30,7 +30,28 @@ export default function findMarketOrdersForItem(
   temporaryOrderIDsToAdd = [],
   temporaryOrderIDsToRemove = []
 ) {
-  const linkedOrders = useUsersStore.getState().account.linkedOrders;
+  const { linkedOrders, characters } = useUsersStore.getState().account;
+
+  // A corporation's list carries every member's orders, and only the member who issued one has the
+  // skills and standings its broker fee is worked out from. An order this account cannot attribute
+  // would be priced at the base rate and that figure written onto the job, so it is not offered.
+  const hashByCharacterID = new Map(
+    (characters ?? []).map(({ CharacterID, CharacterHash }) => [
+      CharacterID,
+      CharacterHash,
+    ])
+  );
+
+  /**
+   * The account character that issued an order, or null when another member did.
+   *
+   * @param {Object} order
+   * @returns {string|null}
+   */
+  function issuingCharacterHash(order) {
+    if (!order.is_corporation) return order.CharacterHash ?? null;
+    return hashByCharacterID.get(order.issued_by) ?? null;
+  }
 
   const { data: characterMarketOrders } =
     getAllCachedCharacterMarketOrders(queryClient);
@@ -59,9 +80,14 @@ export default function findMarketOrdersForItem(
     .forEach((order) => {
       if (!orderCriteria(order)) return;
 
+      const characterHash = issuingCharacterHash(order);
+      if (!characterHash) return;
+
       const held = byOrderID.get(order.order_id);
       if (!held || (order.is_corporation && !held.is_corporation)) {
-        byOrderID.set(order.order_id, order);
+        // Carried on the row so the fee is worked out from the member who issued the order rather
+        // than from whichever token fetched the corporation's list.
+        byOrderID.set(order.order_id, { ...order, CharacterHash: characterHash });
       }
     });
 

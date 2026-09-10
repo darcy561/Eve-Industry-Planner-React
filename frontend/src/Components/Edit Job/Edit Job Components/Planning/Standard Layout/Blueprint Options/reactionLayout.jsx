@@ -1,125 +1,89 @@
 import { useMemo } from "react";
+import useUsersStore from "../../../../../../Zustand/usersStore";
 import { Avatar, Badge, Typography, Grid } from "@mui/material";
 
-import useUsersStore from "../../../../../../Zustand/usersStore";
-import { useGetAllCharacterBlueprints } from "../../../../../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
-import { useGetAllCorporationBlueprints } from "../../../../../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
+import useBlueprintIndex, {
+  BLUEPRINT_SCOPE,
+} from "../../../../../../Hooks/EveEsi/useBlueprintIndex";
+import { BLUEPRINT_OWNER } from "../../../../../../Functions/Blueprints/buildBlueprintRows";
 import useGetAllIndustryJobs from "../../../../../../Hooks/EveEsi/useGetAllIndustryJobs";
 
 export function ReactionLayout_BlueprintOptions({ state }) {
   const {
-    data: characterBlueprints,
-    isLoading: isLoadingCharacterBlueprints,
-    error: characterBlueprintError,
-  } = useGetAllCharacterBlueprints();
-  const {
-    data: corporationBlueprints,
-    isLoading: isLoadingCorporationBlueprints,
-    error: corporationBlueprintError,
-  } = useGetAllCorporationBlueprints();
+    data: blueprints,
+    isLoading: isLoadingBlueprints,
+    error: blueprintError,
+  } = useBlueprintIndex({ scope: BLUEPRINT_SCOPE.ALL });
   const {
     data: industryJobs,
     isLoading: isLoadingIndustryJobs,
     error: industryJobsError,
   } = useGetAllIndustryJobs();
 
-  const characters = useUsersStore((state) => state.account.characters);
+  const findCharacterByHash = useUsersStore(
+    (store) => store.account.actions.findCharacterByHash
+  );
 
-  // Memoize the processed blueprint options
   const blueprintOptions = useMemo(() => {
-    if (!characterBlueprints && !corporationBlueprints) {
-      return [];
-    }
+    const rows = blueprints.byTypeId.get(state.activeJob.blueprintTypeID) ?? [];
+    if (rows.length === 0) return [];
 
-    const perCharacterBlueprintRows = [];
-    const corpBlueprints = [];
+    const activeJobBlueprintIDs = new Set(
+      (industryJobs ?? [])
+        .filter((job) => job.status === "active")
+        .map((job) => job.blueprint_id)
+    );
 
-    // Blueprints owned by each logged-in character
-    characters.forEach((character) => {
-      const rows = characterBlueprints?.[character.CharacterHash] ?? [];
-      if (rows && rows.length > 0) {
-        const temp = rows.filter(
-          (i) => i.type_id === state.activeJob.blueprintTypeID
-        );
-        temp.forEach((i) => {
-          i.owner_id = character.CharacterID;
-        });
-        perCharacterBlueprintRows.push({
-          ownerID: character.CharacterID,
-          blueprints: temp,
-          totalBP: temp.reduce(
-            (total, i) => (i.quantity > 0 ? total + i.quantity : total + 1),
-            0
-          ),
-          inUse: (industryJobs || []).filter(
-            (job) =>
-              temp.some((i) => i.item_id === job.blueprint_id) &&
-              job.status === "active"
-          ).length,
-          is_corporation: false,
-        });
+    // Grouped by whoever holds them. The rows carry their own owner, so nothing is stamped onto
+    // them here — they belong to React Query's cache, not to this panel.
+    const byOwner = new Map();
+    for (const row of rows) {
+      const held = byOwner.get(row.ownerId);
+      if (held) {
+        held.blueprints.push(row);
+        continue;
       }
-    });
 
-    // Process corporation blueprints
-    if (corporationBlueprints) {
-      Object.entries(corporationBlueprints).forEach(
-        ([corporation_id, blueprintObjects]) => {
-          const bluepringObjectsArray = Object.values(blueprintObjects);
-
-          const matchedBlueprints = bluepringObjectsArray.filter(
-            (i) => i.type_id === state.activeJob.blueprintTypeID
-          );
-
-          if (matchedBlueprints.length > 0) {
-            corpBlueprints.push({
-              corporation_id: corporation_id,
-              blueprints: matchedBlueprints,
-              totalBP: matchedBlueprints.reduce(
-                (total, i) =>
-                  i.quantity >= 0 ? total + i.quantity : total + 1,
-                0
-              ),
-              inUse: (industryJobs || []).filter(
-                (job) =>
-                  matchedBlueprints.some(
-                    (i) => i.item_id === job.blueprint_id
-                  ) && job.status === "active"
-              ).length,
-              is_corporation: true,
-            });
-          }
-        }
-      );
+      const isCorporation = row.ownerType === BLUEPRINT_OWNER.CORPORATION;
+      byOwner.set(row.ownerId, {
+        // A character row is owned by a hash; the portrait is addressed by the character's id.
+        ownerID: isCorporation
+          ? null
+          : findCharacterByHash(row.ownerId)?.CharacterID ?? null,
+        corporation_id: isCorporation ? row.ownerId : null,
+        is_corporation: isCorporation,
+        blueprints: [row],
+      });
     }
 
-    // Combine and sort blueprints
-    const combinedBlueprints = [...perCharacterBlueprintRows, ...corpBlueprints];
-    const filteredBlueprints = combinedBlueprints.filter(
-      (i) => i.blueprints.length > 0
-    );
-
-    filteredBlueprints.sort(
-      (a, b) =>
-        b.blueprints[0].material_efficiency -
-          a.blueprints[0].material_efficiency ||
-        b.blueprints[0].time_efficiency - a.blueprints[0].time_efficiency
-    );
-
-    return filteredBlueprints;
+    return [...byOwner.values()]
+      .map((group) => ({
+        ...group,
+        // A stack is one row carrying several, and each can hold its own job.
+        totalBP: group.blueprints.reduce(
+          (total, row) => total + Math.max(row.originalCount, 1),
+          0
+        ),
+        inUse: group.blueprints.filter((row) =>
+          activeJobBlueprintIDs.has(row.itemId)
+        ).length,
+      }))
+      .sort(
+        (a, b) =>
+          b.blueprints[0].me - a.blueprints[0].me ||
+          b.blueprints[0].te - a.blueprints[0].te
+      );
   }, [
-    characterBlueprints,
-    corporationBlueprints,
+    blueprints,
     industryJobs,
-    characters,
     state.activeJob.blueprintTypeID,
+    findCharacterByHash,
   ]);
 
   // Loading state
   if (
-    isLoadingCharacterBlueprints ||
-    isLoadingCorporationBlueprints ||
-    isLoadingIndustryJobs
+    isLoadingBlueprints ||
+        isLoadingIndustryJobs
   ) {
     return (
       <Grid align="center" size={12}>
@@ -131,15 +95,9 @@ export function ReactionLayout_BlueprintOptions({ state }) {
   }
 
   // Error state
-  if (
-    characterBlueprintError ||
-    corporationBlueprintError ||
-    industryJobsError
-  ) {
+  if (blueprintError || industryJobsError) {
     const errorMessage =
-      characterBlueprintError?.message ||
-      corporationBlueprintError?.message ||
-      industryJobsError?.message;
+      blueprintError?.message || industryJobsError?.message;
     return (
       <Grid align="center" size={12}>
         <Typography

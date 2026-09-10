@@ -6,8 +6,21 @@ const corporationOrders = { data: {} };
 const corporationHistoric = { data: {} };
 const linkedOrders = new Set();
 
+const OWN_CHARACTER_ID = 2114000001;
+const OWN_CHARACTER_HASH = "hash-1";
+const OTHER_MEMBER_ID = 2114000999;
+
 vi.mock("../../Zustand/usersStore", () => ({
-  default: { getState: () => ({ account: { linkedOrders } }) },
+  default: {
+    getState: () => ({
+      account: {
+        linkedOrders,
+        characters: [
+          { CharacterID: OWN_CHARACTER_ID, CharacterHash: OWN_CHARACTER_HASH },
+        ],
+      },
+    }),
+  },
 }));
 vi.mock("../../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders", () => ({
   getAllCachedCharacterMarketOrders: () => characterOrders,
@@ -40,6 +53,11 @@ function order(order_id, overrides = {}) {
     price: 1000000,
     volume_total: 100,
     volume_remain: 40,
+    // Who placed the order. A character order names the character whose wallet it came from; a
+    // corporation order names the member in `issued_by`, because the corporation's list carries
+    // every member's work.
+    CharacterHash: OWN_CHARACTER_HASH,
+    issued_by: OWN_CHARACTER_ID,
     ...overrides,
   };
 }
@@ -134,6 +152,30 @@ describe("the market orders a job can link", () => {
     });
 
     expect(ids(findMarketOrdersForItem(null, JOB))).toEqual([900]);
+  });
+
+  // A corporation's list carries every member's orders, and the broker fee is worked out from the
+  // skills and standings of the member who placed one. An order this account cannot attribute would
+  // be priced at the base rate and that figure written onto the job.
+  it("does not offer a corporation order another member placed", () => {
+    withOrders({
+      corp: [
+        order(900, { is_corporation: true }),
+        order(901, { is_corporation: true, issued_by: OTHER_MEMBER_ID }),
+      ],
+    });
+
+    expect(ids(findMarketOrdersForItem(null, JOB))).toEqual([900]);
+  });
+
+  // The corporation fetcher stamps no CharacterHash: it would name whoever's token made the call.
+  it("names the member who placed a corporation order, not whoever fetched it", () => {
+    withOrders({
+      corp: [order(900, { is_corporation: true, CharacterHash: undefined })],
+    });
+
+    const [offered] = findMarketOrdersForItem(null, JOB);
+    expect(offered.CharacterHash).toBe(OWN_CHARACTER_HASH);
   });
 
   it("offers nothing when no order lists the item", () => {

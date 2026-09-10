@@ -1,32 +1,24 @@
-import { getAllCachedCorporationBlueprints } from "../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
-import { getAllCachedCharacterBlueprints } from "../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
+import {
+  BLUEPRINT_SCOPE,
+  getCachedBlueprintIndex,
+} from "../../Hooks/EveEsi/useBlueprintIndex";
 
 /**
- * Determines whether a blueprint is a copy (bpc) or original (bp).
+ * Whether a blueprint is an original or a copy.
  *
- * @param {number | undefined | null} blueprintID
+ * An id naming nothing the account holds reads as a copy, which is what the callers want: a job
+ * built from a blueprint that is not there is not built from an original.
+ *
+ * @param {number | undefined | null} blueprintID - the blueprint's `item_id`
  * @param {import("@tanstack/react-query").QueryClient} queryClient
- * @returns {"bpc" | "bp"}
+ * @returns {"bp" | "bpc"}
  */
 export default function findBlueprintType(blueprintID, queryClient) {
-  if (!blueprintID) {
-    return "bpc";
-  }
+  if (!blueprintID) return "bpc";
 
-  const { data: characterBlueprints = {} } =
-    getAllCachedCharacterBlueprints(queryClient);
-  const { data: corporationBlueprints = {} } =
-    getAllCachedCorporationBlueprints(queryClient);
+  const { byItemId } = getCachedBlueprintIndex(queryClient, {
+    scope: BLUEPRINT_SCOPE.ALL,
+  });
 
-  const blueprintData = [
-    ...Object.values(characterBlueprints).flat(),
-    ...Object.values(corporationBlueprints).flat(),
-  ];
-
-  const foundBlueprint = blueprintData.find((i) => i.item_id === blueprintID);
-  if (!foundBlueprint || foundBlueprint.quantity === -2) {
-    return "bpc";
-  }
-
-  return "bp";
+  return byItemId.get(blueprintID)?.isCopy === false ? "bp" : "bpc";
 }

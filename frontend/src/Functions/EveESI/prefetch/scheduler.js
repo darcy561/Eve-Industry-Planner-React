@@ -21,6 +21,7 @@ const MAX_CONCURRENT_COLLECTIONS = 8;
 /**
  * @typedef {Object} PrefetchItem
  * @property {string} name - the collection's name, for tracking
+ * @property {string} phase - see `PHASE`; decides its place in the shared queue
  * @property {string} group - ESI rate-limit bucket
  * @property {string} budgetHash - the character whose bucket this request spends
  * @property {Object} query - React Query configuration object
@@ -73,6 +74,7 @@ export function planPrefetch(characterHashes, phase) {
             name: division
               ? `${collection.name} (division ${division})`
               : collection.name,
+            phase: collection.phase,
             group: collection.group,
             // A corporation query walks its members and spends the first one's bucket, so the gate
             // here has to consult that same character rather than whichever member was reached
@@ -90,6 +92,7 @@ export function planPrefetch(characterHashes, phase) {
     for (const character of characters) {
       items.push({
         name: collection.name,
+        phase: collection.phase,
         group: collection.group,
         budgetHash: character.CharacterHash,
         query: collection.query(character.CharacterHash),
@@ -152,40 +155,147 @@ async function fetchItem(queryClient, item) {
 }
 
 /**
- * Runs a phase's items, at most {@link MAX_CONCURRENT_COLLECTIONS} in flight.
+ * The work every live prefetch shares.
  *
- * An item whose bucket is exhausted is moved to the back of the phase rather than fired into a
- * refusal; if every remaining item is exhausted the phase stops and their consumers fetch on mount.
+ * Login warms the main character and the linked characters from two places, because the account
+ * sync builds only the characters not already in the store. Giving each call its own queue meant
+ * each also had its own phase order and its own budget: the second call's first-paint work queued
+ * behind the first call's deferred work, and the two together allowed twice the requests in flight.
+ * One queue for the page is what makes a phase mean anything and a budget hold.
  *
- * @param {Object} queryClient
+ * @type {Map<string, PrefetchItem[]>}
+ */
+const queued = new Map();
+
+/** Query keys already queued or in flight, so two callers do not schedule the same fetch. */
+const claimed = new Set();
+
+/** The drain in progress, for callers to await. */
+let draining = null;
+
+/**
+ * Whether a drain is still asking the queue for work.
+ *
+ * Separate from `draining` because a drain that finds nothing to do finishes before the assignment
+ * of its own promise lands, which would leave `draining` holding a settled promise that no later
+ * caller could get past.
+ */
+let drainActive = false;
+
+/**
+ * @param {Object} query - React Query configuration object
+ * @returns {string}
+ */
+function claimKey(query) {
+  return JSON.stringify(query.queryKey);
+}
+
+/**
+ * Adds a phase's work to the shared queue, skipping what is already scheduled.
+ *
+ * @param {string} phase
  * @param {PrefetchItem[]} items
  */
-async function runPhase(queryClient, items) {
-  const queue = [...items];
-  let deferredInARow = 0;
-  const running = new Set();
+function enqueue(phase, items) {
+  const held = queued.get(phase) ?? [];
 
-  while (queue.length > 0) {
-    if (running.size >= MAX_CONCURRENT_COLLECTIONS) {
-      await Promise.race(running);
-      continue;
-    }
-
-    const item = queue.shift();
-
-    if (isBucketExhausted(item)) {
-      deferredInARow += 1;
-      if (deferredInARow > queue.length + 1) break;
-      queue.push(item);
-      continue;
-    }
-    deferredInARow = 0;
-
-    const task = fetchItem(queryClient, item).finally(() => running.delete(task));
-    running.add(task);
+  for (const item of items) {
+    const key = claimKey(item.query);
+    if (claimed.has(key)) continue;
+    claimed.add(key);
+    held.push(item);
   }
 
-  await Promise.all(running);
+  queued.set(phase, held);
+}
+
+/**
+ * The next item to run, taken from the earliest phase holding work.
+ *
+ * Earliest rather than the caller's own phase: a character whose first-paint collections arrive
+ * while another character's deferred work is still queued should not wait behind it.
+ *
+ * @param {Set<string>} deferred - keys held back this pass because their bucket is spent
+ * @returns {PrefetchItem|undefined}
+ */
+function nextItem(deferred) {
+  for (const phase of PREFETCHED_PHASES) {
+    const held = queued.get(phase);
+    if (!held?.length) continue;
+
+    const index = held.findIndex((item) => !deferred.has(claimKey(item.query)));
+    if (index === -1) continue;
+
+    return held.splice(index, 1)[0];
+  }
+  return undefined;
+}
+
+/**
+ * Runs the shared queue until it is empty, at most {@link MAX_CONCURRENT_COLLECTIONS} in flight.
+ *
+ * An item whose rate-limit bucket is spent is held back rather than fired into a refusal. When
+ * every remaining item is held back the drain stops and those consumers fetch on mount.
+ *
+ * @param {Object} queryClient
+ */
+async function drain(queryClient) {
+  const running = new Set();
+  const deferred = new Set();
+
+  try {
+    for (;;) {
+      if (running.size >= MAX_CONCURRENT_COLLECTIONS) {
+        await Promise.race(running);
+        continue;
+      }
+
+      const item = nextItem(deferred);
+
+      if (!item) {
+        if (running.size === 0) break;
+        // A slot freeing can also free a bucket, so held-back work is offered again.
+        await Promise.race(running);
+        deferred.clear();
+        continue;
+      }
+
+      const key = claimKey(item.query);
+
+      if (isBucketExhausted(item)) {
+        deferred.add(key);
+        queued.get(item.phase).push(item);
+        continue;
+      }
+
+      const task = fetchItem(queryClient, item).finally(() => {
+        running.delete(task);
+        claimed.delete(key);
+      });
+      running.add(task);
+    }
+  } finally {
+    // Synchronous from the moment the loop finds nothing left, with no await in between. A caller
+    // enqueueing in a gap here would be handed this same drain promise, which has already stopped
+    // asking for work — its collections would be dropped while its await resolved as a success.
+    claimed.clear();
+    queued.clear();
+    drainActive = false;
+  }
+}
+
+/**
+ * Starts the drain if one is not already running, and resolves when the queue is empty.
+ *
+ * @param {Object} queryClient
+ * @returns {Promise<void>}
+ */
+function ensureDraining(queryClient) {
+  if (drainActive) return draining;
+
+  drainActive = true;
+  draining = drain(queryClient);
+  return draining;
 }
 
 /**
@@ -211,9 +321,11 @@ export async function prefetchCollections(queryClient, characterHashes, shouldLo
       (item) => item.query.enabled !== false
     );
     if (items.length > 0) {
-      await runPhase(queryClient, items);
+      enqueue(phase, items);
     }
   }
+
+  await ensureDraining(queryClient);
 
   if (shouldLog) {
     const duration = performance.now() - start;

@@ -11,14 +11,13 @@ import {
   appShellSelectMenuPaperSx,
   appShellTextFieldOutlinedSx,
 } from "../../Context/appShell";
-import { getAvailableBlueprintByBlueprintID } from "../../Functions/Helper/getAvailableBlueprints";
 import { useCachedData } from "../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES } from "../../Context/defaultValues";
 import useUsersStore from "../../Zustand/usersStore";
 import { useTranquilityServerStatusQuery } from "../../Hooks/React Query/tranquilityServerStatus.js";
-import { useQueryClient } from "@tanstack/react-query";
-import { useGetAllCharacterBlueprints } from "../../Hooks/EveEsi/Character/useGetAllCharacterBlueprints";
-import { useGetAllCorporationBlueprints } from "../../Hooks/EveEsi/Corporation/useGetAllCorporationBlueprints";
+import useBlueprintIndex, {
+  BLUEPRINT_SCOPE,
+} from "../../Hooks/EveEsi/useBlueprintIndex";
 import PanelFallBack from "../Paper/panelStates";
 
 const defaultAutocompleteFilter = createFilterOptions();
@@ -267,33 +266,29 @@ function RecipeSearchWithBlueprintQueries({
   ignoreSelectionOverrides,
   appShellStyled = false,
 }) {
-  const queryClient = useQueryClient();
+  // Subscribed rather than read from the cache: the filter used to depend only on the query client,
+  // which never changes, so blueprints arriving after the first render never reached the list and
+  // the search offered nothing buildable.
   const {
-    isLoading: isLoadingCharacterBlueprints,
-    isError: isErrorCharacterBlueprints,
-  } = useGetAllCharacterBlueprints();
-  const {
-    isLoading: isLoadingCorporationBlueprints,
-    isError: isErrorCorporationBlueprints,
-  } = useGetAllCorporationBlueprints();
+    data: blueprints,
+    isLoading: esiLoading,
+    isError: esiError,
+  } = useBlueprintIndex({ scope: BLUEPRINT_SCOPE.ALL });
 
   const listToDisplay = useMemo(() => {
     if (isLoadingItemList) return [];
     if (itemListError) return [];
     if (ignoreSelectionOverrides) return itemList;
-    const idSet = getAvailableBlueprintByBlueprintID(queryClient);
-    return itemList.filter(({ blueprintID }) => idSet.has(blueprintID));
+
+    const owned = new Set(blueprints.rows.map((row) => row.typeId));
+    return itemList.filter(({ blueprintID }) => owned.has(blueprintID));
   }, [
     itemList,
     isLoadingItemList,
     itemListError,
     ignoreSelectionOverrides,
-    queryClient,
+    blueprints,
   ]);
-
-  const esiLoading =
-    isLoadingCharacterBlueprints || isLoadingCorporationBlueprints;
-  const esiError = isErrorCharacterBlueprints || isErrorCorporationBlueprints;
 
   return (
     <RecipeSearchAutocomplete

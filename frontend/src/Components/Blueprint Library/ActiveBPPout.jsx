@@ -12,7 +12,7 @@ export function ActiveBPPopout({
 
   return (
     <Popover
-      id={blueprint.item_id}
+      id={blueprint.itemId}
       open={Boolean(displayPopover)}
       anchorEl={displayPopover}
       anchorOrigin={{ vertical: "bottom", horizontal: "left" }}

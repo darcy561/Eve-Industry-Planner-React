@@ -310,10 +310,18 @@ Phase 1 is this folder. Later stages run only after that gate.
 `buildAssetNodes(rows)` and `buildBlueprintRows(rows, searchIndex)` as pure modules, with the
 resolution rules above, plus their tests. No consumer changes.
 
+A holder the set does contain is still where resolution stops when the node's `location_flag` says
+it sits at a place — an office folder, a hangar, deliveries, asset safety. A corporation owns the
+structures it built, so the structure is one of its own asset rows, sitting in a solar system the
+way a ship in space does; without this rule an office inside it resolves past the structure to that
+system and everything in the office reads as being in space. The same corporation's blueprints then
+named their solar system where a character's named the station, which is how it was found.
+
 Done when: both builders exist with unit tests — for assets, nested containers, corporation offices
-and hangars, Deliveries and Asset Safety compartments, a holder outside the set, a cyclic chain, an
-empty list; for blueprints, originals and copies, both owner types, and a blueprint whose product is
-missing from the search index. Closes A4 and A5 by construction, and B7 by making `isCopy` a field.
+and hangars, Deliveries and Asset Safety compartments, a holder outside the set, a corporation's own
+structure, a cyclic chain, an empty list; for blueprints, originals and copies, both owner types, and
+a blueprint whose product is missing from the search index. Closes A4 and A5 by construction, and B7
+by making `isCopy` a field.
 
 ### Stage B — the query surface
 
@@ -393,19 +401,56 @@ Edit Job blueprint panels, and the job-setup helpers. Closes A2, A3, A6, A8, B3,
 The shopping list's reducer is **not** restructured here — it is waiting on its own redesign. Its
 hooks are re-pointed at the node collection behind the shapes they already pass to the reducer.
 
+The three location dropdowns — job settings, first-login setup and the shopping list — read one
+hook, `useAssetLocations`, which pairs the node collection with the shared name resolution. Each
+held its own copy of which location kinds count, that an unreadable structure is dropped, and that
+the order is alphabetical; each also read the resolved names non-reactively during render, so a name
+arriving after the first paint left the entry blank until something else re-rendered.
+
+The four library views read one hook, `useAssetTree`, which pairs the node collection with the
+shared name resolution and the blueprint collection. Narrowing to a tab is on the compartment a node
+resolved into rather than on its raw `location_flag`, so a container in Deliveries and its contents
+belong to Deliveries together — previously the contents carried `Unlocked` and stayed in the Assets
+view. A corporation's offices come from the corporation object as well as from its assets, so an
+office it rents but has emptied still shows its divisions.
+
+The assets dialogue asks where one type is held. Everything on a path to a matching stack is kept —
+the containers above it, and everything inside a match — and its reducer holds the selection only,
+the locations and names being read rather than stored. Its two location lists were the same list
+twice, differing only in whether they showed the player's default location; there is one, with the
+default location leading.
+
+A2, A3, A6, A7, A8 and A9 close here rather than A7 and A9 waiting for Stage F: the rows are drawn
+from the shared collection, so the in-place sorts the renderers ran during render would have
+reordered it for every other consumer.
+
+Carried over unchanged: a module fitted to a ship that is in space names the ship as its location,
+and the ship's `item_id` falls in the structure range, so it is asked for as a location and dropped
+once the name comes back unreadable. It costs one name lookup and is never displayed.
+
 Done when: `assetMaps.js`, `assetTraversal.js`, `assetQuantities.js`, the structural half of
 `getAssetLocations.js`, the unused `assetFetch.js`, the `assetHelpers.js` facade, `blueprintFiltering.js`
 and the dead `useGetCorporationBlueprints.js` are deleted rather than left forwarding.
 
 ### Stage F — the renderers
 
-For assets: one node row and one tree component, virtualised with `@tanstack/react-virtual` (already
-a dependency, already used by the virtualised autocompletes). Expansion becomes one `Set` owned by
-the page rather than `useState` per row, so it survives a refetch. Closes A7 and A9, and deletes the
-corporation-specific folder components.
+For assets: one row component and one tree component, virtualised against the window with
+`@tanstack/react-virtual` (already a dependency, already used by the virtualised autocompletes).
+The four views hand the tree a flat list of the rows currently on screen. Expansion is one `Set` of
+row keys owned by the page rather than `useState` per row, so it survives a refetch; a key names
+what a row is rather than where it sits, so it survives a reorder too. The six bespoke folder
+components, three per scope, are deleted.
 
-For blueprints: the library group and entry components stop carrying their own deduplication and
-owner-stamping workarounds, and blueprint location becomes displayable now that it is resolved.
+For blueprints: the library group and entry components stop carrying their own deduplication, which
+the corporation re-key made unnecessary, and a blueprint's location is shown beside its owner. ESI
+gives a blueprint's holder as a raw id, so the place is read through the asset collection, where the
+same item appears with its chain resolved. The library therefore asks for every scope's assets when
+it opens — the one place assets are fetched other than on demand, chosen deliberately so the label
+is always there rather than appearing only after another page has loaded them.
+
+A corporation's assets are the largest collection the app fetches, so the library's results wait on
+them behind its loading state rather than drawing each label in as its scope lands. The wait is one
+wait, and what is then shown is complete.
 
 Done when: the asset library renders every view through one component tree, a deeply nested location
 stays responsive, and no component holds a workaround for an upstream shape defect.
@@ -413,20 +458,26 @@ stays responsive, and no component holds a workaround for an upstream shape defe
 Through Stage F both pages render the same rows and controls as they do today; what changes is that
 the defects are gone.
 
-### Stage G — page reshape (decision pending)
+### Stage G — page reshape
 
-For the asset library: flatten the nested tab bars to a scope picker plus view chips, add a search
-box across the tree, and move the surfaces to `AppShellPanel`. For the blueprint library: the same
-app-shell move, and whatever the resolved location makes worth showing. This is the only stage that
-changes what the pages look like, and it is separable — stopping after Stage F leaves them visually
-as they are.
+The asset library is one panel. Its two stacked tab bars and the character or corporation select
+become a single picker listing every tracked character and corporation, because which kind of owner
+it is only decides what the first view is called — Assets for a character, Offices for a
+corporation. The three views are chips under it, and a search box filters the whole tree at once: a
+row is shown when its own name matches, when a container above it does, or when the location does,
+and what matches is shown open rather than waiting to be browsed to.
+
+The blueprint library is one panel too. Its filters become chips, the items-per-page select moves
+beside the title, and the resolved location becomes something to narrow by — a picker of the places
+blueprints are actually held, beside the filters. A blueprint the loaded assets do not place is left
+out of a narrowed view, because the question being asked is what is at that location.
 
 ## Open decisions
 
 | Decision | Options | Status |
 |----------|---------|--------|
-| Is Stage G in scope? | Parity only (stop at F) / include the reshape | Open — asked, not yet answered |
-| How far do the dialogue and shopping list move in Stage E? | Full cutover to the normalised collection / re-point behind their current helper signatures, reducers untouched | Open — the plan assumes the second for the shopping list, the first for the dialogue |
+| Is Stage G in scope? | Parity only (stop at F) / include the reshape | Settled — the reshape is in, with a combined scope picker for the asset library and a location filter for the blueprint library |
+| How far do the dialogue and shopping list move in Stage E? | Full cutover to the normalised collection / re-point behind their current helper signatures, reducers untouched | Settled — the dialogue moved fully, its reducer left holding the selection only; the shopping list was re-pointed behind the shapes its reducer already takes, which is waiting on its own redesign |
 | Does the **shape** convention extend to industry jobs, market orders and transactions? | Now, as a later stage here / a separate project citing this one | Open — out of scope as written; their **fetch policy** is already in scope via Stage C |
 | What scope kind does each of the five remaining corporation collections take? | `corporation` (single access point) / `corporation-union` (per-member visibility) | Open — settled per endpoint during Stage C; blueprints and assets are already answered |
 | Should login prefetch run at all while Tranquility is offline? | Skip and let pages fetch on demand / keep the current override | Open — Stage C replaces the blanket override with an explicit rule |
@@ -459,8 +510,8 @@ later cleanup wave.
 | B — query surface | A1, B1, B2, B8 |
 | C — collection table and login call path | L1–L6, and B10 with the corporation re-keys. L7 and L8 were closed before the project reached them |
 | D — shared name resolution | A10; removes the duplicated resolve step the others depend on |
-| E — consumer cutover | A2, A3, A6, A8, B3, B4, B5, B6, B9 |
-| F — renderers | A7, A9 |
+| E — consumer cutover | A2, A3, A6, A7, A8, A9, B3, B4, B5, B6, B9 |
+| F — renderers | none outstanding; virtualisation and shared expansion state |
 | G — page reshape | none; presentation only |
 
 ## Stage status
@@ -472,9 +523,9 @@ later cleanup wave.
 | B — query surface | Done |
 | C — collection table and login call path | Done |
 | D — shared name resolution | Done — the shared query; consumers adopt it in Stage E |
-| E — consumer cutover | In progress — every blueprint consumer and the shopping list's quantity path have moved; the asset pages, the dialogue and the location dropdowns are open |
-| F — renderers | Not started |
-| G — page reshape | Not started, in-scope decision open |
+| E — consumer cutover | Done |
+| F — renderers | Done |
+| G — page reshape | Done |
 
 ## Promote map
 

@@ -31,14 +31,14 @@ func TestBuildCategoryByGroupID(t *testing.T) {
 
 func TestGenerateFullItemListOutputCarriesCategory(t *testing.T) {
 	combined := map[string]*EVEType{
-		"587": {ItemID: 587, Name: "Rifter", GroupID: 25, MarketGroupID: 61},
-		"34":  {ItemID: 34, Name: "Tritanium", GroupID: 18, MarketGroupID: 1857},
+		"587": {ItemID: 587, Name: "Rifter", MarketGroupID: 25},
+		"34":  {ItemID: 34, Name: "Tritanium", MarketGroupID: 18},
 		// A group the SDE did not give a category for still belongs in the list.
-		"99": {ItemID: 99, Name: "Oddity", GroupID: 448, MarketGroupID: 5},
+		"99": {ItemID: 99, Name: "Oddity", MarketGroupID: 448},
 	}
 	byGroupID := map[int]int{25: 6, 18: 4}
 
-	out := GenerateFullItemListOutput(combined, map[string]any{}, byGroupID)
+	out := GenerateFullItemListOutput(combined, byGroupID)
 
 	if out["587"].CategoryID != 6 {
 		t.Errorf("Rifter category = %d, want 6", out["587"].CategoryID)
@@ -51,5 +51,32 @@ func TestGenerateFullItemListOutputCarriesCategory(t *testing.T) {
 	}
 	if out["587"].Name != "Rifter" {
 		t.Errorf("Rifter name = %q", out["587"].Name)
+	}
+}
+
+// An asset list names whatever a player holds, so the types that never reach a market — a SKIN, an
+// unpublished oddity, a relic with no market group — have to be named too.
+func TestGenerateFullItemListOutputNamesEveryPublishedType(t *testing.T) {
+	combined := map[string]*EVEType{
+		"42614": {ItemID: 42614, Name: "Venture Morphite Shine SKIN", MarketGroupID: 1950},
+		"83639": {ItemID: 83639, Name: "SKINR Design Element Reward", MarketGroupID: 314},
+		"30599": {ItemID: 30599, Name: "Intact Electromechanical Component", MarketGroupID: 990},
+		"46166": {ItemID: 46166, Name: "Reaction Formula", MarketGroupID: 1888},
+		"686":   {ItemID: 686, Name: "Rifter Blueprint", MarketGroupID: 105},
+	}
+
+	out := GenerateFullItemListOutput(combined, map[int]int{990: 34})
+
+	if len(out) != len(combined) {
+		t.Fatalf("named %d of %d types", len(out), len(combined))
+	}
+	for key, want := range combined {
+		if out[key] == nil || out[key].Name != want.Name {
+			t.Errorf("type %s = %v, want %q", key, out[key], want.Name)
+		}
+	}
+	// A relic's category is what tells the SPA to draw it from EVE's relic image.
+	if out["30599"].CategoryID != 34 {
+		t.Errorf("relic category = %d, want 34", out["30599"].CategoryID)
 	}
 }

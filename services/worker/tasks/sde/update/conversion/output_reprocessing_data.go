@@ -122,3 +122,27 @@ func assignReprocessingItemType(item *EVEType, marketGroupsMap map[string]any) i
 	}
 	return ItemTypesForReprocessing["scrap"]
 }
+
+func findParentGroupFromMarketGroup(item *EVEType, marketGroupsMap map[string]any) string {
+	if item.MarketSectionID == 0 {
+		return ""
+	}
+	keyToFind := fmt.Sprintf("%d", item.MarketSectionID)
+	matchedGroupData, exists := marketGroupsMap[keyToFind]
+	if !exists {
+		return ""
+	}
+	matchedGroup, ok := matchedGroupData.(map[string]any)
+	if !ok {
+		return ""
+	}
+	parentGroupID, ok := matchedGroup["parentGroupID"].(float64)
+	if !ok || parentGroupID == 0 {
+		return ""
+	}
+	parentKey := fmt.Sprintf("%.0f", parentGroupID)
+	if _, parentExists := marketGroupsMap[parentKey]; !parentExists {
+		return ""
+	}
+	return parentKey
+}

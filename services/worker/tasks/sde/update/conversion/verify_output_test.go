@@ -141,6 +141,12 @@ func intFromAny(v any) int {
 
 func loadSDEExtractOrSkip(t *testing.T) (blueprints, types map[string]any) {
 	t.Helper()
+	blueprints, types, _ = loadSDEExtractWithGroupsOrSkip(t)
+	return blueprints, types
+}
+
+func loadSDEExtractWithGroupsOrSkip(t *testing.T) (blueprints, types, groups map[string]any) {
+	t.Helper()
 	extractDir := os.Getenv("SDE_EXTRACT_DIR")
 	if extractDir == "" {
 		extractDir = "/tmp/sde_extract"
@@ -157,7 +163,49 @@ func loadSDEExtractOrSkip(t *testing.T) (blueprints, types map[string]any) {
 	if err != nil {
 		t.Fatalf("types: %v", err)
 	}
-	return blueprints, types
+	groups, err = parseJSONLFile(filepath.Join(extractDir, "groups.jsonl"))
+	if err != nil {
+		t.Fatalf("groups: %v", err)
+	}
+	return blueprints, types, groups
+}
+
+// The item list's category is a join across two SDE files, and the fields it joins on are named
+// for what they are not: a type's `groupID` arrives on `MarketGroupID`. A wrong field there is
+// still well-formed output — every item simply carries no category — so only real data shows it.
+func TestFullItemList_carriesCategoriesFromRealSDE(t *testing.T) {
+	blueprints, types, groups := loadSDEExtractWithGroupsOrSkip(t)
+
+	combined := BuildCombinedItemMap(types, ConvertBlueprintDataToTypeIDMap(blueprints, types))
+	byGroupID := BuildCategoryByGroupID(groups)
+	fullItemList := GenerateFullItemListOutput(combined, byGroupID)
+
+	if len(fullItemList) == 0 {
+		t.Fatal("full item list is empty")
+	}
+
+	uncategorised := 0
+	for _, item := range fullItemList {
+		if item.CategoryID == 0 {
+			uncategorised++
+		}
+	}
+	if uncategorised > 0 {
+		t.Errorf("%d of %d items carry no category", uncategorised, len(fullItemList))
+	}
+
+	// A ship and a relic are what the SPA asks the category about: one to hide an assembled hull,
+	// the other to draw it from EVE's relic image rather than an icon that is answered with a 400.
+	for typeID, want := range map[string]int{"587": 6, "30614": 34} {
+		got := fullItemList[typeID]
+		if got == nil {
+			t.Errorf("type %s missing from the item list", typeID)
+			continue
+		}
+		if got.CategoryID != want {
+			t.Errorf("%s (%s) category = %d, want %d", typeID, got.Name, got.CategoryID, want)
+		}
+	}
 }
 
 func parseJSONLFile(path string) (map[string]any, error) {

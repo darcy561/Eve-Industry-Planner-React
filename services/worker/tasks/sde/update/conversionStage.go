@@ -39,7 +39,7 @@ func runSDEConversionStage(mapResult *sdeMapBuildResult) (*sdeConversionResult, 
 	conversion.MergeReactionFormulaOntoProduct(combinedItemMap, conversion.BuildReactionProductByBlueprintTypeID(blueprintsData, typesData), typesData)
 	recipeList := conversion.GenerateRecipeListOutput(combinedItemMap)
 	searchIndex := conversion.GenerateSearchIndexOutput(recipeList)
-	fullItemList := conversion.GenerateFullItemListOutput(combinedItemMap, marketGroupsData, conversion.BuildCategoryByGroupID(groupsData))
+	fullItemList := conversion.GenerateFullItemListOutput(combinedItemMap, conversion.BuildCategoryByGroupID(groupsData))
 	reprocessingObjects := conversion.GenerateReprocessingDataOutput(typeMaterialsData, combinedItemMap, marketGroupsData)
 	inventionModifiers, err := conversion.GenerateInventionModifiersOutput(typesData, dogmaAttributesData, typeDogmaData)
 	if err != nil {

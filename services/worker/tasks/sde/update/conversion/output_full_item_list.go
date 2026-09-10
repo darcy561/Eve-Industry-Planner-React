@@ -1,25 +1,23 @@
 package conversion
 
-import (
-	"fmt"
-	"regexp"
-	"strconv"
-)
+import "strconv"
 
-var (
-	skinRegex     = regexp.MustCompile(`(?i)skin`)
-	reactionRegex = regexp.MustCompile(`(?i)reaction `)
-)
-
-func GenerateFullItemListOutput(combinedItemMap map[string]*EVEType, marketGroupsMap map[string]any, categoryByGroupID map[int]int) map[string]*FullItem {
-	fullItemList := make(map[string]*FullItem)
+// GenerateFullItemListOutput names every published type.
+//
+// The SPA reads this as one thing: the id-to-name map for whatever a player turns out to be
+// holding, which is why it is not narrowed to what can be bought. A SKIN, an unpublished oddity and
+// a relic with no market group all reach an asset list, and a type this file does not carry shows
+// there as "Unknown Item - <id>". What can be built or searched for is the search index and the
+// recipe list, built separately from the same map.
+func GenerateFullItemListOutput(combinedItemMap map[string]*EVEType, categoryByGroupID map[int]int) map[string]*FullItem {
+	fullItemList := make(map[string]*FullItem, len(combinedItemMap))
 	for key, value := range combinedItemMap {
-		if !shouldRemoveItem(value, marketGroupsMap) {
-			fullItemList[key] = &FullItem{
-				TypeID:     value.ItemID,
-				Name:       value.Name,
-				CategoryID: categoryByGroupID[value.GroupID],
-			}
+		fullItemList[key] = &FullItem{
+			TypeID: value.ItemID,
+			Name:   value.Name,
+			// `MarketGroupID` holds the SDE's `groupID` — the inventory group, which is what a
+			// category is looked up by. The market group is on `MarketSectionID`.
+			CategoryID: categoryByGroupID[value.MarketGroupID],
 		}
 	}
 	return fullItemList
@@ -47,45 +45,4 @@ func BuildCategoryByGroupID(groupsMap map[string]any) map[int]int {
 		byGroupID[groupID] = int(categoryID)
 	}
 	return byGroupID
-}
-
-func shouldRemoveItem(item *EVEType, marketGroupsMap map[string]any) bool {
-	return item.MarketGroupID == 0 || skinRegex.MatchString(item.Name) || isBlueprintAndVolumeLessThanOne(item, marketGroupsMap) || reactionRegex.MatchString(item.Name)
-}
-
-func isBlueprintAndVolumeLessThanOne(item *EVEType, marketGroupsMap map[string]any) bool {
-	parentGroupIDsToIgnore := map[int]bool{2: true}
-	parentGroupIDStr := findParentGroupFromMarketGroup(item, marketGroupsMap)
-	if parentGroupIDStr == "" {
-		return false
-	}
-	parentGroupID, err := strconv.Atoi(parentGroupIDStr)
-	if err != nil {
-		return false
-	}
-	return parentGroupIDsToIgnore[parentGroupID]
-}
-
-func findParentGroupFromMarketGroup(item *EVEType, marketGroupsMap map[string]any) string {
-	if item.MarketSectionID == 0 {
-		return ""
-	}
-	keyToFind := fmt.Sprintf("%d", item.MarketSectionID)
-	matchedGroupData, exists := marketGroupsMap[keyToFind]
-	if !exists {
-		return ""
-	}
-	matchedGroup, ok := matchedGroupData.(map[string]any)
-	if !ok {
-		return ""
-	}
-	parentGroupID, ok := matchedGroup["parentGroupID"].(float64)
-	if !ok || parentGroupID == 0 {
-		return ""
-	}
-	parentKey := fmt.Sprintf("%.0f", parentGroupID)
-	if _, parentExists := marketGroupsMap[parentKey]; !parentExists {
-		return ""
-	}
-	return parentKey
 }

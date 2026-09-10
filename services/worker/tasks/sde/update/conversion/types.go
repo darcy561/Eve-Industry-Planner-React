@@ -68,7 +68,6 @@ type EVEType struct {
 	Key                int               `json:"_key"`
 	ItemID             int               `json:"itemID"`
 	Name               string            `json:"name"`
-	GroupID            int               `json:"groupID,omitempty"`
 	MarketSectionID    int               `json:"marketSectionID,omitempty"`
 	MarketGroupID      int               `json:"marketGroupID,omitempty"`
 	MetaGroupID        int               `json:"metaGroupID,omitempty"`

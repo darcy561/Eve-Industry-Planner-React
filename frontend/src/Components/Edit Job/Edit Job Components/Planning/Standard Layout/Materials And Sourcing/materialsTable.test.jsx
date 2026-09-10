@@ -16,6 +16,7 @@ const row = (overrides) => ({
   buildPrice: 4.95,
   delta: -0.083,
   plan: MATERIAL_PLAN.BUILD,
+  isBuildable: true,
   isLinked: true,
   volume: 100,
   ...overrides,
@@ -65,7 +66,7 @@ describe("the materials table", () => {
 
   it("shows a dash where a material cannot be built", () => {
     renderTable([
-      row({ typeID: 38, name: "Nocxium", buildPrice: null, delta: null, plan: MATERIAL_PLAN.BASE }),
+      row({ typeID: 38, name: "Nocxium", buildPrice: null, delta: null, isBuildable: false, plan: MATERIAL_PLAN.BASE }),
     ]);
     const cells = within(rowFor("Nocxium")).getAllByRole("cell");
 
@@ -135,6 +136,7 @@ describe("the materials table", () => {
             name: "Nocxium",
             buildPrice: null,
             delta: null,
+            isBuildable: false,
             isLinked: false,
             plan: MATERIAL_PLAN.BASE,
           }),
@@ -145,6 +147,21 @@ describe("the materials table", () => {
       await user.click(rowFor("Nocxium"));
 
       expect(onToggleRow).not.toHaveBeenCalled();
+    });
+
+    it("opens a buildable row that has never been linked", async () => {
+      // Opening one is how a first child job gets created, so gating on whether
+      // anything is linked yet makes that unreachable.
+      const onToggleRow = vi.fn();
+      const user = userEvent.setup();
+      renderTable(
+        [row({ isLinked: false, buildPrice: null, delta: null, plan: MATERIAL_PLAN.BUY })],
+        { onToggleRow }
+      );
+
+      await user.click(rowFor("Tritanium"));
+
+      expect(onToggleRow).toHaveBeenCalledWith(34);
     });
 
     it("marks the rows that are open", () => {

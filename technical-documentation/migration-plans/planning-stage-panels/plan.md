@@ -521,8 +521,27 @@ placed.
 - The child-job popover becomes an **expandable row** on an inset surface: multiple rows open at once,
   it survives scrolling, and the actions get room for labels.
 
+### What the replacement must carry before the old panels retire
+
+The new panel is not a replacement until a player can do from it everything the two it replaces let
+them do. Found by rechecking the parts built so far against the panels themselves, rather than against
+the design — the design says what the new panel shows, not what the old ones let a player reach.
+
+| Affordance | Where it was | State |
+|------------|--------------|-------|
+| The drawer at all | The info-icon popover | **Built but unwired.** The panel does not pass `renderDrawer`, so a row opens and draws nothing |
+| Child job totals in the drawer | The popover computed them itself from `currentJob` | **Dropped, not moved.** The drawer expects a `totals` prop nothing supplies |
+| The hub and basis a child's own materials price at | Popover children read `marketSelect` / `listingSelect` | **Missing.** The drawer does not pass them, so a child's materials price against `undefined` |
+| The material itself, and its matched child jobs | Row components held them | **Discarded.** A row carries figures; the drawer needs the objects behind them |
+| The material's own popover and type icon | Both old row components | **Dropped silently.** The name is plain text |
+| Per-material hub and basis override | "Manage Material Sources" | **No surface left.** A stored override still applies and cannot be seen, changed or cleared |
+| Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Dropped.** The stripe says building or worth building, and nothing about job type or whether a link is pending |
+| Exempt-from-builds marker | The info icon turned amber | **Only inside the drawer**, so invisible until one is open |
+| Create All Child Jobs | The market panel's kebab | **Dropped.** Stage G replaces it with "build all where cheaper", but Stage E removes it before that exists |
+
 **Done when:** the material list renders once on the stage; every row states its own comparison; the
-drawer replaces the popover on desktop.
+drawer replaces the popover on desktop; and every row of the table above is either carried over or
+recorded here as a deliberate removal with a reason.
 
 ## Stage F — Cost Breakdown and Returns
 
@@ -686,7 +705,7 @@ so neither failure mode is repeated.
 | B — fee and tax estimation | frontend logic | **Done** |
 | C — Accounting in skill catalogue | data | **Done** |
 | D — pricing basis in panel headers | SPA | **Done** — picker built; Stages E and F mount it |
-| E — Materials & Sourcing | SPA | Not started |
+| E — Materials & Sourcing | SPA | **In progress.** Row model, table, summary, panel and drawer built; the drawer is unwired and § What the replacement must carry is outstanding |
 | F — Cost Breakdown and Returns | SPA | Not started |
 | G — speculative child jobs | SPA, behavioural | Not started |
 | H — jobs with parent jobs | SPA, behavioural | Not started |

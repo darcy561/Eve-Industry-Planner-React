@@ -116,7 +116,9 @@ export default function MaterialsTable({
 function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
   const building = row.plan === MATERIAL_PLAN.BUILD;
   const saving = hasSavingAvailable(row);
-  const expandable = row.buildPrice !== null || row.isLinked;
+  // Anything with a blueprint opens, linked or not: opening a row that has
+  // never been linked is how a first child job gets created.
+  const expandable = row.isBuildable;
 
   return (
     <TableRow

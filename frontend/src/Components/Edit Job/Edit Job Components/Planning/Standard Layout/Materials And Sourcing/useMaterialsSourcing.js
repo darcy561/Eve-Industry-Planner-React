@@ -87,6 +87,8 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         getPrice: getMarketPriceForType,
       }),
     };
+    // The reducer returns a new state object on every dispatch anywhere on the
+    // page, so this lists the parts the rows are actually built from.
   }, [
     actions,
     activeJob,
@@ -94,7 +96,8 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
     layout,
     listingSelect,
     marketSelect,
-    state,
+    state.parentChildToEdit.childJobs,
+    state.temporaryChildJobs,
   ]);
 }
 

@@ -34,6 +34,7 @@ export const MATERIAL_PLAN = {
  * @property {number|null} buildPrice - Unit cost of building it, null when it cannot be built
  * @property {number|null} delta - Build against buy, as a fraction; negative is cheaper to build
  * @property {string} plan - One of MATERIAL_PLAN
+ * @property {boolean} isBuildable - Whether the material has a blueprint at all
  * @property {boolean} isLinked - Whether child jobs are linked for it
  * @property {number} volume - Total volume the quantity occupies
  */
@@ -76,6 +77,7 @@ export function buildMaterialSourcingRow({
     buildPrice: build,
     delta: priceDelta(buy, build),
     plan: planFor({ purchase, isBuildable, isLinked, build }),
+    isBuildable,
     isLinked,
     volume: (material?.volume ?? 0) * quantity,
   };

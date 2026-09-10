@@ -513,9 +513,12 @@ placed.
 
 ## Stage E — Materials & Sourcing
 
-- Raw Resources retires. Its quantity, job-type dot and linked tick fold into the merged table's
-  **Qty** column and the row's accent stripe; “Copy resources list” moves to the kebab and total volume
-  to the footer.
+- Raw Resources retires **from the standard layout**. Its quantity, job-type dot and linked tick fold
+  into the merged table's **Qty** column and the row's mark; “Copy resources list” moves to the kebab
+  and total volume to the footer.
+
+  The mobile layout still renders it, and keeps doing so until Stage J converts mobile. The file
+  therefore stays until then — deleting it is Stage J's, not this stage's.
 - Child build unit cost and total collapse into a **Build** column and a **Δ** percentage — the figure
   the current panel makes a reader compute by eye.
 - The child-job popover becomes an **expandable row** on an inset surface: multiple rows open at once,
@@ -546,9 +549,13 @@ pending build and the market panel marked an exempt material, each in its own ic
 merged row has one mark, so carrying both means telling them apart — and they mean opposite things, so
 giving them the same treatment says neither.
 
-**Done when:** the material list renders once on the stage; every row states its own comparison; the
-drawer replaces the popover on desktop; and every row of the table above is either carried over or
-recorded here as a deliberate removal with a reason.
+The market panel is **reduced rather than retired**: Materials & Sourcing takes its material rows, and
+what remains — the product revenue figure and the totals block with Profit/Loss — is what Returns
+absorbs in Stage F. Deleting it here would take both figures off the stage for a stage and a half.
+
+**Done when:** the material list renders once on the standard layout; every row states its own
+comparison; the drawer replaces the popover on desktop; no figure leaves the stage; and every row of
+the table above is either carried over or recorded here as a deliberate removal with a reason.
 
 ## Stage F — Cost Breakdown and Returns
 
@@ -740,7 +747,7 @@ real job.
 | B — fee and tax estimation | frontend logic | **Done** |
 | C — Accounting in skill catalogue | data | **Done** |
 | D — pricing basis in panel headers | SPA | **Done** — picker built; Stages E and F mount it |
-| E — Materials & Sourcing | SPA | **In progress.** Every affordance in § What the replacement must carry is now carried or deliberately not; the panel is not yet mounted and the two it replaces are not yet retired |
+| E — Materials & Sourcing | SPA | **Done** for the standard layout. Mobile still renders Raw Resources until Stage J; the market panel is reduced to the figures Stage F absorbs |
 | F — Cost Breakdown and Returns | SPA | Not started |
 | G — speculative child jobs | SPA, behavioural | Not started |
 | H — jobs with parent jobs | SPA, behavioural | Not started |

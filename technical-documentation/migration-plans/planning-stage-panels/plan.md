@@ -573,14 +573,14 @@ shapes that draw them.
 
 | Shape | Where it appears | State |
 |-------|------------------|-------|
-| The range bar placing this build among previous ones | Cost Breakdown's header, Returns' context rows | Not built |
-| The proportion bar showing what the cost is made of | Cost Breakdown | Not built |
-| A disclosure that opens a section | Cost Breakdown's cost-over-time, Returns' ledger | Not built |
-| A context row — a relationship between two figures, stated without a verdict | Returns | Not built; a variant of `PanelFooterMeta` rather than a new shape |
+| The range bar placing this build among previous ones | Cost Breakdown's header, Returns' context rows | **Built.** `RangeBar` states a position and no verdict |
+| The proportion bar showing what the cost is made of | Cost Breakdown | **Built.** `ProportionBar` |
+| A disclosure that opens a section | Cost Breakdown's cost-over-time, Returns' ledger | **Built.** `Disclosure` |
+| A context row — a relationship between two figures, stated without a verdict | Returns | **Built.** `ContextRow` |
 
-`HeadlineStat` also needs checking against Returns before it is used there: Returns
-leads with a figure and **three** normalisations beside it, and the atom carries one
-slot beneath rather than three alongside.
+`HeadlineStat` was checked against Returns before Cost Breakdown used it: `PanelHeadline` is the
+arrangement both panels open with, and a `size` distinguishes the figure a panel leads on from the
+smaller ones standing beside it.
 
 
 The totals block currently renders the same five rows twice, once per pricing model, marking neither

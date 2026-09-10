@@ -1,4 +1,5 @@
-import { Box, Skeleton, Typography } from "@mui/material";
+import { useState } from "react";
+import { Box, Collapse, Link, Skeleton, Typography } from "@mui/material";
 
 /**
  * The figure atoms of the app-shell design.
@@ -420,6 +421,88 @@ export function StatTile({
           {comparison}
         </Typography>
       )}
+    </Box>
+  );
+}
+
+/**
+ * A relationship between two figures, stated and left there.
+ *
+ * Returns uses these for break-even and the range of previous builds. They read
+ * as context rather than as a result, which is why they are quiet and carry no
+ * colour of their own.
+ *
+ * @param {object} props
+ * @param {React.ReactNode} props.children - What the relationship is
+ * @param {React.ReactNode} [props.note] - The qualification, quieter still
+ */
+export function ContextRow({ children, note }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 1,
+        alignItems: "baseline",
+        justifyContent: "space-between",
+        py: 0.75,
+        borderBottom: 1,
+        borderColor: "divider",
+        "&:last-of-type": { borderBottom: 0 },
+      }}
+    >
+      <Typography variant="body2">{children}</Typography>
+      {note ? (
+        <Typography variant="caption" color="text.secondary">
+          {note}
+        </Typography>
+      ) : null}
+    </Box>
+  );
+}
+
+/**
+ * A section a reader opens when they want the working.
+ *
+ * The ledger behind Returns and the cost-over-time chart behind Cost Breakdown
+ * are both things a panel should not lead with but must be able to show.
+ *
+ * @param {object} props
+ * @param {React.ReactNode} props.label
+ * @param {React.ReactNode} props.children
+ * @param {boolean} [props.defaultOpen]
+ */
+export function Disclosure({ label, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <Box>
+      <Box
+        sx={{
+          borderTop: 1,
+          borderColor: "divider",
+          pt: 1,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <Link
+          component="button"
+          type="button"
+          underline="hover"
+          variant="body2"
+          aria-expanded={open}
+          onClick={() => setOpen((was) => !was)}
+        >
+          {label}
+        </Link>
+        <Typography component="span" variant="caption" aria-hidden="true">
+          {open ? "\u25be" : "\u25b8"}
+        </Typography>
+      </Box>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <Box sx={{ pt: 1 }}>{children}</Box>
+      </Collapse>
     </Box>
   );
 }

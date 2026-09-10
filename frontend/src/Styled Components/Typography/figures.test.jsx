@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import {
   BandCaption,
+  ContextRow,
+  Disclosure,
   FIGURE_TONE,
   Figure,
   FigureCaption,
@@ -289,5 +292,61 @@ describe("PanelHeadline", () => {
     );
 
     expect(screen.getAllByText(/Per unit|Margin|Return|Net return/)).toHaveLength(4);
+  });
+});
+
+describe("ContextRow", () => {
+  it("states a relationship and its qualification", () => {
+    render(<ContextRow note="on 7 builds">Break-even at 46.1M</ContextRow>);
+
+    expect(screen.getByText("Break-even at 46.1M")).toBeInTheDocument();
+    expect(screen.getByText("on 7 builds")).toBeInTheDocument();
+  });
+
+  it("does without a qualification", () => {
+    render(<ContextRow>Break-even at 46.1M</ContextRow>);
+
+    expect(screen.getByText("Break-even at 46.1M")).toBeInTheDocument();
+  });
+});
+
+describe("Disclosure", () => {
+  it("keeps its content out of the way until asked", async () => {
+    const user = userEvent.setup();
+    render(
+      <Disclosure label="Calculation">
+        <span>the working</span>
+      </Disclosure>
+    );
+
+    expect(screen.queryByText("the working")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Calculation" }));
+
+    expect(screen.getByText("the working")).toBeInTheDocument();
+  });
+
+  it("says whether it is open", async () => {
+    const user = userEvent.setup();
+    render(
+      <Disclosure label="Calculation">
+        <span>the working</span>
+      </Disclosure>
+    );
+    const toggle = screen.getByRole("button", { name: "Calculation" });
+
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("can start open where a panel wants it shown", () => {
+    render(
+      <Disclosure label="Calculation" defaultOpen>
+        <span>the working</span>
+      </Disclosure>
+    );
+
+    expect(screen.getByText("the working")).toBeInTheDocument();
   });
 });

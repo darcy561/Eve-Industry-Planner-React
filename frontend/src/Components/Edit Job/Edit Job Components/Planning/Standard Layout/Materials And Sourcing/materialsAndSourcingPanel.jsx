@@ -4,6 +4,7 @@ import { MenuItem, Select, Stack } from "@mui/material";
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
 import PricingBasisSelect from "../../../../../../Styled Components/Select/pricingBasis";
 import writeTextToClipboard from "../../../../../../Functions/Clipboard/writeTextToClipboard";
+import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
 import MaterialDrawer from "./materialDrawer";
 import MaterialsTable from "./materialsTable";
 import { SourcingFooter, SourcingOffer } from "./sourcingSummary";
@@ -20,9 +21,6 @@ import { getSafeMaterialPriceOverrides } from "../Material Prices/Helpers/materi
  * @param {object} props
  * @param {object} props.state - Edit Job state
  * @param {object} props.actions - Edit Job actions
- * @param {(value: number) => string} props.formatIsk
- * @param {(value: number) => string} props.formatQuantity
- * @param {(value: number) => string} props.formatVolume
  * @param {(basisID: string) => void} props.onChangeBasis
  * @param {() => void} props.onApplyBuildable - Switches every cheaper-to-build row
  * @param {boolean} [props.readOnly]
@@ -30,9 +28,6 @@ import { getSafeMaterialPriceOverrides } from "../Material Prices/Helpers/materi
 export default function MaterialsAndSourcingPanel({
   state,
   actions,
-  formatIsk,
-  formatQuantity,
-  formatVolume,
   onChangeBasis,
   onApplyBuildable,
   readOnly = false,
@@ -143,6 +138,15 @@ export default function MaterialsAndSourcingPanel({
     </AppShellPanel>
   );
 }
+
+/** ISK, at the precision the panels this replaces used. */
+const formatIsk = (value) => formatNumberForLocale(value);
+
+/** A count of items, which is never fractional. */
+const formatQuantity = (value) => formatNumberForLocale(value, { max: 0 });
+
+/** Volume, as Raw Resources stated it. */
+const formatVolume = (value) => `${formatNumberForLocale(value, { max: 0 })} m3`;
 
 /**
  * What a material's own pricing override holds, if it has one.

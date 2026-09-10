@@ -68,16 +68,12 @@ const state = {
     build: { materials: [] },
   },
 };
-const formatIsk = (value) => `${value} ISK`;
 
 function renderPanel(props = {}) {
   render(
     <MaterialsAndSourcingPanel
       state={state}
       actions={{ updateActiveJob: () => {} }}
-      formatIsk={formatIsk}
-      formatQuantity={(value) => String(value)}
-      formatVolume={(value) => `${value} m³`}
       onChangeBasis={() => {}}
       onApplyBuildable={() => {}}
       {...props}
@@ -96,13 +92,15 @@ describe("the Materials and Sourcing panel", () => {
   it("offers what building the cheaper rows would save", () => {
     renderPanel();
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Building 1 of 1 saves");
+    expect(screen.getByRole("alert")).toHaveTextContent(/Building 1 of 1 saves/);
   });
 
   it("counts the list beneath it", () => {
     renderPanel();
 
-    expect(screen.getByText("1 material · 1 buildable · 0 linked")).toBeInTheDocument();
+    expect(
+      screen.getByText("1 material · 1 buildable · 0 linked")
+    ).toBeInTheDocument();
   });
 
   it("gives each row a drawer, and opens it when the row is clicked", async () => {
@@ -154,9 +152,6 @@ describe("the Materials and Sourcing panel", () => {
       <MaterialsAndSourcingPanel
         state={{ activeJob: {} }}
         actions={{ updateActiveJob: () => {} }}
-        formatIsk={formatIsk}
-        formatQuantity={String}
-        formatVolume={String}
       />
     );
 

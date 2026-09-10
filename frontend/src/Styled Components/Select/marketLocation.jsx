@@ -40,6 +40,7 @@ function MarketLocationSelect({
   labelText = "Market",
   selectVariant = "standard",
   menuProps = {},
+  disabled = false,
   useAppShellStyling = false,
 }) {
   const theme = useTheme();
@@ -72,6 +73,7 @@ function MarketLocationSelect({
       fullWidth
     >
       <Select
+        disabled={disabled}
         id="market-location-select"
         aria-describedby="market-location-helper"
         variant={resolvedSelectVariant}

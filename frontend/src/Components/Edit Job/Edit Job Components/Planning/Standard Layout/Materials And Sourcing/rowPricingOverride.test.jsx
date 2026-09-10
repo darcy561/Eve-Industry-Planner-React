@@ -75,3 +75,24 @@ describe("where a single material is priced", () => {
     expect(screen.getByRole("button", { name: /follow panel/i })).toBeDisabled();
   });
 });
+
+describe("a locked job", () => {
+  it("refuses a change to where the material is priced", () => {
+    // The button being disabled is not enough: the selects are the controls
+    // that write, and they were reachable while the job was locked.
+    const { container } = render(
+      <RowPricingOverride
+        typeID={34}
+        panelMarket="jita"
+        panelListing="sell"
+        onMarketCommit={() => {}}
+        onListingCommit={() => {}}
+        onReset={() => {}}
+        disabled
+      />
+    );
+
+    const selects = container.querySelectorAll(".Mui-disabled.MuiInputBase-root");
+    expect(selects.length).toBe(2);
+  });
+});

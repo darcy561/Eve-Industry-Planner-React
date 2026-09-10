@@ -244,9 +244,11 @@ describe("the mark at the head of a row", () => {
       }),
     ]);
 
-    expect(
-      screen.getByLabelText("Manufacturing Job — exempt from builds")
-    ).toBeInTheDocument();
+    const glyph = screen.getByLabelText("Manufacturing Job — exempt from builds");
+    expect(glyph).toBeInTheDocument();
+    // Visible without hovering: the old row's icon was amber on sight, and a
+    // long list is scanned rather than hovered row by row.
+    expect(glyph).toHaveStyle({ color: "rgb(237, 108, 2)" });
   });
 
   it("draws no mark for a row that carries none", () => {

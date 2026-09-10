@@ -18,6 +18,7 @@ const { DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
  * @param {Object} [props.customSelectStyling] - Custom styling for the select component
  * @param {Object} [props.customHelperTextStyling] - Custom styling for the helper text
  * @param {string} [props.labelText="Listing"] - Label text to display in helper text
+ * @param {boolean} [props.disabled] - Refuses changes, e.g. while a job is locked
  * @returns {JSX.Element} Market listing select component
  * 
  * @example
@@ -38,6 +39,7 @@ function MarketListingSelect({
   labelText = "Listing",
   selectVariant = "standard",
   menuProps = {},
+  disabled = false,
 }) {
   return (
     <FormControl
@@ -55,6 +57,7 @@ function MarketListingSelect({
       fullWidth
     >
       <Select
+        disabled={disabled}
         id="market-listing-select"
         aria-describedby="market-listing-helper"
         variant={selectVariant}

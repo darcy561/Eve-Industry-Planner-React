@@ -177,9 +177,10 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
  * What kind of material this is, and whether anything is building it.
  *
  * A tick where a child job is linked, a dot where none is, in the job type's
- * accent colour — except where something is pending against a material nothing
- * is linked to yet, which is amber because it is the state a player is midway
- * through.
+ * accent colour. Two states take the colour instead: something pending against a
+ * material nothing is linked to yet, and a material the account excludes from
+ * builds. Both are amber because both are read at a glance down a long list —
+ * a fact only a tooltip carries is a fact nobody scanning the list will find.
  *
  * @param {object} props
  * @param {import("../../../../../../Functions/MarketData/materialMark").MaterialMark} [props.mark]
@@ -188,9 +189,10 @@ function MaterialMark({ mark }) {
   const theme = useTheme();
   if (!mark) return null;
 
-  const colour = mark.isUnsettled
-    ? theme.palette.warning.main
-    : getJobTypeAccentColour(theme, mark.jobType);
+  const colour =
+    mark.isUnsettled || mark.isExempt
+      ? theme.palette.warning.main
+      : getJobTypeAccentColour(theme, mark.jobType);
 
   const Glyph = mark.kind === MATERIAL_MARK.PLAIN ? LensIcon : DoneIcon;
 

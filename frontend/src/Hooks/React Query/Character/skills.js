@@ -60,7 +60,9 @@ function characterSkillsQuery(characterHash) {
       });
       return result.data;
     },
-    enabled: isQueryExecutionEnabled(),
+    // A per-character read with no character has nothing to fetch, and the
+    // character lookup below would resolve to nobody.
+    enabled: isQueryExecutionEnabled() && Boolean(characterHash),
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,

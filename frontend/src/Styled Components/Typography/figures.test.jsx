@@ -35,10 +35,11 @@ describe("Figure", () => {
     }
   });
 
+  // Zero is a figure the app has, unlike null — it must not read as absent.
   it("does not treat a zero as absent", () => {
     render(<Figure>{0}</Figure>);
 
-    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.getByText("0.00")).toBeInTheDocument();
   });
 
   it("lines its digits up with the figures around it", () => {
@@ -348,5 +349,31 @@ describe("Disclosure", () => {
     );
 
     expect(screen.getByText("the working")).toBeInTheDocument();
+  });
+});
+
+// Every number the app shows goes through the locale formatter. Trusting each
+// call site to remember is a guarantee by convention; a raw number reaching a
+// Figure renders `String(n)`, which loses the separators — and loses them in a
+// way only a reader outside en-GB would notice.
+describe("a raw number given to a Figure", () => {
+  it("is formatted rather than stringified", () => {
+    render(<Figure>{12000}</Figure>);
+
+    expect(screen.getByText("12,000.00")).toBeInTheDocument();
+  });
+
+  // ISK's two places are the formatter's default, not the right answer for a
+  // count — so the caller says how many it wants rather than the atom guessing.
+  it("takes the decimal places it is told to use", () => {
+    render(<Figure formatOptions={{ max: 0 }}>{12000}</Figure>);
+
+    expect(screen.getByText("12,000")).toBeInTheDocument();
+  });
+
+  it("leaves an already-formatted string alone", () => {
+    render(<Figure>{"12,000"}</Figure>);
+
+    expect(screen.getByText("12,000")).toBeInTheDocument();
   });
 });

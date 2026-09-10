@@ -208,3 +208,58 @@ describe("what a row can and cannot say at once", () => {
     expect(hasSavingAvailable(notLinked)).toBe(false);
   });
 });
+
+// Stage G's whole point: a row can be priced to build and still planned to buy.
+// Before speculative jobs existed, a build price only came from linked children,
+// and being linked made the plan Build — so no row was ever both, and the offer
+// to switch could never fire.
+describe("a speculatively costed row", () => {
+  it("carries a build price without being planned to build", () => {
+    const row = buildMaterialSourcingRow({
+      material: { typeID: 34, name: "Tritanium", quantity: 100, volume: 0.01 },
+      buyPrice: 5.4,
+      buildPrice: 4.95,
+      isBuildable: true,
+      isLinked: false,
+      isSpeculative: true,
+    });
+
+    expect(row.buildPrice).toBe(4.95);
+    expect(row.plan).toBe(MATERIAL_PLAN.BUY);
+    expect(row.isSpeculative).toBe(true);
+    expect(row.delta).toBeLessThan(0);
+  });
+
+  it("is offered as a saving, which a linked row is not", () => {
+    const speculative = buildMaterialSourcingRow({
+      material: { typeID: 34, name: "Tritanium", quantity: 100, volume: 0.01 },
+      buyPrice: 5.4,
+      buildPrice: 4.95,
+      isBuildable: true,
+      isLinked: false,
+      isSpeculative: true,
+    });
+    const linked = buildMaterialSourcingRow({
+      material: { typeID: 34, name: "Tritanium", quantity: 100, volume: 0.01 },
+      buyPrice: 5.4,
+      buildPrice: 4.95,
+      isBuildable: true,
+      isLinked: true,
+    });
+
+    expect(hasSavingAvailable(speculative)).toBe(true);
+    expect(hasSavingAvailable(linked)).toBe(false);
+  });
+
+  it("is not speculative by default" , () => {
+    const row = buildMaterialSourcingRow({
+      material: { typeID: 34, name: "Tritanium", quantity: 100, volume: 0.01 },
+      buyPrice: 5.4,
+      buildPrice: null,
+      isBuildable: true,
+      isLinked: false,
+    });
+
+    expect(row.isSpeculative).toBe(false);
+  });
+});

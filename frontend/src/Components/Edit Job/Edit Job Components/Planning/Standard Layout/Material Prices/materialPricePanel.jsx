@@ -7,9 +7,8 @@ import { useMaterialPricingModel } from "./Hooks/useMaterialPricingModel";
 /**
  * What the build is worth and what it comes to.
  *
- * All that is left of the panel that used to carry the material rows as well.
- * Materials & Sourcing took those; Returns takes what remains, so this is a
- * holding place for two figures rather than a panel with a job of its own.
+ * Two figures for the mobile layout, which has no Materials & Sourcing or
+ * Returns panel to carry them.
  *
  * @param {object} props
  */

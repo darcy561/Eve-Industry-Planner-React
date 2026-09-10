@@ -64,6 +64,8 @@ const PLACEHOLDER_SALE_STRUCTURES = [
  * @property {string} id - Hub id, or the saved row's id
  * @property {string} name - Display name
  * @property {number} priceHubStationID - The station whose prices apply
+ * @property {string} priceHubID - The MARKET_OPTIONS id those prices come from
+ * @property {string} priceHubName - What that hub is called
  * @property {number|null} brokerFee - The owner's rate for a structure; null at a
  *   hub, where the rate is derived from the seller instead
  */
@@ -111,6 +113,8 @@ export function resolveSaleLocation(saleStructureID, hubID) {
     id: hub.id,
     name: hub.name,
     priceHubStationID: hub.stationID,
+    priceHubID: hub.id,
+    priceHubName: hub.name,
     brokerFee: null,
   };
 }
@@ -130,6 +134,8 @@ function saleLocationFromStructure(structure) {
     id: structure.id,
     name: structure.name,
     priceHubStationID: hub?.stationID ?? null,
+    priceHubID: hub?.id ?? null,
+    priceHubName: hub?.name ?? null,
     brokerFee: structure.brokerFee,
   };
 }

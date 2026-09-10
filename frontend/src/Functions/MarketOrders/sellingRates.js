@@ -60,8 +60,48 @@ export function getSellerSkills(queryClient, characterHash) {
  * @returns {Promise<number>} Percentage
  */
 export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
+  const { rate } = await brokerFeeWorking(saleLocation, queryClient, characterHash);
+  return rate;
+}
+
+/**
+ * @typedef {object} FeeTerm
+ * @property {string} id
+ * @property {string} label - What the reduction came from
+ * @property {number} amount - Percentage points it took off
+ * @property {number} level - The skill level or standing behind it
+ */
+
+/**
+ * @typedef {object} BrokerFeeWorking
+ * @property {string} kind - One of SALE_LOCATION_KIND
+ * @property {number} rate - Percentage
+ * @property {number|null} base - What the rate started at; null at a structure,
+ *   where the owner's rate is not derived from anything
+ * @property {FeeTerm[]} terms - Each subtraction, in the order they apply
+ */
+
+/**
+ * The broker fee and what it is made of.
+ *
+ * A station's rate is worth showing as working: it is derived from the seller's
+ * own skill and standings, and seeing the subtractions is what makes the figure
+ * checkable against the client. A structure's is a number its owner set, so
+ * there is nothing to show but the number.
+ *
+ * @param {import("./saleLocations").SaleLocation} saleLocation
+ * @param {import("@tanstack/react-query").QueryClient} [queryClient]
+ * @param {string|null} [characterHash]
+ * @returns {Promise<BrokerFeeWorking>}
+ */
+export async function brokerFeeWorking(saleLocation, queryClient, characterHash) {
   if (saleLocation?.kind === SALE_LOCATION_KIND.STRUCTURE) {
-    return saleLocation.brokerFee;
+    return {
+      kind: SALE_LOCATION_KIND.STRUCTURE,
+      rate: saleLocation.brokerFee,
+      base: null,
+      terms: [],
+    };
   }
 
   const { brokerRelations } = getSellerSkills(queryClient, characterHash);
@@ -71,12 +111,33 @@ export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
     characterHash
   );
 
-  return (
-    brokerFeeRates.base -
-    brokerFeeRates.brokerRelations * brokerRelations -
-    brokerFeeRates.factionStanding * faction -
-    brokerFeeRates.corporationStanding * corporation
-  );
+  const terms = [
+    {
+      id: "brokerRelations",
+      label: "Broker Relations",
+      amount: brokerFeeRates.brokerRelations * brokerRelations,
+      level: brokerRelations,
+    },
+    {
+      id: "faction",
+      label: "Faction standing",
+      amount: brokerFeeRates.factionStanding * faction,
+      level: faction,
+    },
+    {
+      id: "corporation",
+      label: "Corporation standing",
+      amount: brokerFeeRates.corporationStanding * corporation,
+      level: corporation,
+    },
+  ];
+
+  return {
+    kind: SALE_LOCATION_KIND.HUB,
+    base: brokerFeeRates.base,
+    terms,
+    rate: terms.reduce((rate, term) => rate - term.amount, brokerFeeRates.base),
+  };
 }
 
 /**
@@ -91,9 +152,25 @@ export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
  * @returns {number} Percentage
  */
 export function salesTaxRate(queryClient, characterHash) {
+  return salesTaxWorking(queryClient, characterHash).rate;
+}
+
+/**
+ * The sales tax and what it is made of. Accounting is the only thing that moves
+ * it, and it takes a share of the base rather than subtracting from it.
+ *
+ * @param {import("@tanstack/react-query").QueryClient} [queryClient]
+ * @param {string|null} [characterHash]
+ * @returns {{base: number, accounting: number, rate: number}}
+ */
+export function salesTaxWorking(queryClient, characterHash) {
   const { accounting } = getSellerSkills(queryClient, characterHash);
 
-  return salesTaxRates.base * (1 - salesTaxRates.accounting * accounting);
+  return {
+    base: salesTaxRates.base,
+    accounting,
+    rate: salesTaxRates.base * (1 - salesTaxRates.accounting * accounting),
+  };
 }
 
 /**

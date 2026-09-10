@@ -8,14 +8,8 @@ import {
   Link,
   Tooltip,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
-import {
-  TimeSeriesChart,
-  timeSeriesSurfaceStyle,
-} from "../../../../../../Styled Components/Charts";
 import { appShellInsetSurfaceSx } from "../../../../../../Context/appShell";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import {
@@ -24,17 +18,16 @@ import {
 } from "../../../../../../Functions/Helper/numberParser";
 import { useAccountTotalsQuery } from "../../../../../../Hooks/React Query/Backend/statisticsTotals";
 import { useAccountTimelineQuery } from "../../../../../../Hooks/React Query/Backend/statisticsTimeline";
+import CostOverTime from "./costOverTime";
 import {
-  COST_SERIES,
-  toBuildCostPerUnitRows,
-} from "../../../../../../Components/Archive Statistics/chartAdapters";
-import {
-  costRange,
   historyWindow,
   monthLabel,
   outputDestinations,
-  shortMonthLabel,
 } from "./buildHistoryFigures";
+import {
+  averageCostPerItem,
+  costRange,
+} from "../../../../../../Functions/MarketData/buildComparison";
 
 const labelSx = {
   typography: { xs: "caption", md: "body2" },
@@ -92,8 +85,8 @@ function ComparisonStrip({ history }) {
       />
       <Figure
         label="Average"
-        value={builds > 0 ? formatNumberForLocale(averageOf(history)) : "—"}
-        title={builds > 0 ? numberToShortText(averageOf(history)) : null}
+        value={builds > 0 ? formatNumberForLocale(averageCostPerItem(history)) : "—"}
+        title={builds > 0 ? numberToShortText(averageCostPerItem(history)) : null}
       />
       <Figure
         label="Range"
@@ -111,16 +104,6 @@ function ComparisonStrip({ history }) {
       />
     </Grid>
   );
-}
-
-/**
- * The mean of the marks' two ends stands in for a lifetime average: the marks are
- * fixed scalars, and averaging them needs no second read.
- */
-function averageOf(history) {
-  const low = Number(history?.cheapestCostPerItem ?? 0);
-  const high = Number(history?.dearestCostPerItem ?? 0);
-  return (low + high) / 2;
 }
 
 function DestinationSplit({ totals }) {
@@ -162,13 +145,6 @@ export default function ArchiveJobsPanel({ state }) {
   const history = totalsData?.history;
   const hasHistory = Number(history?.buildCount ?? 0) > 0;
 
-  const theme = useTheme();
-  const deviceNotMobile = useMediaQuery(theme.breakpoints.up("sm"));
-  const chartSurfaceSx = useMemo(
-    () => timeSeriesSurfaceStyle(deviceNotMobile),
-    [deviceNotMobile],
-  );
-
   // Chain output counts: an item built only as an intermediate still has a cost
   // history, and it is the one its builder wants to compare against.
   const window = useMemo(() => historyWindow(history), [history]);
@@ -183,11 +159,6 @@ export default function ArchiveJobsPanel({ state }) {
   // chart reads as a jump.
   const chartOpening = showChart && chartLoading;
   const chartReady = showChart && !chartLoading;
-
-  const chartRows = useMemo(
-    () => toBuildCostPerUnitRows(timelineData),
-    [timelineData],
-  );
 
   return (
     <AppShellPanel
@@ -230,25 +201,8 @@ export default function ArchiveJobsPanel({ state }) {
                     : "Show cost over time"}
               </Link>
               <Collapse in={chartReady} timeout={350} unmountOnExit>
-                <Box sx={[appShellInsetSurfaceSx, { mt: 1, p: 1.5 }]}>
-                  {/* The chart sizes itself from its container, which it can only
-                      measure once laid out. Holding that height here keeps the
-                      collapse growing to the size the chart settles at. */}
-                  <Box sx={chartSurfaceSx}>
-                    {chartRows.length === 0 ? (
-                      <Typography sx={{ typography: "body2" }} align="center">
-                        No monthly figures for this item yet.
-                      </Typography>
-                    ) : (
-                      <TimeSeriesChart
-                        rows={chartRows}
-                        categoryKey="month"
-                        series={COST_SERIES}
-                        formatCategory={shortMonthLabel}
-                        leftAxisLabel="Cost per unit"
-                      />
-                    )}
-                  </Box>
+                <Box sx={{ mt: 1 }}>
+                  <CostOverTime timelineData={timelineData} />
                 </Box>
               </Collapse>
             </Grid>

@@ -120,17 +120,34 @@ describe("what a breakdown leaves out", () => {
     // rather than as an absence.
     const cost = buildCostBreakdown({ rows: [row()], installCost: 100 });
 
-    expect(cost.toBuild.lines.map((line) => line.id)).toEqual([
-      "bought",
-      "install",
-    ]);
+    expect(cost.toBuild.lines.map((line) => line.id)).not.toContain("built");
+    expect(cost.toBuild.lines.map((line) => line.id)).not.toContain("paid");
+  });
+
+  // The one exception, and it is deliberate: a build with no extras recorded is
+  // the common case, so the row is the only thing telling a reader the stage
+  // takes them at all.
+  it("keeps the extras row even at zero, as an invitation", () => {
+    const cost = buildCostBreakdown({ rows: [row()], installCost: 100 });
+    const extras = cost.toBuild.lines.find((line) => line.id === "extras");
+
+    expect(extras.value).toBe(0);
+    expect(extras.detail).toMatch(/Hauling/);
+  });
+
+  it("drops the invitation once there is a figure to state instead", () => {
+    const cost = buildCostBreakdown({ rows: [row()], extras: 500 });
+    const extras = cost.toBuild.lines.find((line) => line.id === "extras");
+
+    expect(extras.value).toBe(500);
+    expect(extras.detail).toBeUndefined();
   });
 
   it("costs nothing for a job with no materials at all", () => {
     const cost = buildCostBreakdown({ rows: [] });
 
     expect(cost.total).toBe(0);
-    expect(cost.toBuild.lines).toHaveLength(0);
+    expect(cost.toBuild.lines.map((line) => line.id)).toEqual(["extras"]);
   });
 });
 
@@ -219,5 +236,45 @@ describe("per unit", () => {
     expect(cost.toBuild.lines[0].perUnit).toBe(100);
     expect(cost.toBuild.perUnit).toBe(150);
     expect(cost.perUnit).toBe(cost.total / 10);
+  });
+});
+
+// The toggle changes what the components are, not merely how they are labelled:
+// the materials line grows and the child-builds line disappears.
+describe("pricing every material at market", () => {
+  const linked = () =>
+    row({ plan: MATERIAL_PLAN.BUILD, buildPrice: 4, buyPrice: 10, quantity: 100 });
+
+  it("prices a linked row at market and drops the child-builds line", () => {
+    const cost = buildCostBreakdown({ rows: [linked()], buyEverything: true });
+
+    expect(cost.toBuild.lines.map((line) => line.id)).not.toContain("built");
+    const bought = cost.toBuild.lines.find((line) => line.id === "bought");
+    expect(bought.value).toBe(1000);
+  });
+
+  it("prices it from the child build when left alone", () => {
+    const cost = buildCostBreakdown({ rows: [linked()] });
+
+    const built = cost.toBuild.lines.find((line) => line.id === "built");
+    expect(built.value).toBe(400);
+  });
+
+  // A purchase already made is a record rather than an estimate, so no model
+  // reprices it.
+  it("leaves what was actually paid alone in either model", () => {
+    const paid = row({
+      plan: MATERIAL_PLAN.PAID,
+      paidCost: 700,
+      remainingQuantity: 0,
+      quantity: 100,
+    });
+
+    for (const buyEverything of [false, true]) {
+      const cost = buildCostBreakdown({ rows: [paid], buyEverything });
+      expect(
+        cost.toBuild.lines.find((line) => line.id === "paid").value,
+      ).toBe(700);
+    }
   });
 });

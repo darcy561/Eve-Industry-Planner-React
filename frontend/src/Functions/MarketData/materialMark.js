@@ -27,7 +27,7 @@ export const MATERIAL_MARK = {
  * @property {string} label - What a reader is told on hover
  * @property {number} jobType - For the accent colour the row resolves
  * @property {boolean} isUnsettled - Pending against a type that could be linked,
- *   which the old row marked amber rather than by job type
+ *   which the row marks amber rather than by job type
  * @property {boolean} isExempt - Excluded from builds by the account's settings
  */
 

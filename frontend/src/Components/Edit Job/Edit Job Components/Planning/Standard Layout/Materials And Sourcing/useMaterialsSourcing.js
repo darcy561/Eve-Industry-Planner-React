@@ -6,6 +6,7 @@ import checkJobTypeIsBuildable from "../../../../../../Functions/Helper/checkJob
 import {
   getEffectiveMaterialPriceHub,
   materialCostByBasis,
+  priceAge,
   summariseBasisUse,
 } from "../../../../../../Functions/MarketData/materialPricing.js";
 import {
@@ -24,9 +25,8 @@ import useUsersStore from "../../../../../../Zustand/usersStore.js";
  * What Materials & Sourcing draws: a row per material, the figures the panel
  * states around them, and what each pricing basis would do to the total.
  *
- * The panel that this replaces resolved a price, walked child jobs and totalled
- * the result inside its row components, so a figure could only be checked by
- * rendering one. Here the job produces rows and the panel draws them.
+ * The rows are built here rather than inside the row components, so a figure can
+ * be checked without rendering one.
  *
  * @param {object} params
  * @param {object} params.state - Edit Job state
@@ -73,6 +73,13 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
 
       const quantity = quantityFor(activeJob, material, displayType);
 
+      // A speculative job prices the row without committing it. It deliberately
+      // does not count towards `isLinked`: a row that is costed but still on Buy
+      // is the whole point — it is what lets the panel offer the switch.
+      const speculative = hasChildJobs
+        ? null
+        : (state.speculativeChildJobs?.[material.typeID] ?? null);
+
       return buildMaterialSourcingRow({
         material,
         quantity,
@@ -83,10 +90,11 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         ),
         buildPrice: unitBuildCost({
           material,
-          childJobIDs,
-          childJobs: matchedChildJobs,
+          childJobIDs: speculative ? [speculative.jobID] : childJobIDs,
+          childJobs: speculative ? [speculative] : matchedChildJobs,
           resolved,
         }),
+        isSpeculative: Boolean(speculative),
         isBuildable: checkJobTypeIsBuildable(material.jobType),
         isLinked: hasChildJobs,
         matchedChildJobs,
@@ -107,6 +115,10 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
       marketSelect,
       listingSelect,
       basisUsage: summariseBasisUse(rows, marketSelect, listingSelect),
+      priceAge: priceAge(
+        materials,
+        useUsersStore.getState().worldData.actions.findMarketData,
+      ),
       basisOptions: materialCostByBasis({
         materials,
         layout,
@@ -126,6 +138,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
     checkTypeIDisExempt,
     marketSelect,
     state.parentChildToEdit.childJobs,
+    state.speculativeChildJobs,
     state.temporaryChildJobs,
   ]);
 }
@@ -157,8 +170,8 @@ function unitBuildCost({ material, childJobIDs, childJobs, resolved }) {
 /**
  * How many the row states.
  *
- * The retiring Raw Resources panel let a player see the whole job's requirement
- * or only the selected setup's, and that choice comes with it.
+ * A player can read the whole job's requirement or only the selected setup's,
+ * which are different figures on a job with more than one setup.
  *
  * @param {object} activeJob
  * @param {object} material

@@ -94,3 +94,61 @@ describe("a build that loses money", () => {
     expect(losing.margin).toBeLessThan(0);
   });
 });
+
+// Break-even alone says what a unit must fetch. The headroom says how far
+// today's price is above it, which is what makes the figure worth stating.
+describe("headroom above break-even", () => {
+  it("measures today's price against what a unit must fetch", () => {
+    const returns = calculateReturns({
+      sellPrice: 120,
+      buyPrice: 100,
+      quantityProduced: 10,
+      buildCost: 800,
+      brokerFee: 100,
+      salesTax: 100,
+    });
+
+    // 1,000 of cost over 10 units is 100 to break even, against 120 today.
+    expect(returns.breakEvenPerUnit).toBe(100);
+    expect(returns.headroom.price).toBe(120);
+    expect(returns.headroom.above).toBeCloseTo(0.2);
+  });
+
+  it("reports a price below break-even as negative headroom", () => {
+    const returns = calculateReturns({
+      sellPrice: 80,
+      quantityProduced: 10,
+      buildCost: 1000,
+    });
+
+    expect(returns.headroom.above).toBeCloseTo(-0.2);
+  });
+
+  it("has no headroom to state when nothing is produced", () => {
+    expect(calculateReturns({ quantityProduced: 0 }).headroom).toBeNull();
+  });
+});
+
+// A route's figure means little without the price it came from and what was
+// taken off it.
+describe("what each route was priced from", () => {
+  it("carries its own unit price and what is deducted", () => {
+    const { routes } = calculateReturns({
+      sellPrice: 120,
+      buyPrice: 100,
+      quantityProduced: 10,
+      buildCost: 800,
+      brokerFee: 36,
+      salesTax: 45,
+    });
+
+    const listed = routes.find((r) => r.id === "listed");
+    const immediate = routes.find((r) => r.id === "immediate");
+
+    expect(listed.unitPrice).toBe(120);
+    expect(listed.deducts).toBe("less fee and tax");
+    expect(immediate.unitPrice).toBe(100);
+    // Nothing is listed, so no broker fee is charged on this route.
+    expect(immediate.deducts).toBe("less tax");
+  });
+});

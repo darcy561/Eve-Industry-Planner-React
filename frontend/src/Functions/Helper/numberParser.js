@@ -121,6 +121,38 @@ export function parseAndFormatNumber(str, options) {
   return formatNumberForLocale(parseNumberWithSeparators(str), options);
 }
 
+/**
+ * ISK, at the precision every figure in the app states it to.
+ *
+ * Shared so the decision is made once: a panel that formats its own is a panel
+ * that can drift from the one beside it.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+export function formatIsk(value) {
+  return formatNumberForLocale(value);
+}
+
+/**
+ * A fraction as a percentage: 0.083 reads as "8.3%".
+ *
+ * Takes a fraction rather than a percentage because that is what a ratio of two
+ * figures gives, and converting at each call site is where a factor of a hundred
+ * goes missing.
+ *
+ * @param {number|null|undefined} fraction
+ * @param {Object} [options]
+ * @param {number} [options.places] - Decimal places (default: 1)
+ * @returns {string|null} null where the ratio has no answer
+ */
+export function formatPercentage(fraction, { places = 1 } = {}) {
+  if (fraction === null || fraction === undefined || !Number.isFinite(fraction)) {
+    return null;
+  }
+  return `${formatNumberForLocale(fraction * 100, { max: places })}%`;
+}
+
 export function formatDateForLocale(date) {
   // Validate the date input
   if (!date) {

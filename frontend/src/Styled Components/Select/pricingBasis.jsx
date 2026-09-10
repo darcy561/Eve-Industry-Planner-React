@@ -7,6 +7,8 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
+
+import { formatTimeDuration } from "../../Functions/Helper/numberParser";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 /**
@@ -29,6 +31,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
  * @param {{overridden: number, purchased: number}} [props.usage] - How many rows
  *   depart from this basis, and how many are not estimates at all
  * @param {() => void} [props.onReset] - Puts every row back on this basis
+ * @param {number|null} [props.age] - How old the figures are, in milliseconds
  * @param {boolean} [props.disabled]
  */
 export default function PricingBasisSelect({
@@ -38,6 +41,7 @@ export default function PricingBasisSelect({
   label,
   usage,
   onReset,
+  age = null,
   disabled = false,
 }) {
   const [anchor, setAnchor] = useState(null);
@@ -118,6 +122,7 @@ export default function PricingBasisSelect({
           </MenuItem>
         ))}
         <BasisUsage usage={usage} onReset={onReset} />
+        <PriceAge age={age} />
       </Menu>
     </>
   );
@@ -126,9 +131,8 @@ export default function PricingBasisSelect({
 /**
  * How many rows are not on this basis.
  *
- * An override is invisible on the row itself, and the panel this replaces hid
- * the list of them behind a dialogue. Saying how many there are is what makes
- * one discoverable without opening anything.
+ * An override is invisible on the row itself, so saying how many there are is
+ * what makes one discoverable without opening anything.
  *
  * @param {object} props
  * @param {{overridden: number, purchased: number}} [props.usage]
@@ -179,6 +183,30 @@ function BasisDelta({ delta, formatValue }) {
     >
       {delta < 0 ? "−" : "+"}
       {formatValue(Math.abs(delta))}
+    </Typography>
+  );
+}
+
+/**
+ * How old the figures behind these totals are.
+ *
+ * The server refreshes on a period measured in hours, and a price from this
+ * morning looks exactly as authoritative as one from a minute ago. Stating the
+ * age is the only thing that tells them apart.
+ *
+ * @param {object} props
+ * @param {number|null} props.age - Milliseconds
+ */
+function PriceAge({ age }) {
+  if (age === null || !Number.isFinite(age)) return null;
+
+  return (
+    <Typography
+      variant="caption"
+      color="text.secondary"
+      sx={{ px: 2, py: 0.5, display: "block" }}
+    >
+      Server prices {formatTimeDuration(age / 1000, { seconds: false })} old
     </Typography>
   );
 }

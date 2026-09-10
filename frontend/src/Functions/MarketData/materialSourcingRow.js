@@ -4,9 +4,8 @@ import { materialPurchaseState } from "./materialPricing";
  * One row of Materials & Sourcing: what a material costs to buy, what it costs
  * to build, and which of those the plan is on.
  *
- * The comparison is the row's reason to exist. The panel it replaces printed a
- * buy figure and a build figure and left the reader to diff them, so the delta
- * and the plan are computed here rather than left to the eye.
+ * The comparison is the row's reason to exist, so the delta and the plan are
+ * computed here rather than left to the reader to diff by eye.
  */
 
 /**
@@ -36,6 +35,8 @@ export const MATERIAL_PLAN = {
  * @property {string} plan - One of MATERIAL_PLAN
  * @property {boolean} isBuildable - Whether the material has a blueprint at all
  * @property {boolean} isLinked - Whether child jobs are linked for it
+ * @property {boolean} isSpeculative - Whether the build price came from a job
+ *   built to price the row rather than one the plan commits to
  * @property {number} volume - Total volume the quantity occupies
  * @property {number} paidCost - What was actually paid for it, where it was bought
  * @property {number} remainingQuantity - How many are still to buy or build
@@ -55,6 +56,7 @@ export const MATERIAL_PLAN = {
  * @param {number|null} params.buildPrice - Unit cost from linked child jobs, or null
  * @param {boolean} params.isBuildable - Whether the material has a blueprint at all
  * @param {boolean} params.isLinked - Whether child jobs are linked for it
+ * @param {boolean} [params.isSpeculative] - Whether the build price is a guess
  * @param {Array<object>} [params.matchedChildJobs] - The child jobs behind it
  * @param {string} [params.marketSelect] - The hub the row resolved to
  * @param {string} [params.listingSelect] - The basis the row resolved to
@@ -68,6 +70,7 @@ export function buildMaterialSourcingRow({
   buildPrice,
   isBuildable,
   isLinked,
+  isSpeculative = false,
   matchedChildJobs = [],
   mark = null,
   marketSelect,
@@ -93,6 +96,7 @@ export function buildMaterialSourcingRow({
     plan: planFor({ purchase, isBuildable, isLinked, build }),
     isBuildable,
     isLinked,
+    isSpeculative,
     volume: (material?.volume ?? 0) * quantity,
     paidCost: purchase.paidCost,
     remainingQuantity: Math.max(0, quantity - purchase.paidQuantity),

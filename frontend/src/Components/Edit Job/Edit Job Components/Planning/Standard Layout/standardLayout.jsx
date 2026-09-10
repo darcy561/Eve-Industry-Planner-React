@@ -5,12 +5,11 @@ import { Masonry } from "@mui/lab";
 import { JobSetupPanel } from "./Setup Panel/jobSetups";
 import { EditJobSetup } from "./Edit Setup Panel/editJobSetup";
 import { AvailableBlueprintsPanel } from "./Blueprint Options/blueprintPanel";
-import { MaterialCostPanel } from "./Material Prices/materialPricePanel";
 import MaterialsAndSourcingPanel from "./Materials And Sourcing/materialsAndSourcingPanel";
+import PlanningEconomics from "./Cost Breakdown/planningEconomics";
 import { SkillsPanel } from "./Skills Panel/SkillsPanel";
 import ArchiveJobsPanel from "./Archive Jobs Panel/archiveJobsPanel";
 import TutorialTemplate from "../../../../Tutorials/tutorialTemplate";
-import { ExtrasPanel } from "../../Complete/Standard Layout/Extras Panel/extras";
 
 export function Planning_StandardLayout_EditJob(props) {
   const { state } = props;
@@ -31,8 +30,7 @@ export function Planning_StandardLayout_EditJob(props) {
         <Masonry columns={1} spacing={2}>
           <JobSetupPanel {...props} />
           <MaterialsAndSourcingPanel {...props} />
-          <MaterialCostPanel {...props} />
-          <ExtrasPanel {...props} />
+          <PlanningEconomics {...props} />
           <ArchiveJobsPanel {...props} />
         </Masonry>
       </Grid>

@@ -1,9 +1,9 @@
-export { TimeSeriesChart } from "./TimeSeriesChart";
-export { RankedBarChart } from "./RankedBarChart";
-export { PieChart } from "./PieChart";
+export { TimeSeriesChart } from "./plots/TimeSeriesChart";
+export { RankedBarChart } from "./plots/RankedBarChart";
+export { PieChart } from "./plots/PieChart";
 export { ChartRangeSlider, trailingRange } from "./ChartRangeSlider";
-export { ProportionBar } from "./ProportionBar";
-export { RangeBar } from "./RangeBar";
+export { ProportionBar } from "./bars/ProportionBar";
+export { RangeBar } from "./bars/RangeBar";
 export {
   chartSeriesColours,
   resolveSeriesColour,

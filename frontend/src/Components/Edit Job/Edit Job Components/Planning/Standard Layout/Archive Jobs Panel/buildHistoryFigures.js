@@ -6,23 +6,6 @@ import { monthKey } from "../../../../../../Components/Archive Statistics/calend
  */
 
 /**
- * The spread the marks describe, or null when fewer than two builds make a range
- * a meaningful thing to show.
- *
- * @param {{buildCount?: number, cheapestCostPerItem?: number, dearestCostPerItem?: number}|undefined} history
- */
-export function costRange(history) {
-  const builds = Number(history?.buildCount ?? 0);
-  if (builds < 2) return null;
-
-  const low = Number(history?.cheapestCostPerItem ?? 0);
-  const high = Number(history?.dearestCostPerItem ?? 0);
-  if (high <= 0) return null;
-
-  return { low, high, spread: high - low };
-}
-
-/**
  * Where an item's output went, as the destination counts the panel lists.
  *
  * Quantities rather than costs: the question is what happened to the items, and

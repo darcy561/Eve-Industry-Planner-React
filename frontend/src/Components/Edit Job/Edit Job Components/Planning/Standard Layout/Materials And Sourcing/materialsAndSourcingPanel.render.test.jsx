@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { MATERIAL_PLAN } from "../../../../../../Functions/MarketData/materialSourcingRow";
@@ -40,8 +40,23 @@ const sourcing = {
   ],
 };
 
+const useMaterialsSourcingMock = vi.fn(() => sourcing);
+
 vi.mock("./useMaterialsSourcing", () => ({
-  useMaterialsSourcing: () => sourcing,
+  useMaterialsSourcing: (...args) => useMaterialsSourcingMock(...args),
+}));
+
+const buildSpeculativeChildJobs = vi.fn().mockResolvedValue(0);
+const useActiveJobReadOnly = vi.fn(() => false);
+
+vi.mock("../../../../Edit Job Hooks/useActiveJobDocumentLock", () => ({
+  useActiveJobReadOnly: (...args) => useActiveJobReadOnly(...args),
+}));
+const markChildJobsForAddition = vi.fn();
+const setSpeculativeChildJobs = vi.fn();
+
+vi.mock("./Hooks/useChildJobBuildActions", () => ({
+  useChildJobBuildActions: () => ({ buildSpeculativeChildJobs }),
 }));
 
 // Stood in for, so the test proves the panel reaches the drawer rather than
@@ -73,13 +88,19 @@ function renderPanel(props = {}) {
   render(
     <MaterialsAndSourcingPanel
       state={state}
-      actions={{ updateActiveJob: () => {} }}
-      onChangeBasis={() => {}}
-      onApplyBuildable={() => {}}
+      actions={{
+        updateActiveJob: () => {},
+        markChildJobsForAddition,
+        setSpeculativeChildJobs,
+      }}
       {...props}
     />
   );
 }
+
+beforeEach(() => {
+  useActiveJobReadOnly.mockReturnValue(false);
+});
 
 describe("the Materials and Sourcing panel", () => {
   it("titles itself and lists the materials", () => {
@@ -151,7 +172,11 @@ describe("the Materials and Sourcing panel", () => {
     const { container } = render(
       <MaterialsAndSourcingPanel
         state={{ activeJob: {} }}
-        actions={{ updateActiveJob: () => {} }}
+        actions={{
+        updateActiveJob: () => {},
+        markChildJobsForAddition,
+        setSpeculativeChildJobs,
+      }}
       />
     );
 
@@ -169,5 +194,174 @@ describe("how the panel sits in the stage's layout", () => {
 
     const paper = document.querySelector(".MuiPaper-root");
     expect(paper).not.toHaveStyle({ height: "100%" });
+  });
+});
+
+// Pricing a row means building a whole speculative job for it, so the panel asks
+// rather than doing it on arrival.
+describe("costing the buildable rows", () => {
+  it("offers to cost the rows that have no build price", async () => {
+    const uncosted = {
+      ...sourcing,
+      rows: [{ ...sourcing.rows[0], buildPrice: null, delta: null }],
+    };
+    useMaterialsSourcingMock.mockReturnValueOnce(uncosted);
+
+    renderPanel();
+
+    expect(
+      screen.getByText("1 of 1 buildable material has no build price yet"),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Cost them" }));
+
+    expect(buildSpeculativeChildJobs).toHaveBeenCalled();
+  });
+
+  it("does not offer once every buildable row is costed", () => {
+    renderPanel();
+
+    expect(screen.queryByRole("button", { name: "Cost them" })).not.toBeInTheDocument();
+  });
+
+  it("builds nothing on its own", () => {
+    renderPanel();
+
+    expect(buildSpeculativeChildJobs).not.toHaveBeenCalled();
+  });
+});
+
+// The offer only became reachable once rows could be costed without committing,
+// so its Apply is new ground: it must promote the speculative jobs it is
+// offering rather than rendering as a button that does nothing.
+describe("applying the offer", () => {
+  it("promotes the speculative job behind each cheaper-to-build row", async () => {
+    const speculative = { jobID: "spec-34", itemID: 34 };
+    useMaterialsSourcingMock.mockReturnValueOnce(sourcing);
+
+    renderPanel({
+      state: { ...state, speculativeChildJobs: { 34: speculative } },
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    expect(markChildJobsForAddition).toHaveBeenCalledWith([speculative]);
+  });
+
+  // The committed job now lives in the temporary map, and a row reads that
+  // first; a copy left behind would be offered again after an unlink.
+  it("drops the promoted jobs from the speculative map", async () => {
+    const speculative = { jobID: "spec-34", itemID: 34 };
+
+    renderPanel({
+      state: { ...state, speculativeChildJobs: { 34: speculative } },
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    expect(setSpeculativeChildJobs).toHaveBeenCalledWith({});
+  });
+
+  it("does nothing when no speculative job backs the offer", async () => {
+    renderPanel({ state: { ...state, speculativeChildJobs: {} } });
+
+    await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    expect(markChildJobsForAddition).not.toHaveBeenCalled();
+  });
+});
+
+// The picker names the basis every row is priced on. It listed four options with
+// real totals long before choosing one did anything, which reads as a working
+// control and is not.
+describe("choosing a pricing basis", () => {
+  const updateActiveJob = vi.fn();
+
+  // The trigger is labelled with the basis currently in effect.
+  const openPicker = async () => {
+    renderPanel({ actions: { updateActiveJob } });
+    await userEvent.click(screen.getByRole("button", { name: "Sell Orders" }));
+  };
+
+  const chooseOption = (label) =>
+    userEvent.click(within(screen.getByRole("listbox")).getByText(label));
+
+  beforeEach(() => {
+    updateActiveJob.mockClear();
+    useActiveJobReadOnly.mockReturnValue(false);
+  });
+
+  it("writes the chosen basis onto the job", async () => {
+    await openPicker();
+
+    await chooseOption("Buy Orders");
+
+    expect(updateActiveJob).toHaveBeenCalledWith(
+      expect.objectContaining({
+        layout: expect.objectContaining({ localOrderDisplay: "buy" }),
+      }),
+    );
+  });
+
+  it("writes nothing when the basis chosen is the one already in effect", async () => {
+    await openPicker();
+
+    await chooseOption("Sell Orders");
+
+    expect(updateActiveJob).not.toHaveBeenCalled();
+  });
+
+  // A job someone else holds is read from, not edited — every other panel on
+  // the page gates its actions this way.
+  it("cannot be changed on a job that is locked", () => {
+    useActiveJobReadOnly.mockReturnValue(true);
+
+    renderPanel({ actions: { updateActiveJob } });
+
+    expect(screen.getByRole("button", { name: "Sell Orders" })).toBeDisabled();
+  });
+});
+
+// The design pairs the basis with the hub: both decide what a row's buy figure
+// is, and until now only one of them could be changed from the panel.
+describe("choosing a hub", () => {
+  it("writes the chosen hub onto the job", async () => {
+    const updateActiveJob = vi.fn();
+    renderPanel({ actions: { updateActiveJob } });
+
+    const [hub] = screen.getAllByRole("combobox");
+    await userEvent.click(hub);
+    await userEvent.click(
+      within(screen.getByRole("listbox")).getByText(/Amarr/i),
+    );
+
+    expect(updateActiveJob).toHaveBeenCalledWith(
+      expect.objectContaining({
+        layout: expect.objectContaining({ localMarketDisplay: "amarr" }),
+      }),
+    );
+  });
+});
+
+// The server refreshes on a period measured in hours, and a stale figure looks
+// exactly as authoritative as a fresh one.
+describe("how old the figures are", () => {
+  it("states the age of the prices behind the totals", async () => {
+    useMaterialsSourcingMock.mockReturnValueOnce({
+      ...sourcing,
+      priceAge: 90 * 60 * 1000,
+    });
+
+    renderPanel();
+    await userEvent.click(screen.getByRole("button", { name: "Sell Orders" }));
+
+    expect(screen.getByText(/Server prices .* old/)).toBeInTheDocument();
+  });
+
+  it("says nothing where no price carries a timestamp", async () => {
+    renderPanel();
+    await userEvent.click(screen.getByRole("button", { name: "Sell Orders" }));
+
+    expect(screen.queryByText(/Server prices/)).not.toBeInTheDocument();
   });
 });

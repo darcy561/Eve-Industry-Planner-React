@@ -1,5 +1,5 @@
 import Setup from "../../Classes/jobSetup";
-import { jobTypes } from "../../Context/defaultValues";
+import { industrySkillIDs, jobTypes } from "../../Context/defaultValues";
 import manufacturingTimeModifierCalculation from "./manufacturingTimeModifierCalculation";
 import reactionTimeModifierCalculation from "./reactionTimeModifierCalculation";
 import { getCachedCharacterSkills } from "../../Hooks/EveEsi/Character/useGetCharacterSkills";
@@ -18,6 +18,22 @@ export default function calculateTimeForSetup(setupObject, jobSkillRequirements,
 
     const usersSkills = getCachedCharacterSkills(queryClient, setupObject.selectedCharacter)?.data || {};
 
+    return timeForSetup(setupObject, jobSkillRequirements, usersSkills);
+}
+
+/**
+ * The same calculation over skill levels handed in rather than read from cache.
+ *
+ * Split out so a level can be asked about without being trained: the Skills
+ * panel's what-if needs the time at a level the character does not have, and a
+ * function that fetches its own skills can only ever answer for the real ones.
+ *
+ * @param {Setup} setupObject
+ * @param {Array} jobSkillRequirements
+ * @param {Object} usersSkills - Keyed by skill type id, `{ id, activeLevel }`
+ * @returns {number} Seconds
+ */
+export function timeForSetup(setupObject, jobSkillRequirements, usersSkills = {}) {
     const timeModifier = timeModifierCalc(setupObject, usersSkills);
     const skillModifier = skillModifierCalc(jobSkillRequirements, usersSkills);
 
@@ -36,7 +52,7 @@ export default function calculateTimeForSetup(setupObject, jobSkillRequirements,
 
     function skillModifierCalc(jobSkillRequirements, usersSkills) {
         if (!jobSkillRequirements || !usersSkills) return 1;
-        const skillsToIgnore = new Set([3380, 3388, 45746, 22242]);
+        const skillsToIgnore = new Set(Object.values(industrySkillIDs));
 
         let indexer = 1;
         jobSkillRequirements.forEach((skill) => {

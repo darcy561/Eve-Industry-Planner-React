@@ -10,6 +10,8 @@
  * @typedef {object} ExitRoute
  * @property {string} id
  * @property {string} label
+ * @property {number} unitPrice - What one unit fetches on this route
+ * @property {string} deducts - What is taken off the revenue, in words
  * @property {number} revenue - Before what selling costs
  * @property {number} net - After it
  * @property {number|null} perUnit
@@ -22,6 +24,8 @@
  * @property {ExitRoute[]} routes - Each with its own figures
  * @property {number|null} breakEvenPerUnit - What each unit must fetch to cover
  *   the build and the selling
+ * @property {{price: number, above: number|null}|null} headroom - What a unit
+ *   fetches today against what it must, and by how much as a fraction
  */
 
 /**
@@ -53,11 +57,14 @@ export function calculateReturns({
   brokerFee = 0,
   salesTax = 0,
 }) {
-  const route = (id, label, revenue, cost) => {
+  const route = (id, label, unitPrice, cost, deducts) => {
+    const revenue = unitPrice * quantityProduced;
     const net = revenue - cost - buildCost;
     return {
       id,
       label,
+      unitPrice,
+      deducts,
       revenue,
       net,
       perUnit: quantityProduced > 0 ? net / quantityProduced : null,
@@ -66,19 +73,28 @@ export function calculateReturns({
     };
   };
 
+  const breakEven =
+    quantityProduced > 0
+      ? (buildCost + brokerFee + salesTax) / quantityProduced
+      : null;
+
   return {
     routes: [
-      route("listed", "Sell order", sellPrice * quantityProduced, brokerFee + salesTax),
+      route("listed", "Sell order", sellPrice, brokerFee + salesTax, "less fee and tax"),
       // No listing, so no broker fee — the tax is charged either way.
-      route("immediate", "Into buy orders", buyPrice * quantityProduced, salesTax),
+      route("immediate", "Into buy orders", buyPrice, salesTax, "less tax"),
     ],
     // Linearised around today's price: the fee and the tax are shares of
     // revenue, so the price that truly breaks even would change them again.
     // Close enough to plan against, and not a solved figure.
-    breakEvenPerUnit:
-      quantityProduced > 0
-        ? (buildCost + brokerFee + salesTax) / quantityProduced
-        : null,
+    breakEvenPerUnit: breakEven,
+    // Break-even alone says what a unit must fetch; the headroom says how far
+    // today's price is above it, which is the figure that makes it worth
+    // stating at all.
+    headroom:
+      breakEven === null
+        ? null
+        : { price: sellPrice, above: fraction(sellPrice - breakEven, breakEven) },
   };
 }
 

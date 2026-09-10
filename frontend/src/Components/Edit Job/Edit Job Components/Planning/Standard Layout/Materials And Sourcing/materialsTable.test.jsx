@@ -45,7 +45,7 @@ describe("the materials table", () => {
       .getAllByRole("columnheader")
       .map((cell) => cell.textContent);
 
-    expect(headers).toEqual(["Material", "Qty", "Buy", "Build", "Δ", "Plan"]);
+    expect(headers).toEqual(["Material", "Qty", "Buy", "Build", "Δ", "Source", "Plan"]);
   });
 
   it("says so rather than rendering an empty table when there are no materials", () => {
@@ -73,7 +73,7 @@ describe("the materials table", () => {
 
     expect(cells[3]).toHaveTextContent("—");
     expect(cells[4]).toHaveTextContent("—");
-    expect(cells[5]).toHaveTextContent("base");
+    expect(cells[6]).toHaveTextContent("base");
   });
 
   describe("the plan column", () => {
@@ -212,7 +212,7 @@ describe("the drawer under a row", () => {
     renderTable([row()], { renderDrawer: drawerFor });
 
     const cell = screen.getByTestId("drawer-34").closest("td");
-    expect(cell).toHaveAttribute("colspan", "6");
+    expect(cell).toHaveAttribute("colspan", "7");
   });
 
   it("draws no extra rows when nothing renders a drawer", () => {
@@ -298,5 +298,49 @@ describe("the mark at the head of a row", () => {
     renderTable([row({ mark: null })]);
 
     expect(screen.getByText("Tritanium")).toBeInTheDocument();
+  });
+});
+
+// The row's buy figure is one of four the server publishes per hub, and until
+// the row says which, two rows priced differently look like the same figure.
+describe("the source column", () => {
+  it("names the hub and the price mode behind the buy figure", () => {
+    renderTable([
+      row({ marketSelect: "jita", listingSelect: "buyP95" }),
+    ]);
+
+    expect(
+      within(rowFor("Tritanium")).getByText("Jita · Buy 95%"),
+    ).toBeInTheDocument();
+  });
+
+  // A row priced from a real purchase has no market figure behind it, and
+  // repeating the plan chip's "Paid" would say the same thing twice.
+  it("names Price Entry for a row that was actually bought", () => {
+    renderTable([row({ plan: MATERIAL_PLAN.PAID })]);
+
+    const cells = within(rowFor("Tritanium")).getAllByRole("cell");
+    expect(cells[5]).toHaveTextContent("Price Entry");
+    expect(cells[6]).toHaveTextContent("Paid");
+  });
+});
+
+// A player picks a row out by its icon before reading the name beside it.
+describe("the item artwork", () => {
+  it("shows each material's own icon", () => {
+    renderTable([row({ typeID: 34 })]);
+
+    expect(
+      rowFor("Tritanium").querySelector('img[src*="/types/34/icon"]'),
+    ).toBeTruthy();
+  });
+
+  // The image server answers a non-power-of-two size with a 400 and no image.
+  it("asks for a size the image server will actually serve", () => {
+    renderTable([row({ typeID: 34 })]);
+
+    const src = document.querySelector('img[src*="/types/34/icon"]').getAttribute("src");
+    const size = Number(new URL(src).searchParams.get("size"));
+    expect(Number.isInteger(Math.log2(size))).toBe(true);
   });
 });

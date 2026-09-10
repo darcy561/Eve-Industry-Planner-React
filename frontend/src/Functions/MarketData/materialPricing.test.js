@@ -5,6 +5,7 @@ import {
   materialCostByBasis,
   materialPurchaseState,
   summariseBasisUse,
+  priceAge,
 } from "./materialPricing";
 
 // Prices differ per basis so a total can only come out right if the basis reached
@@ -250,5 +251,39 @@ describe("summariseBasisUse", () => {
 
   it("copes with no rows", () => {
     expect(summariseBasisUse(undefined, "jita", "sell").overridden).toBe(0);
+  });
+});
+
+// The server refreshes on a period measured in hours, and a stale figure looks
+// exactly as authoritative as a fresh one.
+describe("priceAge", () => {
+  const now = Date.now();
+  const found = (byType) => (typeID) => byType[typeID];
+
+  it("reports the age of the stalest price behind the total", () => {
+    const age = priceAge(
+      [{ typeID: 34 }, { typeID: 35 }],
+      found({
+        34: { lastUpdated: now - 60_000 },
+        35: { lastUpdated: now - 600_000 },
+      }),
+    );
+
+    expect(age).toBeGreaterThanOrEqual(600_000);
+    expect(age).toBeLessThan(700_000);
+  });
+
+  it("passes over a material whose price carries no timestamp", () => {
+    const age = priceAge(
+      [{ typeID: 34 }, { typeID: 35 }],
+      found({ 34: { lastUpdated: now - 60_000 }, 35: {} }),
+    );
+
+    expect(age).toBeLessThan(70_000);
+  });
+
+  it("has no age to state when nothing is priced", () => {
+    expect(priceAge([{ typeID: 34 }], found({}))).toBeNull();
+    expect(priceAge([], found({}))).toBeNull();
   });
 });

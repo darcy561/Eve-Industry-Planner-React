@@ -22,6 +22,11 @@ import {
 import { ColumnHeaderRow } from "../../../../../../Styled Components/Table/tableParts";
 import MaterialPopoverIconButtons from "../../../../../../Styled Components/Popover/iconButtons";
 import { getJobTypeAccentColour } from "../../../../../../Functions/Helper/jobTypeDividerColour";
+import { eveImageSize } from "../../../../../../Functions/Shared/eveOwner";
+import {
+  getListingModeLabel,
+  getMarketLocationLabel,
+} from "../Material Prices/Helpers/marketLabelHelpers";
 import { MATERIAL_MARK } from "../../../../../../Functions/MarketData/materialMark";
 import StatusChip, {
   STATUS_TONE,
@@ -34,9 +39,9 @@ import {
 /**
  * The material list, rendered once for the stage.
  *
- * A real table rather than the Grid rows it replaces: this is tabular data with
- * column headers, and the semantics are what let a screen reader announce which
- * figure belongs to which column.
+ * A real table rather than a grid of boxes: this is tabular data with column
+ * headers, and the semantics are what let a screen reader announce which figure
+ * belongs to which column.
  */
 
 const COLUMNS = [
@@ -45,6 +50,7 @@ const COLUMNS = [
   { id: "buy", label: "Buy", align: "right" },
   { id: "build", label: "Build", align: "right" },
   { id: "delta", label: "Δ", align: "right" },
+  { id: "source", label: "Source", align: "right" },
   { id: "plan", label: "Plan", align: "right" },
 ];
 
@@ -131,6 +137,15 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
       <TableCell>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <MaterialMark mark={row.mark} />
+          {/* The item's own artwork: a player picks a row out by its icon well
+              before reading the name beside it. */}
+          <Box
+            component="img"
+            src={`https://images.evetech.net/types/${row.typeID}/icon?size=${eveImageSize(22)}`}
+            alt=""
+            loading="lazy"
+            sx={{ width: 22, height: 22, borderRadius: "3px", flexShrink: 0 }}
+          />
           <MaterialPopoverIconButtons typeID={row.typeID}>
             <Typography variant="body2" component="span">
               {row.name}
@@ -155,6 +170,9 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
         <SignedPercent value={row.delta} />
       </TableCell>
       <TableCell align="right">
+        <SourceCell row={row} />
+      </TableCell>
+      <TableCell align="right">
         <PlanCell plan={row.plan} saving={saving} />
       </TableCell>
     </TableRow>
@@ -169,10 +187,9 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
  * linked to yet.
  *
  * A material the account excludes from builds is struck out and greyed instead.
- * It was a separate icon in a separate panel before the two were merged, and
- * giving it amber too would say the same thing as pending — which is the
- * opposite meaning. Pending wants a decision; exempt wants nothing. Both are
- * legible without hovering, which a tooltip alone is not.
+ * Giving it amber too would say the same thing as pending, which is the opposite
+ * meaning: pending wants a decision, exempt wants nothing. Both are legible
+ * without hovering, which a tooltip alone is not.
  *
  * @param {object} props
  * @param {import("../../../../../../Functions/MarketData/materialMark").MaterialMark} [props.mark]
@@ -259,3 +276,31 @@ function accentStripe(building, saving) {
 }
 
 export { MaterialRow };
+
+/**
+ * Where the row's buy price came from: the hub, and which of the four figures
+ * the server publishes for it.
+ *
+ * A row priced from a real purchase names Price Entry instead: there is no
+ * market figure behind it, and repeating the plan chip's "Paid" would say the
+ * same thing twice on one row.
+ *
+ * @param {object} props
+ * @param {import("../../../../../../Functions/MarketData/materialSourcingRow").MaterialSourcingRow} props.row
+ */
+function SourceCell({ row }) {
+  if (row.plan === MATERIAL_PLAN.PAID) {
+    return (
+      <Typography variant="caption" color="text.secondary">
+        Price Entry
+      </Typography>
+    );
+  }
+
+  return (
+    <Typography variant="caption" color="text.secondary" noWrap>
+      {getMarketLocationLabel(row.marketSelect)} ·{" "}
+      {getListingModeLabel(row.listingSelect)}
+    </Typography>
+  );
+}

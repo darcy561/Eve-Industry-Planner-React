@@ -18,8 +18,11 @@ import {
 import { normalizeLocaleForIntl } from "../../Functions/Helper/localeDetection";
 import { useItemNames } from "../../Hooks/useItemNames";
 import useUsersStore from "../../Zustand/usersStore";
-import { ChartRangeSlider, trailingRange } from "../Charts/ChartRangeSlider";
-import { TimeSeriesChart } from "../Charts/TimeSeriesChart";
+import {
+  ChartRangeSlider,
+  TimeSeriesChart,
+  trailingRange,
+} from "../Charts";
 
 const { MARKET_OPTIONS } = GLOBAL_CONFIG;
 

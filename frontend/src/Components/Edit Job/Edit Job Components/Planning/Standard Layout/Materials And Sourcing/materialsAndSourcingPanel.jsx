@@ -3,42 +3,58 @@ import { MenuItem, Select, Stack } from "@mui/material";
 
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
 import PricingBasisSelect from "../../../../../../Styled Components/Select/pricingBasis";
+import { MarketLocationSelectApplicationSettings } from "../../../../../../Styled Components/Select/marketLocation";
 import writeTextToClipboard from "../../../../../../Functions/Clipboard/writeTextToClipboard";
-import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
+import {
+  formatIsk,
+  formatNumberForLocale,
+} from "../../../../../../Functions/Helper/numberParser";
 import MaterialDrawer from "./materialDrawer";
 import MaterialsTable from "./materialsTable";
-import { SourcingFooter, SourcingOffer } from "./sourcingSummary";
+import {
+  SourcingCostOffer,
+  SourcingFooter,
+  SourcingOffer,
+} from "./sourcingSummary";
 import { useMaterialsSourcing } from "./useMaterialsSourcing";
-import { useMaterialOverrides } from "../Material Prices/Hooks/useMaterialOverrides";
+import { useMaterialOverrides } from "./Hooks/useMaterialOverrides";
 import { getSafeMaterialPriceOverrides } from "../Material Prices/Helpers/materialPriceOverridesState";
+import { useChildJobBuildActions } from "./Hooks/useChildJobBuildActions";
+import { finaliseCreatedChildJobs } from "./Helpers/finaliseCreatedChildJobs";
+import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
+import { hasSavingAvailable } from "../../../../../../Functions/MarketData/materialSourcingRow";
 
 /**
  * What the build takes, and whether each part is bought or built.
  *
- * Replaces Raw Resources and the market panel's cost rows, which drew the same
- * material list twice with different figures on it.
+ * One row per material, stating the quantity, both prices and which of them the
+ * plan is on — so the list exists once and the comparison is on it.
  *
  * @param {object} props
  * @param {object} props.state - Edit Job state
  * @param {object} props.actions - Edit Job actions
- * @param {(basisID: string) => void} props.onChangeBasis
- * @param {() => void} props.onApplyBuildable - Switches every cheaper-to-build row
- * @param {boolean} [props.readOnly]
  */
-export default function MaterialsAndSourcingPanel({
-  state,
-  actions,
-  onChangeBasis,
-  onApplyBuildable,
-  readOnly = false,
-}) {
+export default function MaterialsAndSourcingPanel({ state, actions }) {
   const [displayType, setDisplayType] = useState("all");
   const [openTypeIDs, setOpenTypeIDs] = useState([]);
+  const [isCosting, setIsCosting] = useState(false);
 
-  const { rows, summary, basisOptions, basisUsage, marketSelect, listingSelect } =
-    useMaterialsSourcing({ state, actions, displayType });
+  // The job's own lock, the way every other panel on the page gates its
+  // actions: a job someone else holds is read from, not edited.
+  const readOnly = useActiveJobReadOnly(state);
 
   const {
+    rows,
+    summary,
+    basisOptions,
+    basisUsage,
+    priceAge,
+    marketSelect,
+    listingSelect,
+  } = useMaterialsSourcing({ state, actions, displayType });
+
+  const {
+    updateLayoutPreference,
     updateMaterialLayoutPreference,
     resetMaterialLayoutPreference,
     clearAllMaterialLayoutPreferences,
@@ -49,7 +65,57 @@ export default function MaterialsAndSourcingPanel({
     updateActiveJob: actions.updateActiveJob,
   });
 
+  const { buildSpeculativeChildJobs } = useChildJobBuildActions({
+    state,
+    actions,
+  });
+
   if (!state.activeJob?.selectedSetup) return null;
+
+  // Buildable rows with nothing to compare against yet. A row already linked has
+  // a real build cost, so it is not waiting on anything.
+  const uncosted = rows.filter(
+    (row) => row.isBuildable && row.buildPrice === null,
+  ).length;
+
+  const costBuildableRows = async () => {
+    setIsCosting(true);
+    try {
+      await buildSpeculativeChildJobs();
+    } finally {
+      setIsCosting(false);
+    }
+  };
+
+  /**
+   * Promotes every costed row that would be cheaper to build. The speculative
+   * jobs already exist and are already hydrated, so this commits the objects
+   * rather than building them again.
+   */
+  const applyBuildableRows = async () => {
+    const jobs = rows
+      .filter(hasSavingAvailable)
+      .map((row) => state.speculativeChildJobs?.[row.typeID])
+      .filter(Boolean);
+
+    if (jobs.length === 0) return;
+
+    await finaliseCreatedChildJobs({
+      jobsForMissingDataAndRecalc: [],
+      jobsToMarkForAddition: jobs,
+      actions,
+    });
+
+    // Committing moves them to the temporary map, and a row reads that first —
+    // a copy left here would be offered again after an unlink.
+    const remaining = { ...(state.speculativeChildJobs ?? {}) };
+    for (const job of jobs) delete remaining[job.itemID];
+    actions.setSpeculativeChildJobs(remaining);
+  };
+
+  // The basis every row is priced on unless it carries an override of its own.
+  const changeBasis = (basisID) =>
+    updateLayoutPreference("localOrderDisplay", basisID);
 
   const toggleRow = (typeID) =>
     setOpenTypeIDs((open) =>
@@ -67,15 +133,27 @@ export default function MaterialsAndSourcingPanel({
       // the Masonry has not decided yet grows without bound.
       paperSx={{ height: "auto" }}
       action={
-        <PricingBasisSelect
-          options={basisOptions}
-          formatValue={formatIsk}
-          label="Materials"
-          usage={basisUsage}
-          onChange={onChangeBasis}
-          onReset={clearAllMaterialLayoutPreferences}
-          disabled={readOnly}
-        />
+        <Stack direction="row" spacing={1.5} alignItems="flex-end">
+          <MarketLocationSelectApplicationSettings
+            overrideMarketLocation={state.activeJob.layout.localMarketDisplay}
+            onMarketLocationCommit={(id) =>
+              updateLayoutPreference("localMarketDisplay", id ?? null)
+            }
+            labelText="Hub"
+            disabled={readOnly}
+            customFormStyling={{ minWidth: 120 }}
+          />
+          <PricingBasisSelect
+            options={basisOptions}
+            formatValue={formatIsk}
+            label="Materials"
+            usage={basisUsage}
+            age={priceAge}
+            onChange={changeBasis}
+            onReset={clearAllMaterialLayoutPreferences}
+            disabled={readOnly}
+          />
+        </Stack>
       }
       enableMenu
       menuItems={[
@@ -98,10 +176,18 @@ export default function MaterialsAndSourcingPanel({
           <MenuItem value="active">Selected Setup</MenuItem>
         </Select>
 
+        <SourcingCostOffer
+          summary={summary}
+          uncosted={uncosted}
+          onCost={costBuildableRows}
+          isCosting={isCosting}
+          disabled={readOnly}
+        />
+
         <SourcingOffer
           summary={summary}
           formatIsk={formatIsk}
-          onApply={onApplyBuildable}
+          onApply={applyBuildableRows}
           disabled={readOnly}
         />
 
@@ -142,9 +228,6 @@ export default function MaterialsAndSourcingPanel({
     </AppShellPanel>
   );
 }
-
-/** ISK, at the precision the panels this replaces used. */
-const formatIsk = (value) => formatNumberForLocale(value);
 
 /** A count of items, which is never fractional. */
 const formatQuantity = (value) => formatNumberForLocale(value, { max: 0 });

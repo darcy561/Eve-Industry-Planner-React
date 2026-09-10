@@ -162,3 +162,30 @@ export function materialPurchaseState(material) {
   }
   return { kind: "estimated", paidCost: 0, paidQuantity: 0, remainingQuantity };
 }
+
+/**
+ * How old the figures a job is priced against actually are.
+ *
+ * The server refreshes on a period measured in hours, so a reader planning
+ * against them deserves to know whether they are minutes or most of a day old —
+ * the figures look equally authoritative either way.
+ *
+ * The oldest of the materials is the honest answer: a total is only as fresh as
+ * the stalest price inside it.
+ *
+ * @param {Array<{typeID: number}>} materials
+ * @param {(typeID: number) => object|undefined} findMarketData
+ * @returns {number|null} Milliseconds since the oldest was refreshed, or null
+ *   where nothing has a timestamp
+ */
+export function priceAge(materials = [], findMarketData) {
+  let oldest = null;
+
+  for (const material of materials) {
+    const updated = findMarketData?.(material.typeID)?.lastUpdated;
+    if (!Number.isFinite(updated)) continue;
+    if (oldest === null || updated < oldest) oldest = updated;
+  }
+
+  return oldest === null ? null : Date.now() - oldest;
+}

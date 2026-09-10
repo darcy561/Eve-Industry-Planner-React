@@ -3,9 +3,8 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
 /**
  * What a build costs, split by what a player is actually paying for.
  *
- * The panel this replaces drew the same five rows twice, once per pricing model,
- * marking neither as the one in effect. This states one set of figures and says
- * what each part of it is.
+ * One set of figures, on whichever pricing model is in effect, each part saying
+ * what it is made of.
  */
 
 /**
@@ -15,6 +14,8 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
  * @property {string} [detail] - What the figure is made of, in words
  * @property {number} value
  * @property {number|null} perUnit - Its share of one unit produced
+ * @property {boolean} [alwaysShow] - Kept in the band at zero, where the row
+ *   itself is worth stating
  */
 
 /**
@@ -49,6 +50,8 @@ import { MATERIAL_PLAN } from "./materialSourcingRow";
  * @param {number} params.quantityProduced
  * @param {{brokerFee?: string, salesTax?: string}} [params.sellDetail] - The rates
  *   behind the two selling figures, in words
+ * @param {boolean} [params.buyEverything] - Price every material at market, as
+ *   though nothing were being built for it
  * @returns {CostBreakdown}
  */
 export function buildCostBreakdown({
@@ -59,6 +62,7 @@ export function buildCostBreakdown({
   salesTax = 0,
   quantityProduced = 0,
   sellDetail = {},
+  buyEverything = false,
 }) {
   let bought = 0;
   let built = 0;
@@ -74,14 +78,16 @@ export function buildCostBreakdown({
     const remaining = row.remainingQuantity ?? row.quantity;
     if (remaining <= 0) continue;
 
-    if (row.plan === MATERIAL_PLAN.BUILD) {
+    // What was already paid stays paid whichever model is being read: it is a
+    // record, not an estimate, and no model reprices it.
+    if (!buyEverything && row.plan === MATERIAL_PLAN.BUILD) {
       built += (row.buildPrice ?? 0) * remaining;
       continue;
     }
     bought += (row.buyPrice ?? 0) * remaining;
   }
 
-  const counts = countRows(rows);
+  const counts = countRows(rows, buyEverything);
 
   const each = (value) => (quantityProduced > 0 ? value / quantityProduced : null);
 
@@ -105,7 +111,16 @@ export function buildCostBreakdown({
       value: paid,
     },
     { id: "install", label: "Install cost", detail: "this job only", value: installCost },
-    { id: "extras", label: "Extras", value: extras },
+    {
+      id: "extras",
+      label: "Extras",
+      value: extras,
+      detail: extras > 0 ? undefined : "Hauling, courier collateral, copies…",
+      // Kept at zero where every other line is dropped: a build with no extras
+      // recorded is the common case, and the row is how a reader finds out the
+      // stage takes them at all.
+      alwaysShow: true,
+    },
   ]);
 
   const toSell = band(each, [
@@ -136,13 +151,14 @@ export function buildCostBreakdown({
 
 /**
  * @param {Array<object>} rows
+ * @param {boolean} [buyEverything]
  * @returns {{total: number, bought: number, built: number, paid: number}}
  */
-function countRows(rows) {
+function countRows(rows, buyEverything = false) {
   const counts = { total: rows.length, bought: 0, built: 0, paid: 0 };
   for (const row of rows) {
     if (row.plan === MATERIAL_PLAN.PAID) counts.paid += 1;
-    else if (row.plan === MATERIAL_PLAN.BUILD) counts.built += 1;
+    else if (!buyEverything && row.plan === MATERIAL_PLAN.BUILD) counts.built += 1;
     else counts.bought += 1;
   }
   return counts;
@@ -169,7 +185,7 @@ function materialsDetail({ total, bought, built }) {
  */
 function band(each, lines) {
   const present = lines
-    .filter((line) => line.value > 0)
+    .filter((line) => line.value > 0 || line.alwaysShow)
     .map((line) => ({ ...line, perUnit: each(line.value) }));
   const total = present.reduce((sum, line) => sum + line.value, 0);
 

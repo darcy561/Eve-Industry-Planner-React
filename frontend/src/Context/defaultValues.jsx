@@ -272,6 +272,21 @@ export const marketSkillIDs = {
 };
 
 /**
+ * Skills that shorten a job rather than a blueprint's own requirements.
+ *
+ * They are applied once as a modifier over the whole job, so the per-skill 1%
+ * reduction every other required skill gives must not also be applied to them.
+ *
+ * @type {Object}
+ */
+export const industrySkillIDs = {
+  industry: 3380,
+  advancedIndustry: 3388,
+  reaction: 45746,
+  capitalShipConstruction: 22242,
+};
+
+/**
  * Structure options for EVE Online industry calculations.
  *
  * @type {Object}
@@ -640,16 +655,6 @@ export const structureTypeTooltip = (
     <p>X-Large: Keepstar, Sotiyo</p>
   </span>
 );
-
-/**
- * Set of ancient relic type IDs in EVE Online.
- *
- * @type {Set<number>}
- */
-export const ancientRelicIDs = new Set([
-  30614, 30615, 30618, 30599, 30600, 30605, 30582, 30586, 30588, 30752, 30753,
-  34412, 34414, 34416, 30754, 30628, 30632, 30633, 30187, 30558, 30562,
-]);
 
 /**
  * Station ID range for EVE Online stations.

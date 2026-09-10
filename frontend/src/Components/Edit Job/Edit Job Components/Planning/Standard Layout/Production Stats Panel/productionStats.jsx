@@ -3,6 +3,7 @@ import { Typography, Grid } from "@mui/material";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { formatNumberForLocale, formatTimeDuration } from "../../../../../../Functions/Helper/numberParser";
 import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel";
+import { resolveParentRequirements } from "../../../../../../Functions/Groups/parentRequirements";
 
 export function ProductionStats({ state, actions }) {
   const { activeJob } = state;
@@ -10,42 +11,16 @@ export function ProductionStats({ state, actions }) {
   const { findJobInJobArray } = useUsersStore.getState().jobData.actions;
   const selectedSetup = activeJob.selectedSetup;
 
-  const calculateParentRequirements = useCallback(() => {
-    let returnObject = {
-      parentTotal: 0,
-      multipleChildren: false,
-      childrenTotal: 0,
-    };
-
-    const parentJobSelection = actions.getCurrentParentJobs();
-
-    for (let jobID of parentJobSelection) {
-      const job = findJobInJobArray(jobID);
-
-      if (!job) continue;
-
-      const material = job.build.materials.find(
-        (i) => i.typeID === activeJob.itemID
-      );
-      if (!material) continue;
-      returnObject.parentTotal += material.quantity;
-
-      const flag = job.build.childJobs[material.typeID].some(
-        (i) => i !== activeJob.jobID
-      );
-
-      if (flag) {
-        for (let childID of job.build.childJobs[material.typeID]) {
-          if (childID === activeJob.jobID) continue;
-          let childJob = findJobInJobArray(childID);
-          if (!childJob) continue;
-          returnObject.multipleChildren = true;
-          returnObject.childrenTotal += childJob.totalQuantityProduced;
-        }
-      }
-    }
-    return returnObject;
-  }, [jobArray, state.parentChildToEdit]);
+  const calculateParentRequirements = useCallback(
+    () =>
+      resolveParentRequirements({
+        parentJobIDs: actions.getCurrentParentJobs(),
+        findJobInJobArray,
+        itemID: activeJob.itemID,
+        jobID: activeJob.jobID,
+      }),
+    [jobArray, state.parentChildToEdit],
+  );
 
   if (!selectedSetup) return null;
 

@@ -1,0 +1,190 @@
+import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+import ReturnsPanel from "./returnsPanel";
+import { calculateReturns } from "../../../../../../Functions/MarketData/returns";
+import { compareToHistory } from "../../../../../../Functions/MarketData/buildComparison";
+
+const inputs = {
+  sellPrice: 120,
+  buyPrice: 100,
+  quantityProduced: 10,
+  buildCost: 800,
+  brokerFee: 36,
+  salesTax: 45,
+};
+
+const renderPanel = (props = {}) =>
+  render(
+    <ReturnsPanel
+      returns={calculateReturns(inputs)}
+      charges={{ brokerFee: inputs.brokerFee, salesTax: inputs.salesTax }}
+      buildCost={inputs.buildCost}
+      {...props}
+    />,
+  );
+
+describe("the Returns panel", () => {
+  it("names the route the headline belongs to", () => {
+    renderPanel();
+
+    expect(screen.getByText("Net return — sell order")).toBeInTheDocument();
+  });
+
+  it("leads with the other route when told to", () => {
+    renderPanel({ headlineRouteID: "immediate" });
+
+    expect(screen.getByText("Net return — into buy orders")).toBeInTheDocument();
+  });
+
+  // Neither route is the answer: which one a player wants is not something the
+  // app knows, so both are stated whichever leads.
+  it("states both ways out whichever it leads with", () => {
+    renderPanel();
+
+    expect(screen.getByText("Sell order")).toBeInTheDocument();
+    expect(screen.getByText("Into buy orders")).toBeInTheDocument();
+  });
+
+  it("states what a unit must fetch to break even", () => {
+    renderPanel();
+
+    expect(
+      screen.getByText("Each unit must fetch 88.10 to break even"),
+    ).toBeInTheDocument();
+  });
+
+  it("says there is nothing to break even on when nothing is produced", () => {
+    renderPanel({
+      returns: calculateReturns({ ...inputs, quantityProduced: 0 }),
+    });
+
+    expect(
+      screen.getByText("Nothing produced, so there is nothing to break even on"),
+    ).toBeInTheDocument();
+  });
+
+  // The fee is charged on a listing, so the route that never lists must not show
+  // it being taken off.
+  it("keeps the broker fee out of the ledger for a route that does not list", async () => {
+    renderPanel({ headlineRouteID: "immediate" });
+    await userEvent.click(screen.getByText("How this is worked out"));
+
+    expect(screen.getByText("Sales tax")).toBeInTheDocument();
+    expect(screen.queryByText("Broker fee")).not.toBeInTheDocument();
+  });
+
+  it("shows the broker fee for the route that does list", async () => {
+    renderPanel();
+    await userEvent.click(screen.getByText("How this is worked out"));
+
+    expect(screen.getByText("Broker fee")).toBeInTheDocument();
+    expect(screen.getByText("−36.00")).toBeInTheDocument();
+  });
+
+  it("places the build against previous ones without judging it", () => {
+    renderPanel({
+      comparison: compareToHistory(
+        {
+          buildCount: 3,
+          cheapestCostPerItem: 70,
+          dearestCostPerItem: 90,
+          lastCostPerItem: 80,
+          lastCostMonth: { year: 2026, month: 5 },
+        },
+        80,
+      ),
+    });
+
+    expect(
+      screen.getByText(
+        "Your 3 previous builds cost 70.00 to 90.00 per unit",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("last built May 2026")).toBeInTheDocument();
+  });
+
+  it("says nothing about previous builds when there are none", () => {
+    renderPanel({ comparison: compareToHistory(undefined, 80) });
+
+    expect(screen.queryByText(/previous build/)).not.toBeInTheDocument();
+  });
+
+  // The retiring totals panel put the market links on the output item, and they
+  // are the only way to reach its price history from this stage.
+  it("keeps the output item's icon and market links", () => {
+    renderPanel({
+      output: {
+        typeID: 34,
+        name: "Tritanium",
+        priceHubID: "jita",
+        priceHubName: "Jita",
+        unitPrice: 120,
+        quantityProduced: 10,
+      },
+    });
+
+    expect(screen.getByText("Tritanium")).toBeInTheDocument();
+    expect(
+      document.querySelector('img[src*="/types/34/icon"]'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/on the Jita market/)).toBeInTheDocument();
+  });
+
+  it("holds the sale location block a caller puts in it", () => {
+    renderPanel({ children: <span>rates block</span> });
+
+    expect(screen.getByText("rates block")).toBeInTheDocument();
+  });
+
+  it("does not try to fill a height the Masonry has not decided", () => {
+    const { container } = renderPanel();
+
+    expect(container.querySelector(".MuiPaper-root")).not.toHaveStyle({
+      height: "100%",
+    });
+  });
+
+  it("draws nothing without figures to draw", () => {
+    const { container } = render(<ReturnsPanel returns={null} />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+// A route's figure means little without the price behind it, and the two routes
+// are priced from different sides of the order book.
+describe("what each route was priced from", () => {
+  it("names each route's unit price and what is taken off it", () => {
+    renderPanel();
+
+    expect(screen.getByText("at 120.00 · less fee and tax")).toBeInTheDocument();
+    expect(screen.getByText("at 100.00 · less tax")).toBeInTheDocument();
+  });
+
+  it("groups them under a caption saying what they are", () => {
+    renderPanel();
+
+    expect(screen.getByText("Exit routes")).toBeInTheDocument();
+  });
+});
+
+// Break-even on its own is a number the reader has to compare against the price
+// themselves.
+describe("headroom above break-even", () => {
+  it("states how far today's price sits above it", () => {
+    renderPanel();
+
+    // 881 of cost over 10 units is 88.10; 120 today is 36.2% above it.
+    expect(screen.getByText(/current 120.00 · 36.2% above break-even/)).toBeInTheDocument();
+  });
+
+  it("says below where the price does not cover the build", () => {
+    renderPanel({
+      returns: calculateReturns({ ...inputs, sellPrice: 40 }),
+    });
+
+    expect(screen.getByText(/below break-even/)).toBeInTheDocument();
+  });
+});

@@ -3,14 +3,15 @@ import { Collapse, Stack, Typography } from "@mui/material";
 import InsetSurface from "../../../../../../Styled Components/Paper/InsetSurface";
 import { calculateChildJobTotals } from "../../../../../../Functions/Groups/childJobTotals";
 import useUsersStore from "../../../../../../Zustand/usersStore";
-import { ChildJobMaterials_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/childJobMaterials";
-import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/childJobTotalCosts";
-import { ChildJobSwitcher_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/switchChildJob";
-import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/misMatchedTotals";
-import { ButtonSelectionLogic_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/buttonSelectionLogic";
-import { ImportingStateLayout_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/fetchState";
-import { useChildJobBuildActions } from "../Material Prices/Hooks/useChildJobBuildActions";
-import { useChildJobPopoverData } from "../Material Prices/Hooks/useChildJobPopoverData";
+import { ChildJobMaterials_ChildJobPopoverFrame } from "./Child Job Drawer/childJobMaterials";
+import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "./Child Job Drawer/childJobTotalCosts";
+import { ChildJobSwitcher_ChildJobPopoverFrame } from "./Child Job Drawer/switchChildJob";
+import { DisplayMismatchedChildTotals_ChildJobPopoverFrame } from "./Child Job Drawer/misMatchedTotals";
+import { OpenChildJobButon_ChildJobPopoverFrame } from "./Child Job Drawer/openChildJobButton";
+import PlanChip from "./planChip";
+import { ImportingStateLayout_ChildJobPopoverFrame } from "./Child Job Drawer/fetchState";
+import { useChildJobBuildActions } from "./Hooks/useChildJobBuildActions";
+import { useChildJobPopoverData } from "./Hooks/useChildJobPopoverData";
 import RowPricingOverride from "./rowPricingOverride";
 
 /**
@@ -125,13 +126,31 @@ export default function MaterialDrawer({
               jobDisplay={jobDisplay}
               setJobDisplay={setJobDisplay}
             />
-            <ButtonSelectionLogic_ChildJobPopoverFrame
-              {...shared}
-              childJobsLocation={childJobsLocation}
-              childJobObjects={childJobObjects}
-              jobDisplay={jobDisplay}
-              isExistingJobInGroup={isExistingJobInGroup}
-            />
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              justifyContent="space-between"
+              flexWrap="wrap"
+            >
+              <PlanChip
+                state={state}
+                actions={actions}
+                material={material}
+                rowJob={
+                  state.speculativeChildJobs?.[material.typeID] ??
+                  childJobObjects.find((j) => j.itemID === material.typeID) ??
+                  null
+                }
+              />
+              {childJobObjects[jobDisplay] ? (
+                <OpenChildJobButon_ChildJobPopoverFrame
+                  {...shared}
+                  childJobObjects={childJobObjects}
+                  jobDisplay={jobDisplay}
+                />
+              ) : null}
+            </Stack>
           </Stack>
         ) : (
           <ImportingStateLayout_ChildJobPopoverFrame

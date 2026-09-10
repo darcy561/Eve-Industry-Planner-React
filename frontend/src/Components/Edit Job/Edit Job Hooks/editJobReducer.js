@@ -34,6 +34,7 @@ export const EDIT_JOB_ACTION_TYPES = {
   STEP_ACTIVE_JOB_BACKWARD: "STEP_ACTIVE_JOB_BACKWARD",
   MARK_JOB_AS_MODIFIED: "MARK_JOB_AS_MODIFIED",
   SET_TEMPORARY_CHILD_JOBS: "SET_TEMPORARY_CHILD_JOBS",
+  SET_SPECULATIVE_CHILD_JOBS: "SET_SPECULATIVE_CHILD_JOBS",
   SET_IS_LOADING: "SET_IS_LOADING",
   MARK_PARENT_JOB_FOR_REMOVAL: "MARK_PARENT_JOB_FOR_REMOVAL",
   MARK_PARENT_JOB_FOR_ADDITION: "MARK_PARENT_JOB_FOR_ADDITION",
@@ -89,6 +90,11 @@ export function editJobReducer(state, action) {
       return { ...state, jobModified: true };
     case EDIT_JOB_ACTION_TYPES.SET_TEMPORARY_CHILD_JOBS:
       return { ...state, temporaryChildJobs: action.payload };
+    // Deliberately does not set jobModified: costing a row is a question the
+    // player asked, not a change to the job. Nothing here is persisted, and a
+    // speculative job becomes a real one only by being marked for addition.
+    case EDIT_JOB_ACTION_TYPES.SET_SPECULATIVE_CHILD_JOBS:
+      return { ...state, speculativeChildJobs: action.payload };
     case EDIT_JOB_ACTION_TYPES.SET_IS_LOADING: {
       const { isLoading, loadingMessage } = normalizeSetIsLoadingPayload(
         action.payload,

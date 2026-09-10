@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Box, Collapse, Link, Skeleton, Typography } from "@mui/material";
 
+import {
+  formatNumberForLocale,
+  formatPercentage,
+} from "../../Functions/Helper/numberParser";
+
 /**
  * The figure atoms of the app-shell design.
  *
@@ -49,8 +54,16 @@ export function figureToneColour(tone) {
  * Renders an em dash for a value the app does not have, so a column reads as
  * "nothing to say here" rather than as a zero or a gap.
  *
+ * A raw number is put through the locale formatter rather than trusted to have
+ * been formatted already: `String(n)` loses the separators, and loses them in a
+ * way only a reader outside en-GB would notice. `formatOptions` says how many
+ * places it wants — a count asks for `{ max: 0 }` — since ISK's two are the
+ * formatter's default rather than the right answer for every figure.
+ *
  * @param {object} props
- * @param {React.ReactNode} [props.children] - The formatted value
+ * @param {React.ReactNode} [props.children] - The value, formatted or raw
+ * @param {{min?: number, max?: number}} [props.formatOptions] - Decimal places
+ *   for a raw numeric child; see `formatNumberForLocale`
  * @param {string} [props.tone] - One of FIGURE_TONE
  * @param {string} [props.variant] - MUI typography variant
  * @param {object} [props.sx]
@@ -59,10 +72,15 @@ export function Figure({
   children,
   tone = FIGURE_TONE.PLAIN,
   variant = "body2",
+  formatOptions,
   sx,
   ...rest
 }) {
   const absent = children === null || children === undefined || children === "";
+  const value =
+    typeof children === "number"
+      ? formatNumberForLocale(children, formatOptions)
+      : children;
 
   return (
     <Typography
@@ -75,7 +93,7 @@ export function Figure({
       }}
       {...rest}
     >
-      {absent ? "—" : children}
+      {absent ? "—" : value}
     </Typography>
   );
 }
@@ -111,7 +129,7 @@ export function SignedPercent({
       variant={variant}
       tone={good ? FIGURE_TONE.GOOD : FIGURE_TONE.BAD}
     >
-      {`${fell ? "−" : "+"}${Math.abs(value * 100).toFixed(places)}%`}
+      {`${fell ? "−" : "+"}${formatPercentage(Math.abs(value), { places })}`}
     </Figure>
   );
 }
@@ -471,8 +489,10 @@ export function ContextRow({ children, note }) {
  * @param {React.ReactNode} props.label
  * @param {React.ReactNode} props.children
  * @param {boolean} [props.defaultOpen]
+ * @param {() => void} [props.onOpen] - Called the first time it is opened, for a
+ *   section whose contents are expensive enough to be fetched on demand
  */
-export function Disclosure({ label, children, defaultOpen = false }) {
+export function Disclosure({ label, children, defaultOpen = false, onOpen }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
@@ -492,7 +512,14 @@ export function Disclosure({ label, children, defaultOpen = false }) {
           underline="hover"
           variant="body2"
           aria-expanded={open}
-          onClick={() => setOpen((was) => !was)}
+          onClick={() =>
+            setOpen((was) => {
+              // Fires on the way open only: a section fetched on demand should
+              // not re-fetch every time it is folded away and back.
+              if (!was) onOpen?.();
+              return !was;
+            })
+          }
         >
           {label}
         </Link>

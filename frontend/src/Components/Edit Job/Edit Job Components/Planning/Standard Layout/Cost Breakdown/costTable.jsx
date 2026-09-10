@@ -1,9 +1,11 @@
 import {
+  Box,
   Table,
   TableBody,
   TableCell,
   TableRow,
   Typography,
+  useTheme,
 } from "@mui/material";
 
 import {
@@ -13,14 +15,14 @@ import {
   totalRowSx,
 } from "../../../../../../Styled Components/Typography/figures";
 import { ColumnHeaderRow } from "../../../../../../Styled Components/Table/tableParts";
+import { costPartColour } from "./costParts";
 
 /**
  * What the cost is made of, one line per part.
  *
- * The block this replaces printed both pricing models side by side and marked
- * neither as the one in effect. This states one set of figures, and each line
- * says in words what its figure is made of, because a number alone does not say
- * how much of the build it covers.
+ * One set of figures, on the model the panel header names as in effect. Each
+ * line says in words what its figure is made of, because a number alone does
+ * not say how much of the build it covers.
  */
 
 const COLUMNS = [
@@ -83,12 +85,30 @@ export default function CostTable({ cost, formatIsk }) {
  * @param {object} props
  */
 function CostRow({ line, formatIsk, perUnit }) {
+  const theme = useTheme();
+
   return (
     <TableRow>
       <TableCell>
-        <Typography variant="body2">{line.label}</Typography>
+        <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+          {/* Ties the row to its segment of the bar above. */}
+          <Box
+            sx={{
+              width: 9,
+              height: 9,
+              borderRadius: "2px",
+              flexShrink: 0,
+              bgcolor: costPartColour(theme, line.id),
+            }}
+          />
+          <Typography variant="body2">{line.label}</Typography>
+        </Box>
         {line.detail ? (
-          <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", pl: "17px" }}
+          >
             {line.detail}
           </Typography>
         ) : null}

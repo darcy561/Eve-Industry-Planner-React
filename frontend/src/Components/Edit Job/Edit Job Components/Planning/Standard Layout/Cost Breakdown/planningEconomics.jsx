@@ -1,0 +1,150 @@
+import { useState } from "react";
+
+import CostBreakdownPanel from "./costBreakdownPanel";
+import PricingModelToggle, { PRICING_MODEL } from "./pricingModel";
+import CostOverTime from "../Archive Jobs Panel/costOverTime";
+import { historyWindow } from "../Archive Jobs Panel/buildHistoryFigures";
+import { useAccountTimelineQuery } from "../../../../../../Hooks/React Query/Backend/statisticsTimeline";
+import CostComparison from "./costComparison";
+import ReturnsPanel from "../Returns/returnsPanel";
+import ContributionPanel from "../Returns/contributionPanel";
+import SaleLocationRates from "../Returns/saleLocationRates";
+import { useJobEconomics } from "./useJobEconomics";
+import { useMaterialsSourcing } from "../Materials And Sourcing/useMaterialsSourcing";
+import ExtrasEditor from "../../../Complete/Standard Layout/Extras Panel/extrasEditor";
+import { Typography } from "@mui/material";
+
+import { Disclosure } from "../../../../../../Styled Components/Typography/figures";
+import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
+
+/**
+ * Cost Breakdown and Returns, drawn from one set of figures.
+ *
+ * The two panels are separate on the stage but not separable in their reads: the
+ * cost to build is what Returns subtracts, and a second derivation of it is how
+ * two panels come to disagree. They are mounted together so the figures are
+ * assembled once.
+ *
+ * @param {object} props - Edit Job props
+ */
+export default function PlanningEconomics(props) {
+  const { state } = props;
+  // The model is a way of reading this job's cost, not a change to it — it is
+  // never written to the document, so a reader coming back sees the real one.
+  const [pricingModel, setPricingModel] = useState(PRICING_MODEL.CHEAPEST);
+  const [showChart, setShowChart] = useState(false);
+  const { rows, marketSelect } = useMaterialsSourcing({
+    state,
+    actions: props.actions,
+  });
+  const {
+    cost,
+    returns,
+    comparison,
+    charges,
+    saleLocation,
+    rates,
+    ratesLoading,
+    seller,
+    sellPrice,
+    commitment,
+    contributedCost,
+    history,
+    sellableBuildCost,
+  } = useJobEconomics({
+    state,
+    actions: props.actions,
+    rows,
+    marketSelect,
+    buyEverything: pricingModel === PRICING_MODEL.BUY_ALL,
+  });
+
+  const window = historyWindow(history);
+  const { data: timelineData } = useAccountTimelineQuery(
+    { ...window, typeID: state.activeJob.itemID, includeProductionChain: true },
+    { enabled: showChart && Boolean(window) },
+  );
+
+  if (!state.activeJob.selectedSetup) return null;
+
+  return (
+    <>
+      <CostBreakdownPanel
+        cost={cost}
+        action={
+          <PricingModelToggle value={pricingModel} onChange={setPricingModel} />
+        }
+        aside={
+          <CostComparison
+            comparison={comparison}
+            formatIsk={formatNumberForLocale}
+          />
+        }
+      >
+        <Disclosure label={extrasLabel(state.activeJob)}>
+          <ExtrasEditor state={state} actions={props.actions} />
+        </Disclosure>
+
+        {comparison?.builds > 0 ? (
+          <Disclosure
+            label={`Cost per unit over time · ${comparison.builds} builds`}
+            onOpen={() => setShowChart(true)}
+          >
+            <CostOverTime timelineData={timelineData} />
+          </Disclosure>
+        ) : null}
+      </CostBreakdownPanel>
+      <ContributionPanel
+        commitment={commitment}
+        contributedCost={contributedCost}
+        marketPrice={sellPrice}
+      />
+
+      <ReturnsPanel
+        returns={returns}
+        charges={charges}
+        buildCost={sellableBuildCost}
+        comparison={comparison}
+        // Stated rather than chosen: a job cannot name its own sale location
+        // until there is somewhere to write the choice, and a picker that
+        // cannot save would be a control in name only.
+        action={
+          saleLocation ? (
+            <Typography variant="body2" color="text.secondary">
+              {saleLocation.name}
+            </Typography>
+          ) : null
+        }
+        output={{
+          typeID: state.activeJob.itemID,
+          name: state.activeJob.name,
+          priceHubID: saleLocation?.priceHubID,
+          priceHubName: saleLocation?.priceHubName,
+          unitPrice: sellPrice,
+          quantityProduced: commitment.surplus,
+        }}
+      >
+        <SaleLocationRates
+          saleLocation={saleLocation}
+          rates={rates}
+          isLoading={ratesLoading}
+          seller={seller}
+          priceHubName={saleLocation?.priceHubName}
+        />
+      </ReturnsPanel>
+    </>
+  );
+}
+
+/**
+ * Says what opening the extras section would show, so a reader knows whether
+ * there is anything behind it before they open it.
+ *
+ * @param {object} activeJob
+ */
+function extrasLabel(activeJob) {
+  const rows = activeJob.build?.costs?.extrasCosts ?? [];
+  if (rows.length === 0) return "Add an extra cost";
+
+  return `Extra costs — ${rows.length}, ${formatNumberForLocale(activeJob.totalExtrasCost ?? 0)}`;
+}

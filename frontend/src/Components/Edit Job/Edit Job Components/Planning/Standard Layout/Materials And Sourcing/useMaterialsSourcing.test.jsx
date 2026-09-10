@@ -23,14 +23,20 @@ vi.mock("../Material Prices/Helpers/materialChildJobs", () => ({
     hasPendingAdd: false,
   }),
 }));
-vi.mock("../../../../../../Zustand/usersStore.js", () => ({
-  default: (selector) =>
-    selector({
-      applicationSettings: { actions: { checkTypeIDisExempt: () => false } },
-    }),
-}));
+vi.mock("../../../../../../Zustand/usersStore.js", () => {
+  const storeState = {
+    applicationSettings: { actions: { checkTypeIDisExempt: () => false } },
+    worldData: { actions: { findMarketData: () => undefined } },
+  };
+  const useUsersStore = (selector) => selector(storeState);
+  useUsersStore.getState = () => storeState;
+  return { default: useUsersStore };
+});
 vi.mock("../../../../../../Functions/Helper/checkJobTypeIsBuildable.js", () => ({
   default: (jobType) => jobType === 1,
+}));
+vi.mock("../../../../../../Functions/Groups/materialCostFromChildJobs.js", () => ({
+  calculateMaterialCostFromChildJobs: (material) => 700 * material.quantity,
 }));
 
 const { useMaterialsSourcing } = await import("./useMaterialsSourcing.js");
@@ -48,7 +54,11 @@ const material = (typeID, jobType = 1, overrides = {}) => ({
   ...overrides,
 });
 
-function setup({ materials = [material(34)], layout = {} } = {}) {
+function setup({
+  materials = [material(34)],
+  layout = {},
+  speculativeChildJobs = {},
+} = {}) {
   return {
     activeJob: {
       build: { materials, childJobs: {} },
@@ -57,6 +67,7 @@ function setup({ materials = [material(34)], layout = {} } = {}) {
     },
     parentChildToEdit: { childJobs: {} },
     temporaryChildJobs: {},
+    speculativeChildJobs,
   };
 }
 
@@ -70,7 +81,15 @@ describe("useMaterialsSourcing", () => {
     const result = render(setup());
 
     expect(Object.keys(result).sort()).toEqual(
-      ["basisOptions", "basisUsage", "listingSelect", "marketSelect", "rows", "summary"].sort()
+      [
+        "basisOptions",
+        "basisUsage",
+        "listingSelect",
+        "marketSelect",
+        "priceAge",
+        "rows",
+        "summary",
+      ].sort()
     );
   });
 
@@ -116,5 +135,34 @@ describe("useMaterialsSourcing", () => {
 
     expect(result.basisOptions).toHaveLength(4);
     expect(result.basisOptions.find((o) => o.isCurrent).id).toBe("sell");
+  });
+});
+
+// A speculative job prices a row without committing it, which is what lets the
+// panel offer the switch. If it counted as linked the row would read as planned
+// to build the moment it was costed, and there would be nothing left to offer.
+describe("a row costed from a speculative job", () => {
+  it("takes its build price from the speculative job", () => {
+    const { rows } = render(
+      setup({ speculativeChildJobs: { 34: { jobID: "spec-34", itemID: 34 } } }),
+    );
+
+    expect(rows[0].isSpeculative).toBe(true);
+    expect(rows[0].buildPrice).not.toBeNull();
+  });
+
+  it("stays unlinked, and so stays planned to buy", () => {
+    const { rows } = render(
+      setup({ speculativeChildJobs: { 34: { jobID: "spec-34", itemID: 34 } } }),
+    );
+
+    expect(rows[0].isLinked).toBe(false);
+    expect(rows[0].plan).toBe("buy");
+  });
+
+  it("is not speculative when nothing has costed it", () => {
+    const { rows } = render(setup());
+
+    expect(rows[0].isSpeculative).toBe(false);
   });
 });

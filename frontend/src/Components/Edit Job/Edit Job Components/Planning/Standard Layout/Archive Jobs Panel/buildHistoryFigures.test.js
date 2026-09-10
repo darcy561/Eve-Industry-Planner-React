@@ -1,38 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
-  costRange,
   historyWindow,
   monthLabel,
   outputDestinations,
   shortMonthLabel,
 } from "./buildHistoryFigures";
-
-describe("costRange", () => {
-  it("describes the spread across builds", () => {
-    expect(
-      costRange({
-        buildCount: 4,
-        cheapestCostPerItem: 228,
-        dearestCostPerItem: 236,
-      }),
-    ).toEqual({
-      low: 228,
-      high: 236,
-      spread: 8,
-    });
-  });
-
-  // One build is a figure, not a range, and the strip already shows it as "last".
-  it("returns null for a single build", () => {
-    expect(
-      costRange({
-        buildCount: 1,
-        cheapestCostPerItem: 228,
-        dearestCostPerItem: 228,
-      }),
-    ).toBeNull();
-  });
-});
 
 describe("outputDestinations", () => {
   it("splits output by where it went", () => {

@@ -47,6 +47,7 @@ export default function useEditJobReducer() {
     activeJob: null,
     jobModified: false,
     temporaryChildJobs: {},
+    speculativeChildJobs: {},
     esiDataToLink: {
       industryJobs: { add: [], remove: [] },
       marketOrders: { add: [], remove: [] },
@@ -120,6 +121,20 @@ export default function useEditJobReducer() {
       dispatch({
         type: EDIT_JOB_ACTION_TYPES.SET_TEMPORARY_CHILD_JOBS,
         payload: temporaryChildJobs,
+      });
+    },
+
+    /**
+     * Sets the speculative child jobs — built to price a row, not to commit to
+     * it. Separate from the temporary ones, which a player has already asked to
+     * create.
+     *
+     * @param {Object} speculativeChildJobs - Keyed by material type id
+     */
+    setSpeculativeChildJobs: (speculativeChildJobs) => {
+      dispatch({
+        type: EDIT_JOB_ACTION_TYPES.SET_SPECULATIVE_CHILD_JOBS,
+        payload: speculativeChildJobs,
       });
     },
 

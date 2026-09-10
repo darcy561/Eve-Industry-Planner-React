@@ -1,0 +1,150 @@
+import { materialPurchaseState } from "./materialPricing";
+
+/**
+ * One row of Materials & Sourcing: what a material costs to buy, what it costs
+ * to build, and which of those the plan is on.
+ *
+ * The comparison is the row's reason to exist. The panel it replaces printed a
+ * buy figure and a build figure and left the reader to diff them, so the delta
+ * and the plan are computed here rather than left to the eye.
+ */
+
+/**
+ * What a row's plan column says.
+ *
+ * @enum {string}
+ */
+export const MATERIAL_PLAN = {
+  /** Bought already, at a price Price Entry holds. */
+  PAID: "paid",
+  /** Built from linked child jobs. */
+  BUILD: "build",
+  /** Bought at market, with a build cost to compare against. */
+  BUY: "buy",
+  /** Nothing to compare: the material has no blueprint, so it is bought. */
+  BASE: "base",
+};
+
+/**
+ * @typedef {object} MaterialSourcingRow
+ * @property {number} typeID
+ * @property {string} name
+ * @property {number} quantity - How many the job needs
+ * @property {number|null} buyPrice - Unit price at the row's hub and basis
+ * @property {number|null} buildPrice - Unit cost of building it, null when it cannot be built
+ * @property {number|null} delta - Build against buy, as a fraction; negative is cheaper to build
+ * @property {string} plan - One of MATERIAL_PLAN
+ * @property {boolean} isLinked - Whether child jobs are linked for it
+ * @property {number} volume - Total volume the quantity occupies
+ */
+
+/**
+ * Builds the row for one material.
+ *
+ * @param {object} params
+ * @param {object} params.material - A JobMaterial instance; its totals are getters
+ * @param {number} params.buyPrice - Unit price at the resolved hub and basis
+ * @param {number|null} params.buildPrice - Unit cost from linked child jobs, or null
+ * @param {boolean} params.isBuildable - Whether the material has a blueprint at all
+ * @param {boolean} params.isLinked - Whether child jobs are linked for it
+ * @returns {MaterialSourcingRow}
+ */
+export function buildMaterialSourcingRow({
+  material,
+  buyPrice,
+  buildPrice,
+  isBuildable,
+  isLinked,
+}) {
+  const quantity = material?.quantity ?? 0;
+  const purchase = materialPurchaseState(material);
+
+  const buy = Number.isFinite(buyPrice) ? buyPrice : null;
+  const build =
+    isBuildable && Number.isFinite(buildPrice) && buildPrice > 0
+      ? buildPrice
+      : null;
+
+  return {
+    typeID: material?.typeID ?? null,
+    name: material?.name ?? "",
+    quantity,
+    buyPrice: buy,
+    buildPrice: build,
+    delta: priceDelta(buy, build),
+    plan: planFor({ purchase, isBuildable, isLinked, build }),
+    isLinked,
+    volume: (material?.volume ?? 0) * quantity,
+  };
+}
+
+/**
+ * Building against buying, as a fraction of the buy price. Negative is cheaper
+ * to build.
+ *
+ * @param {number|null} buyPrice
+ * @param {number|null} buildPrice
+ * @returns {number|null} null when there is nothing to compare
+ */
+export function priceDelta(buyPrice, buildPrice) {
+  if (buyPrice === null || buildPrice === null || buyPrice === 0) return null;
+  return (buildPrice - buyPrice) / buyPrice;
+}
+
+/**
+ * @param {object} params
+ * @returns {string} One of MATERIAL_PLAN
+ */
+function planFor({ purchase, isBuildable, isLinked, build }) {
+  // Already bought outranks everything: there is a real price on the row, and
+  // quoting an estimate beside it would invite a decision that has been made.
+  if (purchase.kind === "paid") return MATERIAL_PLAN.PAID;
+  if (!isBuildable) return MATERIAL_PLAN.BASE;
+  if (isLinked && build !== null) return MATERIAL_PLAN.BUILD;
+  return MATERIAL_PLAN.BUY;
+}
+
+/**
+ * @typedef {object} SourcingSummary
+ * @property {number} materials - How many rows there are
+ * @property {number} buildable - How many could be built
+ * @property {number} linked - How many have child jobs linked
+ * @property {number} volume - Total volume of everything on the list
+ * @property {number} savingAvailable - What switching every cheaper-to-build row would save
+ * @property {number} cheaperToBuild - How many rows are cheaper to build than to buy
+ */
+
+/**
+ * The figures the panel states above and below its table.
+ *
+ * The saving counts only rows that are cheaper to build **and** not already
+ * building, since offering to apply a change that is already applied reads as a
+ * figure the panel cannot back up.
+ *
+ * @param {MaterialSourcingRow[]} rows
+ * @returns {SourcingSummary}
+ */
+export function summariseSourcing(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+
+  let savingAvailable = 0;
+  let cheaperToBuild = 0;
+
+  for (const row of list) {
+    if (row.delta === null || row.delta >= 0) continue;
+    if (row.plan === MATERIAL_PLAN.BUILD || row.plan === MATERIAL_PLAN.PAID) {
+      continue;
+    }
+    cheaperToBuild += 1;
+    savingAvailable += (row.buyPrice - row.buildPrice) * row.quantity;
+  }
+
+  return {
+    materials: list.length,
+    buildable: list.filter((row) => row.buildPrice !== null).length,
+    linked: list.filter((row) => row.isLinked).length,
+    volume: list.reduce((total, row) => total + row.volume, 0),
+    savingAvailable,
+    cheaperToBuild,
+  };
+}

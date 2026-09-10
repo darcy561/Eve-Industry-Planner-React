@@ -8,6 +8,8 @@ import MaterialDrawer from "./materialDrawer";
 import MaterialsTable from "./materialsTable";
 import { SourcingFooter, SourcingOffer } from "./sourcingSummary";
 import { useMaterialsSourcing } from "./useMaterialsSourcing";
+import { useMaterialOverrides } from "../Material Prices/Hooks/useMaterialOverrides";
+import { getSafeMaterialPriceOverrides } from "../Material Prices/Helpers/materialPriceOverridesState";
 
 /**
  * What the build takes, and whether each part is bought or built.
@@ -22,7 +24,6 @@ import { useMaterialsSourcing } from "./useMaterialsSourcing";
  * @param {(value: number) => string} props.formatQuantity
  * @param {(value: number) => string} props.formatVolume
  * @param {(basisID: string) => void} props.onChangeBasis
- * @param {() => void} props.onResetOverrides - Puts every row back on the panel's basis
  * @param {() => void} props.onApplyBuildable - Switches every cheaper-to-build row
  * @param {boolean} [props.readOnly]
  */
@@ -33,17 +34,24 @@ export default function MaterialsAndSourcingPanel({
   formatQuantity,
   formatVolume,
   onChangeBasis,
-  onResetOverrides,
   onApplyBuildable,
   readOnly = false,
 }) {
   const [displayType, setDisplayType] = useState("all");
   const [openTypeIDs, setOpenTypeIDs] = useState([]);
 
-  const { rows, summary, basisOptions, basisUsage } = useMaterialsSourcing({
-    state,
-    actions,
-    displayType,
+  const { rows, summary, basisOptions, basisUsage, marketSelect, listingSelect } =
+    useMaterialsSourcing({ state, actions, displayType });
+
+  const {
+    updateMaterialLayoutPreference,
+    resetMaterialLayoutPreference,
+    clearAllMaterialLayoutPreferences,
+  } = useMaterialOverrides({
+    activeJob: state.activeJob,
+    layout: state.activeJob.layout,
+    materials: state.activeJob.build?.materials ?? [],
+    updateActiveJob: actions.updateActiveJob,
   });
 
   if (!state.activeJob?.selectedSetup) return null;
@@ -66,7 +74,7 @@ export default function MaterialsAndSourcingPanel({
           label="Materials"
           usage={basisUsage}
           onChange={onChangeBasis}
-          onReset={onResetOverrides}
+          onReset={clearAllMaterialLayoutPreferences}
           disabled={readOnly}
         />
       }
@@ -114,6 +122,18 @@ export default function MaterialsAndSourcingPanel({
               marketSelect={row.marketSelect}
               listingSelect={row.listingSelect}
               currentMaterialPrice={row.buyPrice ?? 0}
+              pricing={{
+                overrideMarket: overrideFor(state, row.typeID).marketDisplay,
+                overrideListing: overrideFor(state, row.typeID).orderDisplay,
+                panelMarket: marketSelect,
+                panelListing: listingSelect,
+                onMarketCommit: (typeID, id) =>
+                  updateMaterialLayoutPreference(typeID, "marketDisplay", id),
+                onListingCommit: (typeID, id) =>
+                  updateMaterialLayoutPreference(typeID, "orderDisplay", id),
+                onReset: resetMaterialLayoutPreference,
+                disabled: readOnly,
+              }}
             />
           )}
         />
@@ -122,6 +142,17 @@ export default function MaterialsAndSourcingPanel({
       </Stack>
     </AppShellPanel>
   );
+}
+
+/**
+ * What a material's own pricing override holds, if it has one.
+ *
+ * @param {object} state
+ * @param {number} typeID
+ * @returns {{marketDisplay?: string, orderDisplay?: string}}
+ */
+function overrideFor(state, typeID) {
+  return getSafeMaterialPriceOverrides(state.activeJob.layout)[typeID] ?? {};
 }
 
 /**

@@ -536,7 +536,7 @@ the design — the design says what the new panel shows, not what the old ones l
 | The material's own popover | Both old row components | **Carried.** The name opens it as it did |
 | Per-material hub and basis override — seeing one | "Manage Material Sources" | **Carried, and better.** The basis picker counts the rows that depart from it, so an override is discoverable without opening a dialogue that lists every material |
 | Per-material hub and basis override — clearing them | "Manage Material Sources" | **Carried.** The picker offers to put every overridden row back |
-| Per-material hub and basis override — setting one | "Manage Material Sources" | **Outstanding.** A row can still hold its own hub and basis; nothing sets one |
+| Per-material hub and basis override — setting one | "Manage Material Sources" | **Carried, and closer to hand.** The row's own drawer holds the market and listing selects, so a player changes the row they are looking at rather than finding it in a list of every material |
 | Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Carried.** A dot becomes a tick once a child job is linked, in the job type's colour, amber where something is pending against a material nothing is linked to yet |
 | Exempt-from-builds marker | The info icon turned amber | **Carried.** The row's mark says it without anything being opened |
 | Create All Child Jobs | The market panel's kebab | **Deliberately not carried.** Stage G replaces it with "build all where cheaper"; a bulk create of jobs nobody has costed is the thing that change exists to stop, so it is not reinstated in the meantime |
@@ -735,7 +735,7 @@ real job.
 | B — fee and tax estimation | frontend logic | **Done** |
 | C — Accounting in skill catalogue | data | **Done** |
 | D — pricing basis in panel headers | SPA | **Done** — picker built; Stages E and F mount it |
-| E — Materials & Sourcing | SPA | **In progress.** Row model, table, summary, panel and drawer built; the drawer is unwired and § What the replacement must carry is outstanding |
+| E — Materials & Sourcing | SPA | **In progress.** Every affordance in § What the replacement must carry is now carried or deliberately not; the panel is not yet mounted and the two it replaces are not yet retired |
 | F — Cost Breakdown and Returns | SPA | Not started |
 | G — speculative child jobs | SPA, behavioural | Not started |
 | H — jobs with parent jobs | SPA, behavioural | Not started |

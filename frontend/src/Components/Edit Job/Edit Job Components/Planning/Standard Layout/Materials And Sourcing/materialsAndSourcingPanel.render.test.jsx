@@ -31,6 +31,8 @@ const sourcing = {
     savingAvailable: 450,
     cheaperToBuild: 1,
   },
+  marketSelect: "jita",
+  listingSelect: "sell",
   basisUsage: { overridden: 1, purchased: 0 },
   basisOptions: [
     { id: "sell", label: "Sell Orders", total: 5400, delta: 0, isCurrent: true },
@@ -45,9 +47,12 @@ vi.mock("./useMaterialsSourcing", () => ({
 // Stood in for, so the test proves the panel reaches the drawer rather than
 // standing up the whole child-job stack.
 vi.mock("./materialDrawer", () => ({
-  default: ({ isOpen, material, marketSelect }) => (
+  default: ({ isOpen, material, marketSelect, pricing }) => (
     <div data-testid={`drawer-${material.typeID}`}>
       {isOpen ? `open at ${marketSelect}` : "shut"}
+      <span data-testid={`pricing-${material.typeID}`}>
+        {pricing ? `panel ${pricing.panelMarket}/${pricing.panelListing}` : "none"}
+      </span>
     </div>
   ),
 }));
@@ -56,14 +61,20 @@ const { default: MaterialsAndSourcingPanel } = await import(
   "./materialsAndSourcingPanel.jsx"
 );
 
-const state = { activeJob: { selectedSetup: { id: "setup-1" } } };
+const state = {
+  activeJob: {
+    selectedSetup: { id: "setup-1" },
+    layout: { materialPriceOverrides: {} },
+    build: { materials: [] },
+  },
+};
 const formatIsk = (value) => `${value} ISK`;
 
 function renderPanel(props = {}) {
   render(
     <MaterialsAndSourcingPanel
       state={state}
-      actions={{}}
+      actions={{ updateActiveJob: () => {} }}
       formatIsk={formatIsk}
       formatQuantity={(value) => String(value)}
       formatVolume={(value) => `${value} m³`}
@@ -128,11 +139,21 @@ describe("the Materials and Sourcing panel", () => {
     expect(screen.getByText("1 overridden")).toBeInTheDocument();
   });
 
+  it("gives each row the means to price itself differently", () => {
+    // Setting an override was the last thing the old panel could do that this
+    // one could not.
+    renderPanel();
+
+    expect(screen.getByTestId("pricing-34")).toHaveTextContent(
+      "panel jita/sell"
+    );
+  });
+
   it("draws nothing at all without a setup to cost", () => {
     const { container } = render(
       <MaterialsAndSourcingPanel
         state={{ activeJob: {} }}
-        actions={{}}
+        actions={{ updateActiveJob: () => {} }}
         formatIsk={formatIsk}
         formatQuantity={String}
         formatVolume={String}

@@ -11,6 +11,7 @@ import { ButtonSelectionLogic_ChildJobPopoverFrame } from "../Material Prices/Ch
 import { ImportingStateLayout_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/fetchState";
 import { useChildJobBuildActions } from "../Material Prices/Hooks/useChildJobBuildActions";
 import { useChildJobPopoverData } from "../Material Prices/Hooks/useChildJobPopoverData";
+import RowPricingOverride from "./rowPricingOverride";
 
 /**
  * What building a material would involve, opened from its row.
@@ -28,6 +29,7 @@ import { useChildJobPopoverData } from "../Material Prices/Hooks/useChildJobPopo
  * @param {string} props.listingSelect
  * @param {number} props.currentMaterialPrice
  * @param {Array<object>} props.matchedChildJobs
+ * @param {object} [props.pricing] - Where this row is priced, and how to change it
  */
 export default function MaterialDrawer({
   isOpen,
@@ -38,6 +40,7 @@ export default function MaterialDrawer({
   matchedChildJobs,
   marketSelect,
   listingSelect,
+  pricing,
   ...rest
 }) {
   const checkTypeIDisExempt = useUsersStore(
@@ -91,6 +94,10 @@ export default function MaterialDrawer({
       <InsetSurface sx={{ my: 1 }}>
         {jobImportState ? (
           <Stack spacing={1.5}>
+            {pricing ? (
+              <RowPricingOverride typeID={material.typeID} {...pricing} />
+            ) : null}
+
             {checkTypeIDisExempt(material.typeID) ? (
               <Typography variant="body2" color="warning.main">
                 Marked as exempt from builds.

@@ -4,6 +4,7 @@ import { MenuItem, Select, Stack } from "@mui/material";
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
 import PricingBasisSelect from "../../../../../../Styled Components/Select/pricingBasis";
 import writeTextToClipboard from "../../../../../../Functions/Clipboard/writeTextToClipboard";
+import MaterialDrawer from "./materialDrawer";
 import MaterialsTable from "./materialsTable";
 import { SourcingFooter, SourcingOffer } from "./sourcingSummary";
 import { useMaterialsSourcing } from "./useMaterialsSourcing";
@@ -99,6 +100,18 @@ export default function MaterialsAndSourcingPanel({
           formatQuantity={formatQuantity}
           onToggleRow={toggleRow}
           openTypeIDs={openTypeIDs}
+          renderDrawer={(row, isOpen) => (
+            <MaterialDrawer
+              isOpen={isOpen}
+              state={state}
+              actions={actions}
+              material={row.material}
+              matchedChildJobs={row.matchedChildJobs}
+              marketSelect={row.marketSelect}
+              listingSelect={row.listingSelect}
+              currentMaterialPrice={row.buyPrice ?? 0}
+            />
+          )}
         />
 
         <SourcingFooter summary={summary} formatVolume={formatVolume} />

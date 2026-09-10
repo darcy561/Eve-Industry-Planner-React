@@ -52,6 +52,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
           actions,
           materialTypeID: material.typeID,
         });
+      const matchedChildJobs = Array.from(childJobsById.values());
 
       const quantity = quantityFor(activeJob, material, displayType);
 
@@ -66,11 +67,14 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         buildPrice: unitBuildCost({
           material,
           childJobIDs,
-          childJobs: Array.from(childJobsById.values()),
+          childJobs: matchedChildJobs,
           resolved,
         }),
         isBuildable: checkJobTypeIsBuildable(material.jobType),
         isLinked: hasChildJobs,
+        matchedChildJobs,
+        marketSelect: resolved.marketSelect,
+        listingSelect: resolved.listingSelect,
       });
     });
 

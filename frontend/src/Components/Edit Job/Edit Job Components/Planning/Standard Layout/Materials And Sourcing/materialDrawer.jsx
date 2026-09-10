@@ -1,6 +1,7 @@
 import { Collapse, Stack, Typography } from "@mui/material";
 
 import InsetSurface from "../../../../../../Styled Components/Paper/InsetSurface";
+import { calculateChildJobTotals } from "../../../../../../Functions/Groups/childJobTotals";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { ChildJobMaterials_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/childJobMaterials";
 import { ChildJobMaterialTotalCosts_ChildJobPopoverFrame } from "../Material Prices/Child Job Pop Over/childJobTotalCosts";
@@ -27,7 +28,6 @@ import { useChildJobPopoverData } from "../Material Prices/Hooks/useChildJobPopo
  * @param {string} props.listingSelect
  * @param {number} props.currentMaterialPrice
  * @param {Array<object>} props.matchedChildJobs
- * @param {{totalCostOfMaterials: number, totalInstallCosts: number, totalCostPerItem: number, quantityProduced: number}} props.totals
  */
 export default function MaterialDrawer({
   isOpen,
@@ -36,7 +36,8 @@ export default function MaterialDrawer({
   actions,
   currentMaterialPrice,
   matchedChildJobs,
-  totals,
+  marketSelect,
+  listingSelect,
   ...rest
 }) {
   const checkTypeIDisExempt = useUsersStore(
@@ -66,7 +67,24 @@ export default function MaterialDrawer({
     buildSingleChildJobPreview,
   });
 
-  const shared = { ...rest, state, actions, material, matchedChildJobs };
+  // The totals follow whichever child job is on show, so they are worked out
+  // here rather than handed in with the row.
+  const totals = calculateChildJobTotals(
+    childJobObjects[jobDisplay],
+    state.temporaryChildJobs,
+    marketSelect,
+    listingSelect
+  );
+
+  const shared = {
+    ...rest,
+    state,
+    actions,
+    material,
+    matchedChildJobs,
+    marketSelect,
+    listingSelect,
+  };
 
   return (
     <Collapse in={isOpen} timeout="auto" unmountOnExit>

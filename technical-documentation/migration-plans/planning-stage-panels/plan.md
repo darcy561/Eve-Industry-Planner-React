@@ -529,10 +529,10 @@ the design — the design says what the new panel shows, not what the old ones l
 
 | Affordance | Where it was | State |
 |------------|--------------|-------|
-| The drawer at all | The info-icon popover | **Built but unwired.** The panel does not pass `renderDrawer`, so a row opens and draws nothing |
-| Child job totals in the drawer | The popover computed them itself from `currentJob` | **Dropped, not moved.** The drawer expects a `totals` prop nothing supplies |
-| The hub and basis a child's own materials price at | Popover children read `marketSelect` / `listingSelect` | **Missing.** The drawer does not pass them, so a child's materials price against `undefined` |
-| The material itself, and its matched child jobs | Row components held them | **Discarded.** A row carries figures; the drawer needs the objects behind them |
+| The drawer at all | The info-icon popover | **Carried.** The panel renders one per row and opens it on click |
+| Child job totals in the drawer | The popover computed them itself from `currentJob` | **Carried.** `calculateChildJobTotals` is the shared figure, worked out in the drawer because it follows whichever child job is on show |
+| The hub and basis a child's own materials price at | Popover children read `marketSelect` / `listingSelect` | **Carried.** The row resolves them and the drawer passes them down |
+| The material itself, and its matched child jobs | Row components held them | **Carried.** A row carries them, so a row is enough to open a drawer on |
 | The material's own popover and type icon | Both old row components | **Dropped silently.** The name is plain text |
 | Per-material hub and basis override | "Manage Material Sources" | **No surface left.** A stored override still applies and cannot be seen, changed or cleared |
 | Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Dropped.** The stripe says building or worth building, and nothing about job type or whether a link is pending |

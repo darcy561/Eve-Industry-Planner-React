@@ -37,6 +37,10 @@ export const MATERIAL_PLAN = {
  * @property {boolean} isBuildable - Whether the material has a blueprint at all
  * @property {boolean} isLinked - Whether child jobs are linked for it
  * @property {number} volume - Total volume the quantity occupies
+ * @property {object} material - The material itself, for a drawer opened on this row
+ * @property {Array<object>} matchedChildJobs - The child jobs behind it
+ * @property {string} marketSelect - The hub this row resolved to
+ * @property {string} listingSelect - The basis this row resolved to
  */
 
 /**
@@ -48,6 +52,9 @@ export const MATERIAL_PLAN = {
  * @param {number|null} params.buildPrice - Unit cost from linked child jobs, or null
  * @param {boolean} params.isBuildable - Whether the material has a blueprint at all
  * @param {boolean} params.isLinked - Whether child jobs are linked for it
+ * @param {Array<object>} [params.matchedChildJobs] - The child jobs behind it
+ * @param {string} [params.marketSelect] - The hub the row resolved to
+ * @param {string} [params.listingSelect] - The basis the row resolved to
  * @param {number} [params.quantity] - Overrides the material's own requirement,
  *   for a row stating one setup's need rather than the whole job's
  * @returns {MaterialSourcingRow}
@@ -58,6 +65,9 @@ export function buildMaterialSourcingRow({
   buildPrice,
   isBuildable,
   isLinked,
+  matchedChildJobs = [],
+  marketSelect,
+  listingSelect,
   quantity: quantityOverride,
 }) {
   const quantity = quantityOverride ?? material?.quantity ?? 0;
@@ -80,6 +90,10 @@ export function buildMaterialSourcingRow({
     isBuildable,
     isLinked,
     volume: (material?.volume ?? 0) * quantity,
+    material,
+    matchedChildJobs,
+    marketSelect,
+    listingSelect,
   };
 }
 

@@ -166,3 +166,26 @@ describe("the summary above and below the table", () => {
     expect(summariseSourcing(undefined).materials).toBe(0);
   });
 });
+
+describe("a row stating one setup's requirement", () => {
+  it("uses the quantity it is given rather than the job's own", () => {
+    // Raw Resources let a player see the selected setup's need instead of the
+    // whole job's, and that choice came with it into this panel.
+    const stated = row({ material: material(1000), quantity: 250 });
+
+    expect(stated.quantity).toBe(250);
+  });
+
+  it("falls back to the job's requirement when none is given", () => {
+    expect(row({ material: material(1000) }).quantity).toBe(1000);
+  });
+
+  it("counts the volume of what it states, not of the whole job", () => {
+    const stated = row({
+      material: material(1000, { volume: 0.01 }),
+      quantity: 250,
+    });
+
+    expect(stated.volume).toBeCloseTo(2.5);
+  });
+});

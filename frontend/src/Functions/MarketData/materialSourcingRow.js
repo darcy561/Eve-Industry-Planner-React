@@ -47,6 +47,8 @@ export const MATERIAL_PLAN = {
  * @param {number|null} params.buildPrice - Unit cost from linked child jobs, or null
  * @param {boolean} params.isBuildable - Whether the material has a blueprint at all
  * @param {boolean} params.isLinked - Whether child jobs are linked for it
+ * @param {number} [params.quantity] - Overrides the material's own requirement,
+ *   for a row stating one setup's need rather than the whole job's
  * @returns {MaterialSourcingRow}
  */
 export function buildMaterialSourcingRow({
@@ -55,8 +57,9 @@ export function buildMaterialSourcingRow({
   buildPrice,
   isBuildable,
   isLinked,
+  quantity: quantityOverride,
 }) {
-  const quantity = material?.quantity ?? 0;
+  const quantity = quantityOverride ?? material?.quantity ?? 0;
   const purchase = materialPurchaseState(material);
 
   const buy = Number.isFinite(buyPrice) ? buyPrice : null;

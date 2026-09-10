@@ -534,7 +534,9 @@ the design — the design says what the new panel shows, not what the old ones l
 | The hub and basis a child's own materials price at | Popover children read `marketSelect` / `listingSelect` | **Carried.** The row resolves them and the drawer passes them down |
 | The material itself, and its matched child jobs | Row components held them | **Carried.** A row carries them, so a row is enough to open a drawer on |
 | The material's own popover and type icon | Both old row components | **Dropped silently.** The name is plain text |
-| Per-material hub and basis override | "Manage Material Sources" | **No surface left.** A stored override still applies and cannot be seen, changed or cleared |
+| Per-material hub and basis override — seeing one | "Manage Material Sources" | **Carried, and better.** The basis picker counts the rows that depart from it, so an override is discoverable without opening a dialogue that lists every material |
+| Per-material hub and basis override — clearing them | "Manage Material Sources" | **Carried.** The picker offers to put every overridden row back |
+| Per-material hub and basis override — setting one | "Manage Material Sources" | **Outstanding.** A row can still hold its own hub and basis; nothing sets one |
 | Job type marker, linked-versus-pending | Raw Resources' dot and tick | **Dropped.** The stripe says building or worth building, and nothing about job type or whether a link is pending |
 | Exempt-from-builds marker | The info icon turned amber | **Only inside the drawer**, so invisible until one is open |
 | Create All Child Jobs | The market panel's kebab | **Dropped.** Stage G replaces it with "build all where cheaper", but Stage E removes it before that exists |

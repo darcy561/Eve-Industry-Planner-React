@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Box,
   Button,
+  Divider,
   Menu,
   MenuItem,
   Typography,
@@ -25,6 +26,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
  * @param {(basisID: string) => void} props.onChange
  * @param {(value: number) => string} props.formatValue - Renders a total as ISK
  * @param {string} [props.label] - What the totals are of, e.g. "Materials"
+ * @param {{overridden: number, purchased: number}} [props.usage] - How many rows
+ *   depart from this basis, and how many are not estimates at all
+ * @param {() => void} [props.onReset] - Puts every row back on this basis
  * @param {boolean} [props.disabled]
  */
 export default function PricingBasisSelect({
@@ -32,6 +36,8 @@ export default function PricingBasisSelect({
   onChange,
   formatValue,
   label,
+  usage,
+  onReset,
   disabled = false,
 }) {
   const [anchor, setAnchor] = useState(null);
@@ -72,6 +78,11 @@ export default function PricingBasisSelect({
             {label}
           </Typography>
         ) : null}
+        <MenuItem disabled sx={{ opacity: "1 !important" }}>
+          <Typography variant="caption" color="text.secondary">
+            Figures are this job's total under each
+          </Typography>
+        </MenuItem>
         {options.map((option) => (
           <MenuItem
             key={option.id}
@@ -79,9 +90,25 @@ export default function PricingBasisSelect({
             aria-selected={option.isCurrent}
             selected={option.isCurrent}
             onClick={() => choose(option.id)}
-            sx={{ gap: 3, justifyContent: "space-between" }}
+            sx={{ gap: 3, justifyContent: "space-between", alignItems: "flex-start" }}
           >
-            <Typography variant="body2">{option.label}</Typography>
+            <Box sx={{ minWidth: 0, maxWidth: 260 }}>
+              <Typography variant="body2">{option.label}</Typography>
+              {option.caption ? (
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                  {option.caption}
+                </Typography>
+              ) : null}
+              {option.description ? (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", whiteSpace: "normal" }}
+                >
+                  {option.description}
+                </Typography>
+              ) : null}
+            </Box>
             <Box sx={{ textAlign: "right" }}>
               <Typography variant="body2">
                 {formatValue(option.total)}
@@ -90,8 +117,44 @@ export default function PricingBasisSelect({
             </Box>
           </MenuItem>
         ))}
+        <BasisUsage usage={usage} onReset={onReset} />
       </Menu>
     </>
+  );
+}
+
+/**
+ * How many rows are not on this basis.
+ *
+ * An override is invisible on the row itself, and the panel this replaces hid
+ * the list of them behind a dialogue. Saying how many there are is what makes
+ * one discoverable without opening anything.
+ *
+ * @param {object} props
+ * @param {{overridden: number, purchased: number}} [props.usage]
+ * @param {() => void} [props.onReset]
+ */
+function BasisUsage({ usage, onReset }) {
+  if (!usage || (!usage.overridden && !usage.purchased)) return null;
+
+  const parts = [];
+  if (usage.overridden) parts.push(`${usage.overridden} overridden`);
+  if (usage.purchased) parts.push(`${usage.purchased} purchased`);
+
+  return (
+    <Box>
+      <Divider sx={{ my: 0.5 }} />
+      <Box sx={{ px: 2, py: 0.5, display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography variant="caption" color="text.secondary">
+          {parts.join(" \u00b7 ")}
+        </Typography>
+        {usage.overridden && onReset ? (
+          <Button size="small" onClick={onReset}>
+            Reset overrides
+          </Button>
+        ) : null}
+      </Box>
+    </Box>
   );
 }
 

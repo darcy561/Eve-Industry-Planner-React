@@ -22,6 +22,7 @@ import { useMaterialsSourcing } from "./useMaterialsSourcing";
  * @param {(value: number) => string} props.formatQuantity
  * @param {(value: number) => string} props.formatVolume
  * @param {(basisID: string) => void} props.onChangeBasis
+ * @param {() => void} props.onResetOverrides - Puts every row back on the panel's basis
  * @param {() => void} props.onApplyBuildable - Switches every cheaper-to-build row
  * @param {boolean} [props.readOnly]
  */
@@ -32,13 +33,14 @@ export default function MaterialsAndSourcingPanel({
   formatQuantity,
   formatVolume,
   onChangeBasis,
+  onResetOverrides,
   onApplyBuildable,
   readOnly = false,
 }) {
   const [displayType, setDisplayType] = useState("all");
   const [openTypeIDs, setOpenTypeIDs] = useState([]);
 
-  const { rows, summary, basisOptions } = useMaterialsSourcing({
+  const { rows, summary, basisOptions, basisUsage } = useMaterialsSourcing({
     state,
     actions,
     displayType,
@@ -62,7 +64,9 @@ export default function MaterialsAndSourcingPanel({
           options={basisOptions}
           formatValue={formatIsk}
           label="Materials"
+          usage={basisUsage}
           onChange={onChangeBasis}
+          onReset={onResetOverrides}
           disabled={readOnly}
         />
       }

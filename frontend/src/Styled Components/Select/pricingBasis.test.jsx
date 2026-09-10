@@ -118,3 +118,59 @@ describe("PricingBasisSelect", () => {
     expect(container).toBeEmptyDOMElement();
   });
 });
+
+describe("what each basis means", () => {
+  const explained = options.map((option, index) => ({
+    ...option,
+    caption: `caption ${index}`,
+    description: `what mode ${index} does`,
+  }));
+
+  it("says what each one does, because the names alone are jargon", async () => {
+    await open({ options: explained });
+
+    expect(screen.getByText("what mode 0 does")).toBeInTheDocument();
+    expect(screen.getByText("caption 0")).toBeInTheDocument();
+  });
+
+  it("still lists a basis that carries no explanation", async () => {
+    await open();
+
+    expect(screen.getAllByRole("option")).toHaveLength(options.length);
+  });
+});
+
+describe("rows that are not on this basis", () => {
+  it("counts them, so an override is visible without opening a dialogue", async () => {
+    await open({ usage: { overridden: 2, purchased: 3 } });
+
+    expect(screen.getByText("2 overridden · 3 purchased")).toBeInTheDocument();
+  });
+
+  it("counts only what there is", async () => {
+    await open({ usage: { overridden: 0, purchased: 3 } });
+
+    expect(screen.getByText("3 purchased")).toBeInTheDocument();
+  });
+
+  it("says nothing when every row is on the basis", async () => {
+    await open({ usage: { overridden: 0, purchased: 0 } });
+
+    expect(screen.queryByText(/overridden|purchased/)).toBeNull();
+  });
+
+  it("offers to put overridden rows back", async () => {
+    const onReset = vi.fn();
+    const user = await open({ usage: { overridden: 2, purchased: 0 }, onReset });
+
+    await user.click(screen.getByRole("button", { name: /reset overrides/i }));
+
+    expect(onReset).toHaveBeenCalledOnce();
+  });
+
+  it("does not offer a reset when nothing is overridden", async () => {
+    await open({ usage: { overridden: 0, purchased: 3 }, onReset: () => {} });
+
+    expect(screen.queryByRole("button", { name: /reset overrides/i })).toBeNull();
+  });
+});

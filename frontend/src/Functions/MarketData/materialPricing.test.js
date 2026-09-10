@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import JobMaterial from "../../Classes/jobMaterial";
-import { materialCostByBasis, materialPurchaseState } from "./materialPricing";
+import {
+  materialCostByBasis,
+  materialPurchaseState,
+  summariseBasisUse,
+} from "./materialPricing";
 
 // Prices differ per basis so a total can only come out right if the basis reached
 // the lookup; the hub is included so an override on the hub is visible too.
@@ -202,5 +206,49 @@ describe("a material the job needs none of", () => {
       paidCost: 0,
       remainingQuantity: 0,
     });
+  });
+});
+
+describe("summariseBasisUse", () => {
+  const row = (overrides) => ({
+    marketSelect: "jita",
+    listingSelect: "sell",
+    plan: "buy",
+    ...overrides,
+  });
+
+  it("counts a row priced against another hub", () => {
+    const rows = [row(), row({ marketSelect: "amarr" })];
+
+    expect(summariseBasisUse(rows, "jita", "sell").overridden).toBe(1);
+  });
+
+  it("counts a row priced on another basis", () => {
+    const rows = [row(), row({ listingSelect: "buyP95" })];
+
+    expect(summariseBasisUse(rows, "jita", "sell").overridden).toBe(1);
+  });
+
+  it("counts a row departing on both as one row, not two", () => {
+    const rows = [row({ marketSelect: "amarr", listingSelect: "buy" })];
+
+    expect(summariseBasisUse(rows, "jita", "sell").overridden).toBe(1);
+  });
+
+  it("counts rows that are not estimates at all", () => {
+    const rows = [row(), row({ plan: "paid" }), row({ plan: "paid" })];
+
+    expect(summariseBasisUse(rows, "jita", "sell").purchased).toBe(2);
+  });
+
+  it("counts nothing when every row is on the basis", () => {
+    expect(summariseBasisUse([row(), row()], "jita", "sell")).toMatchObject({
+      overridden: 0,
+      purchased: 0,
+    });
+  });
+
+  it("copes with no rows", () => {
+    expect(summariseBasisUse(undefined, "jita", "sell").overridden).toBe(0);
   });
 });

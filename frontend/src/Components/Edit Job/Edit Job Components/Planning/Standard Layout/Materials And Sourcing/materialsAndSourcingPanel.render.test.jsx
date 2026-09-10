@@ -31,6 +31,7 @@ const sourcing = {
     savingAvailable: 450,
     cheaperToBuild: 1,
   },
+  basisUsage: { overridden: 1, purchased: 0 },
   basisOptions: [
     { id: "sell", label: "Sell Orders", total: 5400, delta: 0, isCurrent: true },
     { id: "buy", label: "Buy Orders", total: 4950, delta: -450, isCurrent: false },
@@ -115,6 +116,16 @@ describe("the Materials and Sourcing panel", () => {
     await user.click(row());
 
     expect(screen.getByTestId("drawer-34")).toHaveTextContent("shut");
+  });
+
+  it("says how many rows are off the panel's basis", async () => {
+    // An override is invisible on the row, so the picker is where it surfaces.
+    const user = userEvent.setup();
+    renderPanel();
+
+    await user.click(screen.getByRole("button", { name: /Sell Orders/ }));
+
+    expect(screen.getByText("1 overridden")).toBeInTheDocument();
   });
 
   it("draws nothing at all without a setup to cost", () => {

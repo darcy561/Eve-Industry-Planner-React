@@ -93,11 +93,39 @@ export function materialCostByBasis({
     return {
       id: entry.id,
       label: entry.name,
+      caption: entry.caption,
+      description: entry.description,
       total,
       delta: total - current,
       isCurrent: entry.id === listingSelect,
     };
   });
+}
+
+/**
+ * How many rows are not on the panel's basis, and how many are not estimates at
+ * all.
+ *
+ * An override is otherwise invisible: a row priced against a different hub looks
+ * like any other, and the panel it replaced hid the whole list of them behind a
+ * dialogue. Counting departures makes one discoverable without opening anything.
+ *
+ * @param {Array<object>} rows - Rows from buildMaterialSourcingRow
+ * @param {string} marketSelect - The panel's hub
+ * @param {string} listingSelect - The panel's basis
+ * @returns {{overridden: number, purchased: number}}
+ */
+export function summariseBasisUse(rows, marketSelect, listingSelect) {
+  const list = Array.isArray(rows) ? rows : [];
+
+  return {
+    overridden: list.filter(
+      (row) =>
+        (row.marketSelect && row.marketSelect !== marketSelect) ||
+        (row.listingSelect && row.listingSelect !== listingSelect)
+    ).length,
+    purchased: list.filter((row) => row.plan === "paid").length,
+  };
 }
 
 /**

@@ -58,10 +58,34 @@ export const permanentExtrasCategories = new Set(["0", "5"]);
  * @property {string} name - Display name for the listing type
  */
 export let listingType = [
-  { id: "buy", name: "Buy Orders" },
-  { id: "sell", name: "Sell Orders" },
-  { id: "buyP95", name: "Buy Orders (95th %ile)" },
-  { id: "sellP05", name: "Sell Orders (5th %ile)" },
+  {
+    id: "buy",
+    name: "Buy Orders",
+    caption: "best bid on the book",
+    description:
+      "What you would get selling into a buy order right now. One silly bid moves it.",
+  },
+  {
+    id: "sell",
+    name: "Sell Orders",
+    caption: "best ask on the book",
+    description:
+      "What buying instantly actually costs — the honest figure if you rush.",
+  },
+  {
+    id: "buyP95",
+    name: "Buy Orders (95th %ile)",
+    caption: "outlier-trimmed bid",
+    description:
+      "Ignores the top few bids, so a thin book stops flattering the estimate.",
+  },
+  {
+    id: "sellP05",
+    name: "Sell Orders (5th %ile)",
+    caption: "outlier-trimmed ask",
+    description:
+      "Ignores the cheapest few asks you will not actually be fast enough to get.",
+  },
 ];
 
 /**

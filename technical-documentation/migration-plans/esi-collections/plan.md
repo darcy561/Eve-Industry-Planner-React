@@ -111,6 +111,7 @@ Each has a stage that closes it.
 | B5 | `reactionLayout` writes `owner_id` onto cached rows inside a `useMemo`, mutating React Query's cached objects | `reactionLayout.jsx` |
 | B6 | Four of the six library filters run `itemList.some(...)` inside `allBlueprints.filter(...)`, scanning the whole search index per row on every filter change | `blueprintFiltering.js` |
 | B7 | `sortBlueprints` orders by `a.quantity.toString().localeCompare(...)`; it happens to place originals before copies, undocumented and fragile | `blueprintFiltering.js` |
+| B9 | A stack of originals arrives as **one row with a positive `quantity`**. `originalCount` counts matching rows, so a stack of five reads as one and runs are split across one slot instead of five. Routine rather than rare: a manufacturing original only stacks untouched from the market, but a reaction formula carries no research or job state and restacks after every use, so a stacked formula is its ordinary condition | `setupHelpers.js` `distributeRunsAcrossOwnedOriginals` |
 | B8 | Dead code: `Hooks/EveEsi/Corporation/useGetCorporationBlueprints.js` has no caller for either export; `allBlueprints` inside `groupBlueprintsByCorporation` is computed and unused; `manufacturingLayout` re-stamps `is_corporation`, which the fetch layer already sets | as listed |
 
 #### Login and call path
@@ -118,13 +119,13 @@ Each has a stage that closes it.
 | # | Defect | Where |
 |---|--------|-------|
 | L1 | All six corporation collections fan out per character, so a corporation-scoped collection is fetched once per member instead of once per corporation | `useCharacterHooks.js` |
-| L2 | The main character is prefetched from two entry points — directly during session apply, and again via the account sync's character list | `appLoginFlow.js`, `runPostLoginAccountSync.js` |
+| L2 | Two prefetch entry points, each with its own hand-written call. They are **not** duplicates — the account sync builds only characters not already in the store, so the main character never appears in its list — but nothing states or enforces that, and removing either silently drops the characters it alone covered | `appLoginFlow.js`, `runPostLoginAccountSync.js` |
 | L3 | Concurrency is capped by character count, not request budget: three characters at fourteen queries each. The rate-limit status the queries consult in `retryDelay` is never consulted before firing | `useCharacterHooks.js` |
 | L4 | Every prefetched query is forced `enabled: true`, overriding `isQueryExecutionEnabled()` — so login fetches for every character even when Tranquility is offline | `useCharacterHooks.js` |
 | L5 | No phasing: collections the first screen needs compete with ones only read on the accounting surfaces | `useCharacterHooks.js` |
 | L6 | Assets are prefetched nowhere, which is a defensible policy arrived at by omission rather than decision — and is why the asset pages carry their own load-state machinery | `useCharacterHooks.js` |
-| L7 | `createTrackedQuery` takes a query name and character hash, ignores both, and returns the factory unchanged; fourteen are constructed per character | `useCharacterHooks.js` |
-| L8 | `prefetchCharacterData` and `prefetchCorporationData` are two ninety-line copies differing only in their query list | `useCharacterHooks.js` |
+| L7 | ~~`createTrackedQuery` ignores both its arguments~~ — closed before this project reached Stage C | — |
+| L8 | ~~Two ninety-line prefetch copies~~ — closed before this project reached Stage C | — |
 
 Neither area has tests: nothing under `Components/Assets`, `Functions/Assets`, `Functions/Helper/blueprintFiltering.js` or the blueprint hooks, and the only blueprint tests are in the archive dialogue.
 
@@ -385,7 +386,7 @@ effect.
 
 One consumer at a time, deleting each old helper as its last caller goes: asset library pages, the
 assets dialogue, the shopping-list hooks, the location dropdowns, then the blueprint library, the
-Edit Job blueprint panels, and the job-setup helpers. Closes A2, A3, A6, A8, B3, B4, B5 and B6.
+Edit Job blueprint panels, and the job-setup helpers. Closes A2, A3, A6, A8, B3, B4, B5, B6 and B9.
 
 The shopping list's reducer is **not** restructured here — it is waiting on its own redesign. Its
 hooks are re-pointed at the node collection behind the shapes they already pass to the reducer.
@@ -456,7 +457,7 @@ later cleanup wave.
 | B — query surface | A1, B1, B2, B8 |
 | C — collection table and login call path | L1–L8 |
 | D — shared name resolution | none directly; removes the duplicated resolve step the others depend on |
-| E — consumer cutover | A2, A3, A6, A8, B3, B4, B5, B6 |
+| E — consumer cutover | A2, A3, A6, A8, B3, B4, B5, B6, B9 |
 | F — renderers | A7, A9 |
 | G — page reshape | none; presentation only |
 
@@ -465,9 +466,9 @@ later cleanup wave.
 | Stage | Status |
 |-------|--------|
 | Phase 1 — project folder and docs | Done |
-| A — shapes and builders | Not started |
-| B — query surface | Not started |
-| C — collection table and login call path | Not started |
+| A — shapes and builders | Done |
+| B — query surface | Done |
+| C — collection table and login call path | Done |
 | D — shared name resolution | Not started |
 | E — consumer cutover | Not started |
 | F — renderers | Not started |

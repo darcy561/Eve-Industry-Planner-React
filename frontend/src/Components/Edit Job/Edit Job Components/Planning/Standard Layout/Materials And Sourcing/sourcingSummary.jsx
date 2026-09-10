@@ -1,4 +1,6 @@
-import { Alert, Box, Button, Typography } from "@mui/material";
+import { Alert, Button } from "@mui/material";
+
+import { PanelFooterMeta } from "../../../../../../Styled Components/Typography/figures";
 
 /**
  * What the panel states above and below its table: an offer where building some
@@ -54,24 +56,8 @@ export function SourcingFooter({ summary, formatVolume }) {
   ];
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        gap: 2,
-        flexWrap: "wrap",
-      }}
-    >
-      <Typography variant="caption" color="text.secondary">
-        {parts.join(" · ")}
-      </Typography>
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ fontVariantNumeric: "tabular-nums" }}
-      >
-        {formatVolume(summary.volume)}
-      </Typography>
-    </Box>
+    <PanelFooterMeta value={formatVolume(summary.volume)}>
+      {parts.join(" \u00b7 ")}
+    </PanelFooterMeta>
   );
 }

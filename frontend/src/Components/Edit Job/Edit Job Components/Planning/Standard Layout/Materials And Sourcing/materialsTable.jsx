@@ -1,6 +1,4 @@
 import {
-  Box,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -9,6 +7,15 @@ import {
   Typography,
 } from "@mui/material";
 
+import {
+  FIGURE_TONE,
+  Figure,
+  FigureCaption,
+  SignedPercent,
+} from "../../../../../../Styled Components/Typography/figures";
+import StatusChip, {
+  STATUS_TONE,
+} from "../../../../../../Styled Components/Chip/statusChip";
 import {
   MATERIAL_PLAN,
   hasSavingAvailable,
@@ -64,15 +71,9 @@ export default function MaterialsTable({
             <TableCell
               key={column.id}
               align={column.align}
-              sx={{
-                color: "text.secondary",
-                fontSize: 11,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                whiteSpace: "nowrap",
-              }}
+              sx={{ whiteSpace: "nowrap", py: 0.5 }}
             >
-              {column.label}
+              <FigureCaption>{column.label}</FigureCaption>
             </TableCell>
           ))}
         </TableRow>
@@ -118,17 +119,17 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
         <Figure>{formatQuantity(row.quantity)}</Figure>
       </TableCell>
       <TableCell align="right">
-        <Figure cheapest={row.delta !== null && row.delta > 0}>
+        <Figure tone={cheaperTone(row.delta !== null && row.delta > 0)}>
           {row.buyPrice === null ? null : formatIsk(row.buyPrice)}
         </Figure>
       </TableCell>
       <TableCell align="right">
-        <Figure cheapest={row.delta !== null && row.delta < 0}>
+        <Figure tone={cheaperTone(row.delta !== null && row.delta < 0)}>
           {row.buildPrice === null ? null : formatIsk(row.buildPrice)}
         </Figure>
       </TableCell>
       <TableCell align="right">
-        <DeltaFigure delta={row.delta} />
+        <SignedPercent value={row.delta} />
       </TableCell>
       <TableCell align="right">
         <PlanCell plan={row.plan} saving={saving} />
@@ -138,57 +139,13 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
 }
 
 /**
- * A figure, or an em dash where there is none to give. Tabular numerals so the
- * columns line up down the page.
+ * Marks the lower of a row's two prices, and nothing where there is only one.
  *
- * @param {object} props
- * @param {React.ReactNode} props.children
- * @param {boolean} [props.cheapest] - Marks the lower of the two prices
+ * @param {boolean} isCheaper
+ * @returns {string} One of FIGURE_TONE
  */
-function Figure({ children, cheapest = false }) {
-  if (children === null || children === undefined) {
-    return (
-      <Typography component="span" variant="body2" color="text.disabled">
-        —
-      </Typography>
-    );
-  }
-
-  return (
-    <Typography
-      component="span"
-      variant="body2"
-      sx={{
-        fontVariantNumeric: "tabular-nums",
-        color: cheapest ? "success.main" : "inherit",
-      }}
-    >
-      {children}
-    </Typography>
-  );
-}
-
-/**
- * @param {object} props
- * @param {number|null} props.delta
- */
-function DeltaFigure({ delta }) {
-  if (delta === null) return <Figure>{null}</Figure>;
-
-  const cheaper = delta < 0;
-  return (
-    <Typography
-      component="span"
-      variant="body2"
-      sx={{
-        fontVariantNumeric: "tabular-nums",
-        color: cheaper ? "success.main" : "error.main",
-      }}
-    >
-      {cheaper ? "−" : "+"}
-      {Math.abs(delta * 100).toFixed(1)}%
-    </Typography>
-  );
+function cheaperTone(isCheaper) {
+  return isCheaper ? FIGURE_TONE.GOOD : FIGURE_TONE.PLAIN;
 }
 
 /**
@@ -205,28 +162,20 @@ function PlanCell({ plan, saving }) {
     );
   }
 
-  const { label, color, variant } = planChip(plan, saving);
-  return <Chip size="small" label={label} color={color} variant={variant} />;
-}
-
-/**
- * @param {string} plan
- * @param {boolean} saving
- */
-function planChip(plan, saving) {
   if (plan === MATERIAL_PLAN.PAID) {
-    return { label: "Paid", color: "primary", variant: "outlined" };
+    return <StatusChip label="Paid" tone={STATUS_TONE.FACT} />;
   }
   if (plan === MATERIAL_PLAN.BUILD) {
-    return { label: "Build", color: "success", variant: "outlined" };
+    return <StatusChip label="Build" tone={STATUS_TONE.GOOD} />;
   }
   // Buying while building would cost less: the chip carries the warning rather
   // than a separate marker, so the row says it in one place.
-  return {
-    label: "Buy",
-    color: saving ? "warning" : "default",
-    variant: "outlined",
-  };
+  return (
+    <StatusChip
+      label="Buy"
+      tone={saving ? STATUS_TONE.WARN : STATUS_TONE.NEUTRAL}
+    />
+  );
 }
 
 /**

@@ -1,0 +1,109 @@
+# App shell rollout — plan
+
+**Rules:** Read and following [`../documentation-rules.md`](../documentation-rules.md) and
+[`../technical-rules.md`](../technical-rules.md) (migration-plans), plus the root masters they defer
+to, and [`../../frontend/technical-rules.md`](../../frontend/technical-rules.md) for the SPA surfaces
+this plan names. No Go surfaces are in scope.
+Live SoT will not be edited until this project is complete and promotion is approved.
+
+## Goal
+
+Every screen on the app-shell design is made of the same pieces, so a panel states what it holds
+rather than restyling a surface, and two panels beside each other cannot disagree about what a figure,
+a card or a chosen state looks like.
+
+## Why this matters
+
+The design is the target for the SPA and is being rolled out panel by panel, so most screens have not
+converted yet. The ones that have, converted before there was anything to convert *onto*: there were
+sx helpers under `Context/appShell` and no components above them, so each screen worked out its own
+version of the same few shapes.
+
+That has already produced drift rather than duplication alone. First login re-implemented the panel
+with a primary-coloured `h6` title where every other panel uses a quiet secondary caption, so the
+screens that introduce the app looked unlike it. The nested card surface existed four times at three
+radii and four border alphas. A selection card lived in one screen's folder while another screen
+imported it across the app, carrying its own copy of the selection, hover and focus styling — and an
+accessibility bug with it, claiming a radio role while rendering a checkbox.
+
+None of that is visible as a bug. It is visible as a screen that looks *nearly* right, which is why it
+survives review and accumulates.
+
+## The component layer
+
+`Styled Components` now carries the atoms panels compose. Added as consumers needed them, not
+speculatively — each has a real caller.
+
+| Atom | What it settles |
+|------|-----------------|
+| `Figure` | Digits line up; a value the app does not have reads as an em dash rather than a gap or a zero |
+| `SignedPercent` | A change, coloured by direction, taking a fraction because that is what a ratio gives |
+| `FigureRow` | The label-and-value line a breakdown is made of, and which row closes a block |
+| `HeadlineStat` | The figure a panel leads with |
+| `StatTile` | A measure, its change and what it was before |
+| `PanelFooterMeta` | The quiet line under a panel |
+| `FigureCaption` | What a figure is |
+| `StatusChip` | A state, named rather than coloured at the call site |
+| `SelectableCard` | A card a player picks, as one of a set or on its own |
+| `InsetSurface` | A recessed area inside a panel |
+| `figureToneColour` | A tone, for the places one has to reach something that is not a `Figure` |
+
+`Context/appShell` keeps the sx helpers these sit on: `appShellSetupSectionPaperSx` for a panel and
+`appShellNestedCardSx` for a card inside one.
+
+**The layer grows from conversions, not ahead of them.** A shape earns an atom when a second screen
+needs it; before that it stays where it is.
+
+## Screens
+
+| Screen | State |
+|--------|-------|
+| Archive statistics | Stat cards converted to `StatTile`; `changeDisplay` returns a tone rather than a colour. The rest of the area is unconverted |
+| First login — section card | Converted: it is `AppShellPanel`, and gains the error boundary and loading states it was doing without |
+| First login — choice row | Converted and promoted to `SelectableCard`; the accessibility bug went with it |
+| First login — support step | **Not converted.** 242 lines, draws its own surfaces |
+| First login — page shell | **Not converted.** 274 lines, its own radius-3 surfaces |
+| First login — main character card | **Not converted.** Own nested surface at a drifted border alpha |
+| First login — welcome banner | **Not converted.** Own surface and shadow |
+| Additional accounts | Reads `SelectableCard`. Still defines a local `firstLoginPanelSx` — a fourth copy of the panel surface, and misnamed for a screen it is not on |
+| Archived jobs list, archive chart panels, archive jobs panel | On `AppShellPanel` already; not audited against the component layer |
+| Everything else | Predates the design. Converts when the design reaches it, not before |
+
+## How a screen converts
+
+- **Read it before changing it.** These conversions are pattern-shaped but not mechanical: a card
+  inside a table cell is not the same as a card in a stack, and a surface may be carrying a size or a
+  shadow for a reason.
+- **Preserve behaviour exactly.** Tooltips, responsive typography, loading states and disabled states
+  are the parts most easily dropped, because they are the parts a screenshot does not show.
+- **Take the tests first where there are none.** First login had 1,311 lines and no tests at all, so
+  the conversion had nothing to check itself against until they were written.
+- **Do not invent an atom for one caller.** If a shape appears once, leave it in the screen.
+- **Standardising a drifted value is a visual change.** Say so rather than folding it in silently.
+
+## What this project does not do
+
+It does not convert a screen the design has not reached, and it does not redesign anything on the way
+past. A screen either draws the shared surface or it draws the old one; a third variant invented
+during a conversion is the failure this project exists to undo.
+
+## Stage status
+
+| Stage | Surface | Status |
+|-------|---------|--------|
+| Phase 1 — project folder and docs | docs | **Done** |
+| First login — remaining screens | SPA | Not started |
+| Additional accounts — retire the local panel sx | SPA | Not started |
+| Archive statistics — audit the rest of the area | SPA | Not started |
+| Component layer — add atoms as conversions need them | SPA | Ongoing |
+
+## Start here
+
+The remaining first login screens, because they are the ones already claiming the design while not
+using it, and because the atoms they need now exist. `FirstLoginMainCharacterCard` is the smallest and
+`appShellNestedCardSx` replaces its surface outright.
+
+`AdditionalAccounts`'s local `firstLoginPanelSx` is the other clear one: a fourth copy of the panel
+surface, named for a screen it does not belong to.
+
+Neither is urgent. Both are cheap once someone is in the file.

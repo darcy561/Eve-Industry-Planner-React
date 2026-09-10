@@ -28,3 +28,4 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Document defaults (the defaults a job and a group are born with, the schema upgrader on their read path, and the extras category id space; **found by the model parity sweep**) | [document-defaults/contents.md](./document-defaults/contents.md) |
 | Planning stage panels (splitting the Edit Job market panel; selling costs at plan time; speculative child jobs) | [planning-stage-panels/contents.md](./planning-stage-panels/contents.md) |
 | Auth hardening (session rejection shape, account-wide revocation, auth observability and the outage runbook, cloud ESI credential failures, bootstrap half-success) | [auth-hardening/contents.md](./auth-hardening/contents.md) |
+| App shell rollout (moving screens onto the shared surface and the component layer above it; **found while converting first login**) | [app-shell-rollout/contents.md](./app-shell-rollout/contents.md) |

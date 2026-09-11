@@ -109,9 +109,21 @@ Entry* where the figure is a real purchase rather than an estimate; a **Δ** col
 the row would save or cost against buying it. A row whose figure is a market price can be overridden in
 place, and an override outranks the panel's basis for that row only.
 
+On a buildable row the plan chip **is** the decision: it carries the buy-or-build control and its undo,
+so a costed list is settled from the list itself. The drawer below is for reading what building a
+material would take, not for reaching the control that decides it. A row also states that it opens —
+a chevron, which is a button, so the drawer is reachable by keyboard and not only by knowing that the
+row is clickable.
+
 The child-job comparison is an **inline drawer** opening under its own row. A build it could not cost
 says so rather than drawing an empty comparison, which would read as a material that costs nothing to
-make.
+make. Opening a row costs it, and that cost is **recorded against the row** rather than held inside the
+drawer — the same place the summary strip's bulk costing puts its jobs. A row costed either way is
+confirmed against the one job, and opening a row already costed re-reads it rather than building a
+second job for the same material. Deciding a row drops what it was costed with, whichever way it was
+decided: the guess described a job that has since either become a real child job or been taken back
+out, so a row returned to Buy is offered for costing again rather than keeping a price for a job that
+no longer exists.
 
 The sourcing offer states a saving on **what is still to source**: a material already part-bought can
 only move the units nobody has bought yet, and the offer has to be a figure accepting it can deliver.

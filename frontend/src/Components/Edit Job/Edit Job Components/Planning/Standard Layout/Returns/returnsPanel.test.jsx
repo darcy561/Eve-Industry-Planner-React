@@ -32,12 +32,15 @@ describe("the Returns panel", () => {
     expect(screen.getByText("Net return — sell order")).toBeInTheDocument();
   });
 
-  it("leads with the other route when told to", () => {
-    renderPanel({ headlineRouteID: "immediate" });
+  // The listing is the route a player plans towards, and the one the fee and
+  // tax on the page are quoted for, so it is the one the panel leads with.
+  it("leads with the listing rather than the buy orders", () => {
+    renderPanel();
 
+    expect(screen.getByText("Net return — sell order")).toBeInTheDocument();
     expect(
-      screen.getByText("Net return — into buy orders"),
-    ).toBeInTheDocument();
+      screen.queryByText("Net return — into buy orders"),
+    ).not.toBeInTheDocument();
   });
 
   // Neither route is the answer: which one a player wants is not something the
@@ -67,16 +70,6 @@ describe("the Returns panel", () => {
         "Nothing produced, so there is nothing to break even on",
       ),
     ).toBeInTheDocument();
-  });
-
-  // The fee is charged on a listing, so the route that never lists must not show
-  // it being taken off.
-  it("keeps the broker fee out of the ledger for a route that does not list", async () => {
-    renderPanel({ headlineRouteID: "immediate" });
-    await userEvent.click(screen.getByText("How this is worked out"));
-
-    expect(screen.getByText("Sales tax")).toBeInTheDocument();
-    expect(screen.queryByText("Broker fee")).not.toBeInTheDocument();
   });
 
   it("shows the broker fee for the route that does list", async () => {

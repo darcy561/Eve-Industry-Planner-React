@@ -16,6 +16,7 @@ import {
   formatPercentage,
 } from "../../../../../../Functions/Helper/numberParser";
 import { monthLabel } from "../Archive Jobs Panel/buildHistoryFigures";
+import { EXIT_ROUTE } from "../../../../../../Functions/MarketData/returns";
 import ExitRoutes, { signTone } from "./exitRoutes";
 import OutputHeader from "./outputHeader";
 
@@ -28,7 +29,6 @@ import OutputHeader from "./outputHeader";
  *
  * @param {object} props
  * @param {import("../../../../../../Functions/MarketData/returns").Returns} props.returns
- * @param {string} [props.headlineRouteID] - Which route the panel leads with
  * @param {{brokerFee: number, salesTax: number}} props.charges - ISK, for the ledger
  * @param {number} props.buildCost - ISK, selling excluded
  * @param {ReturnType<import("../../../../../../Functions/MarketData/buildComparison").compareToHistory>} [props.comparison]
@@ -38,7 +38,6 @@ import OutputHeader from "./outputHeader";
  */
 export default function ReturnsPanel({
   returns,
-  headlineRouteID = "listed",
   charges,
   buildCost,
   comparison,
@@ -48,8 +47,12 @@ export default function ReturnsPanel({
 }) {
   if (!returns) return null;
 
-  const headline =
-    returns.routes.find((i) => i.id === headlineRouteID) ?? returns.routes[0];
+  // The listing is what the panel leads with: it is the route a player is
+  // planning towards, and the one the fee and tax on the page are quoted for.
+  // The other route is stated beside it rather than led with.
+  const headline = returns.routes.find(
+    (route) => route.id === EXIT_ROUTE.LISTED,
+  );
   if (!headline) return null;
 
   return (
@@ -156,29 +159,25 @@ function PreviousBuilds({ comparison }) {
  * The working behind the headline: what the sale brings in, what is taken from
  * it, and what making it cost.
  *
- * Only the headline route's, because the fee is charged on a listing and the
- * route that does not list does not pay it — one ledger covering both would have
- * to state a charge that only sometimes applies.
+ * The headline's alone, which is the listing. A ledger covering both routes
+ * would have to state a broker fee that only one of them pays, and the route
+ * that never lists does not pay it.
  *
  * @param {object} props
  */
 function Ledger({ route, charges, buildCost }) {
-  const listed = route.id === "listed";
-
   return (
     <>
       <Typography variant="caption" color="text.secondary">
         {route.label}
       </Typography>
       <FigureRow label="Revenue" value={formatNumberForLocale(route.revenue)} />
-      {listed ? (
-        <FigureRow
-          label="Broker fee"
-          sublabel="charged when the order is listed"
-          tone={FIGURE_TONE.BAD}
-          value={`−${formatNumberForLocale(charges?.brokerFee ?? 0)}`}
-        />
-      ) : null}
+      <FigureRow
+        label="Broker fee"
+        sublabel="charged when the order is listed"
+        tone={FIGURE_TONE.BAD}
+        value={`−${formatNumberForLocale(charges?.brokerFee ?? 0)}`}
+      />
       <FigureRow
         label="Sales tax"
         tone={FIGURE_TONE.BAD}

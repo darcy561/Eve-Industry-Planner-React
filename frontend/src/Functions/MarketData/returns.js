@@ -29,6 +29,17 @@
  */
 
 /**
+ * The two ways out of a finished build.
+ *
+ * Named rather than repeated as strings: the panel picks its headline by id and
+ * states the listing's charges against it, so the producer and the reader have
+ * to mean the same thing by them.
+ *
+ * @type {{LISTED: string, IMMEDIATE: string}}
+ */
+export const EXIT_ROUTE = { LISTED: "listed", IMMEDIATE: "immediate" };
+
+/**
  * Both exit routes at the price the market is now.
  *
  * Listing a sell order returns the hub sell price less fee and tax; selling into
@@ -81,14 +92,20 @@ export function calculateReturns({
   return {
     routes: [
       route(
-        "listed",
+        EXIT_ROUTE.LISTED,
         "Sell order",
         sellPrice,
         brokerFee + salesTax,
         "less fee and tax",
       ),
       // No listing, so no broker fee — the tax is charged either way.
-      route("immediate", "Into buy orders", buyPrice, salesTax, "less tax"),
+      route(
+        EXIT_ROUTE.IMMEDIATE,
+        "Into buy orders",
+        buyPrice,
+        salesTax,
+        "less tax",
+      ),
     ],
     // Linearised around today's price: the fee and the tax are shares of
     // revenue, so the price that truly breaks even would change them again.

@@ -35,7 +35,6 @@ export function jobFixture({
     name: "Tritanium",
     jobType: 1,
     totalQuantityProduced: 10,
-    totalExtrasCost: 0,
     skills: [],
     parentJobs: [],
     layout: { setupToEdit, materialPriceOverrides: {} },

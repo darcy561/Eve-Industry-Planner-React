@@ -14,7 +14,7 @@ import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
 import { flushPendingGroupSave } from "../../../Functions/Debounce/jobGroupsPersistSchedule.js";
 import { useActiveGroupCanEdit } from "../../../Hooks/DocumentLock/useDocumentLockState";
 
-function GroupNameFrame({}) {
+function GroupNameFrame() {
   const canEdit = useActiveGroupCanEdit();
   const { updateModifiedGroups, getActiveGroupObject } =
     useUsersStore.getState().jobData.actions;

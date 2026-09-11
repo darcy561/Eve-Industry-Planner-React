@@ -57,8 +57,8 @@ export function applyDocumentLockStatusFromPayload(collection, docID, data) {
   const holder =
     typeof data.holderSessionID === "string" ? data.holderSessionID : "";
 
-  let readOnly = false;
-  let lockHeld = false;
+  let readOnly;
+  let lockHeld;
   if (held && holder) {
     if (sessionID && holder === sessionID) {
       lockHeld = true;

@@ -75,7 +75,9 @@ function characterAssetsQuery(characterHash) {
         });
       } catch (error) {
         console.error("Error fetching character assets:", error);
-        throw new Error(`Failed to fetch character assets: ${error.message}`);
+        throw new Error(`Failed to fetch character assets: ${error.message}`, {
+          cause: error,
+        });
       }
     },
     enabled: isQueryExecutionEnabled(),

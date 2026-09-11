@@ -78,6 +78,7 @@ function characterIndustryJobsQuery(characterHash) {
         console.error("Error fetching character industry jobs:", error);
         throw new Error(
           `Failed to fetch character industry jobs: ${error.message}`,
+          { cause: error },
         );
       }
     },

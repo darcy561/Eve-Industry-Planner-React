@@ -81,6 +81,7 @@ function characterMarketOrdersQuery(characterHash) {
         console.error("Error fetching character market orders:", error);
         throw new Error(
           `Failed to fetch character market orders: ${error.message}`,
+          { cause: error },
         );
       }
     },

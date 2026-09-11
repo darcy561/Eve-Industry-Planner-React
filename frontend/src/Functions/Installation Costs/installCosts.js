@@ -156,11 +156,14 @@ function estimatedItemPriceCalc(
 
   return Math.ceil(
     Object.values(materialArray).reduce((preValue, material) => {
-      return (preValue += estimatedMaterialPriceCalc(
-        material.quantity / jobCount,
-        material.typeID,
-        additionalMaterialPrices,
-      ));
+      return (
+        preValue +
+        estimatedMaterialPriceCalc(
+          material.quantity / jobCount,
+          material.typeID,
+          additionalMaterialPrices,
+        )
+      );
     }, 0),
   );
 }

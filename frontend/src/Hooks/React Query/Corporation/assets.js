@@ -75,7 +75,10 @@ function corporationAssetsQuery(characterHash) {
         });
       } catch (error) {
         console.error("Error fetching corporation assets:", error);
-        throw new Error(`Failed to fetch corporation assets: ${error.message}`);
+        throw new Error(
+          `Failed to fetch corporation assets: ${error.message}`,
+          { cause: error },
+        );
       }
     },
     enabled: isQueryExecutionEnabled(),

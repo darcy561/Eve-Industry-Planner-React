@@ -77,6 +77,7 @@ function characterTransactionsQuery(characterHash) {
         console.error("Error fetching character transactions:", error);
         throw new Error(
           `Failed to fetch character transactions: ${error.message}`,
+          { cause: error },
         );
       }
     },

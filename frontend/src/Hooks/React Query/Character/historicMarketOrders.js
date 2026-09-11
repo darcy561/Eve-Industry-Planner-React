@@ -82,6 +82,7 @@ function characterHistoricMarketOrdersQuery(characterHash) {
         );
         throw new Error(
           `Failed to fetch character historic market orders: ${error.message}`,
+          { cause: error },
         );
       }
     },

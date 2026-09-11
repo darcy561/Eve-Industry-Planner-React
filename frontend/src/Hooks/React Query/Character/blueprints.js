@@ -83,6 +83,7 @@ function characterBlueprintsQuery(characterHash) {
         console.error("Error fetching character blueprints:", error);
         throw new Error(
           `Failed to fetch character blueprints: ${error.message}`,
+          { cause: error },
         );
       }
     },

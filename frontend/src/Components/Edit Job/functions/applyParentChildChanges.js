@@ -114,7 +114,9 @@ function processParentJobs(
       ),
     );
   } catch (err) {
-    throw new Error(`Error updating parent jobs: ${err.message}`);
+    throw new Error(`Error updating parent jobs: ${err.message}`, {
+      cause: err,
+    });
   }
 }
 
@@ -177,7 +179,9 @@ function processChildJobs(
       inputJob.removeChildJob(material.typeID, unMatchedChildIDs);
     }
   } catch (err) {
-    throw new Error(`Error updating child jobs: ${err.message}`);
+    throw new Error(`Error updating child jobs: ${err.message}`, {
+      cause: err,
+    });
   }
 }
 

@@ -3,6 +3,6 @@ export function countAssetQuantityFromMap(inputMap, requestTypeID) {
   if (!requestedTypeIDArray || !inputMap || !requestTypeID) return 0;
 
   return requestedTypeIDArray.reduce((total, { quantity }) => {
-    return (total += quantity);
+    return total + quantity;
   }, 0);
 }

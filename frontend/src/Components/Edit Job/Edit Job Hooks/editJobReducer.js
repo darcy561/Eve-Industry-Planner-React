@@ -241,7 +241,7 @@ export function editJobReducer(state, action) {
         },
       };
     }
-    case EDIT_JOB_ACTION_TYPES.ADD_INDUSTRY_ESI_JOBS_FOR_ADDITION:
+    case EDIT_JOB_ACTION_TYPES.ADD_INDUSTRY_ESI_JOBS_FOR_ADDITION: {
       const jobsToAdd = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
@@ -268,7 +268,8 @@ export function editJobReducer(state, action) {
           },
         },
       };
-    case EDIT_JOB_ACTION_TYPES.ADD_INDUSTRY_ESI_JOBS_FOR_REMOVAL:
+    }
+    case EDIT_JOB_ACTION_TYPES.ADD_INDUSTRY_ESI_JOBS_FOR_REMOVAL: {
       const jobsToRemove = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
@@ -295,7 +296,8 @@ export function editJobReducer(state, action) {
           },
         },
       };
-    case EDIT_JOB_ACTION_TYPES.ADD_MARKET_ORDERS_FOR_ADDITION:
+    }
+    case EDIT_JOB_ACTION_TYPES.ADD_MARKET_ORDERS_FOR_ADDITION: {
       const marketOrdersToAdd = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
@@ -322,7 +324,8 @@ export function editJobReducer(state, action) {
           },
         },
       };
-    case EDIT_JOB_ACTION_TYPES.ADD_MARKET_ORDERS_FOR_REMOVAL:
+    }
+    case EDIT_JOB_ACTION_TYPES.ADD_MARKET_ORDERS_FOR_REMOVAL: {
       const marketOrdersToRemove = Array.isArray(action.payload.marketOrders)
         ? action.payload.marketOrders
         : [action.payload.marketOrders];
@@ -370,7 +373,8 @@ export function editJobReducer(state, action) {
           },
         },
       };
-    case EDIT_JOB_ACTION_TYPES.ADD_TRANSACTIONS_FOR_ADDITION:
+    }
+    case EDIT_JOB_ACTION_TYPES.ADD_TRANSACTIONS_FOR_ADDITION: {
       const transactionsToAdd = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
@@ -398,8 +402,8 @@ export function editJobReducer(state, action) {
           },
         },
       };
-
-    case EDIT_JOB_ACTION_TYPES.ADD_TRANSACTIONS_FOR_REMOVAL:
+    }
+    case EDIT_JOB_ACTION_TYPES.ADD_TRANSACTIONS_FOR_REMOVAL: {
       const transactionsToRemove2 = Array.isArray(action.payload)
         ? action.payload
         : [action.payload];
@@ -427,5 +431,6 @@ export function editJobReducer(state, action) {
           },
         },
       };
+    }
   }
 }

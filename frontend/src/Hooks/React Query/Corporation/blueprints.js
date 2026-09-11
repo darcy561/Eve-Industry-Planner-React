@@ -108,6 +108,7 @@ function corporationBlueprintsQuery(corporationId) {
         console.error("Error fetching corporation blueprints:", error);
         throw new Error(
           `Failed to fetch corporation blueprints: ${error.message}`,
+          { cause: error },
         );
       }
     },

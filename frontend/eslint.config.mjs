@@ -72,6 +72,14 @@ export default [
   },
 
   {
+    // A dialogue opens in response to the reader's own action, and focus is
+    // expected to move into it. The rule guards against autofocus on page
+    // load, which is a different thing.
+    files: ["src/Components/Dialogues/**/*.jsx"],
+    rules: { "jsx-a11y/no-autofocus": "off" },
+  },
+
+  {
     files: ["*.config.{js,mjs}", "deployment/**/*.{js,mjs}"],
     languageOptions: {
       sourceType: "module",

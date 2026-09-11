@@ -42,7 +42,7 @@ export function Purchasing_StandardLayout_EditJob(props) {
           );
 
           if (!matchingCostImport) {
-            return (total += job.totalQuantityProduced);
+            return total + job.totalQuantityProduced;
           }
           return total;
         }, 0);
@@ -57,7 +57,7 @@ export function Purchasing_StandardLayout_EditJob(props) {
           );
 
           if (!matchingCostImport) {
-            return (total += job.totalQuantityProduced);
+            return total + job.totalQuantityProduced;
           }
           return total;
         }, 0);

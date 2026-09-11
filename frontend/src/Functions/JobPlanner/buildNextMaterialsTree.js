@@ -263,7 +263,7 @@ async function processMaterials(
         if (nextLevelOfRequests.length === 0) break;
 
         setNumberOfVisibleSkeletonElements(
-          (prev) => (prev += nextLevelOfRequests.length),
+          (prev) => prev + nextLevelOfRequests.length,
         );
         processingQueue.push(...nextLevelOfRequests);
       }

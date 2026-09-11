@@ -77,7 +77,9 @@ function characterJournalQuery(characterHash) {
         });
       } catch (error) {
         console.error("Error fetching character journal:", error);
-        throw new Error(`Failed to fetch character journal: ${error.message}`);
+        throw new Error(`Failed to fetch character journal: ${error.message}`, {
+          cause: error,
+        });
       }
     },
     enabled: isQueryExecutionEnabled(),

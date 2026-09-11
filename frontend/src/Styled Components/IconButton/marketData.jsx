@@ -27,23 +27,25 @@ function MarketDataIconButton({
   tooltipText = "Current Market Data",
   tooltipPlacement = "top",
 }) {
-  if (!locationID) {
-    locationID = MARKET_OPTIONS.find(
+  let marketLocation = locationID;
+
+  if (!marketLocation) {
+    marketLocation = MARKET_OPTIONS.find(
       (i) =>
         i.id ===
         useUsersStore.getState().applicationSettings.defaultMarketLocation,
     );
   }
 
-  if (typeof locationID === "string") {
-    locationID = MARKET_OPTIONS.find((i) => i.id === locationID);
+  if (typeof marketLocation === "string") {
+    marketLocation = MARKET_OPTIONS.find((i) => i.id === marketLocation);
   }
 
   return (
     <Tooltip title={tooltipText} arrow placement={tooltipPlacement}>
       <IconButton
         color="primary"
-        onClick={() => showMarketDataDialogue(itemTypeID, locationID)}
+        onClick={() => showMarketDataDialogue(itemTypeID, marketLocation)}
         sx={{ ...iconButtonStyle }}
       >
         <LocalAtmIcon sx={{ ...iconStyle }} />

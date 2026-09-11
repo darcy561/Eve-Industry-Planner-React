@@ -27,8 +27,10 @@ function MarketHistoryIconButton({
   tooltipText = "Item Price History",
   tooltipPlacement = "top",
 }) {
-  if (!regionID) {
-    regionID =
+  let marketRegion = regionID;
+
+  if (!marketRegion) {
+    marketRegion =
       MARKET_OPTIONS.find(
         (i) =>
           i.id ===
@@ -36,8 +38,8 @@ function MarketHistoryIconButton({
       ) ?? MARKET_OPTIONS.find((i) => i.regionID === DEFAULT_REGION);
   }
 
-  if (typeof regionID === "string") {
-    regionID = MARKET_OPTIONS.find((i) => i.id === regionID);
+  if (typeof marketRegion === "string") {
+    marketRegion = MARKET_OPTIONS.find((i) => i.id === marketRegion);
   }
 
   return (
@@ -45,7 +47,7 @@ function MarketHistoryIconButton({
       <IconButton
         color="primary"
         size="small"
-        onClick={() => showPriceHistoryDialogue(itemTypeID, regionID)}
+        onClick={() => showPriceHistoryDialogue(itemTypeID, marketRegion)}
         sx={{ ...iconButtonStyle }}
       >
         <TimelineIcon sx={{ ...iconStyle }} />

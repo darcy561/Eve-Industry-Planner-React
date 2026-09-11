@@ -27,8 +27,10 @@ function MarketHistoryDialogueTriggerText({
   tooltipText = "Click to view item price history.",
   tooltipPlacement = "top",
 }) {
-  if (!regionID) {
-    regionID =
+  let marketRegion = regionID;
+
+  if (!marketRegion) {
+    marketRegion =
       MARKET_OPTIONS.find(
         (i) =>
           i.id ===
@@ -36,8 +38,8 @@ function MarketHistoryDialogueTriggerText({
       ) ?? MARKET_OPTIONS.find((i) => i.regionID === DEFAULT_REGION);
   }
 
-  if (typeof regionID === "string") {
-    regionID = MARKET_OPTIONS.find((i) => i.id === regionID);
+  if (typeof marketRegion === "string") {
+    marketRegion = MARKET_OPTIONS.find((i) => i.id === marketRegion);
   }
 
   return (
@@ -45,7 +47,7 @@ function MarketHistoryDialogueTriggerText({
       <Typography
         sx={{ cursor: "pointer", ...textStyle }}
         onClick={() => {
-          showPriceHistoryDialogue(itemTypeID, regionID);
+          showPriceHistoryDialogue(itemTypeID, marketRegion);
         }}
       >
         {text}

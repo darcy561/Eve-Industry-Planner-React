@@ -2,7 +2,7 @@ import { Avatar, AvatarGroup, Typography, Grid } from "@mui/material";
 
 import { useState } from "react";
 import useUsersStore from "../../../Zustand/usersStore";
-import { useJobStatuses } from "../../Job Planner/Hooks/useJobStatuses";
+import { useJobStatuses } from "../../../Hooks/useJobStatuses";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
 

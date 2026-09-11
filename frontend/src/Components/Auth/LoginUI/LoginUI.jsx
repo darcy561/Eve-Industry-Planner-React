@@ -16,25 +16,9 @@ import { useLoginState } from "../Hooks/useLoginState";
 import { LARGE_TEXT_FORMAT } from "../../../Context/defaultValues";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
 
-export function UserLogInUI() {
-  const { error, isStepComplete, userData } = useLoginState();
-
-  const getStepName = (step) => {
-    switch (step) {
-      case LOGIN_STEPS.CHARACTER_DATA:
-        return "Character Data";
-      case LOGIN_STEPS.JOB_PLANNER:
-        return "Job Planner";
-      case LOGIN_STEPS.GROUP_DATA:
-        return "Group Data";
-      case LOGIN_STEPS.WATCHLIST_DATA:
-        return "Watchlist";
-      default:
-        return "Unknown Step";
-    }
-  };
-
-  const LoadingStep = ({ title, step, error }) => (
+/** One step of the login progress row. */
+function LoadingStep({ title, complete, error }) {
+  return (
     <Grid
       container
       size={{
@@ -56,7 +40,7 @@ export function UserLogInUI() {
         </Tooltip>
       </Grid>
       <Grid align="center" size={12}>
-        {isStepComplete(step) ? (
+        {complete ? (
           <Zoom in={true}>
             <Icon sx={{ color: "success.main" }}>
               <CheckIcon />
@@ -74,6 +58,25 @@ export function UserLogInUI() {
       </Grid>
     </Grid>
   );
+}
+
+export function UserLogInUI() {
+  const { error, isStepComplete, userData } = useLoginState();
+
+  const getStepName = (step) => {
+    switch (step) {
+      case LOGIN_STEPS.CHARACTER_DATA:
+        return "Character Data";
+      case LOGIN_STEPS.JOB_PLANNER:
+        return "Job Planner";
+      case LOGIN_STEPS.GROUP_DATA:
+        return "Group Data";
+      case LOGIN_STEPS.WATCHLIST_DATA:
+        return "Watchlist";
+      default:
+        return "Unknown Step";
+    }
+  };
 
   return (
     <>
@@ -185,22 +188,22 @@ export function UserLogInUI() {
           >
             <LoadingStep
               title="Retrieving Character Data"
-              step={LOGIN_STEPS.CHARACTER_DATA}
+              complete={isStepComplete(LOGIN_STEPS.CHARACTER_DATA)}
               error={error?.step === LOGIN_STEPS.CHARACTER_DATA}
             />
             <LoadingStep
               title="Building Job Planner"
-              step={LOGIN_STEPS.JOB_PLANNER}
+              complete={isStepComplete(LOGIN_STEPS.JOB_PLANNER)}
               error={error?.step === LOGIN_STEPS.JOB_PLANNER}
             />
             <LoadingStep
               title="Building Group Data"
-              step={LOGIN_STEPS.GROUP_DATA}
+              complete={isStepComplete(LOGIN_STEPS.GROUP_DATA)}
               error={error?.step === LOGIN_STEPS.GROUP_DATA}
             />
             <LoadingStep
               title="Building Watchlist Data"
-              step={LOGIN_STEPS.WATCHLIST_DATA}
+              complete={isStepComplete(LOGIN_STEPS.WATCHLIST_DATA)}
               error={error?.step === LOGIN_STEPS.WATCHLIST_DATA}
             />
           </Grid>

@@ -5,7 +5,7 @@ import { ClassicGroupAccordionContent } from "./Classic View/ClassicGroupAccordi
 import { CompactGroupAccordionContent } from "./Compact View/CompactGroupAccordionContent";
 import useUsersStore from "../../../Zustand/usersStore";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
-import { useJobStatuses } from "../../Job Planner/Hooks/useJobStatuses";
+import { useJobStatuses } from "../../../Hooks/useJobStatuses";
 import { PlannerStageAccordionShell } from "../../../Styled Components/PlannerStageAccordionShell/PlannerStageAccordionShell";
 
 /**

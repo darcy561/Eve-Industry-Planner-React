@@ -27,16 +27,18 @@ function MarketDataDialogueTriggerText({
   tooltipText = "Click to view item market data.",
   tooltipPlacement = "top",
 }) {
-  if (!locationID) {
-    locationID = MARKET_OPTIONS.find(
+  let marketLocation = locationID;
+
+  if (!marketLocation) {
+    marketLocation = MARKET_OPTIONS.find(
       (i) =>
         i.id ===
         useUsersStore.getState().applicationSettings.defaultMarketLocation,
     );
   }
 
-  if (typeof locationID === "string") {
-    locationID = MARKET_OPTIONS.find((i) => i.id === locationID);
+  if (typeof marketLocation === "string") {
+    marketLocation = MARKET_OPTIONS.find((i) => i.id === marketLocation);
   }
 
   return (
@@ -44,7 +46,7 @@ function MarketDataDialogueTriggerText({
       <Typography
         sx={{ cursor: "pointer", ...textStyle }}
         onClick={() => {
-          showMarketDataDialogue(itemTypeID, locationID);
+          showMarketDataDialogue(itemTypeID, marketLocation);
         }}
       >
         {text}

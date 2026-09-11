@@ -27,7 +27,7 @@ import PriceHistoryDialogue from "../Dialogues/Price History/dialogueFrame";
 import MarketDataDialogue from "../Dialogues/Market Data/dialogueFrame";
 import useUsersStore from "../../Zustand/usersStore";
 import { openJobLinkTreeFromEditPage } from "../../Events/jobDependencyTreeDialogueEvents";
-import { useJobStatuses } from "../Job Planner/Hooks/useJobStatuses";
+import { useJobStatuses } from "../../Hooks/useJobStatuses";
 import AssetsDialogue from "../Dialogues/Assets/dialogueFrame";
 import useEditJobReducer from "./Edit Job Hooks/useEditJobReducer";
 import { useStripRedundantJobMarketHubOverrides } from "../../Hooks/Planner/useStripRedundantJobMarketHubOverrides.js";

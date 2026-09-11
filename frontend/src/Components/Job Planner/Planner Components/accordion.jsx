@@ -4,7 +4,7 @@ import { ClassicAccordionContents } from "./Classic/classicContents";
 import { filterJobsForJobPlannerStage } from "../../../Functions/JobPlanner/plannerAccordionJobFilters";
 import useUsersStore from "../../../Zustand/usersStore";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
-import { useJobStatuses } from "../Hooks/useJobStatuses";
+import { useJobStatuses } from "../../../Hooks/useJobStatuses";
 import { PlannerStageAccordionShell } from "../../../Styled Components/PlannerStageAccordionShell/PlannerStageAccordionShell";
 import { filterUnlockedDocumentIDs } from "../../../Functions/DocumentLock/documentLockSelectors";
 import { USER_JOBS_COLLECTION } from "../../../Functions/DocumentLock/documentLockCollections";

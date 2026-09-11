@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, act, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  act,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 const { submitted, errors } = vi.hoisted(() => ({
@@ -45,8 +51,6 @@ async function submit(text) {
   const box = screen.getByRole("textbox", { name: /feedback|response/i });
   fireEvent.change(box, { target: { value: text } });
   fireEvent.submit(box.closest("form"));
-  // The action is async, so let it run before anything is asserted.
-  await act(async () => {});
 }
 
 beforeEach(() => {
@@ -69,7 +73,7 @@ describe("submitting feedback", () => {
 
     await submit("the planner lost my job");
 
-    expect(submitted).toHaveLength(1);
+    await waitFor(() => expect(submitted).toHaveLength(1));
     expect(submitted[0].response).toContain("the planner lost my job");
   });
 
@@ -86,9 +90,11 @@ describe("submitting feedback", () => {
     attach([shot("one.png")]);
     await submit("here is what happened");
 
-    expect(submitted[0].screenshotFiles.map((f) => f.name)).toEqual([
-      "one.png",
-    ]);
+    await waitFor(() =>
+      expect(submitted[0]?.screenshotFiles.map((f) => f.name)).toEqual([
+        "one.png",
+      ]),
+    );
   });
 
   it("sends every screenshot attached, not just the first", async () => {
@@ -103,10 +109,12 @@ describe("submitting feedback", () => {
     attach([shot("two.png")]);
     await submit("here is what happened");
 
-    expect(submitted[0].screenshotFiles.map((f) => f.name)).toEqual([
-      "one.png",
-      "two.png",
-    ]);
+    await waitFor(() =>
+      expect(submitted[0]?.screenshotFiles.map((f) => f.name)).toEqual([
+        "one.png",
+        "two.png",
+      ]),
+    );
   });
 
   it("sends none when none were attached", async () => {
@@ -119,7 +127,7 @@ describe("submitting feedback", () => {
 
     await submit("nothing to show you");
 
-    expect(submitted[0].screenshotFiles).toEqual([]);
+    await waitFor(() => expect(submitted[0]?.screenshotFiles).toEqual([]));
   });
 
   it("refuses to send with nothing written", async () => {
@@ -132,7 +140,9 @@ describe("submitting feedback", () => {
 
     await submit("   ");
 
+    await waitFor(() =>
+      expect(errors).toContain("Feedback content is required"),
+    );
     expect(submitted).toHaveLength(0);
-    expect(errors).toContain("Feedback content is required");
   });
 });

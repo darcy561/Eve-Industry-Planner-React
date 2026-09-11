@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, act, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  act,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 const { captured } = vi.hoisted(() => ({ captured: [] }));
@@ -43,8 +49,6 @@ async function submit(text) {
   const box = screen.getAllByRole("textbox")[0];
   fireEvent.change(box, { target: { value: text } });
   fireEvent.submit(box.closest("form"));
-  // Reading each file is async, so let the action finish before asserting.
-  await act(async () => {});
 }
 
 function mount() {
@@ -70,7 +74,7 @@ describe("reporting a crash", () => {
 
     await submit("the planner went white");
 
-    expect(captured).toHaveLength(1);
+    await waitFor(() => expect(captured).toHaveLength(1));
     expect(captured[0].feedback.message).toContain("the planner went white");
     expect(captured[0].feedback.associatedEventId).toBe("event-1");
   });
@@ -84,9 +88,11 @@ describe("reporting a crash", () => {
     attach([shot("crash.png")]);
     await submit("it looked like this");
 
-    expect(captured[0].hint.attachments.map((a) => a.filename)).toEqual([
-      "crash.png",
-    ]);
+    await waitFor(() =>
+      expect(captured[0]?.hint.attachments.map((a) => a.filename)).toEqual([
+        "crash.png",
+      ]),
+    );
   });
 
   it("attaches every screenshot added, numbering them", async () => {
@@ -97,10 +103,12 @@ describe("reporting a crash", () => {
     attach([shot("two.png")]);
     await submit("it looked like this");
 
-    expect(captured[0].hint.attachments.map((a) => a.filename)).toEqual([
-      "1-one.png",
-      "2-two.png",
-    ]);
+    await waitFor(() =>
+      expect(captured[0]?.hint.attachments.map((a) => a.filename)).toEqual([
+        "1-one.png",
+        "2-two.png",
+      ]),
+    );
   });
 
   it("sends no attachments when none were added", async () => {
@@ -109,6 +117,7 @@ describe("reporting a crash", () => {
 
     await submit("nothing to show");
 
+    await waitFor(() => expect(captured).toHaveLength(1));
     expect(captured[0].hint.attachments).toBeUndefined();
   });
 });

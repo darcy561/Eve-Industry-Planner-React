@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Grid, Typography } from "@mui/material";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import AssetTreeRow from "./assetTreeRow";
@@ -61,12 +61,27 @@ export default function AssetTree({
     ],
   );
 
+  // The window virtualiser measures scroll against the whole page, so it needs
+  // the distance down to the list. Measured after layout rather than read off
+  // the ref while rendering, which would be null on the first pass and leave
+  // the virtualiser believing the list starts at the top of the document.
+  const [scrollMargin, setScrollMargin] = useState(0);
+  // Deliberately measured on every commit: what sits above the list can change
+  // height without this component hearing about it. The updater returns the
+  // value it was given when nothing moved, so React bails out and there is no
+  // chain of updates for the rule to worry about.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    const measured = listRef.current?.offsetTop ?? 0;
+    setScrollMargin((current) => (current === measured ? current : measured));
+  });
+
   const virtualizer = useWindowVirtualizer({
     count: rows.length,
     estimateSize: () => ESTIMATED_ROW_HEIGHT,
     overscan: 8,
     getItemKey: useCallback((index) => rows[index].key, [rows]),
-    scrollMargin: listRef.current?.offsetTop ?? 0,
+    scrollMargin,
   });
 
   if (rows.length === 0) {

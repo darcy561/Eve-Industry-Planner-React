@@ -8,15 +8,20 @@
  * Both measurements are stubbed because the two virtualisers ask differently: rows are measured
  * with `getBoundingClientRect`, while the scroll element's own size is read from `offsetHeight`.
  *
+ * `offsetTop` goes with them: a window virtualiser measures scroll against the whole page, so it
+ * asks how far down the page the list begins. Left at jsdom's zero, a list that has drifted to the
+ * wrong offset reads exactly like one that has not.
+ *
  * Call from `beforeEach` and call what it returns from `afterEach`: it replaces prototype members
  * outright, so nothing restores them on the caller's behalf and a file that forgets leaves every
  * test after it measuring the same size.
  *
  * @param {number} [height] - pixels to report for every element
  * @param {number} [width]
+ * @param {number} [top] - pixels from the top of the page to report for every element
  * @returns {() => void} restores the real measurements
  */
-export function stubElementHeights(height = 40, width = 1024) {
+export function stubElementHeights(height = 40, width = 1024, top = 0) {
   const originalRect = Element.prototype.getBoundingClientRect;
   const originalHeight = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
@@ -25,6 +30,10 @@ export function stubElementHeights(height = 40, width = 1024) {
   const originalWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
     "offsetWidth",
+  );
+  const originalTop = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "offsetTop",
   );
 
   Element.prototype.getBoundingClientRect = function stubbed() {
@@ -51,11 +60,18 @@ export function stubElementHeights(height = 40, width = 1024) {
       return width;
     },
   });
+  Object.defineProperty(HTMLElement.prototype, "offsetTop", {
+    configurable: true,
+    get() {
+      return top;
+    },
+  });
 
   return () => {
     Element.prototype.getBoundingClientRect = originalRect;
     restore("offsetHeight", originalHeight);
     restore("offsetWidth", originalWidth);
+    restore("offsetTop", originalTop);
   };
 }
 

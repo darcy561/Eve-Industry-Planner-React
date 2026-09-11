@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState } from "react";
 import { Alert, Collapse } from "@mui/material";
 import { useArchiveTimeline } from "./useArchiveTimeline";
 
@@ -24,9 +24,11 @@ export function RecalculationNotice({ from, to, range }) {
   const { recalculation } = useArchiveTimeline({ from, to, range });
   const notice = (recalculation && NOTICES[recalculation]) || null;
   // Held so the alert still reads while it collapses away.
-  const last = useRef(null);
-  if (notice) last.current = notice;
-  const shown = notice ?? last.current;
+  const [last, setLast] = useState(null);
+  if (notice && notice !== last) {
+    setLast(notice);
+  }
+  const shown = notice ?? last;
 
   return (
     <Collapse in={Boolean(notice)} unmountOnExit>

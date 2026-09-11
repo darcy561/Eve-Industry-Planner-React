@@ -119,7 +119,6 @@ describe("the Returns panel", () => {
         typeID: 34,
         name: "Tritanium",
         priceHubID: "jita",
-        priceHubName: "Jita",
         unitPrice: 120,
         quantityProduced: 10,
       },
@@ -129,7 +128,6 @@ describe("the Returns panel", () => {
     expect(
       document.querySelector('img[src*="/types/34/icon"]'),
     ).toBeInTheDocument();
-    expect(screen.getByText(/priced from Jita/)).toBeInTheDocument();
   });
 
   it("holds the sale location block a caller puts in it", () => {

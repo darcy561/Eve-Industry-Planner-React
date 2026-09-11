@@ -422,3 +422,98 @@ describe("a row whose child jobs no longer make enough", () => {
     expect(screen.queryByText(/short/)).not.toBeInTheDocument();
   });
 });
+
+// A row that opens has to say so. The pointer cursor and the hover tint are only
+// discoverable to a reader who has already tried clicking, and neither of them
+// reaches a keyboard.
+describe("saying that a row opens", () => {
+  const chevron = (name) =>
+    within(rowFor(name)).getByRole("button", { name: /building Tritanium/i });
+
+  it("marks a buildable row with a control that says it opens", () => {
+    renderTable([row()]);
+
+    expect(chevron("Tritanium")).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("says it is open once it is", () => {
+    renderTable([row()], { openTypeIDs: [34] });
+
+    expect(chevron("Tritanium")).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("opens the row when used, so a keyboard reaches the drawer", async () => {
+    const onToggleRow = vi.fn();
+    renderTable([row()], { onToggleRow });
+
+    await userEvent.click(chevron("Tritanium"));
+
+    expect(onToggleRow).toHaveBeenCalledWith(34);
+    // Once: the row underneath is clickable too, and a chevron that let the
+    // click through would open the drawer and immediately close it.
+    expect(onToggleRow).toHaveBeenCalledTimes(1);
+  });
+
+  // Nothing opens beneath a row with no blueprint, so a chevron on it would
+  // offer something that does not happen.
+  it("marks no row that does not open", () => {
+    renderTable([row({ isBuildable: false })]);
+
+    expect(
+      within(rowFor("Tritanium")).queryByRole("button", { name: /building/i }),
+    ).toBeNull();
+  });
+});
+
+// Confirming a material used to mean opening its drawer to reach the control
+// inside. The decision belongs on the row, so a list of costed rows can be
+// settled without expanding any of them.
+describe("the row's own buy-or-build control", () => {
+  it("puts the control a caller supplies in the plan column", () => {
+    renderTable([row()], {
+      renderPlan: (r) => <button type="button">Build {r.name}</button>,
+    });
+
+    const cells = within(rowFor("Tritanium")).getAllByRole("cell");
+
+    expect(
+      within(cells.at(-1)).getByRole("button", { name: "Build Tritanium" }),
+    ).toBeInTheDocument();
+  });
+
+  // The control replaces the chip rather than sitting beside it: both state
+  // which plan the row is on, and a row saying it twice invites a reader to
+  // look for a difference.
+  it("states the plan once", () => {
+    renderTable([row()], {
+      renderPlan: () => <span>Build / Buy instead</span>,
+    });
+
+    const plan = within(rowFor("Tritanium")).getAllByRole("cell").at(-1);
+
+    expect(within(plan).queryByText("Build", { selector: "span" })).toBeNull();
+  });
+
+  it("still states the plan on a row with no control of its own", () => {
+    renderTable([row()], { renderPlan: () => null });
+
+    const plan = within(rowFor("Tritanium")).getAllByRole("cell").at(-1);
+
+    expect(within(plan).getByText("Build")).toBeInTheDocument();
+  });
+
+  // The row is clickable as a whole. Deciding a row from its own control must
+  // not also expand it — the reader would be answered by a drawer they did not
+  // ask for, on the row they had just finished with.
+  it("does not open the drawer when the control is used", async () => {
+    const onToggleRow = vi.fn();
+    renderTable([row()], {
+      onToggleRow,
+      renderPlan: () => <button type="button">Buy instead</button>,
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Buy instead" }));
+
+    expect(onToggleRow).not.toHaveBeenCalled();
+  });
+});

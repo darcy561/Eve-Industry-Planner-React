@@ -19,7 +19,6 @@ const show = (overrides = {}) =>
       typeID={34}
       name="Tritanium"
       priceHubID="jita"
-      priceHubName="Jita"
       unitPrice={200}
       quantityProduced={2}
       {...overrides}
@@ -32,7 +31,7 @@ describe("what the job makes", () => {
 
     expect(screen.getByText("Tritanium")).toBeInTheDocument();
     expect(
-      screen.getByText(/Making 2 · 200\.00 each, priced from Jita/),
+      screen.getByText(/Making 2 · 200\.00 each/),
     ).toBeInTheDocument();
   });
 
@@ -54,10 +53,11 @@ describe("what the job makes", () => {
     expect(screen.getByText("400.00")).toBeInTheDocument();
   });
 
-  // At a station the sale location is the market, and naming it twice invites a
-  // reader to look for a difference between two names for one place.
-  it("names where the price came from only when it is somewhere else", () => {
-    show({ priceHubName: "" });
+  // Where the price came from is the "Selling from" box's to say, beside the
+  // location it is about. Said here as well, it read as a contradiction of the
+  // citadel named at the top of the same panel.
+  it("leaves naming the price's hub to the sale location block", () => {
+    show();
 
     expect(
       screen.getByText(/Making 2 · 200\.00 each/).textContent,

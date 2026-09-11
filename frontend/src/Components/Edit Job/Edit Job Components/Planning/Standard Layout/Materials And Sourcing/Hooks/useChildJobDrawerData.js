@@ -39,17 +39,33 @@ export function useChildJobDrawerData({
         nextChildJobObjects = [...baseChildJobs, matchedGroupJob];
         isExistingJobInGroup.current = true;
       } else if (baseChildJobs.length === 0) {
-        const newJob = await buildSingleChildJobPreview({ material });
-        if (!newJob) {
-          updateFetchError(true);
-          updateJobImportState(true);
-          return;
+        // A row costed already — in bulk from the summary strip, or by an
+        // earlier open of this drawer — is not costed again. Rebuilding it would
+        // also loop: costing now records the job, which is state this effect
+        // reads.
+        const costed = state.speculativeChildJobs?.[material.typeID];
+
+        if (costed) {
+          nextChildJobObjects = [...baseChildJobs, costed];
+        } else {
+          const newJob = await buildSingleChildJobPreview({ material });
+          if (!newJob) {
+            updateFetchError(true);
+            updateJobImportState(true);
+            return;
+          }
+          nextChildJobObjects = [...baseChildJobs, newJob];
         }
-        nextChildJobObjects = [...baseChildJobs, newJob];
       }
 
       if (nextChildJobObjects.length > 0) {
-        updateChildJobObjects(nextChildJobObjects);
+        // A fresh array of the same jobs is still a new array, and this effect
+        // re-runs whenever the page re-renders — the callback it depends on is
+        // rebuilt each time. Writing it back unchanged would render the drawer
+        // again for nothing, once per render of everything above it.
+        updateChildJobObjects((shown) =>
+          sameJobs(shown, nextChildJobObjects) ? shown : nextChildJobObjects,
+        );
       }
       updateJobImportState(true);
     }
@@ -71,4 +87,15 @@ export function useChildJobDrawerData({
     fetchError,
     isExistingJobInGroup,
   };
+}
+
+/**
+ * Whether two lists hold the same jobs in the same order.
+ *
+ * @param {Array<object>} a
+ * @param {Array<object>} b
+ * @returns {boolean}
+ */
+function sameJobs(a, b) {
+  return a.length === b.length && a.every((job, i) => job === b[i]);
 }

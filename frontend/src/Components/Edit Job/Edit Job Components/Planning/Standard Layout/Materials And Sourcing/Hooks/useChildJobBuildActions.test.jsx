@@ -52,7 +52,10 @@ const wrapper = ({ children }) => (
 );
 
 const setup = (state) => {
-  const actions = { setSpeculativeChildJobs: vi.fn() };
+  const actions = {
+    recordSpeculativeChildJobs: vi.fn(),
+    forgetSpeculativeChildJobs: vi.fn(),
+  };
   const { result } = renderHook(
     () => useChildJobBuildActions({ state, actions }),
     { wrapper },
@@ -63,8 +66,13 @@ const setup = (state) => {
 beforeEach(() => {
   vi.clearAllMocks();
   findMaterialJobInGroup.mockReturnValue(null);
+  // The pipeline takes one request or many — costing a single row passes the
+  // request on its own — and answers in the same shape either way.
   buildChildJobs.mockImplementation(async (requests) =>
-    requests.map((r) => ({ jobID: `spec-${r.itemID}`, itemID: r.itemID })),
+    (Array.isArray(requests) ? requests : [requests]).map((r) => ({
+      jobID: `spec-${r.itemID}`,
+      itemID: r.itemID,
+    })),
   );
 });
 
@@ -75,10 +83,10 @@ describe("buildSpeculativeChildJobs", () => {
     await act(() => result.current.buildSpeculativeChildJobs());
 
     expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).toEqual([34, 35]);
-    expect(actions.setSpeculativeChildJobs).toHaveBeenCalledWith({
-      34: { jobID: "spec-34", itemID: 34 },
-      35: { jobID: "spec-35", itemID: 35 },
-    });
+    expect(actions.recordSpeculativeChildJobs).toHaveBeenCalledWith([
+      { jobID: "spec-34", itemID: 34 },
+      { jobID: "spec-35", itemID: 35 },
+    ]);
   });
 
   // A material with no blueprint cannot be built, so there is nothing to cost.
@@ -112,8 +120,9 @@ describe("buildSpeculativeChildJobs", () => {
     expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).toEqual([35]);
   });
 
-  // Costing twice would throw away the first result and pay for it again.
-  it("skips a row it has already costed, and keeps the earlier ones", async () => {
+  // Costing twice would throw away the first result and pay for it again. What
+  // happens to the row costed earlier is the reducer's business, tested there.
+  it("costs only the rows that have no price yet", async () => {
     const existing = { jobID: "spec-34", itemID: 34 };
     const { result, actions } = setup(
       jobState({ speculativeChildJobs: { 34: existing } }),
@@ -122,10 +131,9 @@ describe("buildSpeculativeChildJobs", () => {
     await act(() => result.current.buildSpeculativeChildJobs());
 
     expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).toEqual([35]);
-    expect(actions.setSpeculativeChildJobs).toHaveBeenCalledWith({
-      34: existing,
-      35: { jobID: "spec-35", itemID: 35 },
-    });
+    expect(actions.recordSpeculativeChildJobs).toHaveBeenCalledWith([
+      { jobID: "spec-35", itemID: 35 },
+    ]);
   });
 
   it("asks for nothing when every row is already accounted for", async () => {
@@ -138,7 +146,7 @@ describe("buildSpeculativeChildJobs", () => {
     const costed = await act(() => result.current.buildSpeculativeChildJobs());
 
     expect(buildChildJobs).not.toHaveBeenCalled();
-    expect(actions.setSpeculativeChildJobs).not.toHaveBeenCalled();
+    expect(actions.recordSpeculativeChildJobs).not.toHaveBeenCalled();
     expect(costed).toBe(0);
   });
 
@@ -171,10 +179,10 @@ describe("costing inside a group", () => {
     await act(() => result.current.buildSpeculativeChildJobs());
 
     expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).toEqual([35]);
-    expect(actions.setSpeculativeChildJobs).toHaveBeenCalledWith({
-      34: groupJob,
-      35: { jobID: "spec-35", itemID: 35 },
-    });
+    expect(actions.recordSpeculativeChildJobs).toHaveBeenCalledWith([
+      groupJob,
+      { jobID: "spec-35", itemID: 35 },
+    ]);
   });
 
   it("builds nothing at all when the group covers every row", async () => {
@@ -188,7 +196,7 @@ describe("costing inside a group", () => {
 
     expect(buildChildJobs).not.toHaveBeenCalled();
     expect(hydrateChildJobsWithMissingData).not.toHaveBeenCalled();
-    expect(actions.setSpeculativeChildJobs).toHaveBeenCalled();
+    expect(actions.recordSpeculativeChildJobs).toHaveBeenCalled();
     expect(costed).toBe(2);
   });
 
@@ -199,5 +207,52 @@ describe("costing inside a group", () => {
     await act(() => result.current.buildSpeculativeChildJobs());
 
     expect(findMaterialJobInGroup).not.toHaveBeenCalled();
+  });
+});
+
+// Opening a row costs it. That price used to live in the drawer's own state, so
+// the row above it could not act on the job behind the figure it was showing —
+// which is what made confirming a material mean expanding its row first.
+describe("buildSingleChildJobPreview", () => {
+  const material = { typeID: 34, quantity: 100 };
+
+  it("records the job it costs where the row can reach it", async () => {
+    const { result, actions } = setup(jobState());
+
+    await act(() => result.current.buildSingleChildJobPreview({ material }));
+
+    expect(actions.recordSpeculativeChildJobs).toHaveBeenCalledWith({
+      jobID: "spec-34",
+      itemID: 34,
+    });
+  });
+
+  // A price is read off the job, so it is hydrated before anything is recorded
+  // for a row to act on.
+  it("hydrates the job before recording it", async () => {
+    const order = [];
+    hydrateChildJobsWithMissingData.mockImplementation(async () =>
+      order.push("hydrate"),
+    );
+    const { result, actions } = setup(jobState());
+    actions.recordSpeculativeChildJobs.mockImplementation(() =>
+      order.push("record"),
+    );
+
+    await act(() => result.current.buildSingleChildJobPreview({ material }));
+
+    expect(order).toEqual(["hydrate", "record"]);
+  });
+
+  it("records nothing when the job could not be built", async () => {
+    buildChildJobs.mockResolvedValueOnce([]);
+    const { result, actions } = setup(jobState());
+
+    const job = await act(() =>
+      result.current.buildSingleChildJobPreview({ material }),
+    );
+
+    expect(job).toBeNull();
+    expect(actions.recordSpeculativeChildJobs).not.toHaveBeenCalled();
   });
 });

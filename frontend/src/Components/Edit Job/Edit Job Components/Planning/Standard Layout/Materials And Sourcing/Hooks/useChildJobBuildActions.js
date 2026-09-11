@@ -71,9 +71,16 @@ export function useChildJobBuildActions({ state, actions }) {
       if (!newJob) return null;
 
       await hydrateChildJobsWithMissingData([newJob]);
+
+      // Recorded beside the bulk-costed jobs rather than kept inside the drawer
+      // that asked for it. The row's own Build control acts on this job, and a
+      // price only the open drawer could see is what made confirming a material
+      // mean expanding its row first.
+      actions.recordSpeculativeChildJobs(newJob);
+
       return newJob;
     },
-    [queryClient, state.activeJob]
+    [actions, queryClient, state.activeJob]
   );
 
   /**
@@ -130,11 +137,7 @@ export function useChildJobBuildActions({ state, actions }) {
 
     if (built.length > 0) await hydrateChildJobsWithMissingData(built);
 
-    const next = { ...(state.speculativeChildJobs ?? {}) };
-    for (const job of [...seeded, ...built]) {
-      next[job.itemID] = job;
-    }
-    actions.setSpeculativeChildJobs(next);
+    actions.recordSpeculativeChildJobs([...seeded, ...built]);
 
     return seeded.length + built.length;
   }, [

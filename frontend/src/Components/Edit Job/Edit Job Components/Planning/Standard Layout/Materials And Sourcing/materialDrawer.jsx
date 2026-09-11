@@ -8,7 +8,6 @@ import { ChildJobMaterialTotalCosts } from "./Child Job Drawer/childJobTotalCost
 import { ChildJobSwitcher } from "./Child Job Drawer/switchChildJob";
 import { DisplayMismatchedChildTotals } from "./Child Job Drawer/misMatchedTotals";
 import { OpenChildJobButton } from "./Child Job Drawer/openChildJobButton";
-import PlanChip from "./planChip";
 import { ImportingStateLayout } from "./Child Job Drawer/fetchState";
 import { useChildJobBuildActions } from "./Hooks/useChildJobBuildActions";
 import { useChildJobDrawerData } from "./Hooks/useChildJobDrawerData";
@@ -63,7 +62,6 @@ export default function MaterialDrawer({
     setJobDisplay,
     childJobObjects,
     fetchError,
-    isExistingJobInGroup,
   } = useChildJobDrawerData({
     state,
     isOpen,
@@ -127,31 +125,17 @@ export default function MaterialDrawer({
               jobDisplay={jobDisplay}
               setJobDisplay={setJobDisplay}
             />
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              justifyContent="space-between"
-              flexWrap="wrap"
-            >
-              <PlanChip
-                state={state}
-                actions={actions}
-                material={material}
-                rowJob={
-                  state.speculativeChildJobs?.[material.typeID] ??
-                  childJobObjects.find((j) => j.itemID === material.typeID) ??
-                  null
-                }
-              />
-              {childJobObjects[jobDisplay] ? (
+            {/* Buy or build is decided on the row above, where it can be
+                decided without opening anything. */}
+            {childJobObjects[jobDisplay] ? (
+              <Stack direction="row" justifyContent="flex-end">
                 <OpenChildJobButton
                   {...shared}
                   childJobObjects={childJobObjects}
                   jobDisplay={jobDisplay}
                 />
-              ) : null}
-            </Stack>
+              </Stack>
+            ) : null}
           </Stack>
         ) : (
           <ImportingStateLayout

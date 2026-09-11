@@ -75,6 +75,8 @@ export default function PlanChip({ state, actions, material, rowJob }) {
     });
 
     if (!groupJob) trackNewJobsCreated(job);
+
+    forgetCosting();
   };
 
   const undo = () => {
@@ -83,7 +85,23 @@ export default function PlanChip({ state, actions, material, rowJob }) {
     const job = tempJob ?? groupJob ?? rowJob;
     if (!job) return;
     actions.markChildJobsForRemoval(job);
+
+    forgetCosting();
   };
+
+  /**
+   * Drops what the row was costed with, once that job is no longer a guess at
+   * what building this material would take — it has either become a real child
+   * job or been taken back out.
+   *
+   * A job left in the costed map outlives the decision: the row would confirm
+   * against a job that no longer exists, the bulk costing would count the row as
+   * already priced and never quote it again, and opening its drawer would show
+   * the stale figure rather than costing it afresh.
+   */
+  function forgetCosting() {
+    actions.forgetSpeculativeChildJobs(material.typeID);
+  }
 
   if (onBuild) {
     return (

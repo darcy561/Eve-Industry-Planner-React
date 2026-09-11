@@ -10,6 +10,7 @@ import {
   formatNumberForLocale,
 } from "../../../../../../Functions/Helper/numberParser";
 import MaterialDrawer from "./materialDrawer";
+import PlanChip from "./planChip";
 import MaterialsTable from "./materialsTable";
 import MaterialCards from "./materialCards";
 import {
@@ -113,9 +114,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
 
     // Committing moves them to the temporary map, and a row reads that first —
     // a copy left here would be offered again after an unlink.
-    const remaining = { ...(state.speculativeChildJobs ?? {}) };
-    for (const job of jobs) delete remaining[job.itemID];
-    actions.setSpeculativeChildJobs(remaining);
+    actions.forgetSpeculativeChildJobs(jobs.map((job) => job.itemID));
   };
 
   // The basis every row is priced on unless it carries an override of its own.
@@ -202,6 +201,23 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
           formatQuantity={formatQuantity}
           onToggleRow={toggleRow}
           openTypeIDs={openTypeIDs}
+          // The decision belongs to the row, not to the drawer beneath it: a
+          // costed row can be confirmed from the list, and the drawer is for
+          // reading what building it would take.
+          renderPlan={(row) =>
+            row.isBuildable ? (
+              <PlanChip
+                state={state}
+                actions={actions}
+                material={row.material}
+                rowJob={
+                  state.speculativeChildJobs?.[row.typeID] ??
+                  row.matchedChildJobs?.[0] ??
+                  null
+                }
+              />
+            ) : null
+          }
           renderDrawer={(row, isOpen) => (
             <MaterialDrawer
               isOpen={isOpen}

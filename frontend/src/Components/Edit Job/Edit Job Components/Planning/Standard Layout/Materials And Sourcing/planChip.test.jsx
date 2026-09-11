@@ -43,7 +43,10 @@ const state = (overrides = {}) => ({
 });
 
 const renderChip = (props = {}) => {
-  const actions = { markChildJobsForRemoval: vi.fn() };
+  const actions = {
+    markChildJobsForRemoval: vi.fn(),
+    forgetSpeculativeChildJobs: vi.fn(),
+  };
   render(
     withQueryClient(
       <PlanChip
@@ -222,5 +225,59 @@ describe("the plan chip inside a group", () => {
     renderChip();
 
     expect(screen.getByRole("button", { name: "Build it" })).toBeDisabled();
+  });
+});
+
+// The row reads what it was costed with to decide what confirming would act on.
+// A job that has since become a real child job, or been taken back out, is no
+// longer a guess about anything — and the row above the drawer is now the thing
+// reading it, so a copy left behind is read rather than merely stored.
+describe("what the row was costed with, once it has been decided", () => {
+  it("is dropped when the row is built", async () => {
+    const actions = renderChip();
+
+    await userEvent.click(screen.getByRole("button", { name: "Build it" }));
+
+    expect(actions.forgetSpeculativeChildJobs).toHaveBeenCalledWith(34);
+  });
+
+  // Otherwise the bulk costing counts the row as priced and never quotes it
+  // again, and opening its drawer shows the figure from the job that was just
+  // removed rather than costing it afresh.
+  it("is dropped when the row goes back to being bought", async () => {
+    const actions = renderChip({
+      state: state({ temporaryChildJobs: { 34: { jobID: "temp-34" } } }),
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Buy instead" }));
+
+    expect(actions.forgetSpeculativeChildJobs).toHaveBeenCalledWith(34);
+  });
+
+  // Nothing was decided, so nothing is forgotten — a row whose control is
+  // disabled for want of a costing must not clear the costing of anything.
+  it("is left alone when there was nothing to confirm", async () => {
+    const actions = renderChip({ rowJob: null });
+
+    const build = screen.getByRole("button", { name: "Build it" });
+
+    expect(build).toBeDisabled();
+    expect(actions.forgetSpeculativeChildJobs).not.toHaveBeenCalled();
+  });
+
+  // A group's own job was never costed into this map — it is a real job the row
+  // would link to — but the row may still have been costed before the group
+  // gained it, so the entry is cleared on the same terms.
+  it("is dropped when the row links the group's own job", async () => {
+    findMaterialJobInGroup.mockReturnValue({ jobID: "group-34", itemID: 34 });
+    const actions = renderChip({
+      state: state({ activeJob: { includedInGroup: true, groupID: "g1", build: { childJobs: { 34: [] } } } }),
+    });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Build in this group" }),
+    );
+
+    expect(actions.forgetSpeculativeChildJobs).toHaveBeenCalledWith(34);
   });
 });

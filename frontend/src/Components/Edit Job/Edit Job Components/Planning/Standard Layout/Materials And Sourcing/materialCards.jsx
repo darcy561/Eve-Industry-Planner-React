@@ -8,6 +8,7 @@ import { MATERIAL_PLAN, hasSavingAvailable } from "../../../../../../Functions/M
 import { eveImageSize } from "../../../../../../Functions/Shared/eveOwner";
 import { formatCompactNumber } from "../../../../../../Functions/Helper/numberParser";
 import {
+  ExpandAffordance,
   MaterialMark,
   PlanCell,
   SourceCell,
@@ -33,6 +34,7 @@ import {
  * @param {(typeID: number) => void} [props.onToggleRow]
  * @param {number[]} [props.openTypeIDs]
  * @param {(row: object, isOpen: boolean) => React.ReactNode} [props.renderDrawer]
+ * @param {(row: object) => React.ReactNode} [props.renderPlan]
  */
 export default function MaterialCards({
   rows,
@@ -41,6 +43,7 @@ export default function MaterialCards({
   onToggleRow,
   openTypeIDs = [],
   renderDrawer,
+  renderPlan,
 }) {
   return (
     <Stack spacing={1}>
@@ -55,6 +58,7 @@ export default function MaterialCards({
               formatQuantity={formatQuantity}
               isOpen={isOpen}
               onToggleRow={onToggleRow}
+              renderPlan={renderPlan}
             />
             {renderDrawer ? renderDrawer(row, isOpen) : null}
           </Box>
@@ -67,7 +71,14 @@ export default function MaterialCards({
 /**
  * @param {object} props
  */
-function MaterialCard({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
+function MaterialCard({
+  row,
+  formatIsk,
+  formatQuantity,
+  isOpen,
+  onToggleRow,
+  renderPlan,
+}) {
   const expandable = row.isBuildable;
 
   return (
@@ -106,13 +117,22 @@ function MaterialCard({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
           <Typography variant="body2" noWrap>
             {row.name}
           </Typography>
+          <ExpandAffordance
+            expandable={row.isBuildable}
+            isOpen={isOpen}
+            name={row.name}
+            onToggle={() => onToggleRow?.(row.typeID)}
+          />
         </Box>
-        <PlanCell
-          plan={row.plan}
-          saving={hasSavingAvailable(row)}
-          coverage={row.coverage}
-          childJobs={row.matchedChildJobs}
-        />
+        <Box onClick={(event) => event.stopPropagation()}>
+          <PlanCell
+            plan={row.plan}
+            saving={hasSavingAvailable(row)}
+            coverage={row.coverage}
+            childJobs={row.matchedChildJobs}
+            action={renderPlan ? renderPlan(row) : null}
+          />
+        </Box>
       </Box>
 
       <Box

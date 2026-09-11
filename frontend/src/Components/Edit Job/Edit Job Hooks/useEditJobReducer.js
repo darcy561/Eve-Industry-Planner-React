@@ -125,16 +125,28 @@ export default function useEditJobReducer() {
     },
 
     /**
-     * Sets the speculative child jobs — built to price a row, not to commit to
-     * it. Separate from the temporary ones, which a player has already asked to
-     * create.
+     * Records jobs built to price a row rather than to commit to it. Separate
+     * from the temporary ones, which a player has already asked to create.
      *
-     * @param {Object} speculativeChildJobs - Keyed by material type id
+     * @param {Array<object>|object} jobs - One costed job, or several
      */
-    setSpeculativeChildJobs: (speculativeChildJobs) => {
+    recordSpeculativeChildJobs: (jobs) => {
       dispatch({
-        type: EDIT_JOB_ACTION_TYPES.SET_SPECULATIVE_CHILD_JOBS,
-        payload: speculativeChildJobs,
+        type: EDIT_JOB_ACTION_TYPES.RECORD_SPECULATIVE_CHILD_JOBS,
+        payload: Array.isArray(jobs) ? jobs : [jobs],
+      });
+    },
+
+    /**
+     * Drops rows from the costed map, so nothing reads a price for a job that
+     * has since been committed or removed.
+     *
+     * @param {Array<number>|number} typeIDs - One material type id, or several
+     */
+    forgetSpeculativeChildJobs: (typeIDs) => {
+      dispatch({
+        type: EDIT_JOB_ACTION_TYPES.FORGET_SPECULATIVE_CHILD_JOBS,
+        payload: Array.isArray(typeIDs) ? typeIDs : [typeIDs],
       });
     },
 

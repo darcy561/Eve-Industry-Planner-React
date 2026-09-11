@@ -34,7 +34,8 @@ export const EDIT_JOB_ACTION_TYPES = {
   STEP_ACTIVE_JOB_BACKWARD: "STEP_ACTIVE_JOB_BACKWARD",
   MARK_JOB_AS_MODIFIED: "MARK_JOB_AS_MODIFIED",
   SET_TEMPORARY_CHILD_JOBS: "SET_TEMPORARY_CHILD_JOBS",
-  SET_SPECULATIVE_CHILD_JOBS: "SET_SPECULATIVE_CHILD_JOBS",
+  RECORD_SPECULATIVE_CHILD_JOBS: "RECORD_SPECULATIVE_CHILD_JOBS",
+  FORGET_SPECULATIVE_CHILD_JOBS: "FORGET_SPECULATIVE_CHILD_JOBS",
   SET_IS_LOADING: "SET_IS_LOADING",
   MARK_PARENT_JOB_FOR_REMOVAL: "MARK_PARENT_JOB_FOR_REMOVAL",
   MARK_PARENT_JOB_FOR_ADDITION: "MARK_PARENT_JOB_FOR_ADDITION",
@@ -90,11 +91,25 @@ export function editJobReducer(state, action) {
       return { ...state, jobModified: true };
     case EDIT_JOB_ACTION_TYPES.SET_TEMPORARY_CHILD_JOBS:
       return { ...state, temporaryChildJobs: action.payload };
-    // Deliberately does not set jobModified: costing a row is a question the
-    // player asked, not a change to the job. Nothing here is persisted, and a
+    // Neither of these sets jobModified: costing a row is a question the player
+    // asked, not a change to the job. Nothing here is persisted, and a
     // speculative job becomes a real one only by being marked for addition.
-    case EDIT_JOB_ACTION_TYPES.SET_SPECULATIVE_CHILD_JOBS:
-      return { ...state, speculativeChildJobs: action.payload };
+    //
+    // They merge and delete rather than replacing the map, because rows are
+    // costed concurrently — a drawer opening while the summary strip's bulk
+    // costing is still resolving. A caller that built the next map from what it
+    // had read would write back a base taken before the other finished, and the
+    // row costed in between would quietly lose its price.
+    case EDIT_JOB_ACTION_TYPES.RECORD_SPECULATIVE_CHILD_JOBS: {
+      const costed = { ...state.speculativeChildJobs };
+      for (const job of action.payload) costed[job.itemID] = job;
+      return { ...state, speculativeChildJobs: costed };
+    }
+    case EDIT_JOB_ACTION_TYPES.FORGET_SPECULATIVE_CHILD_JOBS: {
+      const costed = { ...state.speculativeChildJobs };
+      for (const typeID of action.payload) delete costed[typeID];
+      return { ...state, speculativeChildJobs: costed };
+    }
     case EDIT_JOB_ACTION_TYPES.SET_IS_LOADING: {
       const { isLoading, loadingMessage } = normalizeSetIsLoadingPayload(
         action.payload,

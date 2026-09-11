@@ -53,10 +53,20 @@ vi.mock("../../../../Edit Job Hooks/useActiveJobDocumentLock", () => ({
   useActiveJobReadOnly: (...args) => useActiveJobReadOnly(...args),
 }));
 const markChildJobsForAddition = vi.fn();
-const setSpeculativeChildJobs = vi.fn();
+const forgetSpeculativeChildJobs = vi.fn();
 
 vi.mock("./Hooks/useChildJobBuildActions", () => ({
   useChildJobBuildActions: () => ({ buildSpeculativeChildJobs }),
+}));
+
+// Stood in for, so the test proves the panel reaches the row's own buy-or-build
+// control rather than standing up the whole child-job stack behind it.
+vi.mock("./planChip", () => ({
+  default: ({ material, rowJob }) => (
+    <span data-testid={`plan-${material.typeID}`}>
+      {rowJob ? "costed" : "uncosted"}
+    </span>
+  ),
 }));
 
 // Stood in for, so the test proves the panel reaches the drawer rather than
@@ -91,7 +101,7 @@ function renderPanel(props = {}) {
       actions={{
         updateActiveJob: () => {},
         markChildJobsForAddition,
-        setSpeculativeChildJobs,
+        forgetSpeculativeChildJobs,
       }}
       {...props}
     />
@@ -175,7 +185,7 @@ describe("the Materials and Sourcing panel", () => {
         actions={{
         updateActiveJob: () => {},
         markChildJobsForAddition,
-        setSpeculativeChildJobs,
+        forgetSpeculativeChildJobs,
       }}
       />
     );
@@ -259,7 +269,7 @@ describe("applying the offer", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Apply" }));
 
-    expect(setSpeculativeChildJobs).toHaveBeenCalledWith({});
+    expect(forgetSpeculativeChildJobs).toHaveBeenCalledWith([34]);
   });
 
   it("does nothing when no speculative job backs the offer", async () => {
@@ -363,5 +373,67 @@ describe("how old the figures are", () => {
     await userEvent.click(screen.getByRole("button", { name: "Sell Orders" }));
 
     expect(screen.queryByText(/Server prices/)).not.toBeInTheDocument();
+  });
+});
+
+// Deciding a material used to mean expanding its row to reach the control in the
+// drawer, one row at a time. The panel puts that control on the row instead, so
+// a list of costed rows can be settled from the list.
+describe("deciding a row without expanding it", () => {
+  it("gives every buildable row its own buy-or-build control", () => {
+    renderPanel();
+
+    expect(screen.getByTestId("plan-34")).toBeInTheDocument();
+  });
+
+  // The control acts on a job, and confirming a row with none behind it has
+  // nothing to confirm.
+  it("hands the control the job the row was costed with", () => {
+    renderPanel({
+      state: {
+        ...state,
+        speculativeChildJobs: { 34: { itemID: 34, jobID: "spec-1" } },
+      },
+    });
+
+    expect(screen.getByTestId("plan-34")).toHaveTextContent("costed");
+  });
+
+  it("says so where the row has not been costed", () => {
+    renderPanel();
+
+    expect(screen.getByTestId("plan-34")).toHaveTextContent("uncosted");
+  });
+
+  // A row already building is confirmed against the job doing it, not against a
+  // speculative one that was never made for it.
+  it("falls back to the job already linked to the row", () => {
+    useMaterialsSourcingMock.mockReturnValueOnce({
+      ...sourcing,
+      rows: [
+        {
+          ...sourcing.rows[0],
+          plan: MATERIAL_PLAN.BUILD,
+          matchedChildJobs: [{ itemID: 34, jobID: "linked-1" }],
+        },
+      ],
+    });
+
+    renderPanel();
+
+    expect(screen.getByTestId("plan-34")).toHaveTextContent("costed");
+  });
+
+  // Nothing is built for a row with no blueprint, so there is no decision to
+  // offer on it.
+  it("offers no control on a row that cannot be built", () => {
+    useMaterialsSourcingMock.mockReturnValueOnce({
+      ...sourcing,
+      rows: [{ ...sourcing.rows[0], isBuildable: false }],
+    });
+
+    renderPanel();
+
+    expect(screen.queryByTestId("plan-34")).toBeNull();
   });
 });

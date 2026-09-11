@@ -107,14 +107,6 @@ export default function PlanningEconomics(props) {
           typeID: state.activeJob.itemID,
           name: state.activeJob.name,
           priceHubID: saleLocation?.priceHubID,
-          // Named only where it is not the place being sold from — a citadel
-          // holds no market, so its figures come from a hub. At a station the
-          // two are the same and saying it twice invites the reader to look for
-          // a difference.
-          priceHubName:
-            saleLocation?.priceHubName === saleLocation?.name
-              ? null
-              : saleLocation?.priceHubName,
           unitPrice: sellPrice,
           quantityProduced: commitment.surplus,
         }}

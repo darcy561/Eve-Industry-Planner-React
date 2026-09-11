@@ -2,9 +2,11 @@ import { Fragment } from "react";
 
 import BlockIcon from "@mui/icons-material/Block";
 import DoneIcon from "@mui/icons-material/Done";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LensIcon from "@mui/icons-material/Lens";
 import {
   Box,
+  IconButton,
   Stack,
   Table,
   TableBody,
@@ -65,6 +67,8 @@ const COLUMNS = [
  * @param {number[]} [props.openTypeIDs] - Rows currently expanded
  * @param {(row: object, isOpen: boolean) => React.ReactNode} [props.renderDrawer]
  *   What an opened row shows beneath itself
+ * @param {(row: object) => React.ReactNode} [props.renderPlan] - The row's own
+ *   buy-or-build control, in place of a chip that only states which it is on
  */
 export default function MaterialsTable({
   rows = [],
@@ -73,6 +77,7 @@ export default function MaterialsTable({
   onToggleRow,
   openTypeIDs = [],
   renderDrawer,
+  renderPlan,
 }) {
   if (rows.length === 0) {
     return (
@@ -96,6 +101,7 @@ export default function MaterialsTable({
               formatQuantity={formatQuantity}
               isOpen={open.has(row.typeID)}
               onToggleRow={onToggleRow}
+              renderPlan={renderPlan}
             />
             {renderDrawer ? (
               <TableRow>
@@ -117,7 +123,14 @@ export default function MaterialsTable({
 /**
  * @param {object} props
  */
-function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
+function MaterialRow({
+  row,
+  formatIsk,
+  formatQuantity,
+  isOpen,
+  onToggleRow,
+  renderPlan,
+}) {
   const building = row.plan === MATERIAL_PLAN.BUILD;
   const saving = hasSavingAvailable(row);
   // Anything with a blueprint opens, linked or not: opening a row that has
@@ -157,6 +170,12 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
               {row.name}
             </Typography>
           </MaterialPopoverIconButtons>
+          <ExpandAffordance
+            expandable={expandable}
+            isOpen={isOpen}
+            name={row.name}
+            onToggle={() => onToggleRow?.(row.typeID)}
+          />
         </Box>
       </TableCell>
       <TableCell align="right">
@@ -178,12 +197,18 @@ function MaterialRow({ row, formatIsk, formatQuantity, isOpen, onToggleRow }) {
       <TableCell align="right">
         <SourceCell row={row} />
       </TableCell>
-      <TableCell align="right">
+      {/* The plan control acts on the row it sits on, so a click on it is not
+          also a click on the row underneath asking to expand. */}
+      <TableCell
+        align="right"
+        onClick={(event) => event.stopPropagation()}
+      >
         <PlanCell
           plan={row.plan}
           saving={saving}
           coverage={row.coverage}
           childJobs={row.matchedChildJobs}
+          action={renderPlan ? renderPlan(row) : null}
         />
       </TableCell>
     </TableRow>
@@ -248,8 +273,11 @@ function cheaperTone(isCheaper) {
  * @param {object} props
  * @param {string} props.plan
  * @param {boolean} props.saving
+ * @param {React.ReactNode} [props.action] - The buy-or-build control, where the
+ *   row is one a player can decide. Without it the cell states the plan and no
+ *   more, which is what a row with nothing to decide shows.
  */
-function PlanCell({ plan, saving, coverage, childJobs }) {
+function PlanCell({ plan, saving, coverage, childJobs, action }) {
   const short = <ShortfallChip coverage={coverage} childJobs={childJobs} />;
 
   if (plan === MATERIAL_PLAN.BASE) {
@@ -267,8 +295,8 @@ function PlanCell({ plan, saving, coverage, childJobs }) {
   // that has stopped producing has no build price, so its row reads as Buy — and
   // that is the row most in need of the tag rather than least.
   return (
-    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap">
-      {plan === MATERIAL_PLAN.BUILD ? (
+    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap" alignItems="center">
+      {action ?? (plan === MATERIAL_PLAN.BUILD ? (
         <StatusChip label="Build" tone={STATUS_TONE.GOOD} />
       ) : (
         // Buying while building would cost less: the chip carries the warning
@@ -277,7 +305,7 @@ function PlanCell({ plan, saving, coverage, childJobs }) {
           label="Buy"
           tone={saving ? STATUS_TONE.WARN : STATUS_TONE.NEUTRAL}
         />
-      )}
+      ))}
       {short}
     </Stack>
   );
@@ -295,7 +323,57 @@ function accentStripe(building, saving) {
   return {};
 }
 
-export { MaterialRow, MaterialMark, PlanCell, SourceCell, cheaperTone, accentStripe };
+export {
+  MaterialRow,
+  MaterialMark,
+  PlanCell,
+  SourceCell,
+  ExpandAffordance,
+  cheaperTone,
+  accentStripe,
+};
+
+/**
+ * Says that a row opens, and opens it.
+ *
+ * The row is clickable as a whole, but a pointer cursor and a hover tint are
+ * only discoverable to a reader who has already tried it, and neither reaches a
+ * keyboard at all. A chevron states it, and being a button makes the drawer
+ * reachable by tab.
+ *
+ * @param {object} props
+ * @param {boolean} props.expandable
+ * @param {boolean} props.isOpen
+ * @param {string} props.name - Named so one chevron in a list of them is
+ *   distinguishable when announced
+ * @param {() => void} props.onToggle
+ */
+function ExpandAffordance({ expandable, isOpen, name, onToggle }) {
+  if (!expandable) return null;
+
+  return (
+    <IconButton
+      size="small"
+      aria-label={`${isOpen ? "Hide" : "Show"} what building ${name} would take`}
+      aria-expanded={isOpen}
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      sx={{
+        p: 0.25,
+        color: "text.secondary",
+        transform: isOpen ? "rotate(180deg)" : "none",
+        transition: (theme) =>
+          theme.transitions.create("transform", {
+            duration: theme.transitions.duration.shortest,
+          }),
+      }}
+    >
+      <ExpandMoreIcon fontSize="small" />
+    </IconButton>
+  );
+}
 
 /**
  * Where the row's buy price came from: the hub, and which of the four figures

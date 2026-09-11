@@ -18,7 +18,6 @@ import { formatNumberForLocale } from "../../../../../../Functions/Helper/number
  * @param {number} props.typeID
  * @param {string} props.name
  * @param {string} props.priceHubID - The hub the price and the links are for
- * @param {string} props.priceHubName
  * @param {number} props.unitPrice - Sell-side, per unit
  * @param {number} props.quantityProduced - What is left to sell
  */
@@ -26,7 +25,6 @@ export default function OutputHeader({
   typeID,
   name,
   priceHubID,
-  priceHubName,
   unitPrice,
   quantityProduced,
 }) {
@@ -54,7 +52,6 @@ export default function OutputHeader({
         >
           Making {formatNumberForLocale(quantityProduced, { max: 0 })} ·{" "}
           {formatNumberForLocale(unitPrice)} each
-          {priceHubName ? `, priced from ${priceHubName}` : ""}
         </Typography>
       </Box>
       <Box sx={{ textAlign: "right" }}>

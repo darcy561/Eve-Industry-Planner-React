@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
-import { appShellInsetSurfaceSx } from "../../../../../../Context/appShell";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import {
   formatNumberForLocale,

@@ -1,7 +1,5 @@
 import { FormControl, FormHelperText, MenuItem, Select } from "@mui/material";
 import { Implants } from "../../Context/defaultValues";
-import { getSystemTypeFromID } from "../../Functions/Helper/getStructureInfo";
-
 /**
  * A select component for choosing implants based on job type.
  * Displays available implants for the specified job type from the Implants configuration.

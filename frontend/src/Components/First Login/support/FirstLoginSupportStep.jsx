@@ -39,7 +39,6 @@ function SupportBookendCard({
   /** When true and `href` is missing, the card is visibly inactive (e.g. forum not configured). */
   inactiveWithoutHref = false,
 }) {
-  const interactive = Boolean(href) || Boolean(onAction);
   const inactive = inactiveWithoutHref && !href && !onAction;
 
   const inner = (

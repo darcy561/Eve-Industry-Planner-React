@@ -40,9 +40,7 @@ import ApplyGroupTemplateDialogue from "../Dialogues/Group Templates/ApplyGroupT
 
 function GroupPageFrame() {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
-  const { activeGroupID, groupArray, jobArray } = useUsersStore(
-    (state) => state.jobData,
-  );
+  const { activeGroupID, jobArray } = useUsersStore((state) => state.jobData);
   const { setActiveGroupID, getGroupObject, clearMultiSelect } =
     useUsersStore.getState().jobData.actions;
   const params = useParams({ from: "/group/$groupID" });

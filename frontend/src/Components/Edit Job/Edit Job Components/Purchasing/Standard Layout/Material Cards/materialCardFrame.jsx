@@ -84,12 +84,8 @@ export function MaterialCardFrame_Purchasing(props) {
     };
   }
 
-  const {
-    childJobs,
-    childJobProductionTotal,
-    childJobLocation,
-    remainingTotalToBeImported,
-  } = calculateChildJobData();
+  const { childJobs, childJobLocation, remainingTotalToBeImported } =
+    calculateChildJobData();
 
   const childSupply = childJobSupplyForMaterial(
     state.activeJob,

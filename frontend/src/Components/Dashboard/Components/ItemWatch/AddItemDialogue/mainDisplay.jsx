@@ -13,7 +13,6 @@ import { WatchListSetupOptions_WatchlistDialogue } from "./watchlistOptions";
 
 export function EditItemDisplay_WatchlistDialogue({
   watchlistItemRequest,
-  updateWatchlistItemRequest,
   setImportedJob,
   materialJobs,
   setMaterialJobs,

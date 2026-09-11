@@ -68,7 +68,6 @@ describe("useLockPassiveViewerSnackbar", () => {
   });
 
   it("does not show when opening scope already has viewers", () => {
-    const sk = docLockScopeKey("col", "doc2");
     const prevPassiveViewerRef = {
       current: {
         scopeKey: "",

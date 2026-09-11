@@ -42,8 +42,7 @@ export function handleApplicationSettingsDocumentDelete(ctx) {
  * @returns {boolean}
  */
 export function handleApplicationSettingsDocumentUpsert(ctx) {
-  const { accountId, docID, docKey, document, previousDocument, rs, remoteMs } =
-    ctx;
+  const { accountId, docID, docKey, document, rs, remoteMs } = ctx;
   if (docID !== accountId) return false;
 
   const prevCloudAccounts =

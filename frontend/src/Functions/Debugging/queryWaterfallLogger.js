@@ -315,7 +315,6 @@ export function logWaterfall() {
   // Identify batches by grouping characters that start within a small time window (100ms)
   const BATCH_TIME_WINDOW = 100; // Characters starting within 100ms are considered the same batch
   const batches = [];
-  const processedCharacters = new Set();
   const characterBatchData = [];
 
   // First, collect all character data

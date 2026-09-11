@@ -48,16 +48,11 @@ export function selectSlotGreedyStrategy({
   task,
   activityType,
   depsEndTime,
-  earliestParentStart = null, // Not used in greedy, but kept for interface consistency
-  scheduledTasks = [], // Not used in greedy, but kept for interface consistency
-  parentSetKey = "", // Not used in greedy, but kept for interface consistency
   nextFreeTimes,
   characterUsedForActivity,
   charOrder,
   getDuration,
   characterJobsByJobID = {},
-  characterMaterialsByItemID = {}, // Not used in greedy, but kept for interface consistency
-  characterTasksByParentSet = {}, // Not used in greedy, but kept for interface consistency
 }) {
   let best = null;
 

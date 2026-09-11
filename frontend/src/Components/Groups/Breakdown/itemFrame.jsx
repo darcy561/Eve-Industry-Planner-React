@@ -10,15 +10,11 @@ import {
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
 import { getJobTypeAccentColour } from "../../../Functions/Helper/jobTypeDividerColour";
 
-export default function ItemBreakdownFrame({
-  groupJobs = [],
-  outputJob = null,
-}) {
+export default function ItemBreakdownFrame({ outputJob = null }) {
   const theme = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState(null);
-  const [relatedJobs, setRelatedJobs] = useState([]);
   const [breakdownStats, setBreakdownStats] = useState({
     totalBoughtMaterialCost: 0,
     totalInstallCosts: 0,
@@ -60,7 +56,6 @@ export default function ItemBreakdownFrame({
           totalInventionCosts,
           totalInvolvedCharacters,
         });
-        setRelatedJobs(matchedJobs);
       } catch (error) {
         setIsError(true);
         setError(error);

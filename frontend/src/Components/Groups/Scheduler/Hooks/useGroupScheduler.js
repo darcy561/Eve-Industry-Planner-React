@@ -105,7 +105,7 @@ export function useGroupScheduler(
 
       // Corporation jobs are grouped by corporation ID, need to filter by installer_id
       const userCorpIndJobs = [];
-      for (const [corpId, jobs] of Object.entries(allCorpJobsByCorp)) {
+      for (const [, jobs] of Object.entries(allCorpJobsByCorp)) {
         if (Array.isArray(jobs)) {
           userCorpIndJobs.push(
             ...jobs.filter((job) => job.installer_id === CharacterID),

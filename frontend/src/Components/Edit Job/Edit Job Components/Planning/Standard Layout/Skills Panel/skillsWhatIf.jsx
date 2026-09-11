@@ -1,6 +1,5 @@
 import { Box, Stack, Typography } from "@mui/material";
 
-import InsetSurface from "../../../../../../Styled Components/Paper/InsetSurface";
 import {
   FIGURE_TONE,
   FigureCaption,

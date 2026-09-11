@@ -1,6 +1,6 @@
 import { Box, Divider, Drawer, useMediaQuery } from "@mui/material";
 
-function CollapsibleContentDrawer_Right({ state, actions, DrawerContent }) {
+function CollapsibleContentDrawer_Right({ state, DrawerContent }) {
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const drawerWidth = state.expandRightDrawer
     ? deviceNotMobile

@@ -64,7 +64,7 @@ describe("canPersistDocumentEditClose", () => {
         "g1",
         { lockHeld: true, readOnly: false },
       );
-    storeHolder.current.setState((prev) => ({
+    storeHolder.current.setState(() => ({
       jobData: {
         actions: {
           getGroupObject: (id) => (id === "g1" ? { groupID: "g1" } : null),

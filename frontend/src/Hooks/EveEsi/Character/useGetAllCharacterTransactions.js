@@ -11,22 +11,6 @@ import {
 } from "../queryLoadingState";
 
 /**
- * Utility function to extract transactions from query results.
- * Handles pagination structure and flattens transaction data.
- *
- * @param {Array<Object>} results - Array of query result objects
- * @returns {Array<Object>} Flattened array of transaction objects
- *
- * @private
- */
-function extractTransactionsFromResults(results) {
-  return results.flatMap((result) => {
-    const pages = result.data?.pages?.[0]?.pages || [];
-    return pages.flatMap((page) => page.data || []);
-  });
-}
-
-/**
  * Utility function to check loading state from query results.
  *
  * @param {Array<Object>} results - Array of query result objects
@@ -98,18 +82,6 @@ function createSuccessObject(data) {
     isError: false,
     error: null,
   };
-}
-
-/**
- * Utility function to sort transactions by date (newest first).
- *
- * @param {Array<Object>} transactions - Array of transaction objects
- * @returns {Array<Object>} Sorted array of transaction objects
- *
- * @private
- */
-function sortTransactionsByDate(transactions) {
-  return transactions.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
 }
 
 /**

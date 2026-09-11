@@ -1,15 +1,8 @@
-import {
-  Box,
-  ToggleButtonGroup,
-  ToggleButton,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
 import MarketLocationSelect from "../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../Styled Components/Select/marketListing";
 
 function OptionsPanel({ pageState, pageActions }) {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
-
   return (
     <Box
       sx={{

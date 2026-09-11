@@ -210,7 +210,7 @@ class ESIFetchWrapper {
    */
   getAllRateLimitStatuses() {
     const statuses = [];
-    for (const [key, bucket] of this.rateLimiter.buckets) {
+    for (const [, bucket] of this.rateLimiter.buckets) {
       statuses.push(this.rateLimiter.getStatus(bucket.group, bucket.userID));
     }
     return statuses;

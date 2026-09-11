@@ -28,7 +28,6 @@ export function lockReasonText({ scope = "job", action }) {
  *
  * @param {object} o
  * @param {boolean} o.readOnly
- * @param {boolean} o.jobReadOnly
  * @param {boolean} o.groupReadOnly
  * @param {boolean} o.jobLockHeld
  * @param {boolean} o.groupLockHeld
@@ -37,7 +36,6 @@ export function lockReasonText({ scope = "job", action }) {
  */
 export function persistAffordanceBlockedReason({
   readOnly,
-  jobReadOnly,
   groupReadOnly,
   jobLockHeld,
   groupLockHeld,

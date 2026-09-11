@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 import { create } from "zustand";
-import { vi } from "vitest";
 import { activePlannerActions } from "../Zustand/activePlanner/actions.js";
 
 /**
@@ -121,14 +120,13 @@ export function waitForStoreCondition(store, condition, timeout = 1000) {
  * Provides a clean way to test components with store dependencies
  * without needing to set up complex provider hierarchies.
  *
- * @param {Object} store - Store instance to provide
  * @returns {Function} Test wrapper component
  *
  * @example
- * const TestWrapper = createTestWrapper(testStore);
+ * const TestWrapper = createTestWrapper();
  * render(<TestWrapper><MyComponent /></TestWrapper>);
  */
-export function createTestWrapper(store) {
+export function createTestWrapper() {
   return ({ children }) => {
     // Store is already available globally in Zustand
     // This wrapper is mainly for semantic clarity in tests

@@ -46,6 +46,10 @@ export default [
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
           destructuredArrayIgnorePattern: "^_",
+          // `const { owner, ...query } = x` names `owner` in order to keep it
+          // out of `query`. Reading it would defeat the point, so the binding
+          // is used precisely by going unread.
+          ignoreRestSiblings: true,
         },
       ],
     },

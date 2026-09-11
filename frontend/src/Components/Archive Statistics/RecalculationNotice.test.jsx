@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
-import {
-  archiveStoreState,
-  renderWithProviders,
-  usersStoreMock,
-} from "../../tests/archiveHarness.jsx";
+import { renderWithProviders } from "../../tests/archiveHarness.jsx";
 
 const getAccountTimeline = vi.fn();
 

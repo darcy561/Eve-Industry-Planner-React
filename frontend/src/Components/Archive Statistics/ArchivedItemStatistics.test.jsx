@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
-import {
-  renderWithTheme,
-  setViewportWide,
-} from "../../tests/archiveHarness.jsx";
+import { renderWithTheme } from "../../tests/archiveHarness.jsx";
 
 const useAccountTimelineQuery = vi.fn();
 const useAccountTotalsQuery = vi.fn();

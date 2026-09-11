@@ -229,7 +229,6 @@ export function AdvancedMineralOutput(props) {
       item.totalQuantity;
 
     // Calculate total reprocessed quantity of all minerals
-    let totalReprocessedQuantity = 0;
     const reprocessedQuantities = {};
 
     Object.entries(item.reprocessedMaterials).forEach(
@@ -240,7 +239,6 @@ export function AdvancedMineralOutput(props) {
             : baseQuantity * (item.reprocessableQuantity / item.batchSize);
 
         reprocessedQuantities[mineralId] = reprocessedQuantity;
-        totalReprocessedQuantity += reprocessedQuantity;
       },
     );
 

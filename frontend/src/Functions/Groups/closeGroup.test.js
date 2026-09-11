@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { create } from "zustand";
 import documentLockSlice from "../../Zustand/documentLockSlice.js";
-import { docLockScopeKey } from "../DocumentLock/documentLockScope.js";
 import { USER_JOB_GROUPS_COLLECTION } from "../Endpoints/Private/groups.js";
 
 const flushPendingGroupSave = vi.fn().mockResolvedValue(undefined);
@@ -72,7 +71,6 @@ describe("closeActiveGroup", () => {
   });
 
   it("skips API persist when this tab does not hold the group lock", async () => {
-    const k = docLockScopeKey(USER_JOB_GROUPS_COLLECTION, "g1");
     storeHolder.current
       .getState()
       .documentLock.actions.patchDocumentLockForScope(

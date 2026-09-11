@@ -34,7 +34,7 @@ function ChildJobEntry({ actions, childJobID, siblingLinkLock }) {
   const job = findJobInJobArray(childJobID);
 
   if (!job) return null;
-  const setupCount = Object.values(job.build.setup).reduce((prev, setup) => {
+  const setupCount = Object.values(job.build.setup).reduce((prev) => {
     return prev + 1;
   }, 0);
   const { readOnly = false, reason = "" } = siblingLinkLock ?? {};

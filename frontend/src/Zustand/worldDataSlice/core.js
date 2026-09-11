@@ -2,10 +2,6 @@
  * Core World Data Management for EVE Industry Planner.
  */
 
-import GLOBAL_CONFIG from "../../global-config-app";
-
-const { MARKET_OPTIONS } = GLOBAL_CONFIG;
-
 /**
  * Default state configuration for world data.
  *
@@ -27,7 +23,7 @@ export const stateDefault = () => ({
  * @param {Function} get - Zustand get function for accessing current state
  * @returns {Object} Core world data management actions
  */
-export const coreActions = (set, get) => ({
+export const coreActions = (set) => ({
   /**
    * Resets the world data store to its default state.
    *

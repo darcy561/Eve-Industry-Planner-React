@@ -106,7 +106,7 @@ function OutputJobCard({ inputJob, state, actions }) {
           <IconButton
             size="small"
             color="primary"
-            onClick={(event) => {
+            onClick={() => {
               if (state.highlightedItems.has(inputJob.jobID)) {
                 actions.setHighlightedItems(new Set());
               } else {

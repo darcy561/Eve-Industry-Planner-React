@@ -37,7 +37,7 @@ export function calculateActiveSlotsSingleFromData(
 ) {
   if (!character) return null;
 
-  const { CharacterHash, CharacterID } = character;
+  const { CharacterHash } = character;
 
   const slots = {
     manufacturing: { total: 1, active: 0 },

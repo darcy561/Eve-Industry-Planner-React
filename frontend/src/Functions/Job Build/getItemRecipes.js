@@ -17,9 +17,6 @@ import fetchBlueprints from "../Endpoints/Public/blueprints";
  * console.log(recipes); // Array of recipes
  */
 export default async function getItemRecipes(itemRequests) {
-  const isSingleItem =
-    !Array.isArray(itemRequests) || itemRequests.length === 1;
-
   // First, try to get data from cached recipe list
   try {
     const recipeList = await getRecipeListFromCache();

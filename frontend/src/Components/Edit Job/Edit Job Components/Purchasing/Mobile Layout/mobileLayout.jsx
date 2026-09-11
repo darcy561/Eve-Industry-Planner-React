@@ -1,14 +1,3 @@
-export function Purchasing_MobileLayout_EditJob({
-  activeJob,
-  updateActiveJob,
-  jobModified,
-  setJobModified,
-  shoppingListTrigger,
-  updateShoppingListTrigger,
-  shoppingListData,
-  updateShoppingListData,
-  parentChildToEdit,
-  updateParentChildToEdit,
-}) {
+export function Purchasing_MobileLayout_EditJob() {
   return null;
 }

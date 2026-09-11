@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 import { activePlannerStoreState } from "../../../tests/utils.js";
 
 const state = activePlannerStoreState();
-const account = state.account;
 
 vi.mock("../../../Zustand/usersStore", () => ({
   default: Object.assign((selector) => selector(state), {

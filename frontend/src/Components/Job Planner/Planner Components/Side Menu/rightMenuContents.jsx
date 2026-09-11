@@ -14,7 +14,7 @@ function RightSideMenuContent_JobPlanner(props) {
       return (
         <TutorialTemplate
           TutorialContent={<TutorialContent_JobPlanner {...props} />}
-          updateExpandedMenu={(x) =>
+          updateExpandedMenu={() =>
             toggleRightDrawerColapse(
               state.rightDrawerContentID,
               state.rightDrawerContentID,

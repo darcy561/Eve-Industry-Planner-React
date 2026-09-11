@@ -55,10 +55,8 @@ export const coreActions = (set, get) => ({
    * Clears all job-related data including job arrays, group arrays,
    * multi-selection, active job/group tracking, and watchlist data,
    * while preserving the actions object.
-   *
-   * @param {*} data - Unused parameter (kept for compatibility)
    */
-  resetJobDataStore: (data) => {
+  resetJobDataStore: () => {
     set(
       (state) => ({
         ...state,

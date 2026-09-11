@@ -22,7 +22,7 @@ export function MaterialQuantityInfoDoubleRow({
   childSupply,
   remainingTotalToBeImported,
 }) {
-  const { min, max, coversEveryClaim, sharedWith, claimsKnown } = childSupply;
+  const { min, max, coversEveryClaim } = childSupply;
   const fromChildJobs = coversEveryClaim
     ? formatNumberForLocale(max, { max: 0 })
     : `${formatNumberForLocale(min, { max: 0 })}–${formatNumberForLocale(max, {

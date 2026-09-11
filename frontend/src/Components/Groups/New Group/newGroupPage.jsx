@@ -60,7 +60,7 @@ function NewGroupPage() {
             if (!matchedChildJob) continue;
 
             matchedChildJob.parentJobs = matchedChildJob.parentJobs.filter(
-              (i) => !matchedGroupJob.jobID,
+              () => !matchedGroupJob.jobID,
             );
           }
           childJobArray = childJobArray.filter((i) =>

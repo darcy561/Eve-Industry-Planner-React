@@ -10,7 +10,7 @@ export function AccountData() {
   const { jobStatuses } = useJobStatuses();
   const characters = useUsersStore((state) => state.account.characters);
   const { jobArray } = useUsersStore((state) => state.jobData);
-  const [dataCount, updateDataCount] = useState({
+  const [dataCount] = useState({
     openMOrders: 0,
     histMOrders: 0,
     indJobs: 0,
@@ -18,54 +18,6 @@ export function AccountData() {
     mTrans: 0,
     jEntries: 0,
   });
-
-  // useEffect(() => {
-  //   let newOpenMOrders = 0;
-  //   let newHistMOrders = 0;
-  //   let newIndJobs = 0;
-  //   let newBlueprints = 0;
-  //   let newMTrans = 0;
-  //   let newJEntries = 0;
-
-  //   esiIndJobs.forEach((entry) => {
-  //     newIndJobs += entry.data.length;
-  //   });
-  //   for (const [, value] of corpEsiIndJobs) {
-  //     newIndJobs += Object.keys(value).length;
-  //   }
-  //   esiOrders.forEach((entry) => {
-  //     newOpenMOrders += entry.data.length;
-  //   });
-  //   esiHistOrders.forEach((entry) => {
-  //     newHistMOrders += entry.data.length;
-  //   });
-  //   esiTransactions.forEach((entry) => {
-  //     newMTrans += entry.data.length;
-  //   });
-  //   esiJournal.forEach((entry) => {
-  //     newJEntries += entry.data.length;
-  //   });
-  //   esiBlueprints.forEach((entry) => {
-  //     newBlueprints += entry.data.length;
-  //   });
-
-  //   updateDataCount({
-  //     openMOrders: newOpenMOrders,
-  //     histMOrders: newHistMOrders,
-  //     indJobs: newIndJobs,
-  //     blueprints: newBlueprints,
-  //     mTrans: newMTrans,
-  //     jEntries: newJEntries,
-  //   });
-  // }, [
-  //   esiIndJobs,
-  //   corpEsiIndJobs,
-  //   esiOrders,
-  //   esiHistOrders,
-  //   esiTransactions,
-  //   esiJournal,
-  //   esiBlueprints,
-  // ]);
 
   return (
     <ContentPanel componentName="Account Data">
@@ -163,7 +115,7 @@ export function AccountData() {
               align="right"
               sx={{ typography: { xs: "caption", sm: "body2" } }}
             >
-              {formatNumberForLocale(dataCount.openMOrders, { max: 0 })}
+              {formatNumberForLocale(dataCount.histMOrders, { max: 0 })}
             </Typography>
           </Grid>
           <Grid size={8}>

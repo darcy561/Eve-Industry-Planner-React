@@ -62,7 +62,7 @@ export function LinkedTransactionPanel(props) {
           spacing={1}
         >
           {state.activeJob.build.sale.transactions.length !== 0 ? (
-            state.activeJob.build.sale.transactions.map((tData, index) => {
+            state.activeJob.build.sale.transactions.map((tData) => {
               const charData = useUsersStore
                 .getState()
                 .account.actions.findCharacterByHash(tData.CharacterHash);

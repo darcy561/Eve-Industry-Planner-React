@@ -64,7 +64,7 @@ export default function JobSetupInfoFrame(props) {
   );
 }
 
-function JobSetupItem({ setupEntry, state, actions }) {
+function JobSetupItem({ setupEntry, state }) {
   const quantityProduced =
     state.activeJob.itemsProducedPerRun *
     setupEntry.runCount *

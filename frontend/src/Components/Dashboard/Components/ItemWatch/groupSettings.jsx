@@ -16,7 +16,7 @@ export function GroupSettingsDialogue({
   groupSettingsContent,
 }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
-  const { setUserWatchlist, setUserWatchlistGroups, setUserWatchlistItems } =
+  const { setUserWatchlist, setUserWatchlistGroups } =
     useUsersStore.getState().jobData.actions;
   const [setName, updateSetName] = useState(groupSettingsContent.name);
 

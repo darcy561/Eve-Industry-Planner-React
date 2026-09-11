@@ -19,7 +19,7 @@
  * @param {Function} get - Zustand get function for accessing current state
  * @returns {Object} Watchlist management actions
  */
-export const watchlistManagementActions = (set, get) => ({
+export const watchlistManagementActions = (set) => ({
   /**
    * Sets the user watchlist with items and groups.
    *

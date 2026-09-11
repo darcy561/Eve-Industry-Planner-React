@@ -13,14 +13,12 @@ import useUsersStore from "../../Zustand/usersStore";
  * @param {Object} params - Parameters object
  * @param {Object} params.structure - Structure object to add
  * @param {Function} params.addCustomStructure - Function to add structure to store
- * @param {number} params.selectedJobType - Selected job type for analytics
  * @param {Function} params.setIsLoading - Function to set loading state
  * @returns {Promise<void>} Promise that resolves when structure is added
  */
 export async function addCustomStructure({
   structure,
   addCustomStructure,
-  selectedJobType,
   setIsLoading,
 }) {
   setIsLoading(true);

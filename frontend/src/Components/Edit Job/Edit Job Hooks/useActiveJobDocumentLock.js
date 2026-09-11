@@ -8,10 +8,7 @@ import {
   isJobLockSubordinateToGroup,
   selectEffectiveJobDocumentLock,
 } from "../../../Functions/DocumentLock/groupSubordinateJobLock.js";
-import {
-  USER_JOBS_COLLECTION,
-  USER_JOB_GROUPS_COLLECTION,
-} from "../../../Functions/DocumentLock/documentLockCollections";
+import { USER_JOB_GROUPS_COLLECTION } from "../../../Functions/DocumentLock/documentLockCollections";
 import { persistAffordanceBlockedReason } from "../../DocumentLock/LockGatedTooltip";
 import { canEditActiveJob } from "../../../Functions/DocumentLock/canPersistDocumentEditClose.js";
 

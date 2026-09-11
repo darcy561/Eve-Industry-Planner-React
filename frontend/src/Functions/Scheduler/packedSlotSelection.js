@@ -43,7 +43,6 @@
  * @param {Record<string, boolean>} params.characterUsedForActivity - Track which characters are used for each activity
  * @param {string[]} params.charOrder - Stable character order for tie-breaking
  * @param {(task: SchedulerTask, characterHash: string) => number | null} [params.getDuration] - Duration resolver
- * @param {Record<string, Set<string>>} [params.characterJobsByJobID={}] - Track which characters run tasks for each job
  * @param {Record<number, Set<string>>} [params.characterMaterialsByItemID={}] - Track which characters run tasks for each material (itemID)
  * @param {string} [params.parentSetKey] - Key identifying tasks with same parent requirements
  * @param {Record<string, Set<string>>} [params.characterTasksByParentSet={}] - Track which characters run tasks with same parent requirements
@@ -66,7 +65,6 @@ export function selectSlotPackedStrategy({
   characterUsedForActivity,
   charOrder,
   getDuration,
-  characterJobsByJobID = {},
   characterMaterialsByItemID = {},
   characterTasksByParentSet = {},
 }) {

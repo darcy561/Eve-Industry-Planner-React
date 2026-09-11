@@ -109,20 +109,6 @@ function createSuccessObject(data) {
 }
 
 /**
- * Utility function to sort market orders by date (newest first).
- *
- * @param {Array<Object>} marketOrders - Array of market order objects
- * @returns {Array<Object>} Sorted array of market order objects
- *
- * @private
- */
-function sortMarketOrdersByDate(marketOrders) {
-  return marketOrders.sort(
-    (a, b) => Date.parse(b.issued) - Date.parse(a.issued),
-  );
-}
-
-/**
  * Retrieves cached character market orders data from React Query cache for all users.
  *
  * The caching process:

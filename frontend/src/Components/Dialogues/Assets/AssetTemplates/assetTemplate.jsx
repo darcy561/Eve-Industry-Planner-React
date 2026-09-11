@@ -1,4 +1,4 @@
-import { Avatar, Badge, Box, Tooltip, Typography } from "@mui/material";
+import { Avatar, Badge, Box, Tooltip } from "@mui/material";
 
 import { appShellNestedCardSx } from "../../../../Context/appShell";
 import {

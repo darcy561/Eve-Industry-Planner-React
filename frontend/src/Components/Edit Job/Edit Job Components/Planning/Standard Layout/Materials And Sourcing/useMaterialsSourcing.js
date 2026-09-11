@@ -63,12 +63,11 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         marketSelect,
         listingSelect,
       );
-      const { childJobsById, childJobIDs, hasChildJobs } =
-        resolveMaterialChildJobs({
-          state,
-          actions,
-          materialTypeID: material.typeID,
-        });
+      const { childJobsById, hasChildJobs } = resolveMaterialChildJobs({
+        state,
+        actions,
+        materialTypeID: material.typeID,
+      });
       const matchedChildJobs = Array.from(childJobsById.values());
       const { hasLinked, hasTemp, hasPendingAdd } =
         resolveMaterialChildJobStatus({

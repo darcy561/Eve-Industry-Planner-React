@@ -66,10 +66,9 @@ class ESIQueueManager {
    * Get rate limit group for URL (from cache or default)
    * Groups are discovered dynamically from X-Ratelimit-Group headers
    *
-   * @param {string} url - ESI endpoint URL
    * @returns {string} Rate limit group (from cache or 'default')
    */
-  getGroupForUrl(url) {
+  getGroupForUrl() {
     // Groups are discovered from headers and cached
     // For queue organisation, we use 'default' until group is discovered
     // The actual rate limiting will use the discovered group from headers
@@ -248,7 +247,7 @@ class ESIQueueManager {
    */
   getAllQueueStatuses() {
     const statuses = {};
-    for (const [group, queue] of this.queues) {
+    for (const [group] of this.queues) {
       statuses[group] = this.getQueueStatus(group);
     }
     return statuses;
@@ -274,7 +273,7 @@ class ESIQueueManager {
    * Clear all queues
    */
   clearAllQueues() {
-    for (const [group, queue] of this.queues) {
+    for (const [, queue] of this.queues) {
       queue.requests.forEach((request) => {
         request.reject(new Error("All queues cleared"));
       });

@@ -3,10 +3,8 @@ import { useState } from "react";
 import { screen, fireEvent } from "@testing-library/react";
 import {
   chartCapture,
-  drawnRowCounts,
   monthRow,
   renderWithProviders,
-  settledOn,
   timelineResponse,
 } from "../../tests/archiveHarness.jsx";
 

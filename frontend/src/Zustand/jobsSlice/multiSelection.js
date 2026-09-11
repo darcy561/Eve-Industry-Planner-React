@@ -20,7 +20,7 @@ import { asIDList } from "../../Functions/Helper/ids";
  * @param {Function} get - Zustand get function for accessing current state
  * @returns {Object} Multi-selection management actions
  */
-export const multiSelectionActions = (set, get) => ({
+export const multiSelectionActions = (set) => ({
   /**
    * Adds IDs to the multi-selection array.
    *

@@ -60,7 +60,10 @@ export async function fetchPlannerJobDocumentsFromApi() {
       `GET /api/v1/job-documents/planner failed: ${res.status} ${text || res.statusText}`,
     );
   }
-  const data = await res.json();
+  const data = await parseJsonBodyOrExplainHtml(
+    res,
+    "GET /api/v1/job-documents/planner",
+  );
   const rows = Array.isArray(data) ? data : [];
   const plannerJobs = rows.map((row) => new Job(row));
   const prev = useUsersStore.getState().jobData.jobArray;
@@ -95,7 +98,10 @@ export async function fetchJobDocumentsByGroupFromApi(groupID) {
       `GET job-documents by-group failed: ${res.status} ${text || res.statusText}`,
     );
   }
-  const data = await res.json();
+  const data = await parseJsonBodyOrExplainHtml(
+    res,
+    "GET job-documents by-group",
+  );
   const rows = Array.isArray(data) ? data : [];
   const jobs = rows.map((row) => new Job(row));
   useUsersStore.getState().jobData.actions.updateOrAddJobsToJobArray(jobs);
@@ -122,7 +128,7 @@ export async function fetchJobDocumentByIdFromApi(jobID) {
       `GET job-document failed: ${res.status} ${text || res.statusText}`,
     );
   }
-  const row = await res.json();
+  const row = await parseJsonBodyOrExplainHtml(res, "GET job-document");
   const job = new Job(row);
   useUsersStore.getState().jobData.actions.updateOrAddJobsToJobArray(job);
   return job;

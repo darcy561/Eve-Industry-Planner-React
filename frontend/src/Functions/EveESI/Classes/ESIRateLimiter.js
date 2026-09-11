@@ -353,7 +353,7 @@ class ESIRateLimiter {
       // Process all groups in parallel
       const processingPromises = [];
 
-      for (const [key, requests] of requestGroups) {
+      for (const [, requests] of requestGroups) {
         processingPromises.push(this.processRequestGroup(requests));
       }
 

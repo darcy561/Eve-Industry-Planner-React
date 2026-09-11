@@ -282,7 +282,7 @@ export default function EditJob_New() {
                     </span>
                   </Tooltip>
                   <DeleteJobIcon state={state} />
-                  <CloseJobIcon backupJob={backupJob.current} />
+                  <CloseJobIcon backupJobRef={backupJob} />
                   <SaveJobIcon state={state} />
                 </Grid>
               </Grid>

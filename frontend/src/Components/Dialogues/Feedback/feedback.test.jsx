@@ -1,0 +1,138 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, act, fireEvent } from "@testing-library/react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+
+const { submitted, errors } = vi.hoisted(() => ({
+  submitted: [],
+  errors: [],
+}));
+
+vi.mock("../../../Functions/Endpoints/Public/feedback", () => ({
+  default: async (payload) => {
+    submitted.push(payload);
+    return true;
+  },
+}));
+
+vi.mock("../../../Events/snackbarEvents", () => ({
+  showSnackbarError: (message) => errors.push(message),
+  showSnackbarSuccess: () => {},
+}));
+
+const { FeedbackIcon } = await import("./feedback.jsx");
+const { eventEmitter } = await import("../../../utils/EventSystem");
+const { FEEDBACK_DIALOGUE_EVENT } =
+  await import("../../../Events/feedbackDialogueEvents");
+
+const theme = createTheme();
+
+function open() {
+  act(() => {
+    eventEmitter.emit(FEEDBACK_DIALOGUE_EVENT, { isOpen: true });
+  });
+}
+
+function shot(name) {
+  return new File(["x"], name, { type: "image/png" });
+}
+
+function attach(files) {
+  const input = document.querySelector('input[type="file"]');
+  fireEvent.change(input, { target: { files } });
+}
+
+async function submit(text) {
+  const box = screen.getByRole("textbox", { name: /feedback|response/i });
+  fireEvent.change(box, { target: { value: text } });
+  fireEvent.submit(box.closest("form"));
+  // The action is async, so let it run before anything is asserted.
+  await act(async () => {});
+}
+
+beforeEach(() => {
+  submitted.length = 0;
+  errors.length = 0;
+});
+
+afterEach(() => {
+  eventEmitter.removeAllListeners();
+});
+
+describe("submitting feedback", () => {
+  it("sends what was typed", async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <FeedbackIcon />
+      </ThemeProvider>,
+    );
+    open();
+
+    await submit("the planner lost my job");
+
+    expect(submitted).toHaveLength(1);
+    expect(submitted[0].response).toContain("the planner lost my job");
+  });
+
+  // The screenshots are read when the form is submitted, not when it is built,
+  // so a list read from an earlier render would send the wrong files — or none.
+  it("sends the screenshots attached before it was sent", async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <FeedbackIcon />
+      </ThemeProvider>,
+    );
+    open();
+
+    attach([shot("one.png")]);
+    await submit("here is what happened");
+
+    expect(submitted[0].screenshotFiles.map((f) => f.name)).toEqual([
+      "one.png",
+    ]);
+  });
+
+  it("sends every screenshot attached, not just the first", async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <FeedbackIcon />
+      </ThemeProvider>,
+    );
+    open();
+
+    attach([shot("one.png")]);
+    attach([shot("two.png")]);
+    await submit("here is what happened");
+
+    expect(submitted[0].screenshotFiles.map((f) => f.name)).toEqual([
+      "one.png",
+      "two.png",
+    ]);
+  });
+
+  it("sends none when none were attached", async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <FeedbackIcon />
+      </ThemeProvider>,
+    );
+    open();
+
+    await submit("nothing to show you");
+
+    expect(submitted[0].screenshotFiles).toEqual([]);
+  });
+
+  it("refuses to send with nothing written", async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <FeedbackIcon />
+      </ThemeProvider>,
+    );
+    open();
+
+    await submit("   ");
+
+    expect(submitted).toHaveLength(0);
+    expect(errors).toContain("Feedback content is required");
+  });
+});

@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import DOMPurify from "dompurify";
 import { captureFeedback } from "@sentry/react";
@@ -67,15 +67,13 @@ function CrashReportSubmitButton() {
 function CrashReportSession({ eventId, hint, onDismiss }) {
   const [feedbackText, setFeedbackText] = useState("");
   const [screenshots, setScreenshots] = useState([]);
-  const screenshotsRef = useRef([]);
-  screenshotsRef.current = screenshots;
 
   const [formError, formAction, isPending] = useActionState(
     async (_prevState, formData) => {
       const inputText = String(formData.get("response") ?? "");
       const contactName = String(formData.get("contactName") ?? "").trim();
       const contactInfo = String(formData.get("contactInfo") ?? "").trim();
-      const screenshotFiles = screenshotsRef.current.map((s) => s.file);
+      const screenshotFiles = screenshots.map((s) => s.file);
 
       if (!inputText.trim()) {
         return "Feedback content is required";

@@ -239,5 +239,3 @@ from the cache and no longer holds anything the cache would disagree with.
 `entityNames.js` is still unsettled and is now the only thing in this project's scope that resolves
 ids outside the shared loader. It writes no verdicts, so it cannot reintroduce a fault; folding it in
 would buy batching with whatever location ids the same render asks for, and nothing else.
-
-Stage D depends on settling who owns `entityNames.js` with the session that wrote it.

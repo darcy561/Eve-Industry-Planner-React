@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Grid, InputAdornment, TextField } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { Tooltip } from "@mui/material";
+import { getAppShellPickerSlotProps } from "../../../../../../Context/appShell";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import DOMPurify from "dompurify";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
@@ -80,23 +81,15 @@ export function AddCustomTransactionDialogue({ state, actions, onClose }) {
         <Grid container sx={{ paddingTop: 1 }} size={12}>
           <Grid size={6}>
             <DateTimePicker
-              variant="outlined"
+              label="Transaction Date"
               value={transactionData.date}
-              sx={{
-                "& .MuiFormHelperText-root": {
-                  color: (theme) => theme.palette.secondary.main,
-                },
-                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    display: "none",
-                  },
-              }}
               onChange={(v) => {
                 setTransactionData((prev) => ({
                   ...prev,
                   date: v,
                 }));
               }}
+              slotProps={getAppShellPickerSlotProps()}
             />
           </Grid>
           <Grid size={6}>

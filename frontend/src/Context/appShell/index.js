@@ -8,6 +8,7 @@ export {
   appShellSelectMenuPaperSx,
   appShellSliderSx,
   appShellTextFieldOutlinedSx,
+  getAppShellPickerSlotProps,
   getAppShellSelectMenuProps,
 } from "./formControls";
 export {

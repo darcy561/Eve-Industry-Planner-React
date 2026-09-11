@@ -151,6 +151,38 @@ export function appShellTextFieldOutlinedSx(theme) {
   };
 }
 
+/**
+ * App-shell look for an `@mui/x-date-pickers` field and the panel it opens.
+ * Both `sx` values stay theme callbacks so a call site needs no `useTheme`.
+ *
+ * @param {Object} [overrides]
+ * @param {Object} [overrides.textField] - Extra props for the picker's text field slot.
+ * @returns {Object} A picker `slotProps` bundle.
+ */
+export function getAppShellPickerSlotProps({ textField } = {}) {
+  return {
+    textField: {
+      size: "small",
+      fullWidth: true,
+      ...textField,
+      sx: [appShellTextFieldOutlinedSx, textField?.sx].filter(Boolean),
+    },
+    desktopPaper: { sx: appShellPickerPaperSx },
+    mobilePaper: { sx: appShellPickerPaperSx },
+  };
+}
+
+// The calendar sizes itself, so this deliberately carries none of the height
+// cap or scrolling the select menu panel needs.
+function appShellPickerPaperSx(theme) {
+  return {
+    ...appShellInsetSurfaceSx(theme),
+    mt: 0.5,
+    boxShadow: theme.shadows[6],
+    backgroundImage: "none",
+  };
+}
+
 /** Bordered inset surface (dialogueues, dense tool panels). */
 export function appShellInsetSurfaceSx(theme) {
   return {

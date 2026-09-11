@@ -4,7 +4,7 @@ import { Alert, Button, Paper, Stack, Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import {
   appShellSetupSectionPaperSx,
-  appShellTextFieldOutlinedSx,
+  getAppShellPickerSlotProps,
 } from "../../Context/appShell";
 import ContentDialogue from "../../Styled Components/Dialogue/ContentDialogue";
 import { DialogueCloseAction } from "../../Styled Components/Dialogue/DialogueCloseAction";
@@ -44,14 +44,7 @@ function MonthField({ label, value, onChange, disabled, helperText }) {
           maxDate={new Date()}
           disabled={disabled}
           onChange={onChange}
-          slotProps={{
-            textField: {
-              size: "small",
-              fullWidth: true,
-              helperText,
-              sx: appShellTextFieldOutlinedSx,
-            },
-          }}
+          slotProps={getAppShellPickerSlotProps({ textField: { helperText } })}
         />
         <Button
           size="small"

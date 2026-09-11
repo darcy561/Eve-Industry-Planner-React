@@ -3,15 +3,17 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { store, characterRows, containerNameCalls, nameAsks } = vi.hoisted(() => ({
-  store: {
-    account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
-  },
-  characterRows: new Map(),
-  containerNameCalls: [],
-  nameAsks: [],
-}));
+const { store, characterRows, containerNameCalls, nameAsks } = vi.hoisted(
+  () => ({
+    store: {
+      account: { characters: [], corporations: [] },
+      worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
+    },
+    characterRows: new Map(),
+    containerNameCalls: [],
+    nameAsks: [],
+  }),
+);
 
 vi.mock("../../Zustand/usersStore", () => ({
   default: Object.assign((selector) => selector(store), {

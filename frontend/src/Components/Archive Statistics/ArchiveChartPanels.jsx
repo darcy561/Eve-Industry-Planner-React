@@ -226,6 +226,9 @@ export function ArchiveCostBreakdownPanel({ from, to, range }) {
           categoryKey="month"
           formatCategory={monthLabel(rows)}
           series={series}
+          // Its own colours: the series here come from the data, and every month chart would
+          // otherwise start from the same place as the fixed ones.
+          paletteSeed="archive-cost-breakdown"
         />
       )}
     </AppShellPanel>
@@ -345,6 +348,9 @@ export function ArchiveExtrasPanel({ from, to, range }) {
           categoryKey="month"
           formatCategory={monthLabel(rows)}
           series={series}
+          // Its own colours: the series here come from the data, and every month chart would
+          // otherwise start from the same place as the fixed ones.
+          paletteSeed="archive-extras"
         />
       )}
     </AppShellPanel>

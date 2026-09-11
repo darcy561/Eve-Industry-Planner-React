@@ -25,6 +25,7 @@ import {
 } from "../../../../../../Functions/Helper/numberParser";
 import findBlueprintType from "../../../../../../Functions/Shared/findBlueprintType";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
+import { useCurrentTime } from "../../../../../../Hooks/useCurrentTime";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 
 /**
@@ -37,6 +38,7 @@ export function AvailableJobsTab(props) {
   const { state, actions, jobMatches, isLoading, isError, error } = props;
   const queryClient = useQueryClient();
   const [clickedJobs, setClickedJobs] = useState(new Set());
+  const now = useCurrentTime();
   const jobLockReadOnly = useActiveJobReadOnly(state);
 
   const getStatusColor = (status, isReadyToDeliver) => {
@@ -148,11 +150,23 @@ export function AvailableJobsTab(props) {
                 .getState()
                 .worldData.actions.findUniverseData(job.facility_id)?.name ||
               "Location Data Unavailable";
-            const timeRemaining = formatTimeRemaining(Date.parse(job.end_date));
+            const timeRemaining = formatTimeRemaining(
+              Date.parse(job.end_date),
+              { now },
+            );
             const isReadyToDeliver =
               job.status === "active" &&
               (timeRemaining === "Complete" ||
-                Date.parse(job.end_date) - Date.now() <= 0);
+                Date.parse(job.end_date) - now <= 0);
+            // The bar and the tooltip beside it read the same figure; the
+            // tooltip is the only one that rounds.
+            const progressPercent =
+              job.status === "delivered" || isReadyToDeliver
+                ? 100
+                : 100 -
+                  ((Date.parse(job.end_date) - now) /
+                    (Date.parse(job.end_date) - Date.parse(job.start_date))) *
+                    100;
 
             return (
               <Grid
@@ -191,34 +205,12 @@ export function AvailableJobsTab(props) {
                     }}
                   >
                     <Tooltip
-                      title={`Progress: ${
-                        job.status === "delivered"
-                          ? "100"
-                          : isReadyToDeliver
-                            ? "100"
-                            : Math.round(
-                                100 -
-                                  ((Date.parse(job.end_date) - Date.now()) /
-                                    (Date.parse(job.end_date) -
-                                      Date.parse(job.start_date))) *
-                                    100,
-                              )
-                      }%`}
+                      title={`Progress: ${Math.round(progressPercent)}%`}
                       arrow
                     >
                       <LinearProgress
                         variant="determinate"
-                        value={
-                          job.status === "delivered"
-                            ? 100
-                            : isReadyToDeliver
-                              ? 100
-                              : 100 -
-                                ((Date.parse(job.end_date) - Date.now()) /
-                                  (Date.parse(job.end_date) -
-                                    Date.parse(job.start_date))) *
-                                  100
-                        }
+                        value={progressPercent}
                         sx={{
                           position: "absolute",
                           top: 0,

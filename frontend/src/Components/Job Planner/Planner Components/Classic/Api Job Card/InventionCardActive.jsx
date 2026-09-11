@@ -4,9 +4,13 @@ import {
   formatNumberForLocale,
   formatTimeRemaining,
 } from "../../../../../Functions/Helper/numberParser";
+import { useCurrentTime } from "../../../../../Hooks/useCurrentTime";
 
 export function InventionESICardActive({ job }) {
-  const timeRemaining = formatTimeRemaining(Date.parse(job.end_date));
+  const now = useCurrentTime();
+  const timeRemaining = formatTimeRemaining(Date.parse(job.end_date), {
+    now,
+  });
 
   return (
     <Grid container sx={{ paddingLeft: { xs: "0px", sm: "5px" } }} size={12}>

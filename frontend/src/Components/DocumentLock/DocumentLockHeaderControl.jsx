@@ -205,6 +205,12 @@ export default function DocumentLockHeaderControl() {
   const remainingSec = useMemo(() => {
     if (lockExpiresAtUnix == null || typeof lockExpiresAtUnix !== "number")
       return null;
+    // `tick` below is what makes this read the clock again, once a second and
+    // only while a lock is held. The rule cannot see that the dependency is
+    // the clock, and the shared `useCurrentTime` is not a substitute here:
+    // this control sits in the header on every page, so an ungated
+    // subscription would re-render the whole chrome with no lock in sight.
+    // eslint-disable-next-line react-hooks/purity
     return Math.max(0, lockExpiresAtUnix - Math.floor(Date.now() / 1000));
   }, [lockExpiresAtUnix, tick]);
 

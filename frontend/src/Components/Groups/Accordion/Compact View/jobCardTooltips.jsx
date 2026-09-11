@@ -3,7 +3,7 @@ import {
   formatTimeRemaining,
 } from "../../../../Functions/Helper/numberParser";
 
-function getTooltipContent(job) {
+function getTooltipContent(job, now) {
   switch (job.jobStatus) {
     case 0:
       return (
@@ -32,7 +32,7 @@ function getTooltipContent(job) {
       return <p>Ready To Build</p>;
     }
     case 2: {
-      const timeRemaining = timeUntilNextJobFinishes(job);
+      const timeRemaining = timeUntilNextJobFinishes(job, now);
 
       return (
         <span>
@@ -82,9 +82,9 @@ function getTooltipContent(job) {
   }
 }
 
-function timeUntilNextJobFinishes(job) {
+function timeUntilNextJobFinishes(job, now) {
   const next = job.nextRunToFinish;
-  return next ? formatTimeRemaining(next.finishesAt) : null;
+  return next ? formatTimeRemaining(next.finishesAt, { now }) : null;
 }
 
 export default getTooltipContent;

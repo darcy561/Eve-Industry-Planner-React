@@ -5,12 +5,14 @@ import {
   formatNumberForLocale,
   formatTimeRemaining,
 } from "../../../../../Functions/Helper/numberParser";
+import { useCurrentTime } from "../../../../../Hooks/useCurrentTime";
 
 export default function GroupStep3JobCard({ job }) {
-  let timeRemaining = useMemo(() => {
+  const now = useCurrentTime();
+  const timeRemaining = useMemo(() => {
     const next = job.nextRunToFinish;
-    return next ? formatTimeRemaining(next.finishesAt) : null;
-  }, [job]);
+    return next ? formatTimeRemaining(next.finishesAt, { now }) : null;
+  }, [job, now]);
 
   const totalJobCount = job.totalJobSlots;
 

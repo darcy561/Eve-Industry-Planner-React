@@ -22,6 +22,7 @@ import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import { useNavigate } from "@tanstack/react-router";
 import getTooltipContent from "./jobCardTooltips";
+import { useCurrentTime } from "../../../../Hooks/useCurrentTime";
 import useUsersStore from "../../../../Zustand/usersStore";
 import deleteJobsFromPlanner from "../../../../Functions/JobPlanner/deleteMultipleJobs";
 import { getJobTypeAccentColour } from "../../../../Functions/Helper/jobTypeDividerColour";
@@ -71,7 +72,8 @@ export function CompactGroupJobCardFrame({
 
   const isHighlighted = highlightedItems.has(job.jobID);
 
-  const tooltipContent = getTooltipContent(job);
+  const now = useCurrentTime();
+  const tooltipContent = getTooltipContent(job, now);
 
   const navigate = useNavigate();
 

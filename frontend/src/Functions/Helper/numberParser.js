@@ -310,6 +310,8 @@ export function formatTimeDuration(seconds, options = {}) {
  *
  * @param {number|string} inputTime - The target timestamp in milliseconds (can be a number or string)
  * @param {Object} options - Formatting options (passed to formatTimeDuration)
+ * @param {number} options.now - Time to measure from, so a caller holding a
+ *   ticking clock gets a figure that advances (default: the current time)
  * @param {boolean} options.days - Include days in output (default: true)
  * @param {boolean} options.hours - Include hours in output (default: true)
  * @param {boolean} options.minutes - Include minutes in output (default: true)
@@ -329,8 +331,8 @@ export function formatTimeRemaining(inputTime, options = {}) {
   }
 
   try {
-    const now = Date.now();
-    const timeLeft = inputTime - now;
+    const { now: measuredFrom, ...durationOptions } = options;
+    const timeLeft = inputTime - (measuredFrom ?? Date.now());
 
     if (timeLeft <= 0) {
       return "Complete";
@@ -340,7 +342,7 @@ export function formatTimeRemaining(inputTime, options = {}) {
     // Default to not showing seconds (matching original behaviour)
     const formatOptions = {
       seconds: false,
-      ...options,
+      ...durationOptions,
     };
 
     const formatted = formatTimeDuration(timeLeft / 1000, formatOptions);

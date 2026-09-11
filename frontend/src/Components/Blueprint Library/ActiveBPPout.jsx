@@ -1,6 +1,7 @@
 import { Paper, Popover, Typography, Grid } from "@mui/material";
 import { formatTimeRemaining } from "../../Functions/Helper/numberParser";
 import { Figure } from "../../Styled Components/Typography/figures";
+import { useCurrentTime } from "../../Hooks/useCurrentTime";
 
 export function ActiveBPPopout({
   blueprint,
@@ -8,7 +9,10 @@ export function ActiveBPPopout({
   displayPopover,
   updateDisplayPopover,
 }) {
-  const timeRemaining = formatTimeRemaining(Date.parse(esiJob.end_date));
+  const now = useCurrentTime();
+  const timeRemaining = formatTimeRemaining(Date.parse(esiJob.end_date), {
+    now,
+  });
 
   return (
     <Popover

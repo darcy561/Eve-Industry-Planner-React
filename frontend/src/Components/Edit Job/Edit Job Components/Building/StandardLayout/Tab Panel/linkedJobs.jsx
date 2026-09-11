@@ -16,6 +16,7 @@ import {
 import { LARGE_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
 import { showSnackbarSuccess } from "../../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../../Zustand/usersStore";
+import { useCurrentTime } from "../../../../../../Hooks/useCurrentTime";
 import PanelFallBack from "../../../../panelStates";
 import {
   formatNumberForLocale,
@@ -30,6 +31,7 @@ import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
  * the gate is the active job lock (group locks cascade into it automatically).
  */
 export function LinkedJobsTab(props) {
+  const now = useCurrentTime();
   const { state, actions, isLoading, isError, error } = props;
   const queryClient = useQueryClient();
   const [clickedJobs, setClickedJobs] = useState(new Set());
@@ -119,7 +121,7 @@ export function LinkedJobsTab(props) {
             const facilityData = useUsersStore
               .getState()
               .worldData.actions.findUniverseData(job.station_id);
-            const timeRemaining = formatTimeRemaining(job.finishesAt);
+            const timeRemaining = formatTimeRemaining(job.finishesAt, { now });
             const isReadyToDeliver = job.isReadyToDeliver;
 
             return (

@@ -68,6 +68,23 @@ export default [
       // tests use it to name the case that failed. The rule defaults to Jest's
       // one-argument form.
       "vitest/valid-expect": ["error", { maxArgs: 2 }],
+
+      // These three ask for a testing style the SPA's tests deliberately do not
+      // follow, and following it would cost coverage rather than gain it.
+      //
+      // A chart draws SVG paths that carry no role, name or text, so asserting
+      // that a series drew at all can only be done by selector — and a series
+      // pointing at a missing axis draws nothing silently, which is exactly
+      // what those tests catch. The same goes for asserting an EVE type icon
+      // rendered, counting loading skeletons, and walking from a cell to the
+      // row that holds it.
+      "testing-library/no-node-access": "off",
+      "testing-library/no-container": "off",
+      // The naming rule assumes a function called `render*` returns a render
+      // result. Here they mostly return what the test asserts on — the
+      // `onChange` spy they wired up, or a hook's value — so renaming those
+      // bindings to `view` would describe them wrongly.
+      "testing-library/render-result-naming-convention": "off",
     },
   },
 

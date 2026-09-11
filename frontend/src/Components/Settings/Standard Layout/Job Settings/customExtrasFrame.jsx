@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Chip, Divider, Typography, TextField, IconButton, Grid } from "@mui/material";
 
-import { SMALL_TEXT_FORMAT, STANDARD_TEXT_FORMAT, permanentExtrasCategories } from "../../../../Context/defaultValues";
+import { STANDARD_TEXT_FORMAT, permanentExtrasCategories } from "../../../../Context/defaultValues";
 import useUsersStore from "../../../../Zustand/usersStore";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";

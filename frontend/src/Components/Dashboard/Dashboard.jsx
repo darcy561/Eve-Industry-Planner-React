@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 import { AccountData } from "./Components/AccountData";
 import { NewTransactions } from "./Components/NewTransactions";
 import { ArchivedStatsOverview } from "../Archive Statistics/ArchivedStatsOverview";

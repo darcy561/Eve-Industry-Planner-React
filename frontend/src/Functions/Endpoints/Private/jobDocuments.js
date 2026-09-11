@@ -28,7 +28,7 @@ async function parseJsonBodyOrExplainHtml(res, label) {
   }
   try {
     return JSON.parse(text);
-  } catch (e) {
+  } catch {
     const preview = trimmed.replace(/\s+/g, " ").slice(0, 120);
     throw new Error(
       `${label}: response is not valid JSON (${res.status}): ${preview}`

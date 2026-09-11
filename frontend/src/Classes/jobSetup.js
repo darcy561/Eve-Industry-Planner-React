@@ -397,7 +397,7 @@ class Setup {
     if (!structureObject) return;
     this.structureID = structureObject.id;
     this.manageRequirements(
-      structureObject.hasOwnProperty("requirementID")
+      Object.hasOwn(structureObject, "requirementID")
         ? structureObject.requirementID
         : null,
     );
@@ -412,7 +412,7 @@ class Setup {
     if (!rigObject || !Object.hasOwn(rigObject, "material")) return;
     this.rigID = rigObject.id;
     this.manageRequirements(
-      rigObject.hasOwnProperty("requirementID")
+      Object.hasOwn(rigObject, "requirementID")
         ? rigObject.requirementID
         : null,
     );
@@ -427,7 +427,7 @@ class Setup {
     if (!systemObject || !Object.hasOwn(systemObject, "value")) return;
     this.systemTypeID = systemObject.id;
     this.manageRequirements(
-      systemObject.hasOwnProperty("requirementID")
+      Object.hasOwn(systemObject, "requirementID")
         ? systemObject.requirementID
         : null,
     );

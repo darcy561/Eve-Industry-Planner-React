@@ -1,16 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent } from "@testing-library/react";
 import {
-  archiveStoreState,
   chartCapture,
-  chartMocks,
-  drawnRowCounts,
-  emptyArchiveListMock,
   monthsAcross,
   renderWithProviders,
   settledOn,
   timelineResponse,
-  usersStoreMock,
 } from "../../tests/archiveHarness.jsx";
 
 /**

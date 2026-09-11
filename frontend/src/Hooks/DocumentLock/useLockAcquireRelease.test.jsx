@@ -1,5 +1,4 @@
 import { renderHook, act } from "@testing-library/react";
-import { useRef } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useLockAcquireRelease } from "./useLockAcquireRelease.js";
 import { DOCUMENT_LOCK_HELD_ACTIONS } from "./documentLockHeldReducer.js";

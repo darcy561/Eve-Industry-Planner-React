@@ -99,9 +99,9 @@ export default function ContentPanel({
           <IconButton
             id="contentPanel_menu_button"
             onClick={(event) => setMenuAnchor(event.currentTarget)}
-            aria-controls={Boolean(menuAnchor) ? "contentPanel_menu" : undefined}
+            aria-controls={menuAnchor ? "contentPanel_menu" : undefined}
             aria-haspopup="true"
-            aria-expanded={Boolean(menuAnchor) ? "true" : undefined}
+            aria-expanded={menuAnchor ? "true" : undefined}
             sx={{ position: "absolute", top: "10px", right: "10px" }}
           >
             <MoreVertIcon size="small" color="primary" />

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createEsiCredentialProvider } from "./provider.js";
 import {
   ESI_CREDENTIAL_REAUTH_REQUIRED,

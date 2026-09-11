@@ -8,10 +8,8 @@ import {
   buildAccountDataFromRefreshTokenCandidates,
   buildCharacterFromCloudStoredAccess,
   canonicalCharacterHashKey,
-  clearLocalAdditionalAccountsStorage,
   getSystemIndexDataFromUserStructures,
   groupRefreshTokensByCharacterHash,
-  updateLocalRefreshTokens,
   updateLocalRefreshTokensIfAccountHasAdditionalCharacters,
 } from "../../Functions/Auth/buildAccountData.js";
 import {

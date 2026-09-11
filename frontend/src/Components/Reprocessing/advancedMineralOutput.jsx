@@ -48,7 +48,7 @@ export function AdvancedMineralOutput(props) {
         // Test if we can actually write to clipboard
         await navigator.clipboard.writeText("test");
         setClipboardAccessible(true);
-      } catch (error) {
+      } catch {
         setClipboardAccessible(false);
       }
     };

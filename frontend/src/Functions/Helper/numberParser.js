@@ -343,7 +343,7 @@ export function formatTimeRemaining(inputTime, options = {}) {
 
     // Return formatted string (empty string if less than a minute, matching original behaviour)
     return formatted;
-  } catch (err) {
+  } catch {
     return "Time Not Available";
   }
 }

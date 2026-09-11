@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
 import { Box, Divider, Typography } from "@mui/material";
-import { LARGE_TEXT_FORMAT, STANDARD_TEXT_FORMAT } from "../../../Context/defaultValues";
+import { LARGE_TEXT_FORMAT } from "../../../Context/defaultValues";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
 import useUsersStore from "../../../Zustand/usersStore";
 import ItemBreakdownFrame from "./itemFrame";

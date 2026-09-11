@@ -1,6 +1,6 @@
 import { Avatar, AvatarGroup, Typography, Grid } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useJobStatuses } from "../../Job Planner/Hooks/useJobStatuses";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";

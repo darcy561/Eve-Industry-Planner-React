@@ -299,7 +299,7 @@ class ESIQueueManager {
    * @param {string} priority - Priority level ('high', 'normal', 'low')
    */
   setPriority(priority) {
-    if (this.priorities.hasOwnProperty(priority)) {
+    if (Object.hasOwn(this.priorities, priority)) {
       return this.priorities[priority];
     }
     return this.priorities.normal;

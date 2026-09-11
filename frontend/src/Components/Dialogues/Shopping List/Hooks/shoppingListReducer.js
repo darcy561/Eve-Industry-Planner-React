@@ -97,7 +97,7 @@ export function shoppingListReducer(state, action, createInitialState) {
             return { ...state, requestedJobIDs: action.payload };
         case SHOPPING_LIST_ACTION_TYPES.TOGGLE_DISPLAY_CHILD_JOB_MATERIALS:
             return { ...state, displayChildJobMaterials: !state.displayChildJobMaterials };
-        case SHOPPING_LIST_ACTION_TYPES.SET_ASSET_TYPE:
+        case SHOPPING_LIST_ACTION_TYPES.SET_ASSET_TYPE: {
             // When switching asset types or turning off, clear assets and reset to defaults
             const newAssetType = action.payload;
             const previousAssetType = state.assetType;
@@ -153,6 +153,7 @@ export function shoppingListReducer(state, action, createInitialState) {
             }
             
             return { ...state, assetType: newAssetType, ...clearedAssetsInfo };
+        }
         case SHOPPING_LIST_ACTION_TYPES.TOGGLE_ASSETS_IMPORTED_FROM_CLIPBOARD:
             return { ...state, assetsImportedFromClipboard: !state.assetsImportedFromClipboard };
         case SHOPPING_LIST_ACTION_TYPES.SET_ASSET_LOCATIONS:
@@ -169,7 +170,7 @@ export function shoppingListReducer(state, action, createInitialState) {
             return { ...state, selectedCorporationHangar: action.payload };
         case SHOPPING_LIST_ACTION_TYPES.SET_SHOPPING_LIST:
             return { ...state, shoppingList: action.payload };
-        case SHOPPING_LIST_ACTION_TYPES.IMPORT_ASSETS_FROM_CLIPBOARD:
+        case SHOPPING_LIST_ACTION_TYPES.IMPORT_ASSETS_FROM_CLIPBOARD: {
             state.shoppingList.clearAssetQuantities();
             state.shoppingList.importAssetsFromClipboard(action.payload);
             state.shoppingList.calculateVisibleItems(state);
@@ -194,6 +195,7 @@ export function shoppingListReducer(state, action, createInitialState) {
                 appliedAssetsCount: clipboardAppliedAssetsCount,
                 appliedAssetsDetails: clipboardAppliedAssetsDetails,
             };
+        }
         case SHOPPING_LIST_ACTION_TYPES.CLEAR_IMPORTED_ASSETS:
             state.shoppingList.clearAssetQuantities();
             state.shoppingList.calculateVisibleItems(state);
@@ -205,7 +207,7 @@ export function shoppingListReducer(state, action, createInitialState) {
                 appliedAssetsCount: 0,
                 appliedAssetsDetails: [],
             };
-        case SHOPPING_LIST_ACTION_TYPES.APPLY_ASSETS_FROM_MAP:
+        case SHOPPING_LIST_ACTION_TYPES.APPLY_ASSETS_FROM_MAP: {
             state.shoppingList.applyAssetsFromMap(action.payload.assetsByTypeID, action.payload.countAssetQuantityFromMap);
             state.shoppingList.calculateVisibleItems(state);
             state.shoppingList.calculateTotalVolume();
@@ -228,6 +230,7 @@ export function shoppingListReducer(state, action, createInitialState) {
                 appliedAssetsCount,
                 appliedAssetsDetails,
             };
+        }
         case SHOPPING_LIST_ACTION_TYPES.TOGGLE_INCLUDE_WHEN_COPYING:
             state.shoppingList.toggleIncludeWhenCopying(action.payload);
             state.shoppingList.calculateVisibleItems(state);

@@ -1,4 +1,4 @@
-import { createRootRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createRootRoute, redirect } from "@tanstack/react-router";
 import App from "../App";
 import useUsersStore from "../Zustand/usersStore";
 

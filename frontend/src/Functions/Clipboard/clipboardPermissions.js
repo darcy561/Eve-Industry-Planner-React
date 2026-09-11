@@ -8,7 +8,7 @@ export async function checkClipboardReadPermissions() {
   try {
     try {
       return await requestClipboardPermissions();
-    } catch (clipboardError) {
+    } catch {
       // If clipboard access fails, check permissions
       const permissionStatus = await navigator.permissions.query({
         name: "clipboard-read",
@@ -16,7 +16,7 @@ export async function checkClipboardReadPermissions() {
       if (["granted", "prompt"].includes(permissionStatus.state)) return true;
       return false;
     }
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -32,7 +32,7 @@ export async function requestClipboardPermissions() {
     // Try to read from clipboard - this will trigger the permission prompt
     await navigator.clipboard.readText();
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

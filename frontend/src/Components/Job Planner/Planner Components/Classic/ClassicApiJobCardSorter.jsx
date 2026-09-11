@@ -1,4 +1,3 @@
-import React from "react";
 import { IndustryESICardActive } from "./Api Job Card/manufacturingCardActive";
 import { IndustryESICardComplete } from "./Api Job Card/manufacturingCardComplete";
 import { MeResearchESICardActive } from "./Api Job Card/meResearchActive";

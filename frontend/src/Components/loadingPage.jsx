@@ -26,7 +26,6 @@ export function LoadingPage({
         sx={{
           flex: 1,
           alignSelf: "stretch",
-          minHeight: 0,
           width: "100%",
           boxSizing: "border-box",
           display: "flex",

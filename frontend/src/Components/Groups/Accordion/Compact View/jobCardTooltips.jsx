@@ -16,8 +16,7 @@ function getTooltipContent(job) {
           </p>
         </span>
       );
-    case 1:
-      const totalComplete = job.completedMaterialCount;
+    case 1: {
       const totalRemaining = job.remainingMaterialCount;
 
       if (!job.isReadyToBuild) {
@@ -30,7 +29,8 @@ function getTooltipContent(job) {
         );
       }
       return <p>Ready To Build</p>;
-    case 2:
+    }
+    case 2: {
       const timeRemaining = timeUntilNextJobFinishes(job);
 
       return (
@@ -48,6 +48,7 @@ function getTooltipContent(job) {
           )}
         </span>
       );
+    }
     case 3:
       return (
         <span>

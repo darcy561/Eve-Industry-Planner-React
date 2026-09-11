@@ -4,7 +4,6 @@
  */
 
 import ESIRateLimiter from "./ESIRateLimiter.js";
-import fetchWithCustomHeaders from "../fetchWithCustomHeaders.js";
 
 /** Only EVE ESI hosts use X-Ratelimit-* / 429 retry semantics (not arbitrary APIs or Sentry). */
 function isEveEsiUrl(url) {

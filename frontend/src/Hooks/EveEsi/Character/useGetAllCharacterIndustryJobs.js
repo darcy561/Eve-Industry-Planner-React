@@ -1,6 +1,6 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import useUsersStore from "../../../Zustand/usersStore";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import { characterIndustryJobsQuery, characterIndustryJobsQueryKey } from "../../React Query/Character/industryJobs";
 import {
   isQueryObserverResultLoading,

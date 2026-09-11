@@ -33,6 +33,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@sentry/vite-plugin": "^5.4.0",
     "@tanstack/react-query-devtools": "^5.102.8",
     "@tanstack/router-plugin": "^1.168.36",
@@ -42,7 +43,15 @@
     "@testing-library/user-event": "^14.6.7",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/eslint-plugin": "^1.6.27",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-testing-library": "^7.16.2",
+    "globals": "^17.12.0",
     "jsdom": "^29.1.1",
+    "prettier": "^3.9.6",
     "rollup-plugin-visualizer": "^7.1.1",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"
@@ -53,15 +62,18 @@
     "build:analyze": "ANALYZE=1 vite build",
     "build-dev": "vite build --mode dev",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": ">=24.0.0"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "overrides": {
+    "eslint-plugin-jsx-a11y": {
+      "eslint": "$eslint"
+    }
   }
 }

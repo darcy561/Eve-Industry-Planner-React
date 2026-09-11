@@ -21,7 +21,7 @@ export async function buildJob(buildRequest, options = {}) {
     }
 
     for (const request of requests) {
-      if (!request.hasOwnProperty("itemID")) {
+      if (!Object.hasOwn(request, "itemID")) {
         jobBuildErrors(request, "Item Data Missing From Request");
         return Array.isArray(buildRequest) ? [] : undefined;
       }

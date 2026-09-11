@@ -7,7 +7,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  Toolbar,
   useMediaQuery,
 } from "@mui/material";
 import KeyboardDoubleArrowRightOutlinedIcon from "@mui/icons-material/KeyboardDoubleArrowRightOutlined";

@@ -14,7 +14,7 @@ import {
   docLockScopeKey,
   initialScopedDocumentLockState,
 } from "../Functions/DocumentLock/documentLockScope.js";
-import { buildGrantedHolderPatch, numberOrNull } from "../Functions/DocumentLock/documentLockStatusFields.js";
+import { buildGrantedHolderPatch } from "../Functions/DocumentLock/documentLockStatusFields.js";
 import { resolveDocumentLockApiTarget } from "../Functions/DocumentLock/resolveDocumentLockApiTarget.js";
 
 /**

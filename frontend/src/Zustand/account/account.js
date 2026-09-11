@@ -87,7 +87,7 @@ export const accountActions = (set, get) => ({
     return (
       Boolean(state.account.isLoggedIn) &&
       (Boolean(state.account.isFirstTimeLogin) ||
-        !Boolean(state.account.hasCompletedFirstLoginFlow))
+        !state.account.hasCompletedFirstLoginFlow)
     );
   },
 

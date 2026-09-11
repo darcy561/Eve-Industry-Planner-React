@@ -1,0 +1,7 @@
+dist
+coverage
+.tanstack
+src/routeTree.gen.js
+
+# Placeholder tokens substituted at deploy time by deployment/runtimeConfig.js.
+public/env.js

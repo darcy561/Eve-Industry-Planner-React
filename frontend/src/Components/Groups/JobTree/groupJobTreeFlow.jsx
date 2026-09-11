@@ -91,28 +91,6 @@ export default function GroupJobTreeFlow({
     [navigate, groupForEditSearch, editReturnPageView]
   );
 
-  const groupHelpText = (
-    <Typography variant="subtitle2" color="text.secondary">
-      Built jobs feed <strong>up</strong> the chain; layout is top-down. Lines run from child to
-      parent. <strong>Click</strong> a job to lock highlight for its parents and children;{" "}
-      <strong>double-click</strong> to edit. Use the right panel <strong>highlight</strong> icon on
-      an output job to dim the tree to that production chain and its connectors. Pan: drag the canvas
-      (including over jobs) or two-finger scroll; zoom: toolbar, pinch, or{" "}
-      <strong>Ctrl</strong> / <strong>⌘</strong> + scroll.
-    </Typography>
-  );
-
-  if (groupJobs.length === 0) {
-    return (
-      <ContentPanel
-        componentName="Group job tree"
-        paperSx={{ padding: 2, overflow: "hidden" }}
-      >
-        <Typography color="text.secondary">No jobs in this group.</Typography>
-      </ContentPanel>
-    );
-  }
-
   const focusInGroup =
     focusJobId && groupJobIdSet.has(String(focusJobId))
       ? String(focusJobId)
@@ -148,6 +126,28 @@ export default function GroupJobTreeFlow({
     groupForEditSearch,
     groupJobs,
   ]);
+
+  const groupHelpText = (
+    <Typography variant="subtitle2" color="text.secondary">
+      Built jobs feed <strong>up</strong> the chain; layout is top-down. Lines run from child to
+      parent. <strong>Click</strong> a job to lock highlight for its parents and children;{" "}
+      <strong>double-click</strong> to edit. Use the right panel <strong>highlight</strong> icon on
+      an output job to dim the tree to that production chain and its connectors. Pan: drag the canvas
+      (including over jobs) or two-finger scroll; zoom: toolbar, pinch, or{" "}
+      <strong>Ctrl</strong> / <strong>⌘</strong> + scroll.
+    </Typography>
+  );
+
+  if (groupJobs.length === 0) {
+    return (
+      <ContentPanel
+        componentName="Group job tree"
+        paperSx={{ padding: 2, overflow: "hidden" }}
+      >
+        <Typography color="text.secondary">No jobs in this group.</Typography>
+      </ContentPanel>
+    );
+  }
 
   return (
     <ContentPanel

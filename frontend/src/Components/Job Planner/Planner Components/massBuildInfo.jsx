@@ -1,4 +1,4 @@
-import { CircularProgress, Box, Typography, Slide, Paper, Fade, Grid } from "@mui/material";
+import { CircularProgress, Typography, Slide, Paper, Fade, Grid } from "@mui/material";
 
 import { useState, useEffect } from "react";
 

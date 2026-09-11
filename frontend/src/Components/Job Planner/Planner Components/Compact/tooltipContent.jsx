@@ -8,7 +8,7 @@ function getTooltipContent(job) {
           <p>Job Setups: {job.setupCount}</p>
         </span>
       );
-    case 1:
+    case 1: {
       const totalMaterials = job.build.materials.length;
       const totalComplete = job.completedMaterialCount;
       if (!job.isReadyToBuild) {
@@ -22,6 +22,7 @@ function getTooltipContent(job) {
         );
       }
       return <p>Ready To Build</p>;
+    }
     case 2:
       return (
         <span>

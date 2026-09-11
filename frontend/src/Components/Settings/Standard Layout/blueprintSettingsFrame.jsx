@@ -19,8 +19,6 @@ import { useCachedData } from "../../../Hooks/App/useCachedData";
 import { CACHED_DATA_FILES } from "../../../Context/defaultValues";
 import ClearIcon from "@mui/icons-material/Clear";
 import useUsersStore from "../../../Zustand/usersStore";
-import { shallow } from "zustand/shallow";
-
 function BlueprintSettingsFrame() {
   const defaultMaterialEfficiencyValue = useUsersStore(
     (state) => state.applicationSettings.defaultMaterialEfficiencyValue

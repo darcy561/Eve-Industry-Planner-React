@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import GLOBAL_CONFIG from "../../global-config-app";
 import {
   appShellInsetSurfaceSx,

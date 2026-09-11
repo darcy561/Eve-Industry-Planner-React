@@ -13,10 +13,10 @@ import recalculateJobForNewTotal from "./recalculateJobForNewTotal";
 export async function importFromClipboard() {
   const itemNameRegex = /^\[(?<itemName>.+),\s*(?<fittingName>.+)\]/g;
   const itemMatchesRegex =
-    /^(?![^\r\n,]*,)(?<module>[^\[\r\n]+)|^(?:(?![^\r\n,]*,)(?!\[|\sx\d).)+/gm;
+    /^(?![^\r\n,]*,)(?<module>[^[\r\n]+)|^(?:(?![^\r\n,]*,)(?!\[|\sx\d).)+/gm;
   const itemWithQuantitiesRegex = /^(?<module>[^\n]*?)\s*x(?<quantity>\d+)/gm;
   const itemsWithChargesRegex =
-    /^(?![^\r\n,]*[\[\]])(?=.*,)(?<module>[^,\r\n]+),\s*(?<charge>[^,\r\n]+)$/gm;
+    /^(?![^\r\n,]*[[\]])(?=.*,)(?<module>[^,\r\n]+),\s*(?<charge>[^,\r\n]+)$/gm;
 
   const hasPermission = await checkClipboardReadPermissions();
   if (!hasPermission) {

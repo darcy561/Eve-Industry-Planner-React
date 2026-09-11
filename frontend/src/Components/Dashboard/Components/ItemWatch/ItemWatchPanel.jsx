@@ -11,7 +11,6 @@ import { useState } from "react";
 import { AddGroupDialogue } from "./addGroupDialogue";
 import { GroupSettingsDialogue } from "./groupSettings";
 import { WatchlistContainer } from "./itemWatchContainer";
-import useUsersStore from "../../../../Zustand/usersStore";
 import ContentPanel from "../../../../Styled Components/Paper/ContentPanel";
 
 export function ItemWatchPanel() {

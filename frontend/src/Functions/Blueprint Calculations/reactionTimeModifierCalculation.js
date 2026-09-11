@@ -1,5 +1,5 @@
 import { getStructureInfoFromID, getRigInfoFromID } from "../Helper/getStructureInfo";
-import { jobTypes } from "../../Context/defaultValues";
+import { industrySkillIDs, jobTypes } from "../../Context/defaultValues";
 /**
  * Calculates the time modifier value for a reaction job setup based on the user's skills, structure, and rig.
  * 
@@ -15,7 +15,7 @@ export default function reactionTimeModifierCalculation(
     usersSkills) {
     if (structureID == null || rigID == null || usersSkills == null) return 0;
 
-    const reactionSkill = usersSkills[45746]?.activeLevel ?? 0;
+    const reactionSkill = usersSkills[industrySkillIDs.reaction]?.activeLevel ?? 0;
     const structureData = getStructureInfoFromID(jobTypes.reaction, structureID)?.time || 0;
     const rigData = getRigInfoFromID(jobTypes.reaction, rigID)?.time || 0;
 

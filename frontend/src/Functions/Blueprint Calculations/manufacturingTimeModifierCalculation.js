@@ -1,5 +1,5 @@
 import { getStructureInfoFromID, getRigInfoFromID } from "../Helper/getStructureInfo";
-import { jobTypes } from "../../Context/defaultValues";
+import { industrySkillIDs, jobTypes } from "../../Context/defaultValues";
 
 /**
  * Calculates the time modifier value for a manufacturing job setup based on the user's skills, structure, and rig.
@@ -18,8 +18,9 @@ export default function manufacturingTimeModifierCalculation(
     usersSkills) {
     if (timeEfficiencyValue == null || structureID == null || rigID == null || usersSkills == null) return 0;
 
-    const industrySkill = usersSkills[3380]?.activeLevel ?? 0;
-    const advIndustrySkill = usersSkills[3388]?.activeLevel ?? 0;
+    const industrySkill = usersSkills[industrySkillIDs.industry]?.activeLevel ?? 0;
+    const advIndustrySkill =
+        usersSkills[industrySkillIDs.advancedIndustry]?.activeLevel ?? 0;
     const structureData = getStructureInfoFromID(jobTypes.manufacturing, structureID)?.time || 0;
     const rigData = getRigInfoFromID(jobTypes.manufacturing, rigID)?.time || 0;
 

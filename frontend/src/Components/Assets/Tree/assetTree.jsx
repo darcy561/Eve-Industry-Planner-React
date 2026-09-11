@@ -60,10 +60,8 @@ export default function AssetTree({
     ],
   );
 
-  // The list scrolls inside itself, so the virtualiser measures against this
-  // element rather than the page and needs no notion of where on the page it
-  // sits. Row heights are stated by their kind rather than measured, so nothing
-  // has to mount to be sized.
+  // Measured against the list's own box rather than the page, so where the list
+  // sits on the page does not come into it.
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => listRef.current,

@@ -21,25 +21,18 @@ import { Figure } from "../../../Styled Components/Typography/figures";
 const INDENT = 16;
 
 /**
- * How tall each kind of row is, stated rather than measured.
+ * How tall each kind of row is, stated rather than measured: every row holds one
+ * line that never wraps.
  *
- * Every row holds a single line that never wraps, so its height follows from its
- * kind and the breakpoint alone. Stating it here lets the virtualiser place a row
- * it has not drawn yet.
- *
- * The floor is the expander, not the text: a small icon button is 30px, which is
- * taller than any line of type these rows use, and all but the emptiest location
- * rows have one. Add each kind's own padding, border and margin to that before
- * changing a number here — a row that renders taller than it claims will sit over
- * the one below it, because the virtualiser positions by the stated height and
- * nothing clips the difference.
+ * The floor is the expander, not the text — a small icon button is 30px, taller
+ * than any line of type here, and all but the emptiest location rows carry one.
+ * A row that renders taller than it claims sits over the one below it, because
+ * the virtualiser positions by the stated height and nothing clips the rest.
  */
 const ROW_HEIGHT = Object.freeze({
-  // Expander 30, padding 8, border 2, margin 4.
+  // The expander, plus each kind's own padding, border and margin.
   [ASSET_ROW.LOCATION]: { narrow: 44, wide: 44 },
-  // Expander 30, margin 4.
   [ASSET_ROW.COMPARTMENT]: { narrow: 36, wide: 36 },
-  // Expander 30 or the artwork beside it (24 narrow, 32 wide), padding 4.
   [ASSET_ROW.ITEM]: { narrow: 36, wide: 40 },
 });
 

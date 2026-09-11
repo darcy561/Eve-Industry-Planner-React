@@ -107,6 +107,46 @@ one file per stage, with their data in
 [`frontend/src/tests/editJobFixtures.js`](../../frontend/src/tests/editJobFixtures.js). A new way of
 changing the job gets one.
 
+## A value that follows another
+
+A component that holds its own copy of something it was handed — a prop, a store value, a route
+param — brings that copy into step **while rendering**, not in an effect. An effect runs after the
+browser has painted, so the first frame carries the previous value and the correct one arrives a
+frame later; computing during render means the first painted frame is already right.
+
+`useHasChanged` in `frontend/src/Hooks/` is the shared shape for this: it answers whether a value
+moved since the render before, compared with `Object.is`, and the caller writes its own update so
+what is being set stays visible at the call site —
+
+```js
+const [shown, setShown] = useState(() => format(rate));
+if (useHasChanged(rate)) {
+  setShown(format(rate));
+}
+```
+
+Its answer is only true for the render it fires on; that render is replaced by the one the update
+causes, so it cannot be read afterwards, only acted on in the moment. Pass it something stable — a
+value rebuilt every render (an array from `map`, an object literal) reads as changed every time, so
+compare what actually identifies it: a length, an id, a boolean.
+
+Not every case fits it. A value that is only ever read while something else is open — an editor's
+seeded field, a panel's initial state — wants seeding at the moment that something opens, not keeping
+in step the rest of the time; ask what reads the copy before reaching for `useHasChanged`.
+
+## A poke is not a value
+
+State that exists only to tell something else "look again" — a counter bumped so a view below re-runs
+a fit, a flag raised and cleared to mark a signal as handled — carries no value of its own, and a
+consumer that unpacks meaning back out of it (an id packed into a key, a boolean read as "just
+happened") is decoding a message that should have been sent directly.
+
+Pass what changed, not that something changed. A request to focus a job is the job, plus whatever
+tells two requests for the same job apart from each other; a caller with no way to tell two requests
+apart does not need to — mounting fresh for each request is enough on its own. The receiving side acts
+on the request changing, the same shape `useHasChanged` gives a synchronised copy, rather than on a
+counter it has to remember to reset.
+
 ## Lint and format
 
 The SPA is linted by **ESLint** ([`frontend/eslint.config.mjs`](../../frontend/eslint.config.mjs),

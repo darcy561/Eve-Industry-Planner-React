@@ -417,9 +417,13 @@ predicate (read-only, waitlist, handoff, `viewerCount > 0`, etc.).
 
 Low-time flash: when `remainingSec ≤ 30` and we are still on the lock (holder
 or viewer) the icon pulses 1 Hz at the same colour as the static icon (primary
-for holder, warning for read-only viewer). Passive-viewer flash uses the same
-pulse timing for `LOCK_PASSIVE_VIEWER_FLASH_MS` after `viewerCount` goes 0 → ≥1
-(holder only, primary throughout).
+for holder, warning for read-only viewer). Passive-viewer flash pulses at
+holder primary colour for up to `LOCK_PASSIVE_VIEWER_FLASH_MS` after
+`viewerCount` goes 0 → ≥1 while you hold the lock. It carries the scope it was
+raised for, so a header that has moved to another document is never read as
+still watching this one, and it ends as soon as any of what raised it stops
+being true — the last viewer leaving, the lock changing hands, or the header
+moving to another document — rather than only when the timer runs out.
 
 ### Adjust-state-during-render anchor cleanup
 

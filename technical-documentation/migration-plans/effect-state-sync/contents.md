@@ -1,5 +1,7 @@
 # Effect-driven state synchronisation
 
+**Status: closed (2026-09-11).** Every finding is resolved and the live SoT is promoted. This folder is **history only**, kept because [job-document-drafts](../job-document-drafts/contents.md) cites it.
+
 ## Owns
 
 The SPA components and hooks that hold a copy of something in state and keep it in step with an

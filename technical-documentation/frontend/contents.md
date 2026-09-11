@@ -3,8 +3,9 @@
 ## Owns (SoT)
 
 SPA behaviour: React auth/session UX, credential acquisition, document-lock UI, routing and page
-chrome, and the normalised ESI asset and blueprint row collections — their index hooks, the login
-prefetch that fills them, and shared location-name resolution.
+chrome, the normalised ESI asset and blueprint row collections — their index hooks, the login
+prefetch that fills them, and shared location-name resolution — and the group page's scheduler
+character selection, group name editing, and job dependency tree.
 
 ## Does not own
 
@@ -25,4 +26,5 @@ prefetch that fills them, and shared location-name resolution.
 | Change the index hooks, their scopes, or how a derived collection is shared | [esi-collections/row-collections.md](./esi-collections/row-collections.md) |
 | Change what login prefetches, when, or under what budget | [esi-collections/prefetch.md](./esi-collections/prefetch.md) |
 | Resolve a location or container id into a name | [esi-collections/location-names.md](./esi-collections/location-names.md) |
+| Change the group scheduler's default character selection, the group name editor, or the job dependency tree | [group/contents.md](./group/contents.md) |
 | Frontend test entrypoints / depth | [../testing/frontend/contents.md](../testing/frontend/contents.md) |

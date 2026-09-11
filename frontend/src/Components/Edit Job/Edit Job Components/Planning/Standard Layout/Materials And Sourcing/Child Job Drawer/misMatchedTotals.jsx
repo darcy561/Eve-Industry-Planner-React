@@ -30,11 +30,11 @@ export function DisplayMismatchedChildTotals({ coverage }) {
       <AlertTitle sx={{ fontSize: "0.85rem" }}>
         The child job is {short} short
       </AlertTitle>
-      <Typography variant="caption" display="block">
+      <Typography variant="caption" sx={{ display: "block" }}>
         It makes {quantity(produced)} of the {quantity(required)} this job
         needs.
       </Typography>
-      <Typography variant="caption" display="block">
+      <Typography variant="caption" sx={{ display: "block" }}>
         {shortfallWording(coverage, quantity, formatIsk)}
       </Typography>
     </Alert>

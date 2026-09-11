@@ -414,7 +414,11 @@ function filingTarget(block) {
 function Field({ label, children }) {
   return (
     <Box sx={{ flex: 1, minWidth: 0 }}>
-      <Typography variant="caption" color="text.secondary" display="block">
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block" }}
+      >
         {label}
       </Typography>
       <Box sx={{ mt: 0.25 }}>{children}</Box>

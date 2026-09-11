@@ -123,9 +123,9 @@ export function LoadingBrandScene({
           component="img"
           src={LOGO_SRC}
           alt=""
-          width={logoSize}
-          height={logoSize}
           sx={{
+            width: logoSize,
+            height: logoSize,
             display: "block",
             borderRadius: 2,
             boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.22)}`,

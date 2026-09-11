@@ -214,8 +214,7 @@ function CurrentStructuresFrame({
                     <Typography
                       variant="subtitle1"
                       color="primary"
-                      fontWeight={700}
-                      sx={{ lineHeight: 1.3 }}
+                      sx={{ fontWeight: 700, lineHeight: 1.3 }}
                     >
                       {structure.name}
                     </Typography>

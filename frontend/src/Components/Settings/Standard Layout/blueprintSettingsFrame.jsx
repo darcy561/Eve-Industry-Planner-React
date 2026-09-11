@@ -90,7 +90,6 @@ function BlueprintSettingsFrame() {
             labelPlacement="start"
             control={
               <Switch
-                color="primary"
                 checked={automaticJobRecalculation}
                 onChange={async () => {
                   toggleAutomaticJobRecalculation();
@@ -112,7 +111,6 @@ function BlueprintSettingsFrame() {
             labelPlacement="start"
             control={
               <Switch
-                color="primary"
                 checked={ignoreItemsWithoutBlueprints}
                 onChange={async () => {
                   toggleIgnoreItemsWithoutBlueprints();

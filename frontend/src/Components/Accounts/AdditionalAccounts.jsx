@@ -398,7 +398,6 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
                   control={
                     <Switch
                       checked={cloudAccounts}
-                      color="primary"
                       disabled={cloudModeChanging || skeletonVisible}
                       onChange={(e) => {
                         void setCloudMode(e.target.checked);

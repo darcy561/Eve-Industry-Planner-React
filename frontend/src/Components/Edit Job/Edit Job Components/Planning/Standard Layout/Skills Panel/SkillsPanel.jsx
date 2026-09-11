@@ -92,8 +92,7 @@ export function SkillsPanel({ state, actions }) {
         <Stack
           direction="row"
           spacing={1}
-          alignItems="center"
-          sx={{ minHeight: 24 }}
+          sx={{ alignItems: "center", minHeight: 24 }}
         >
           {Object.keys(proposed).length > 0 ? (
             <>

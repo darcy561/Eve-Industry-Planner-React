@@ -143,7 +143,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
       // the Masonry has not decided yet grows without bound.
       paperSx={{ height: "auto" }}
       action={
-        <Stack direction="row" spacing={1.5} alignItems="flex-end">
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "flex-end" }}>
           <MarketLocationSelectApplicationSettings
             overrideMarketLocation={state.activeJob.layout.localMarketDisplay}
             onMarketLocationCommit={(id) =>

@@ -63,7 +63,6 @@ function LayoutSettingsFrame() {
             control={
               <Switch
                 checked={displayHelpCards}
-                color="primary"
                 onChange={() => {
                   toggleHideTutorials();
                   scheduleDebouncedApplicationSettingsSave();
@@ -86,7 +85,6 @@ function LayoutSettingsFrame() {
             control={
               <Switch
                 checked={enableCompactLayoutView}
-                color="primary"
                 onChange={() => {
                   toggleEnableCompactView();
                   scheduleDebouncedApplicationSettingsSave();

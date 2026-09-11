@@ -166,7 +166,11 @@ function MaterialCard({
           tone={cheaperTone(row.delta !== null && row.delta < 0)}
         />
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant="caption" color="text.secondary" display="block">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block" }}
+          >
             Δ
           </Typography>
           <SignedPercent value={row.delta} />
@@ -193,7 +197,11 @@ function MaterialCard({
 function CardFigure({ label, value, full, tone }) {
   return (
     <Box sx={{ minWidth: 0 }}>
-      <Typography variant="caption" color="text.secondary" display="block">
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block" }}
+      >
         {label}
       </Typography>
       <Tooltip title={full ?? ""} enterTouchDelay={0}>

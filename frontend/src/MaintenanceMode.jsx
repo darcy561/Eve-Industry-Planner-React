@@ -42,9 +42,13 @@ function MaintenanceMode() {
               component="img"
               src={LOGO_SRC}
               alt="EVE Industry Planner"
-              width={88}
-              height={88}
-              sx={{ display: "block", borderRadius: 2, userSelect: "none" }}
+              sx={{
+                width: 88,
+                height: 88,
+                display: "block",
+                borderRadius: 2,
+                userSelect: "none",
+              }}
             />
             <Box>
               <Typography variant="h6" color="primary">

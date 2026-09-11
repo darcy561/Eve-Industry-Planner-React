@@ -84,7 +84,6 @@ function JobSettingsFrame() {
             control={
               <Switch
                 checked={hideCompleteMaterials}
-                color="primary"
                 onChange={() => {
                   toggleHideCompleteMaterials();
                   scheduleDebouncedApplicationSettingsSave();

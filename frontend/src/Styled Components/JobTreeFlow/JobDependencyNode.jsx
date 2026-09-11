@@ -169,10 +169,10 @@ function JobDependencyNodeImpl({ id, data }) {
           )}
           <Typography
             variant="body2"
-            fontWeight={600}
             color="text.primary"
             title={data.label}
             sx={{
+              fontWeight: 600,
               lineHeight: 1.35,
               display: "-webkit-box",
               WebkitLineClamp: 2,

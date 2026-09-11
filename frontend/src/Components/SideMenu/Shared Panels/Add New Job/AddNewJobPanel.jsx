@@ -138,7 +138,6 @@ function AddNewJobSharedContentPanel({ state, actions }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        color="primary"
                         size="small"
                         checked={addNewGroupOnBuild}
                         onChange={toggleAddNewGroup}

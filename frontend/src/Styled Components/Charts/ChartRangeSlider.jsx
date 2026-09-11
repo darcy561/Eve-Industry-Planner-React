@@ -45,15 +45,18 @@ export function ChartRangeSlider({
         overflow: "hidden",
       })}
     >
-      <Typography variant="caption" color="text.secondary" display="block">
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block" }}
+      >
         {title}
       </Typography>
       {description && (
         <Typography
           variant="caption"
           color="text.secondary"
-          display="block"
-          sx={{ mb: 1 }}
+          sx={{ display: "block", mb: 1 }}
         >
           {description}
         </Typography>

@@ -295,9 +295,11 @@ function PlanCell({ plan, saving, coverage, childJobs, action }) {
     <Stack
       direction="row"
       spacing={0.5}
-      justifyContent="flex-end"
-      flexWrap="wrap"
-      alignItems="center"
+      sx={{
+        justifyContent: "flex-end",
+        flexWrap: "wrap",
+        alignItems: "center",
+      }}
     >
       {action ??
         (plan === MATERIAL_PLAN.BUILD ? (

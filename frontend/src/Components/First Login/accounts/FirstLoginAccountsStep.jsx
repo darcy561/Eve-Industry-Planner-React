@@ -41,7 +41,6 @@ export function FirstLoginAccountsStep() {
             control={
               <Switch
                 checked={shareCitadelNames}
-                color="primary"
                 onChange={() => {
                   toggleShareCitadelNames();
                   scheduleDebouncedUserAccountDocumentSave();

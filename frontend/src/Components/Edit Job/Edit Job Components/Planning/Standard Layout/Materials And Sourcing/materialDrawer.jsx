@@ -128,7 +128,7 @@ export default function MaterialDrawer({
             {/* Buy or build is decided on the row above, where it can be
                 decided without opening anything. */}
             {childJobObjects[jobDisplay] ? (
-              <Stack direction="row" justifyContent="flex-end">
+              <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
                 <OpenChildJobButton
                   {...shared}
                   childJobObjects={childJobObjects}

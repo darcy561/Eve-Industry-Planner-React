@@ -84,7 +84,12 @@ export default function CostComparison({ comparison, formatIsk }) {
             of them and neither says what it is, so the upright one was a line
             in the middle of a picture with no way to find out. */}
         {bar ? (
-          <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
+          <Stack
+            direction="row"
+            spacing={1.5}
+            useFlexGap
+            sx={{ flexWrap: "wrap" }}
+          >
             {/* No figure against this build: it is the headline beside this. */}
             <MarkKey mark="value">this build</MarkKey>
             <MarkKey mark="average">average {formatIsk(average)}</MarkKey>

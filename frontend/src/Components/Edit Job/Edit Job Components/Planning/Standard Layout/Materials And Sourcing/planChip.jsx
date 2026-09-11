@@ -108,7 +108,7 @@ export default function PlanChip({ state, actions, material, rowJob }) {
 
   if (onBuild) {
     return (
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
         <Chip label="Build" size="small" color="primary" />
         {/* Severing a link is the sibling lock's business wherever it happens,
             group or not — the same gate the Purchasing stage's unlink uses. */}
@@ -131,7 +131,7 @@ export default function PlanChip({ state, actions, material, rowJob }) {
   const nothingToPromote = !groupJob && !rowJob;
 
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
+    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
       <Chip label="Buy" size="small" variant="outlined" />
       <LockGatedTooltip
         readOnly={promoteLock.readOnly}

@@ -47,7 +47,6 @@ export function CitadelNamesCommunityPanel() {
               control={
                 <Switch
                   checked={shareCitadelNames}
-                  color="primary"
                   onChange={() => {
                     toggleShareCitadelNames();
                     scheduleDebouncedUserAccountDocumentSave();

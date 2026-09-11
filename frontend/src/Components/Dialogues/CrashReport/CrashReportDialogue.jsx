@@ -295,9 +295,8 @@ function CrashReportSession({ eventId, hint, onDismiss }) {
                 <Stack
                   key={row.id}
                   direction="row"
-                  alignItems="center"
                   spacing={1}
-                  sx={{ minWidth: 0 }}
+                  sx={{ alignItems: "center", minWidth: 0 }}
                 >
                   <Typography
                     variant="caption"

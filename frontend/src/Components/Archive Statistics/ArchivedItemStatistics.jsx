@@ -28,8 +28,7 @@ function GroupLabel({ children }) {
     <Typography
       variant="overline"
       color="text.secondary"
-      display="block"
-      sx={{ mb: 0.5 }}
+      sx={{ display: "block", mb: 0.5 }}
     >
       {children}
     </Typography>
@@ -40,10 +39,14 @@ function GroupLabel({ children }) {
 function Figure({ label, value, title }) {
   return (
     <Grid size={{ xs: 6, sm: 4, md: 2 }}>
-      <Typography variant="caption" color="text.secondary" display="block">
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block" }}
+      >
         {label}
       </Typography>
-      <Typography variant="subtitle1" fontWeight={600} title={title}>
+      <Typography variant="subtitle1" title={title} sx={{ fontWeight: 600 }}>
         {value}
       </Typography>
     </Grid>

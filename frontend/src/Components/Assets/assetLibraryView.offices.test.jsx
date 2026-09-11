@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -83,6 +83,7 @@ import {
   corporationAssetRows,
   JITA_STATION_ID,
 } from "../../tests/assetFixtures";
+import { stubElementHeights } from "../../tests/elementHeights";
 
 const CORPORATION_ID = 98000001;
 const EMPTY_OFFICE_ID = 60008494;
@@ -113,7 +114,12 @@ function renderPage() {
   );
 }
 
+let restoreHeights;
+
 beforeEach(() => {
+  // The tree scrolls inside itself, so its scroller needs a size before any
+  // row counts as being in view.
+  restoreHeights = stubElementHeights();
   officesSet.length = 0;
   store.account = {
     characters: [{ CharacterHash: "hash-a", corporation_id: CORPORATION_ID }],
@@ -133,6 +139,8 @@ beforeEach(() => {
   corporationRows.clear();
   corporationRows.set("hash-a", corporationAssetRows);
 });
+
+afterEach(() => restoreHeights?.());
 
 describe("a corporation's offices", () => {
   it("files each division's assets under the division", async () => {

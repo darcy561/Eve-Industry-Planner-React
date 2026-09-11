@@ -20,6 +20,39 @@ import { Figure } from "../../../Styled Components/Typography/figures";
 /** One level of nesting, as an indent rather than a margin that narrows the row. */
 const INDENT = 16;
 
+/**
+ * How tall each kind of row is, stated rather than measured.
+ *
+ * Every row holds a single line that never wraps, so its height follows from its
+ * kind and the breakpoint alone. Stating it here lets the virtualiser place a row
+ * it has not drawn yet.
+ *
+ * The floor is the expander, not the text: a small icon button is 30px, which is
+ * taller than any line of type these rows use, and all but the emptiest location
+ * rows have one. Add each kind's own padding, border and margin to that before
+ * changing a number here — a row that renders taller than it claims will sit over
+ * the one below it, because the virtualiser positions by the stated height and
+ * nothing clips the difference.
+ */
+const ROW_HEIGHT = Object.freeze({
+  // Expander 30, padding 8, border 2, margin 4.
+  [ASSET_ROW.LOCATION]: { narrow: 44, wide: 44 },
+  // Expander 30, margin 4.
+  [ASSET_ROW.COMPARTMENT]: { narrow: 36, wide: 36 },
+  // Expander 30 or the artwork beside it (24 narrow, 32 wide), padding 4.
+  [ASSET_ROW.ITEM]: { narrow: 36, wide: 40 },
+});
+
+/**
+ * @param {string} kind - see {@link ASSET_ROW}
+ * @param {boolean} deviceNotMobile
+ * @returns {number} height in pixels
+ */
+export function assetRowHeight(kind, deviceNotMobile) {
+  const heights = ROW_HEIGHT[kind] ?? ROW_HEIGHT[ASSET_ROW.ITEM];
+  return deviceNotMobile ? heights.wide : heights.narrow;
+}
+
 /** Stacks and quantities are whole things; the formatter's two decimals are for ISK. */
 const WHOLE = { max: 0 };
 
@@ -29,10 +62,11 @@ const WHOLE = { max: 0 };
  * Depth is drawn as guide rules to the left of the row rather than as a margin on it, so the
  * quantity stays in the same column however deep the row sits.
  *
- * @param {{row: import("../../../Functions/Assets/flattenAssetTree").AssetTreeRow, expanded: boolean, onToggle: Function, fullItemList: Object, containerNames: Map}} props
+ * @param {{row: import("../../../Functions/Assets/flattenAssetTree").AssetTreeRow, height: number, expanded: boolean, onToggle: Function, fullItemList: Object, containerNames: Map}} props
  */
 export default function AssetTreeRow({
   row,
+  height,
   expanded,
   onToggle,
   fullItemList,
@@ -45,7 +79,7 @@ export default function AssetTreeRow({
     const Surface = isLocation ? InsetSurface : Box;
 
     return (
-      <Row depth={row.depth}>
+      <Row depth={row.depth} height={height}>
         <Surface
           sx={{
             display: "flex",
@@ -92,7 +126,7 @@ export default function AssetTreeRow({
   const itemName = assetName(node, fullItemList, containerNames);
 
   return (
-    <Row depth={row.depth}>
+    <Row depth={row.depth} height={height}>
       <Box
         sx={{
           display: "flex",
@@ -148,9 +182,17 @@ export default function AssetTreeRow({
 /**
  * The row's place in the tree, drawn as one guide rule per level it sits under.
  */
-function Row({ depth, children }) {
+function Row({ depth, height, children }) {
   return (
-    <Box sx={{ display: "flex", alignItems: "stretch", width: "100%" }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "stretch",
+        width: "100%",
+        height: `${height}px`,
+        boxSizing: "border-box",
+      }}
+    >
       {Array.from({ length: depth }, (unused, level) => (
         <Box
           key={level}

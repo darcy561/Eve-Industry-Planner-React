@@ -45,7 +45,9 @@ export default function AssetLibrary() {
         />
       }
     >
-      <Stack spacing={2} sx={{ width: "100%" }}>
+      {/* The tree scrolls inside itself, so the column it sits in has to be
+          bounded rather than growing to fit it. */}
+      <Stack spacing={2} sx={{ width: "100%", flex: 1, minHeight: 0 }}>
         <FilterChipGroup
           label="Asset view"
           options={views}

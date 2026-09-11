@@ -429,7 +429,6 @@ describe("an ancient relic", () => {
     expect(
       // The assertion is about which artwork variant the image server is asked for, and an <img>
       // carrying a decorative alt has no accessible name to query by.
-      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
       container.querySelector(
         `img[src*="/types/${ANCIENT_RELIC_TYPE_ID}/relic"]`,
       ),

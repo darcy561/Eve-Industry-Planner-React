@@ -1,16 +1,14 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Grid, Typography } from "@mui/material";
-import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import AssetTreeRow from "./assetTreeRow";
+import { useCallback, useMemo, useRef } from "react";
+import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import AssetTreeRow, { assetRowHeight } from "./assetTreeRow";
 import flattenAssetTree from "../../../Functions/Assets/flattenAssetTree";
-
-const ESTIMATED_ROW_HEIGHT = 40;
 
 /**
  * The asset tree, however many rows deep it goes.
  *
- * Only the rows in view are mounted, and each is measured rather than assumed: a location header,
- * a hangar division and a stack are all different heights.
+ * Only the rows in view are mounted, and each kind states its own height rather than being
+ * measured: a location header, a hangar division and a stack are all different heights.
  *
  * @param {{
  *   locations: Array<Object>,
@@ -36,6 +34,7 @@ export default function AssetTree({
   search,
 }) {
   const listRef = useRef(null);
+  const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   const rows = useMemo(
     () =>
@@ -61,27 +60,19 @@ export default function AssetTree({
     ],
   );
 
-  // The window virtualiser measures scroll against the whole page, so it needs
-  // the distance down to the list. Measured after layout rather than read off
-  // the ref while rendering, which would be null on the first pass and leave
-  // the virtualiser believing the list starts at the top of the document.
-  const [scrollMargin, setScrollMargin] = useState(0);
-  // Deliberately measured on every commit: what sits above the list can change
-  // height without this component hearing about it. The updater returns the
-  // value it was given when nothing moved, so React bails out and there is no
-  // chain of updates for the rule to worry about.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useLayoutEffect(() => {
-    const measured = listRef.current?.offsetTop ?? 0;
-    setScrollMargin((current) => (current === measured ? current : measured));
-  });
-
-  const virtualizer = useWindowVirtualizer({
+  // The list scrolls inside itself, so the virtualiser measures against this
+  // element rather than the page and needs no notion of where on the page it
+  // sits. Row heights are stated by their kind rather than measured, so nothing
+  // has to mount to be sized.
+  const virtualizer = useVirtualizer({
     count: rows.length,
-    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    getScrollElement: () => listRef.current,
+    estimateSize: useCallback(
+      (index) => assetRowHeight(rows[index].kind, deviceNotMobile),
+      [rows, deviceNotMobile],
+    ),
     overscan: 8,
     getItemKey: useCallback((index) => rows[index].key, [rows]),
-    scrollMargin,
   });
 
   if (rows.length === 0) {
@@ -101,7 +92,10 @@ export default function AssetTree({
   }
 
   return (
-    <Grid ref={listRef} container size={12}>
+    <Box
+      ref={listRef}
+      sx={{ flex: 1, minHeight: 0, width: "100%", overflowY: "auto" }}
+    >
       <div
         style={{
           height: virtualizer.getTotalSize(),
@@ -115,19 +109,18 @@ export default function AssetTree({
             <div
               key={item.key}
               data-index={item.index}
-              ref={virtualizer.measureElement}
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
-                transform: `translateY(${
-                  item.start - virtualizer.options.scrollMargin
-                }px)`,
+                height: `${item.size}px`,
+                transform: `translateY(${item.start}px)`,
               }}
             >
               <AssetTreeRow
                 row={row}
+                height={item.size}
                 expanded={expanded.has(row.key)}
                 onToggle={() => onToggle(row.key)}
                 fullItemList={fullItemList}
@@ -137,6 +130,6 @@ export default function AssetTree({
           );
         })}
       </div>
-    </Grid>
+    </Box>
   );
 }

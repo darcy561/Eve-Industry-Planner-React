@@ -56,8 +56,8 @@ export default function ReturnsPanel({
     <AppShellPanel
       title="Returns"
       componentName="ReturnsPanel"
-      // Every panel on this stage sits in a Masonry that measures it, and a
-      // panel filling an undecided height grows without bound.
+      // AppShellPanel fills its parent by default, which is meant for panels
+      // sharing a grid row. These are stacked, so each takes its own height.
       paperSx={{ height: "auto" }}
       action={action}
     >

@@ -82,7 +82,7 @@ describe("the contribution panel", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("does not try to fill a height the Masonry has not decided", () => {
+  it("takes its own height rather than its parent's", () => {
     const { container } = renderPanel();
 
     expect(container.querySelector(".MuiPaper-root")).not.toHaveStyle({

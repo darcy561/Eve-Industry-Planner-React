@@ -167,8 +167,8 @@ export default function ArchiveJobsPanel({ state }) {
     <AppShellPanel
       visible={isLoggedIn}
       title="Build History"
-      // Masonry lays its children out by natural height, so the panel cannot take
-      // the full-height default meant for panels sharing a grid row.
+      // AppShellPanel fills its parent by default, which is meant for panels
+      // sharing a grid row. These are stacked, so each takes its own height.
       paperSx={{ height: "auto" }}
       componentName="Archive Jobs Panel"
       isLoading={isLoading}

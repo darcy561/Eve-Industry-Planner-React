@@ -1,7 +1,6 @@
-import { Grid } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import { ProductionStats } from "./Production Stats Panel/productionStats";
 import { TutorialStep1 } from "../tutorialStep1";
-import { Masonry } from "@mui/lab";
 import { JobSetupPanel } from "./Setup Panel/jobSetups";
 import { EditJobSetup } from "./Edit Setup Panel/editJobSetup";
 import { AvailableBlueprintsPanel } from "./Blueprint Options/blueprintPanel";
@@ -11,6 +10,16 @@ import { SkillsPanel } from "./Skills Panel/SkillsPanel";
 import ArchiveJobsPanel from "./Archive Jobs Panel/archiveJobsPanel";
 import TutorialTemplate from "../../../../Tutorials/tutorialTemplate";
 
+/**
+ * The stage's two columns of panels.
+ *
+ * Panels are stacked rather than laid out by a Masonry. A masonry exists to pack
+ * items of different heights into several columns without leaving gaps; at one
+ * column there is nothing to pack, and the measuring it does to find out is not
+ * free — it positions every child absolutely and re-measures the whole column
+ * whenever any one of them changes height. Opening a material's drawer moved
+ * every panel beneath it.
+ */
 export function Planning_StandardLayout_EditJob(props) {
   const { state } = props;
   return (
@@ -19,20 +28,20 @@ export function Planning_StandardLayout_EditJob(props) {
         <TutorialTemplate TutorialContent={<TutorialStep1 state={state} />} />
       </Grid>
       <Grid size={3}>
-        <Masonry columns={1} spacing={2}>
+        <Stack spacing={2}>
           <ProductionStats {...props} />
           <EditJobSetup {...props} />
           <AvailableBlueprintsPanel {...props} />
           <SkillsPanel {...props} />
-        </Masonry>
+        </Stack>
       </Grid>
       <Grid size={9}>
-        <Masonry columns={1} spacing={2}>
+        <Stack spacing={2}>
           <JobSetupPanel {...props} />
           <MaterialsAndSourcingPanel {...props} />
           <PlanningEconomics {...props} />
           <ArchiveJobsPanel {...props} />
-        </Masonry>
+        </Stack>
       </Grid>
     </Grid>
   );

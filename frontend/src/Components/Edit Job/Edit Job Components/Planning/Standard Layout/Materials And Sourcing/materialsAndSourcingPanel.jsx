@@ -138,9 +138,8 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
     <AppShellPanel
       title="Materials & Sourcing"
       componentName="MaterialsAndSourcingPanel"
-      // The stage lays its panels out in a Masonry, which measures each one.
-      // AppShellPanel is full height by default, and a panel that fills a height
-      // the Masonry has not decided yet grows without bound.
+      // AppShellPanel fills its parent by default, which is meant for panels
+      // sharing a grid row. These are stacked, so each takes its own height.
       paperSx={{ height: "auto" }}
       action={
         <Stack direction="row" spacing={1.5} sx={{ alignItems: "flex-end" }}>

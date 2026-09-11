@@ -189,7 +189,7 @@ describe("the Skills panel", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("does not try to fill a height the Masonry has not decided", () => {
+  it("takes its own height rather than its parent's", () => {
     const { container } = render(
       <SkillsPanel state={state} actions={noParents} />,
     );
@@ -425,10 +425,9 @@ describe("what a level does to the job's time", () => {
   });
 });
 
-// The panel sits in a Masonry that measures it. A control that changes the
-// panel's shape on its own first use moves itself out from under the pointer,
-// so what the header and the effect blocks occupy must not depend on whether
-// anything is being tried.
+// A control that changes the panel's shape on its own first use moves itself
+// out from under the pointer, so what the header and the effect blocks occupy
+// must not depend on whether anything is being tried.
 describe("its shape while a level is being tried", () => {
   const rowCountOf = (container) =>
     container.querySelectorAll("[data-fill]").length;

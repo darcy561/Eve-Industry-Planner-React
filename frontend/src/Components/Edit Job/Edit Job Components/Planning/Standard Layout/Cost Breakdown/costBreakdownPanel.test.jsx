@@ -50,9 +50,9 @@ describe("the Cost Breakdown panel", () => {
     expect(screen.getByText("range bar")).toBeInTheDocument();
   });
 
-  it("does not try to fill a height the Masonry has not decided", () => {
-    // The stage measures its panels; one filling 100% of an undecided height
-    // renders as a tall empty box and pushes its siblings out of the column.
+  it("takes its own height rather than its parent's", () => {
+    // The stage stacks its panels, so one filling its parent renders as a
+    // tall empty box and pushes the rest down the page.
     const { container } = render(<CostBreakdownPanel cost={cost()} />);
 
     expect(container.querySelector(".MuiPaper-root")).not.toHaveStyle({

@@ -76,14 +76,20 @@ The SPA is linted by **ESLint** ([`frontend/eslint.config.mjs`](../../frontend/e
 flat config) and formatted by **Prettier** ([`frontend/.prettierrc.json`](../../frontend/.prettierrc.json)).
 `npm run lint` and `npm run format:check` run both, and the `frontend` job in
 [`.github/workflows/test.yml`](../../.github/workflows/test.yml) runs them beside the Vitest suite.
-Fix what they report in the area you are editing rather than adding a file-level disable.
+Fix what they report in the area you are editing. Where a rule is genuinely wrong for the code in
+front of you — a chart asserted by selector because its marks carry no name, a clock the rule cannot
+see the dependency for — disable it at the narrowest scope that covers the case and write the reason
+on the disable. What is not wanted is a disable that exists to avoid the work.
 
 The rule set is **`@eslint/js` recommended plus `eslint-plugin-react-hooks`**, with
 `jsx-a11y` on the SPA and the Vitest and Testing Library plugins on `*.test.*`. React-specific
-coverage comes from `react-hooks`, which carries the React Compiler rules — `set-state-in-effect`,
-`immutability`, `purity`, `refs` — that flag exactly the React 18 patterns the section above asks
-you to migrate. There is no `eslint-plugin-react`: its `recommended` set is almost entirely
-`react/prop-types`, and this SPA types through JSDoc.
+coverage comes from `react-hooks`, which carries the React Compiler's rules —
+`set-state-in-effect`, `immutability`, `purity`, `refs` — that flag exactly the React 18 patterns
+the section above asks you to migrate. The rules are a bar to write to, not a build step: the
+compiler itself is **not** enabled, so nothing here is memoised for you.
+
+There is no `eslint-plugin-react`: its `recommended` set is almost entirely `react/prop-types`, and
+this SPA types through JSDoc.
 
 `react-hooks/exhaustive-deps` is a **warning, and is never autofixed**. A narrow dependency list in
 this tree is usually deliberate — a memo that must not recompute when an unrelated reducer dispatch

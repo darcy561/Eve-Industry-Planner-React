@@ -198,7 +198,7 @@ an open decision below rather than planned work.
 | A — outcome vocabulary and resolvers | Done |
 | B — per-id cache and loader | Done |
 | C — `useLocationNames` cutover | Done |
-| D — the direct callers | Done, less its end-to-end pass — see Handoff |
+| D — the direct callers | Done |
 | E — the store | Not started |
 | A ship is not a place | Done — an id that is a ship in space is no longer asked of ESI as a structure; see the overlay |
 
@@ -224,11 +224,11 @@ surface that reads through the hook.
 Stage D has landed. Every path resolves against the account's characters, `getWorldData` is deleted,
 and the two shapes of caller — one that subscribes, one that fetches — share the per-id cache.
 
-Two of its own gates are worth being honest about. The plan owes **one end-to-end pass over the whole
-ladder asserted at a rendered surface** before this stage closes: what exists is
-`useMarketData.test.jsx`, which reaches the real hook and the real loader with only the ESI edges
-faked and proves the alt-named-structure case — the shape that matters — but at a hook rather than at
-a rendered panel, and for one of the five callers rather than all of them. And the handoff said Stage
+The end-to-end pass this stage owed is landed:
+`Components/Assets/assetLibraryView.names.test.jsx` renders the asset library against a faked ESI and
+nothing else, so the hook, the per-id cache, the loader and the resolvers are all the real ones. It
+covers the ladder's rungs, the ship that is not a place, one ask per character, and a failed pass
+asked again. The handoff said Stage
 D depended on settling who owns `entityNames.js`: it did not in the end, because that file resolves
 public ids for the standings surfaces and never touched `getWorldData`, so the cutover did not reach
 it. The decision stays open; it is no longer blocking anything.

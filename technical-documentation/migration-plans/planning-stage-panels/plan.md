@@ -549,11 +549,19 @@ the design — the design says what the new panel shows, not what the old ones l
 | Create All Child Jobs | The market panel's kebab | **Deliberately not carried.** Stage G replaces it with "build all where cheaper"; a bulk create of jobs nobody has costed is the thing that change exists to stop, so it is not reinstated in the meantime |
 
 **An app-shell panel on this stage must set `height: "auto"`.** `AppShellPanel` is full height by
-default, and the stage lays its panels out in a Masonry that measures each child. A panel filling a
-height the Masonry has not decided yet renders as a tall empty box and pushes its siblings into a
-column that is not there — a blank page that scrolls. Every panel already on the stage sets it,
-including the one app-shell panel that was there first. Nothing in a jsdom test can see this, because
-jsdom has no layout: it takes a browser.
+default, which is meant for panels sharing a grid row. These are stacked, so each takes its own
+height, and a panel filling its parent instead renders as a tall empty box that pushes its siblings
+down — a blank page that scrolls. Every panel on the stage sets it, including the one app-shell panel
+that was there first. Nothing in a jsdom test can see this, because jsdom has no layout: it takes a
+browser.
+
+The stage stacked its panels in a `Masonry` at one column until the height thrash it caused was
+traced back to it. A masonry packs items of differing heights into **several** columns without leaving
+gaps; at one column there is nothing to pack, and the measuring it does to find that out is not free —
+it positions every child absolutely and re-lays out the whole column whenever any one of them changes
+height. Opening a material's drawer, or a skills what-if row appearing, moved every panel beneath it.
+A plain `Stack` gives the same varying heights for nothing, which is what the mobile layout had been
+doing all along.
 
 **Two signals merged into one glyph is a loss even when both are carried.** Raw Resources marked a
 pending build and the market panel marked an exempt material, each in its own icon in its own panel. One

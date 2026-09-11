@@ -200,6 +200,7 @@ an open decision below rather than planned work.
 | C — `useLocationNames` cutover | Done |
 | D — the direct callers | Done, less its end-to-end pass — see Handoff |
 | E — the store | Not started |
+| A ship is not a place | Done — an id that is a ship in space is no longer asked of ESI as a structure; see the overlay |
 
 ## Promote map
 

@@ -252,6 +252,38 @@ because the alt is asked, through the real hook and the real loader with only th
 The other four callers take the same path and have no tests of their own — they had none before this
 project either, and the ladder beneath them is covered.
 
+## A ship is not a place
+
+_Landed, found by a live failure rather than by the plan._
+
+A ship flying in space is absent from the asset endpoint's answer while its fitted modules are not,
+so each module names the **ship's item id** as its location. That id sits in the same range an Upwell
+structure's does, and the id is all `resolveLocationKind` had to go on — so the ship read as a
+structure, and every asset view asked ESI to name it.
+
+Nothing names it. `GET /universe/structures/{id}` refuses an id that is not a structure, for every
+character, on every ask. One ship in space was one wasted lookup while a single character did the
+asking; Stage D made it one per character, and ESI charges a 4xx five times what it charges an
+answer. An account with a few ships in space and four characters spends its error budget on lookups
+that were never going to resolve — and once that budget trips, every other ESI call the app makes
+fails with it.
+
+What tells a ship from a structure is not the id but what is filed inside it: only a ship has fitting
+slots, bays and holds. `assetLocationConstants.isShipHoldFlag` is that list — cargo included, the
+`Structure` prefix and `RigSlot` excluded because an Upwell structure carries those too — and
+`buildAssetNodes` settles the kind with it, for a holder the set does not contain.
+
+It is deliberately not the list `assembledShipIds` keeps. That one answers whether an *item* is an
+assembled ship, and admitting `Cargo` to it would take containers with it. Two questions, two lists.
+
+Four surfaces hand location ids to `useLocationNames` — the tree, the location dropdown, the
+"where is this held" dialogue and the blueprint library's locations. All four filter through
+`assetLocationIds.unnameableLocationIds`, so a fifth cannot quietly reintroduce the storm. The rows
+render exactly as before: unnamed, and last.
+
+This is the case the plan's § Open decisions could not have found, because it is not about what a
+name resolution does with an answer. It is about asking a question that has none.
+
 ## Stage E — the store
 
 _Not landed._

@@ -1,10 +1,10 @@
 import getUniverseNames from "./getUniverseNames";
-import {
-  fetchStructureName,
-  communityNameOrRefusal,
-} from "./getCitadelData";
+import { fetchStructureName, communityNameOrRefusal } from "./getCitadelData";
 import { LOCATION_OUTCOME, LocationResolutionError } from "./locationOutcome";
-import { resolveLocationKind, LOCATION_KIND } from "../../Assets/assetLocationConstants";
+import {
+  resolveLocationKind,
+  LOCATION_KIND,
+} from "../../Assets/assetLocationConstants";
 
 /** ESI resolves up to a thousand ids in one `POST /universe/names`. */
 const NAMES_BATCH_SIZE = 1000;
@@ -66,7 +66,7 @@ async function flush() {
 
   await Promise.all([
     ...chunk(publicIds, NAMES_BATCH_SIZE).map((ids) =>
-      settlePublicNames(ids, batch)
+      settlePublicNames(ids, batch),
     ),
     ...structureIds.map((id) => settleStructureName(id, batch)),
   ]);
@@ -91,7 +91,7 @@ async function settlePublicNames(ids, batch) {
         ? { ...entry, id, resolutionStatus: LOCATION_OUTCOME.NAMED }
         : // ESI answered and did not mention it. That is an answer, and keeping it is what stops
           // the id being asked about on every render for the rest of the session.
-          { id, resolutionStatus: LOCATION_OUTCOME.UNNAMED }
+          { id, resolutionStatus: LOCATION_OUTCOME.UNNAMED },
     );
   }
 }
@@ -129,7 +129,7 @@ async function settleStructureName(id, batch) {
       id,
       new LocationResolutionError("structure lookup: no characters", {
         locationId: id,
-      })
+      }),
     );
     return;
   }

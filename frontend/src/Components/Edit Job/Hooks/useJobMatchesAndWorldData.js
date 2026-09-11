@@ -8,7 +8,7 @@ export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
   allIndustryJobs,
   activeJob,
   linkedJobs,
-  esiDataToLink
+  esiDataToLink,
 ) {
   const queryClient = useQueryClient();
   const [jobMatches, setJobMatches] = useState([]);
@@ -54,7 +54,7 @@ export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
           const names = await fetchLocationNames(
             queryClient,
             allLocationIDs,
-            Object.values(useUsersStore.getState().account.characters)
+            Object.values(useUsersStore.getState().account.characters),
           );
           useUsersStore.getState().worldData.actions.addUniverseIDs(names);
         }

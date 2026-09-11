@@ -36,7 +36,7 @@ describe("locationNameQuery", () => {
       queryClient.fetchQuery(locationNameQuery(JITA, characters)),
       // A second consumer, asking with a different character list, wants the same fact.
       queryClient.fetchQuery(
-        locationNameQuery(JITA, [{ CharacterHash: "hash-b" }])
+        locationNameQuery(JITA, [{ CharacterHash: "hash-b" }]),
       ),
     ]);
 
@@ -56,7 +56,7 @@ describe("locationNameQuery", () => {
       queryClient.fetchQuery({
         ...locationNameQuery(JITA, characters),
         retry: false,
-      })
+      }),
     ).rejects.toThrow();
 
     requestMock.mockResolvedValue({
@@ -105,7 +105,11 @@ describe("fetchLocationNames", () => {
       resolutionStatus: LOCATION_OUTCOME.NAMED,
     }));
 
-    const names = await fetchLocationNames(client(), [JITA, 60008494], characters);
+    const names = await fetchLocationNames(
+      client(),
+      [JITA, 60008494],
+      characters,
+    );
 
     expect(names[JITA].name).toBe(`Place ${JITA}`);
     expect(names[60008494].name).toBe("Place 60008494");
@@ -115,13 +119,17 @@ describe("fetchLocationNames", () => {
   it("leaves out an id that failed rather than failing the set", async () => {
     requestMock.mockImplementation(async (id) => {
       if (id === JITA) throw new Error("esi down");
-      return { id, name: "Amarr VIII", resolutionStatus: LOCATION_OUTCOME.NAMED };
+      return {
+        id,
+        name: "Amarr VIII",
+        resolutionStatus: LOCATION_OUTCOME.NAMED,
+      };
     });
 
     const names = await fetchLocationNames(
       { ...client(), fetchQuery: (options) => options.queryFn() },
       [JITA, 60008494],
-      characters
+      characters,
     );
 
     expect(names[JITA]).toBeUndefined();
@@ -129,7 +137,9 @@ describe("fetchLocationNames", () => {
   });
 
   it("asks for nothing without ids or characters", async () => {
-    await expect(fetchLocationNames(client(), [], characters)).resolves.toEqual({});
+    await expect(fetchLocationNames(client(), [], characters)).resolves.toEqual(
+      {},
+    );
     await expect(fetchLocationNames(client(), [JITA], [])).resolves.toEqual({});
     expect(requestMock).not.toHaveBeenCalled();
   });

@@ -143,7 +143,7 @@ describe("the tree one asset view renders", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.locations).toHaveLength(1);
     expect(
-      result.current.locations[0].rows.map(({ itemId }) => itemId).sort()
+      result.current.locations[0].rows.map(({ itemId }) => itemId).sort(),
     ).toEqual([1006, 1007]);
   });
 
@@ -158,7 +158,7 @@ describe("the tree one asset view renders", () => {
     await waitFor(() => expect(containerNameCalls).toHaveLength(1));
     expect(containerNameCalls[0]).toEqual([1002, 1004, 1007]);
     await waitFor(() =>
-      expect(result.current.containerNames.get(1002)?.name).toBe("Ore Crate")
+      expect(result.current.containerNames.get(1002)?.name).toBe("Ore Crate"),
     );
   });
 

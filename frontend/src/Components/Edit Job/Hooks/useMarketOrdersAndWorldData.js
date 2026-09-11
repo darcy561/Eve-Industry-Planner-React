@@ -19,7 +19,7 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
   activeJob,
   linkedOrders,
   esiDataToLink,
-  actions
+  actions,
 ) {
   const [marketOrderMatches, setMarketOrderMatches] = useState([]);
   const [isWorldDataLoading, setIsWorldDataLoading] = useState(false);
@@ -97,14 +97,18 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
           queryClient,
           activeJob,
           esiDataToLink.marketOrders.add,
-          esiDataToLink.marketOrders.remove
+          esiDataToLink.marketOrders.remove,
         );
 
         const jobSpecificOrders = allOrders.filter(
-          (order) => order.type_id === activeJob.itemID
+          (order) => order.type_id === activeJob.itemID,
         );
 
-        updateLinkedMarketOrdersWithLatestData(jobSpecificOrders, activeJob, actions);
+        updateLinkedMarketOrdersWithLatestData(
+          jobSpecificOrders,
+          activeJob,
+          actions,
+        );
         setMarketOrderMatches(matches);
 
         const allLocationIDs = new Set();
@@ -121,7 +125,7 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
           const names = await fetchLocationNames(
             queryClient,
             allLocationIDs,
-            Object.values(useUsersStore.getState().account.characters)
+            Object.values(useUsersStore.getState().account.characters),
           );
           useUsersStore.getState().worldData.actions.addUniverseIDs(names);
         }

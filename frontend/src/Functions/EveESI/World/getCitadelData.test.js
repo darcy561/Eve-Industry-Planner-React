@@ -60,7 +60,7 @@ describe("fetchStructureName", () => {
     expect(answer.refused).toBe(false);
     expect(answer.name.name).toBe("Home Raitaru");
     expect(answer.name.resolutionStatus).toBe(
-      LOCATION_RESOLUTION_STATUS.RESOLVED
+      LOCATION_RESOLUTION_STATUS.RESOLVED,
     );
     expect(submissions).toHaveLength(1);
   });
@@ -85,26 +85,26 @@ describe("fetchStructureName", () => {
       fetchMock.mockResolvedValue(esiResponse(status, null));
 
       await expect(
-        fetchStructureName(RAITARU, character)
+        fetchStructureName(RAITARU, character),
       ).rejects.toBeInstanceOf(LocationResolutionError);
-    }
+    },
   );
 
   it("throws when the token cannot be acquired", async () => {
     tokenMock.mockRejectedValue(new Error("refresh failed"));
 
-    await expect(
-      fetchStructureName(RAITARU, character)
-    ).rejects.toBeInstanceOf(LocationResolutionError);
+    await expect(fetchStructureName(RAITARU, character)).rejects.toBeInstanceOf(
+      LocationResolutionError,
+    );
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("throws when the request itself fails", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
-    await expect(
-      fetchStructureName(RAITARU, character)
-    ).rejects.toBeInstanceOf(LocationResolutionError);
+    await expect(fetchStructureName(RAITARU, character)).rejects.toBeInstanceOf(
+      LocationResolutionError,
+    );
   });
 });
 

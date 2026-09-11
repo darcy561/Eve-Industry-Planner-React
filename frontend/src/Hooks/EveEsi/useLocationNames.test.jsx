@@ -10,7 +10,7 @@ const { store, addUniverseIDs, requestCalls, answers, gate } = vi.hoisted(
     requestCalls: [],
     answers: { current: new Map() },
     gate: { current: null },
-  })
+  }),
 );
 
 vi.mock("../../Zustand/usersStore", () => ({
@@ -125,7 +125,7 @@ describe("useLocationNames", () => {
     const { result } = render([JITA, RAITARU]);
 
     await waitFor(() =>
-      expect(result.current.names[RAITARU]?.name).toBe("Home Raitaru")
+      expect(result.current.names[RAITARU]?.name).toBe("Home Raitaru"),
     );
   });
 
@@ -135,7 +135,9 @@ describe("useLocationNames", () => {
 
     const { result } = harness()([JITA, RAITARU]);
 
-    await waitFor(() => expect(result.current.names[JITA]?.name).toBe("Jita IV-4"));
+    await waitFor(() =>
+      expect(result.current.names[JITA]?.name).toBe("Jita IV-4"),
+    );
     expect(result.current.isError).toBe(true);
   });
 
@@ -147,12 +149,12 @@ describe("useLocationNames", () => {
     const { result: secondResult } = render([RAITARU]);
 
     await waitFor(() =>
-      expect(secondResult.current.names[RAITARU]?.name).toBe("Home Raitaru")
+      expect(secondResult.current.names[RAITARU]?.name).toBe("Home Raitaru"),
     );
     expect(requestCalls).toEqual([RAITARU]);
     // One entry, shared: the same object reaches both consumers.
     expect(firstResult.current.names[RAITARU]).toBe(
-      secondResult.current.names[RAITARU]
+      secondResult.current.names[RAITARU],
     );
   });
 

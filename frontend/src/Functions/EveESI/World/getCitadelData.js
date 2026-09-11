@@ -75,7 +75,7 @@ export async function fetchStructureName(citadelID, character, config = {}) {
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
   } catch (err) {
     throw new LocationResolutionError("citadel lookup: request failed", {
@@ -100,7 +100,7 @@ export async function fetchStructureName(citadelID, character, config = {}) {
   if (!isRefusalStatus(response.status)) {
     throw new LocationResolutionError(
       `citadel lookup: ${response.status} ${response.statusText}`,
-      { locationId: citadelID, status: response.status }
+      { locationId: citadelID, status: response.status },
     );
   }
 

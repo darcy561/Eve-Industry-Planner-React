@@ -84,7 +84,7 @@ describe("the market data a panel renders", () => {
     const { result } = render(34, { regionID: THE_FORGE, stationID: JITA });
 
     await waitFor(() =>
-      expect(result.current.worldData[SOTIYO]?.name).toBe("Alt's Sotiyo")
+      expect(result.current.worldData[SOTIYO]?.name).toBe("Alt's Sotiyo"),
     );
     expect(structureAsks).toEqual(["main", "alt"]);
   });
@@ -97,11 +97,11 @@ describe("the market data a panel renders", () => {
     const { result } = render(34, { regionID: THE_FORGE, stationID: JITA });
 
     await waitFor(() =>
-      expect(result.current.worldData[JITA]?.name).toBe(`Station ${JITA}`)
+      expect(result.current.worldData[JITA]?.name).toBe(`Station ${JITA}`),
     );
     // The region and the system come from the same bulk lookup as the station.
     expect(result.current.worldData[THE_FORGE]?.name).toBe(
-      `Station ${THE_FORGE}`
+      `Station ${THE_FORGE}`,
     );
   });
 

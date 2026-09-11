@@ -25,20 +25,20 @@ export default function useLocationNames(locationIds) {
   const characters = useUsersStore((store) => store.account.characters);
   const universeIDs = useUsersStore((store) => store.worldData.universeIDs);
   const addUniverseIDs = useUsersStore(
-    (store) => store.worldData.actions.addUniverseIDs
+    (store) => store.worldData.actions.addUniverseIDs,
   );
 
   const requested = useMemo(
     () =>
       [...new Set([...(locationIds ?? [])].filter(Boolean))].sort(
-        (a, b) => a - b
+        (a, b) => a - b,
       ),
-    [locationIds]
+    [locationIds],
   );
 
   const missing = useMemo(
     () => requested.filter((id) => !universeIDs[id]),
-    [requested, universeIDs]
+    [requested, universeIDs],
   );
 
   const {

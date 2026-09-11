@@ -38,7 +38,6 @@ export function isNoAccessLocation(location) {
   return isNoAccessLocationName(location.name);
 }
 
-
 /**
  * Sentinel location an item sits at once it has been moved to asset safety.
  *
@@ -78,15 +77,19 @@ export const LOCATION_KIND = Object.freeze({
  * @returns {string} one of {@link LOCATION_KIND}
  */
 export function resolveLocationKind(locationId) {
-  if (locationId === ASSET_SAFETY_LOCATION_ID) return LOCATION_KIND.ASSET_SAFETY;
-  if (locationId >= 10000000 && locationId < 13000000) return LOCATION_KIND.REGION;
+  if (locationId === ASSET_SAFETY_LOCATION_ID)
+    return LOCATION_KIND.ASSET_SAFETY;
+  if (locationId >= 10000000 && locationId < 13000000)
+    return LOCATION_KIND.REGION;
   if (locationId >= 20000000 && locationId < 23000000) {
     return LOCATION_KIND.CONSTELLATION;
   }
-  if (locationId >= 30000000 && locationId < 32000000) return LOCATION_KIND.SYSTEM;
+  if (locationId >= 30000000 && locationId < 32000000)
+    return LOCATION_KIND.SYSTEM;
   if (locationId >= 32000000 && locationId < 33000000) {
     return LOCATION_KIND.ABYSSAL_SYSTEM;
   }
-  if (locationId >= 60000000 && locationId < 64000000) return LOCATION_KIND.STATION;
+  if (locationId >= 60000000 && locationId < 64000000)
+    return LOCATION_KIND.STATION;
   return LOCATION_KIND.STRUCTURE;
 }

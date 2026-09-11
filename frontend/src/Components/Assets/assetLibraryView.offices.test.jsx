@@ -109,7 +109,7 @@ function renderPage() {
       <QueryClientProvider client={client}>
         <AssetLibraryView kind="corporation" id={CORPORATION_ID} view="held" />
       </QueryClientProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 
@@ -140,13 +140,13 @@ describe("a corporation's offices", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     // The office folder is read through rather than shown as a row of its own.
     expect(screen.queryByText("Office")).toBeNull();
     await user.click(
-      screen.getByRole("button", { name: /Expand Division 3, Jita IV-4/ })
+      screen.getByRole("button", { name: /Expand Division 3, Jita IV-4/ }),
     );
     expect(screen.getByText("Large Secure Container")).toBeTruthy();
   });
@@ -160,7 +160,7 @@ describe("a corporation's offices", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Amarr VIII/ })
+      await screen.findByRole("button", { name: /Expand Amarr VIII/ }),
     );
 
     // Only the empty office is open, so its divisions are the only ones showing, and each says
@@ -168,7 +168,7 @@ describe("a corporation's offices", () => {
     expect(screen.getAllByText("Division 1")).toHaveLength(1);
     expect(screen.getAllByText("Empty").length).toBeGreaterThan(0);
     expect(
-      screen.queryByRole("button", { name: /Expand Division 1/ })
+      screen.queryByRole("button", { name: /Expand Division 1/ }),
     ).toBeNull();
   });
 
@@ -181,15 +181,13 @@ describe("a corporation's offices", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
-    await user.click(
-      screen.getByRole("button", { name: /Expand Amarr VIII/ })
-    );
+    await user.click(screen.getByRole("button", { name: /Expand Amarr VIII/ }));
 
     expect(screen.getAllByText("Division 1")).toHaveLength(2);
     expect(
-      screen.getByRole("button", { name: "Expand Division 1, Jita IV-4" })
+      screen.getByRole("button", { name: "Expand Division 1, Jita IV-4" }),
     ).toBeTruthy();
   });
 

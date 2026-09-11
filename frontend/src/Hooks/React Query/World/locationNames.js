@@ -1,4 +1,5 @@
 import { requestLocationName } from "../../../Functions/EveESI/World/locationNameLoader";
+import { LOCATION_OUTCOME } from "../../../Functions/EveESI/World/locationOutcome";
 
 export const LOCATION_NAME_QUERY_KEY = ["esi", "location-name"];
 
@@ -42,7 +43,9 @@ export function locationNameQuery(locationId, characters = []) {
  *
  * An id that fails is left out rather than failing the set: these callers resolve names as a side
  * errand, and the flow they belong to should not stop because a name did not arrive. Nothing is
- * cached for it, so the next ask retries.
+ * cached for it, so the next ask retries. An id that settled as `UNNAMED` is left out too — it is an
+ * answer, but not a name to show — tested by its outcome rather than by whether it carries one, so a
+ * future outcome with an empty name is not silently dropped with it.
  *
  * @param {import("@tanstack/react-query").QueryClient} queryClient
  * @param {Array<number>|Set<number>} locationIds
@@ -54,12 +57,15 @@ export async function fetchLocationNames(queryClient, locationIds, characters) {
   if (ids.length === 0 || !(characters?.length > 0)) return {};
 
   const settled = await Promise.allSettled(
-    ids.map((id) => queryClient.fetchQuery(locationNameQuery(id, characters)))
+    ids.map((id) => queryClient.fetchQuery(locationNameQuery(id, characters))),
   );
 
   const names = {};
   settled.forEach((result, index) => {
-    if (result.status === "fulfilled" && result.value?.name) {
+    if (
+      result.status === "fulfilled" &&
+      result.value?.resolutionStatus !== LOCATION_OUTCOME.UNNAMED
+    ) {
       names[ids[index]] = result.value;
     }
   });

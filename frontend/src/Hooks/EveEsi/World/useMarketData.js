@@ -60,7 +60,7 @@ export function useMarketData(typeID, location) {
       if (isRateLimited("market")) {
         const waitTime = getWaitTime("market");
         throw new Error(
-          `Market group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`
+          `Market group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
         );
       }
 

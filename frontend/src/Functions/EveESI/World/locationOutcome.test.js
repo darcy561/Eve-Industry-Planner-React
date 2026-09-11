@@ -11,24 +11,27 @@ describe("LOCATION_OUTCOME", () => {
   it("carries the same values the resolution status constants do", () => {
     expect(LOCATION_OUTCOME.NAMED).toBe(LOCATION_RESOLUTION_STATUS.RESOLVED);
     expect(LOCATION_OUTCOME.COMMUNITY).toBe(
-      LOCATION_RESOLUTION_STATUS.COMMUNITY
+      LOCATION_RESOLUTION_STATUS.COMMUNITY,
     );
     expect(LOCATION_OUTCOME.NO_ACCESS).toBe(
-      LOCATION_RESOLUTION_STATUS.NO_ACCESS
+      LOCATION_RESOLUTION_STATUS.NO_ACCESS,
     );
   });
 });
 
 describe("isRefusalStatus", () => {
-  it.each([403, 404])("treats %i as an answer of you cannot see this", (status) => {
-    expect(isRefusalStatus(status)).toBe(true);
-  });
+  it.each([403, 404])(
+    "treats %i as an answer of you cannot see this",
+    (status) => {
+      expect(isRefusalStatus(status)).toBe(true);
+    },
+  );
 
   // A token that failed validation can succeed after a refresh, so 401 is worth asking again.
   it.each([401, 420, 500, 502, 503, 504])(
     "treats %i as a failure to be asked again",
     (status) => {
       expect(isRefusalStatus(status)).toBe(false);
-    }
+    },
   );
 });

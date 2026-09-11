@@ -41,7 +41,10 @@ beforeEach(() => {
 
 describe("requestLocationName", () => {
   it("asks for everything raised in one tick in a single call", async () => {
-    namesMock.mockResolvedValue([named(JITA, "Jita IV-4"), named(AMARR, "Amarr VIII")]);
+    namesMock.mockResolvedValue([
+      named(JITA, "Jita IV-4"),
+      named(AMARR, "Amarr VIII"),
+    ]);
 
     const [jita, amarr] = await Promise.all([
       requestLocationName(JITA, characters),
@@ -57,7 +60,7 @@ describe("requestLocationName", () => {
   it("splits a batch larger than one call into calls of a thousand", async () => {
     const ids = Array.from({ length: 1500 }, (_, i) => 60000000 + i);
     namesMock.mockImplementation(async (batch) =>
-      batch.map((id) => named(id, `Station ${id}`))
+      batch.map((id) => named(id, `Station ${id}`)),
     );
 
     await Promise.all(ids.map((id) => requestLocationName(id, characters)));
@@ -92,7 +95,7 @@ describe("requestLocationName", () => {
     namesMock.mockRejectedValue(new LocationResolutionError("esi down"));
 
     await expect(requestLocationName(JITA, characters)).rejects.toBeInstanceOf(
-      LocationResolutionError
+      LocationResolutionError,
     );
   });
 
@@ -100,7 +103,7 @@ describe("requestLocationName", () => {
     structureMock.mockImplementation(async (id, character) =>
       character === alt
         ? { refused: false, name: named(id, "Home Raitaru") }
-        : { refused: true }
+        : { refused: true },
     );
 
     const outcome = await requestLocationName(RAITARU, characters);
@@ -132,7 +135,7 @@ describe("requestLocationName", () => {
     });
 
     await expect(
-      requestLocationName(RAITARU, characters)
+      requestLocationName(RAITARU, characters),
     ).rejects.toBeInstanceOf(LocationResolutionError);
     expect(communityMock).not.toHaveBeenCalled();
   });
@@ -168,7 +171,7 @@ describe("requestLocationName", () => {
 
   it("fails an id it has no character to ask with", async () => {
     await expect(requestLocationName(RAITARU, [])).rejects.toBeInstanceOf(
-      LocationResolutionError
+      LocationResolutionError,
     );
   });
 });

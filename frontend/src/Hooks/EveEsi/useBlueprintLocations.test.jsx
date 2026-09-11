@@ -3,16 +3,17 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { store, characterRows, corporationRows, gate, failCorporation } = vi.hoisted(() => ({
-  store: {
-    account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
-  },
-  characterRows: new Map(),
-  corporationRows: new Map(),
-  gate: { current: null },
-  failCorporation: { current: false },
-}));
+const { store, characterRows, corporationRows, gate, failCorporation } =
+  vi.hoisted(() => ({
+    store: {
+      account: { characters: [], corporations: [] },
+      worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
+    },
+    characterRows: new Map(),
+    corporationRows: new Map(),
+    gate: { current: null },
+    failCorporation: { current: false },
+  }));
 
 vi.mock("../../Zustand/usersStore", () => ({
   default: Object.assign((selector) => selector(store), {
@@ -51,17 +52,38 @@ vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
 
 import useBlueprintLocations from "./useBlueprintLocations";
 import buildBlueprintRows from "../../Functions/Blueprints/buildBlueprintRows";
-import { JITA_STATION_ID, RAITARU_STRUCTURE_ID } from "../../tests/assetFixtures";
+import {
+  JITA_STATION_ID,
+  RAITARU_STRUCTURE_ID,
+} from "../../tests/assetFixtures";
 
 const CHARACTER_BLUEPRINT = 7001;
 const CORPORATION_BLUEPRINT = 7002;
 
 const blueprints = buildBlueprintRows(
   [
-    { item_id: CHARACTER_BLUEPRINT, type_id: 686, location_id: JITA_STATION_ID, location_flag: "Hangar", quantity: -1, material_efficiency: 10, time_efficiency: 20, runs: -1 },
-    { item_id: CORPORATION_BLUEPRINT, type_id: 686, location_id: 8001, location_flag: "CorpSAG1", quantity: -1, material_efficiency: 10, time_efficiency: 20, runs: -1 },
+    {
+      item_id: CHARACTER_BLUEPRINT,
+      type_id: 686,
+      location_id: JITA_STATION_ID,
+      location_flag: "Hangar",
+      quantity: -1,
+      material_efficiency: 10,
+      time_efficiency: 20,
+      runs: -1,
+    },
+    {
+      item_id: CORPORATION_BLUEPRINT,
+      type_id: 686,
+      location_id: 8001,
+      location_flag: "CorpSAG1",
+      quantity: -1,
+      material_efficiency: 10,
+      time_efficiency: 20,
+      runs: -1,
+    },
   ],
-  []
+  [],
 );
 
 function render() {
@@ -82,18 +104,42 @@ beforeEach(() => {
   store.worldData = {
     universeIDs: {
       [JITA_STATION_ID]: { id: JITA_STATION_ID, name: "Jita IV-4" },
-      [RAITARU_STRUCTURE_ID]: { id: RAITARU_STRUCTURE_ID, name: "Abbey Raitaru" },
+      [RAITARU_STRUCTURE_ID]: {
+        id: RAITARU_STRUCTURE_ID,
+        name: "Abbey Raitaru",
+      },
     },
     actions: { addUniverseIDs: () => {} },
   };
   characterRows.clear();
   characterRows.set("hash-a", [
-    { item_id: CHARACTER_BLUEPRINT, type_id: 686, quantity: 1, location_flag: "Hangar", location_id: JITA_STATION_ID, location_type: "station" },
+    {
+      item_id: CHARACTER_BLUEPRINT,
+      type_id: 686,
+      quantity: 1,
+      location_flag: "Hangar",
+      location_id: JITA_STATION_ID,
+      location_type: "station",
+    },
   ]);
   corporationRows.clear();
   corporationRows.set("hash-a", [
-    { item_id: 8001, type_id: 27, quantity: 1, location_flag: "OfficeFolder", location_id: RAITARU_STRUCTURE_ID, location_type: "item" },
-    { item_id: CORPORATION_BLUEPRINT, type_id: 686, quantity: 1, location_flag: "CorpSAG1", location_id: 8001, location_type: "item" },
+    {
+      item_id: 8001,
+      type_id: 27,
+      quantity: 1,
+      location_flag: "OfficeFolder",
+      location_id: RAITARU_STRUCTURE_ID,
+      location_type: "item",
+    },
+    {
+      item_id: CORPORATION_BLUEPRINT,
+      type_id: 686,
+      quantity: 1,
+      location_flag: "CorpSAG1",
+      location_id: 8001,
+      location_type: "item",
+    },
   ]);
   gate.current = null;
   failCorporation.current = false;
@@ -117,7 +163,7 @@ describe("what each blueprint's location is called", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.names.get(CHARACTER_BLUEPRINT)).toBe("Jita IV-4");
     expect(result.current.names.get(CORPORATION_BLUEPRINT)).toBe(
-      "Abbey Raitaru"
+      "Abbey Raitaru",
     );
   });
 

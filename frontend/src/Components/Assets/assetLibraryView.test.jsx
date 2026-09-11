@@ -4,17 +4,18 @@ import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-const { store, characterRows, blueprintRows, failAssets, failItemList } = vi.hoisted(() => ({
-  store: {
-    account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
-    applicationSettings: { actions: { getCurrentLocale: () => "en-GB" } },
-  },
-  characterRows: new Map(),
-  blueprintRows: { current: [] },
-  failAssets: { current: false },
-  failItemList: { current: false },
-}));
+const { store, characterRows, blueprintRows, failAssets, failItemList } =
+  vi.hoisted(() => ({
+    store: {
+      account: { characters: [], corporations: [] },
+      worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
+      applicationSettings: { actions: { getCurrentLocale: () => "en-GB" } },
+    },
+    characterRows: new Map(),
+    blueprintRows: { current: [] },
+    failAssets: { current: false },
+    failItemList: { current: false },
+  }));
 
 import { assetFixtureItemList } from "../../tests/assetFixtures";
 
@@ -141,14 +142,9 @@ function renderPage(props) {
   return render(
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={client}>
-        <AssetLibraryView
-          kind="character"
-          id="hash-a"
-          view="held"
-          {...props}
-        />
+        <AssetLibraryView kind="character" id="hash-a" view="held" {...props} />
       </QueryClientProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 
@@ -191,7 +187,7 @@ describe("a character's assets", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(screen.getByText("Tritanium")).toBeTruthy();
@@ -203,7 +199,7 @@ describe("a character's assets", () => {
     await user.click(
       screen.getByRole("button", {
         name: /Expand Large Secure Container - Ore Crate/,
-      })
+      }),
     );
     expect(screen.getByText("Pyerite")).toBeTruthy();
   });
@@ -214,19 +210,19 @@ describe("a character's assets", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
     await user.click(
       screen.getByRole("button", {
         name: /Expand Large Secure Container - Ore Crate/,
-      })
+      }),
     );
     expect(screen.getByText("Pyerite")).toBeTruthy();
 
     // The same assets arrive again as new objects in a different order, as ESI delivers them.
     characterRows.set(
       "hash-a",
-      [...characterAssetRows].reverse().map((row) => ({ ...row }))
+      [...characterAssetRows].reverse().map((row) => ({ ...row })),
     );
     await act(async () => {
       await client.refetchQueries({ queryKey: ["characterAssets", "hash-a"] });
@@ -241,7 +237,7 @@ describe("a character's assets", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(screen.getByText("Tritanium")).toBeTruthy();
@@ -305,7 +301,7 @@ describe("a character's assets", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     // At the station: a stack of 1,000 Tritanium and a container. The stack of 25 is in
@@ -328,7 +324,7 @@ describe("with assembled ships hidden", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(screen.getAllByText("Rifter").length).toBe(2);
@@ -341,7 +337,7 @@ describe("with assembled ships hidden", () => {
     renderPage({ hideAssembledShips: true });
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
     expect(screen.queryByRole("button", { name: /Expand Rifter/ })).toBeNull();
   });
@@ -359,7 +355,7 @@ describe("with assembled ships hidden", () => {
     renderPage({ hideAssembledShips: true });
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(screen.queryByText("Stabber")).toBeNull();
@@ -370,7 +366,7 @@ describe("with assembled ships hidden", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(screen.getByText("Stabber")).toBeTruthy();
@@ -381,7 +377,7 @@ describe("with assembled ships hidden", () => {
     renderPage({ hideAssembledShips: true });
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     // The packaged hull remains, as the one assembled row is what goes.
@@ -415,7 +411,7 @@ describe("an ancient relic", () => {
     renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(screen.getByText("Intact Armor Nanobot")).toBeTruthy();
@@ -427,11 +423,16 @@ describe("an ancient relic", () => {
     const { container } = renderPage();
 
     await user.click(
-      await screen.findByRole("button", { name: /Expand Jita IV-4/ })
+      await screen.findByRole("button", { name: /Expand Jita IV-4/ }),
     );
 
     expect(
-      container.querySelector(`img[src*="/types/${ANCIENT_RELIC_TYPE_ID}/relic"]`)
+      // The assertion is about which artwork variant the image server is asked for, and an <img>
+      // carrying a decorative alt has no accessible name to query by.
+      // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+      container.querySelector(
+        `img[src*="/types/${ANCIENT_RELIC_TYPE_ID}/relic"]`,
+      ),
     ).toBeTruthy();
   });
 });

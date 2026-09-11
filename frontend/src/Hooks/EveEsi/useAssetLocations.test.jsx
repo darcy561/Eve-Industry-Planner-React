@@ -3,16 +3,18 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { store, characterRows, resolveCalls, resolved, pending } = vi.hoisted(() => ({
-  store: {
-    account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
-  },
-  characterRows: new Map(),
-  resolveCalls: [],
+const { store, characterRows, resolveCalls, resolved, pending } = vi.hoisted(
+  () => ({
+    store: {
+      account: { characters: [], corporations: [] },
+      worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
+    },
+    characterRows: new Map(),
+    resolveCalls: [],
     pending: { current: new Set() },
-  resolved: { current: {} },
-}));
+    resolved: { current: {} },
+  }),
+);
 
 vi.mock("../../Zustand/usersStore", () => ({
   default: Object.assign((selector) => selector(store), {
@@ -93,7 +95,9 @@ describe("the asset locations offered to a dropdown", () => {
   it("names each location and orders them alphabetically", async () => {
     const { result } = render();
 
-    await waitFor(() => expect(result.current.locations.length).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(result.current.locations.length).toBeGreaterThan(0),
+    );
     expect(result.current.locations.map(({ name }) => name)).toEqual([
       "Abbey Raitaru",
       "Jita IV-4",
@@ -109,9 +113,11 @@ describe("the asset locations offered to a dropdown", () => {
 
     const { result } = render();
 
-    await waitFor(() => expect(result.current.locations.length).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(result.current.locations.length).toBeGreaterThan(0),
+    );
     expect(
-      result.current.locations.map(({ locationId }) => locationId)
+      result.current.locations.map(({ locationId }) => locationId),
     ).toEqual([JITA_STATION_ID]);
   });
 
@@ -125,7 +131,9 @@ describe("the asset locations offered to a dropdown", () => {
     expect(result.current.locations[0].locationId).toBe(JITA_STATION_ID);
     // One ask per id now, rather than one ask per set. The ship holding item 1010 is in space and
     // so absent from the set; its id sits in the structure range and is asked for as well.
-    await waitFor(() => expect(resolveCalls.flat()).toContain(RAITARU_STRUCTURE_ID));
+    await waitFor(() =>
+      expect(resolveCalls.flat()).toContain(RAITARU_STRUCTURE_ID),
+    );
   });
 
   it("asks for nothing while disabled", async () => {

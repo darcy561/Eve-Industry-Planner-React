@@ -47,7 +47,7 @@ export function useShoppingListCorporationAssets({
     if (corporationAssetsLoading !== undefined && !corporationAssetsLoading) {
       const { data: corporationAssets } = getCachedSingleCorporationAssets(
         queryClient,
-        state.selectedCorporation
+        state.selectedCorporation,
       );
 
       if (corporationAssets && corporationAssets.length > 0) {
@@ -63,14 +63,14 @@ export function useShoppingListCorporationAssets({
           const officesKey = `${state.selectedCorporation}-${corporationAssets.length}`;
 
           if (!corporationOfficesSetRef.current.has(officesKey)) {
-            useUsersStore
-              .getState()
-              .account.actions.setCorporationOffices(
-                state.selectedCorporation,
-                corporationAssets
-                  .filter(({ location_flag }) => location_flag === OFFICE_FOLDER_FLAG)
-                  .map(({ location_id }) => location_id)
-              );
+            useUsersStore.getState().account.actions.setCorporationOffices(
+              state.selectedCorporation,
+              corporationAssets
+                .filter(
+                  ({ location_flag }) => location_flag === OFFICE_FOLDER_FLAG,
+                )
+                .map(({ location_id }) => location_id),
+            );
             corporationOfficesSetRef.current.add(officesKey);
 
             // Fetch location names for all office locations
@@ -83,25 +83,14 @@ export function useShoppingListCorporationAssets({
                 updatedCorporationObject &&
                 updatedCorporationObject.officeLocations
               ) {
-                // Get a user object for the corporation
-                const users = Object.values(
-                  useUsersStore.getState().account.characters
-                );
-                const userObject = users.find(
-                  (user) => user.corporation_id === state.selectedCorporation
-                );
-
-                if (
-                  userObject &&
-                  updatedCorporationObject.officeLocations.length > 0
-                ) {
+                if (updatedCorporationObject.officeLocations.length > 0) {
                   // Every character, not just this corporation's: an office one member cannot read
                   // is often readable by another, and an office that cannot be named still holds
                   // the assets this list is counting.
                   const names = await fetchLocationNames(
                     queryClient,
                     updatedCorporationObject.officeLocations,
-                    Object.values(useUsersStore.getState().account.characters)
+                    Object.values(useUsersStore.getState().account.characters),
                   );
                   if (Object.keys(names).length > 0) {
                     useUsersStore
@@ -238,7 +227,7 @@ export function useShoppingListCorporationAssets({
         });
         const { data: corporationAssets } = getCachedSingleCorporationAssets(
           queryClient,
-          state.selectedCorporation
+          state.selectedCorporation,
         );
 
         // Clear assets before processing
@@ -270,7 +259,7 @@ export function useShoppingListCorporationAssets({
         const assetsByTypeID = assetsAtLocation(
           collection,
           state.selectedCorporationOffice,
-          state.selectedCorporationHangar
+          state.selectedCorporationHangar,
         );
 
         // Apply assets to shopping list (always call to reset applied assets info)

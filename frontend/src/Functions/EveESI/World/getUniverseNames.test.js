@@ -36,9 +36,9 @@ describe("getUniverseNames", () => {
       fetchMock.mockResolvedValue({ ok: false, status, statusText: "no" });
 
       await expect(getUniverseNames([JITA])).rejects.toBeInstanceOf(
-        LocationResolutionError
+        LocationResolutionError,
       );
-    }
+    },
   );
 
   // A lenient shape guard here is worse than a strict one: the caller settles what it did not hear
@@ -53,30 +53,48 @@ describe("getUniverseNames", () => {
       });
 
       await expect(getUniverseNames([JITA])).rejects.toBeInstanceOf(
-        LocationResolutionError
+        LocationResolutionError,
       );
-    }
+    },
   );
+
+  it("throws when the body cannot be parsed at all", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => {
+        throw new SyntaxError("Unexpected token < in JSON");
+      },
+    });
+
+    await expect(getUniverseNames([JITA])).rejects.toBeInstanceOf(
+      LocationResolutionError,
+    );
+  });
 
   it("throws when the request fails outright", async () => {
     fetchMock.mockRejectedValue(new Error("network down"));
 
     await expect(getUniverseNames([JITA])).rejects.toBeInstanceOf(
-      LocationResolutionError
+      LocationResolutionError,
     );
   });
 
   it("refuses ids it cannot work with", async () => {
     await expect(getUniverseNames()).rejects.toBeInstanceOf(
-      LocationResolutionError
+      LocationResolutionError,
     );
     await expect(getUniverseNames("60003760")).rejects.toBeInstanceOf(
-      LocationResolutionError
+      LocationResolutionError,
     );
   });
 
   it("takes a Set as well as an array", async () => {
-    fetchMock.mockResolvedValue({ ok: true, status: 200, json: async () => [] });
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [],
+    });
 
     await getUniverseNames(new Set([JITA]));
 

@@ -41,7 +41,7 @@ export function useMarketHistoryData(typeID, location) {
       if (isRateLimited("market")) {
         const waitTime = getWaitTime("market");
         throw new Error(
-          `Market group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`
+          `Market group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
         );
       }
 
@@ -92,7 +92,7 @@ export function useMarketHistoryData(typeID, location) {
   const hasHistory = marketHistory.length > 0;
   const regionIds = useMemo(
     () => (regionId && hasHistory ? [regionId] : []),
-    [regionId, hasHistory]
+    [regionId, hasHistory],
   );
 
   const {

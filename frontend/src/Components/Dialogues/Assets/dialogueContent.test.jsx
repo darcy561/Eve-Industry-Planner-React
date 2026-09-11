@@ -124,7 +124,7 @@ function renderDialogue(scope = EVERY_CHARACTER, typeId = 34) {
           actions={actions}
         />
       </QueryClientProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 
   return actions;
@@ -158,11 +158,9 @@ describe("the assets dialogue", () => {
   it("names what is being looked for and where it is held", async () => {
     renderDialogue();
 
+    expect(await screen.findByText("Where Tritanium is held")).toBeTruthy();
     expect(
-      await screen.findByText("Where Tritanium is held")
-    ).toBeTruthy();
-    expect(
-      (await screen.findAllByText("Jita IV-4", {}, { timeout: 5000 })).length
+      (await screen.findAllByText("Jita IV-4", {}, { timeout: 5000 })).length,
     ).toBeGreaterThan(0);
   });
 
@@ -175,23 +173,28 @@ describe("the assets dialogue", () => {
     await screen.findByText("Where Tritanium is held");
     await user.click(screen.getByRole("combobox"));
 
-    expect(screen.getByRole("option", { name: "Every character" })).toBeTruthy();
     expect(
-      screen.getByRole("option", { name: /Reginal Shardani/ })
+      screen.getByRole("option", { name: "Every character" }),
     ).toBeTruthy();
     expect(
-      screen.getByRole("option", { name: /Astral Acquisitions Inc./ })
+      screen.getByRole("option", { name: /Reginal Shardani/ }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("option", { name: /Astral Acquisitions Inc./ }),
     ).toBeTruthy();
   });
 
   it("hands the chosen owner back as one value", async () => {
     const user = userEvent.setup();
+    // The helper's name matches the rule's pattern, but what it hands back is the dialogue's
+    // action spies rather than a render result.
+    // eslint-disable-next-line testing-library/render-result-naming-convention
     const actions = renderDialogue();
 
     await screen.findByText("Where Tritanium is held");
     await user.click(screen.getByRole("combobox"));
     await user.click(
-      screen.getByRole("option", { name: /Astral Acquisitions Inc./ })
+      screen.getByRole("option", { name: /Astral Acquisitions Inc./ }),
     );
 
     expect(actions.setScope).toHaveBeenCalledWith("corporation:98000001");
@@ -202,7 +205,7 @@ describe("the assets dialogue", () => {
 
     // 2003 is a stack of Tritanium in a crate in hangar division three.
     expect(
-      await screen.findByText("Large Secure Container", {}, { timeout: 5000 })
+      await screen.findByText("Large Secure Container", {}, { timeout: 5000 }),
     ).toBeTruthy();
     expect(screen.getByText("250")).toBeTruthy();
   });

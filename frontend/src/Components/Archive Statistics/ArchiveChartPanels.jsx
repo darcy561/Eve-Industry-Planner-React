@@ -3,10 +3,7 @@ import { MenuItem } from "@mui/material";
 import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
 import { PieChart, TimeSeriesChart } from "../../Styled Components/Charts";
-import useUsersStore from "../../Zustand/usersStore";
-import {
-  useAccountTimelineItemsQuery,
-} from "../../Hooks/React Query/Backend/statisticsTimeline";
+import { useAccountTimelineItemsQuery } from "../../Hooks/React Query/Backend/statisticsTimeline";
 import { useAccountTotalsSummaryQuery } from "../../Hooks/React Query/Backend/statisticsTotals";
 import {
   COST_COMPONENTS,
@@ -66,7 +63,12 @@ export function ArchiveTimelinePanel({ from, to, range }) {
           series={[
             { key: "jobCostTotal", label: "Cost", type: "bar", role: "cost" },
             { key: "salesTotal", label: "Sales", type: "bar", role: "sales" },
-            { key: "profitLoss", label: "Profit", type: "line", role: "profit" },
+            {
+              key: "profitLoss",
+              label: "Profit",
+              type: "line",
+              role: "profit",
+            },
           ]}
         />
       )}
@@ -207,7 +209,8 @@ export function ArchiveCostBreakdownPanel({ from, to, range }) {
   const { data, isLoading, isError } = useArchiveTimeline({ from, to, range });
   const rows = useMemo(() => toCostComponentRows(data), [data]);
   const series = useMemo(
-    () => COST_COMPONENTS.map(({ key, label }) => ({ key, label, type: "bar" })),
+    () =>
+      COST_COMPONENTS.map(({ key, label }) => ({ key, label, type: "bar" })),
     [],
   );
 

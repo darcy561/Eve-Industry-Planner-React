@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import useUsersStore from "../Zustand/usersStore";
 import {
   buildJobStatusesDisplayList,
@@ -24,10 +24,13 @@ export function useJobStatuses() {
   const [expandedMap, setExpandedMap] = useState(() =>
     readJobStatusExpandedMap(accountId),
   );
-
-  useEffect(() => {
+  // The planner stays mounted across a sign-out, so the stages follow the
+  // account rather than keeping the previous reader's.
+  const [readFor, setReadFor] = useState(accountId);
+  if (accountId !== readFor) {
+    setReadFor(accountId);
     setExpandedMap(readJobStatusExpandedMap(accountId));
-  }, [accountId]);
+  }
 
   const jobStatuses = useMemo(
     () => buildJobStatusesDisplayList(namesMap, expandedMap),

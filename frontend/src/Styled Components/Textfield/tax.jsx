@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TextField } from "@mui/material";
 
 function formatTaxFieldInitial(initialState) {
@@ -39,10 +39,14 @@ function TaxPercentageTextField({
   const [inputValue, updateInputValue] = useState(() =>
     formatTaxFieldInitial(initialState),
   );
-
-  useEffect(() => {
+  // The field is reused as the reader moves between structures, so it shows the
+  // rate of the one they are looking at rather than what they last typed
+  // against another.
+  const [shownFor, setShownFor] = useState(initialState);
+  if (initialState !== shownFor) {
+    setShownFor(initialState);
     updateInputValue(formatTaxFieldInitial(initialState));
-  }, [initialState]);
+  }
 
   return (
     <TextField

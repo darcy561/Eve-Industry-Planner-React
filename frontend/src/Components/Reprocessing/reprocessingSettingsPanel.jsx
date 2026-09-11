@@ -19,7 +19,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import SaveIcon from "@mui/icons-material/Save";
 import RestoreIcon from "@mui/icons-material/Restore";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useUsersStore from "../../Zustand/usersStore";
 import { useCachedData } from "../../Hooks/App/useCachedData";
 import {
@@ -41,15 +41,17 @@ export default function ReprocessingSettingsPanel({ pageState, pageActions }) {
   const exemptTypeIDs = pageState.oreIDsToBeIgnored || [];
   const reprocessingSettings = pageState.reprocessingCalculationSettings;
 
-  // State for expandable panel
-  const [expanded, setExpanded] = useState(false);
-
-  // Open by default if there are exempt ores
-  useEffect(() => {
+  // Something already exempt is the reason to look, so the panel opens on it
+  // rather than hiding a list the reader came for. It only ever opens itself;
+  // shutting it is the reader's to do.
+  const [expanded, setExpanded] = useState(exemptTypeIDs.length > 0);
+  const [openedFor, setOpenedFor] = useState(exemptTypeIDs.length);
+  if (exemptTypeIDs.length !== openedFor) {
+    setOpenedFor(exemptTypeIDs.length);
     if (exemptTypeIDs.length > 0) {
       setExpanded(true);
     }
-  }, [exemptTypeIDs.length]);
+  }
 
   // Handle settings changes
   const handleSettingChange = (setting, value) => {

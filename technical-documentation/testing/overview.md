@@ -22,7 +22,7 @@ One workflow covers the full automated unit/integration surface. Suites run only
 |-------|----------------------|-----|
 | Services | `services/**` | `go test ./…` (Ubuntu) |
 | Shared testing library | `testing/**`, `services/**` | `go test ./…` (Ubuntu) — selected by `services/**` too, since the module compiles against it |
-| Frontend | `frontend/**` | `npm ci` + `npm test -- --run` (Ubuntu, Node 24; `APP_VERSION=0.0.0-ci` — root `.env` is gitignored) |
+| Frontend | `frontend/**` | `npm ci` + `npm run lint` + `npm run format:check` + `npm test -- --run` (Ubuntu, Node 24; `APP_VERSION=0.0.0-ci` — root `.env` is gitignored) |
 | Deployment Tool | `deployment-tool/**`, `scripts/deployment-tool/**` | unit `go test ./…` + build; Swarm `integration` tag (Ubuntu) |
 
 | When | Behaviour |

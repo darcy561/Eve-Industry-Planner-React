@@ -70,6 +70,31 @@ repo-root [`testing/`](../../testing/) module: **look there before writing a hel
 file, and put a new reusable one there**. Helpers copied into each file that needs them are the
 failure this prevents.
 
+## Lint and format
+
+The SPA is linted by **ESLint** ([`frontend/eslint.config.mjs`](../../frontend/eslint.config.mjs),
+flat config) and formatted by **Prettier** ([`frontend/.prettierrc.json`](../../frontend/.prettierrc.json)).
+`npm run lint` and `npm run format:check` run both, and the `frontend` job in
+[`.github/workflows/test.yml`](../../.github/workflows/test.yml) runs them beside the Vitest suite.
+Fix what they report in the area you are editing rather than adding a file-level disable.
+
+The rule set is **`@eslint/js` recommended plus `eslint-plugin-react-hooks`**, with
+`jsx-a11y` on the SPA and the Vitest and Testing Library plugins on `*.test.*`. React-specific
+coverage comes from `react-hooks`, which carries the React Compiler rules — `set-state-in-effect`,
+`immutability`, `purity`, `refs` — that flag exactly the React 18 patterns the section above asks
+you to migrate. There is no `eslint-plugin-react`: its `recommended` set is almost entirely
+`react/prop-types`, and this SPA types through JSDoc.
+
+`react-hooks/exhaustive-deps` is a **warning, and is never autofixed**. A narrow dependency list in
+this tree is usually deliberate — a memo that must not recompute when an unrelated reducer dispatch
+returns a new state object, a callback TanStack requires to stay referentially stable. Completing
+such an array is a behaviour or performance change wearing a lint fix's clothes. Read the effect and
+its tests, then either fix it properly or leave a `// eslint-disable-next-line` **carrying the
+reason**.
+
+A leading underscore (`_get`, `_ev`) marks a binding kept for arity or destructuring position;
+`no-unused-vars` ignores those and will not ignore anything else.
+
 ## Frontend-specific bar (TBD)
 
 Design-system / visual / SPA-only conventions (component libraries, routing, styling) will be written

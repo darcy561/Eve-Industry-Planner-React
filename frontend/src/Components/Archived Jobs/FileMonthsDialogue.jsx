@@ -82,7 +82,9 @@ function MonthField({ label, value, onChange, disabled, helperText }) {
 export function FileMonthsDialogue({ target, onClose, onFiled }) {
   // Opening blank would read as "no month", a different request from leaving a
   // side alone.
-  const [costMonth, setCostMonth] = useState(() => monthKeyToDate(target?.costMonth));
+  const [costMonth, setCostMonth] = useState(() =>
+    monthKeyToDate(target?.costMonth),
+  );
   const [salesMonth, setSalesMonth] = useState(() =>
     monthKeyToDate(target?.salesMonth),
   );

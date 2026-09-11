@@ -80,7 +80,13 @@ export function calculateReturns({
 
   return {
     routes: [
-      route("listed", "Sell order", sellPrice, brokerFee + salesTax, "less fee and tax"),
+      route(
+        "listed",
+        "Sell order",
+        sellPrice,
+        brokerFee + salesTax,
+        "less fee and tax",
+      ),
       // No listing, so no broker fee — the tax is charged either way.
       route("immediate", "Into buy orders", buyPrice, salesTax, "less tax"),
     ],
@@ -94,7 +100,10 @@ export function calculateReturns({
     headroom:
       breakEven === null
         ? null
-        : { price: sellPrice, above: fraction(sellPrice - breakEven, breakEven) },
+        : {
+            price: sellPrice,
+            above: fraction(sellPrice - breakEven, breakEven),
+          },
   };
 }
 

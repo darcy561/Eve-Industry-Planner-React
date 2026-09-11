@@ -3,7 +3,10 @@ import { Typography, Grid } from "@mui/material";
 export function TutorialStep1(props) {
   const { state } = props;
   return (
-    <Grid container sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Grid
+      container
+      sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+    >
       <Grid size={12} sx={{ flexShrink: 0 }}>
         <Typography
           color="primary"
@@ -13,11 +16,11 @@ export function TutorialStep1(props) {
         </Typography>
       </Grid>
       <Grid sx={{ flex: 1, overflow: "auto", minHeight: 0 }} size={12}>
-        <Typography 
-          sx={{ 
+        <Typography
+          sx={{
             typography: { xs: "caption", sm: "body2" },
             wordWrap: "break-word",
-            overflowWrap: "break-word"
+            overflowWrap: "break-word",
           }}
         >
           This is your first step along the way to building your{" "}

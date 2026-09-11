@@ -19,16 +19,18 @@ vi.mock("../../../Zustand/usersStore", () => ({
     getState: () => ({
       account: {
         actions: {
-          findCharacterByHash: (hash) => ({ CharacterHash: hash, CharacterID: 1 }),
+          findCharacterByHash: (hash) => ({
+            CharacterHash: hash,
+            CharacterID: 1,
+          }),
         },
       },
     }),
   },
 }));
 
-const { useSellingRateInputs, ensureSellingRateInputs } = await import(
-  "./useSellingRateInputs"
-);
+const { useSellingRateInputs, ensureSellingRateInputs } =
+  await import("./useSellingRateInputs");
 
 const harness = () => {
   const client = new QueryClient({
@@ -103,7 +105,9 @@ describe("subscribing to what a fee is worked out from", () => {
   it("asks for nothing when signed out", async () => {
     const { wrapper } = harness();
 
-    const { result } = renderHook(() => useSellingRateInputs(null), { wrapper });
+    const { result } = renderHook(() => useSellingRateInputs(null), {
+      wrapper,
+    });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -120,7 +124,9 @@ describe("making sure the reads are there before a fee is stored", () => {
 
     await ensureSellingRateInputs(client, "never-seen");
 
-    expect(charactersAsked(getCharacterSkills)).toEqual(new Set(["never-seen"]));
+    expect(charactersAsked(getCharacterSkills)).toEqual(
+      new Set(["never-seen"]),
+    );
     expect(charactersAsked(getCharacterStandings)).toEqual(
       new Set(["never-seen"]),
     );

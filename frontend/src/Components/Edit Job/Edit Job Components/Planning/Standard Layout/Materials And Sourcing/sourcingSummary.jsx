@@ -19,7 +19,12 @@ import { PanelFooterMeta } from "../../../../../../Styled Components/Typography/
  * @param {() => void} props.onApply
  * @param {boolean} [props.disabled]
  */
-export function SourcingOffer({ summary, formatIsk, onApply, disabled = false }) {
+export function SourcingOffer({
+  summary,
+  formatIsk,
+  onApply,
+  disabled = false,
+}) {
   if (!summary || summary.savingAvailable <= 0) return null;
 
   return (
@@ -27,7 +32,12 @@ export function SourcingOffer({ summary, formatIsk, onApply, disabled = false })
       severity="success"
       variant="outlined"
       action={
-        <Button color="inherit" size="small" onClick={onApply} disabled={disabled}>
+        <Button
+          color="inherit"
+          size="small"
+          onClick={onApply}
+          disabled={disabled}
+        >
           Apply
         </Button>
       }

@@ -13,8 +13,10 @@ export function ownerName(owner) {
   const { actions } = useUsersStore.getState().account;
 
   return owner.kind === OWNER_KIND.CORPORATION
-    ? actions.getCorporation(owner.id)?.corporationName ?? "Unknown corporation"
-    : actions.findCharacterByHash(owner.id)?.CharacterName ?? "Unknown character";
+    ? (actions.getCorporation(owner.id)?.corporationName ??
+        "Unknown corporation")
+    : (actions.findCharacterByHash(owner.id)?.CharacterName ??
+        "Unknown character");
 }
 
 /**

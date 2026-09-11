@@ -197,7 +197,10 @@ export async function fileArchivedJobMonths(scope, id, months) {
     );
 
     if (response.status === 409) {
-      return { error: "This job's sales came from the market, so their month cannot be changed." };
+      return {
+        error:
+          "This job's sales came from the market, so their month cannot be changed.",
+      };
     }
     if (!response.ok) {
       console.error(

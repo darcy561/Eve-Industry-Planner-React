@@ -23,9 +23,8 @@ vi.mock("../Installation Costs/installCosts.js", () => ({
   getJobInstallCostForPlanning: (job) => job.plannedInstallCost ?? 0,
 }));
 
-const { calculateCurrentJobBuildCostFromChildren } = await import(
-  "./calculateJobBuildCostFromChildren.js"
-);
+const { calculateCurrentJobBuildCostFromChildren } =
+  await import("./calculateJobBuildCostFromChildren.js");
 
 /**
  * @param {object} overrides
@@ -196,7 +195,7 @@ describe("build cost from children", () => {
     expect(
       calculateCurrentJobBuildCostFromChildren(outputJob, {
         installCostMode: "actual",
-      })
+      }),
     ).toBe(250);
   });
 });
@@ -252,13 +251,13 @@ describe("what it does with awkward input", () => {
   it("is nothing when the output quantity is unusable", () => {
     expect(
       calculateCurrentJobBuildCostFromChildren(
-        job({ produced: "many", installCost: 100 })
-      )
+        job({ produced: "many", installCost: 100 }),
+      ),
     ).toBe(0);
     expect(
       calculateCurrentJobBuildCostFromChildren(
-        job({ produced: -5, installCost: 100 })
-      )
+        job({ produced: -5, installCost: 100 }),
+      ),
     ).toBe(0);
   });
 
@@ -384,7 +383,7 @@ describe("what it does with awkward input", () => {
     // over B's 10 units for A's 1 unit = 21.1. A's total 321.1 over 10 units is
     // 32.11 each, for 10 units.
     expect(calculateCurrentJobBuildCostFromChildren(outputJob)).toBeCloseTo(
-      321.1
+      321.1,
     );
     expect(captureException).toHaveBeenCalledTimes(1);
   });

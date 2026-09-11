@@ -38,7 +38,7 @@ async function fetchBlueprints(blueprintRequests) {
             })
           : undefined,
       },
-      { requestName: "fetchBlueprints" }
+      { requestName: "fetchBlueprints" },
     );
 
     if (!response.ok) {

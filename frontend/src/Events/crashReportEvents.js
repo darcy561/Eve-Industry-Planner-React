@@ -8,7 +8,8 @@ export const OPEN_SENTRY_CRASH_REPORT = "openSentryCrashReport";
  * @param {{ eventId: string, hint?: string }} payload
  */
 export function openSentryCrashReportDialogue(payload) {
-  const eventId = payload?.eventId != null ? String(payload.eventId).trim() : "";
+  const eventId =
+    payload?.eventId != null ? String(payload.eventId).trim() : "";
   if (!eventId) {
     return;
   }

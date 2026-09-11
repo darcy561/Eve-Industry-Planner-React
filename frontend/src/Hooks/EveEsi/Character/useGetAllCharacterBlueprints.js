@@ -1,19 +1,21 @@
 import { useQueries } from "@tanstack/react-query";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useCallback } from "react";
-import { characterBlueprintsQuery, characterBlueprintsQueryKey } from "../../React Query/Character/blueprints";
+import {
+  characterBlueprintsQuery,
+  characterBlueprintsQueryKey,
+} from "../../React Query/Character/blueprints";
 import {
   isQueryObserverResultLoading,
   isQueryStateLoading,
 } from "../queryLoadingState";
-
 
 /**
  * Utility function to check loading state from query results.
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {boolean} True if any query is loading
- * 
+ *
  * @private
  */
 function checkLoadingState(results) {
@@ -25,7 +27,7 @@ function checkLoadingState(results) {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Error|null} First error found, or null if none
- * 
+ *
  * @private
  */
 function findFirstError(results) {
@@ -37,7 +39,7 @@ function findFirstError(results) {
  *
  * @param {Error} error - Error object
  * @returns {Object} Error state object
- * 
+ *
  * @private
  */
 function createErrorObject(error) {
@@ -53,7 +55,7 @@ function createErrorObject(error) {
  * Utility function to create loading object for character blueprints queries.
  *
  * @returns {Object} Loading state object
- * 
+ *
  * @private
  */
 function createLoadingObject() {
@@ -70,7 +72,7 @@ function createLoadingObject() {
  *
  * @param {Object} data - Object with character hashes as keys and blueprint arrays as values
  * @returns {Object} Success state object
- * 
+ *
  * @private
  */
 function createSuccessObject(data) {
@@ -114,7 +116,7 @@ export function getAllCachedCharacterBlueprints(queryClient) {
 
   // Check loading state
   const isLoading = queryStates.some(({ queryState }) =>
-    isQueryStateLoading(queryState)
+    isQueryStateLoading(queryState),
   );
 
   if (isLoading) {
@@ -122,7 +124,8 @@ export function getAllCachedCharacterBlueprints(queryClient) {
   }
 
   // Check for errors
-  const error = queryStates.find(({ queryState }) => queryState?.error)?.queryState?.error;
+  const error = queryStates.find(({ queryState }) => queryState?.error)
+    ?.queryState?.error;
 
   if (error) {
     return createErrorObject(error);
@@ -155,31 +158,36 @@ export function getAllCachedCharacterBlueprints(queryClient) {
 export function useGetAllCharacterBlueprints() {
   const characters = useUsersStore((state) => state.account.characters);
 
-  const combineFunction = useCallback((results) => {
-    const isLoading = checkLoadingState(results);
-    const error = findFirstError(results);
-    
-    if (isLoading) {
-      return createLoadingObject();
-    }
+  const combineFunction = useCallback(
+    (results) => {
+      const isLoading = checkLoadingState(results);
+      const error = findFirstError(results);
 
-    if (error) {
-      return createErrorObject(error);
-    }
+      if (isLoading) {
+        return createLoadingObject();
+      }
 
-    const blueprintsByCharacter = {};
-    results.forEach((result, index) => {
-      const { CharacterHash } = characters[index];
-      // The query resolves to { data, characterHash }; consumers want the rows, and the cache
-      // reader below hands them the same thing.
-      blueprintsByCharacter[CharacterHash] = result.data?.data ?? [];
-    });
+      if (error) {
+        return createErrorObject(error);
+      }
 
-    return createSuccessObject(blueprintsByCharacter);
-  }, [characters]);
+      const blueprintsByCharacter = {};
+      results.forEach((result, index) => {
+        const { CharacterHash } = characters[index];
+        // The query resolves to { data, characterHash }; consumers want the rows, and the cache
+        // reader below hands them the same thing.
+        blueprintsByCharacter[CharacterHash] = result.data?.data ?? [];
+      });
+
+      return createSuccessObject(blueprintsByCharacter);
+    },
+    [characters],
+  );
 
   const result = useQueries({
-    queries: characters.map(({ CharacterHash }) => characterBlueprintsQuery(CharacterHash)),
+    queries: characters.map(({ CharacterHash }) =>
+      characterBlueprintsQuery(CharacterHash),
+    ),
     combine: combineFunction,
   });
 

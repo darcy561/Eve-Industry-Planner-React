@@ -1,4 +1,3 @@
-
 /**
  * A material a job is built from: what the job needs, what has been bought
  * against it, and what those purchases cost.
@@ -77,10 +76,7 @@ class Material {
    */
   importPurchase(
     purchase,
-    {
-      availableToBuy = this.quantityRemaining,
-      recordExcess = false,
-    } = {}
+    { availableToBuy = this.quantityRemaining, recordExcess = false } = {},
   ) {
     const offered = Number(purchase?.itemCount) || 0;
     if (offered <= 0) return { taken: 0, leftOver: 0 };
@@ -142,7 +138,7 @@ class Material {
   get quantityImported() {
     return this.purchasing.reduce(
       (total, row) => (isValidPurchase(row) ? total + row.itemCount : total),
-      0
+      0,
     );
   }
 
@@ -168,7 +164,7 @@ class Material {
         isValidPurchase(row) && !row.childJobImport
           ? total + row.itemCount * row.itemCost
           : total,
-      0
+      0,
     );
   }
 
@@ -201,7 +197,10 @@ class Material {
     for (const row of [...this.purchasing]
       .filter(isValidPurchase)
       .sort((a, b) => a.itemCost - b.itemCost)) {
-      const take = Math.min(row.itemCount, Math.max(0, this.quantity - quantity));
+      const take = Math.min(
+        row.itemCount,
+        Math.max(0, this.quantity - quantity),
+      );
       counted.set(row.id, Math.max(0, take));
       if (take <= 0) continue;
       quantity += take;

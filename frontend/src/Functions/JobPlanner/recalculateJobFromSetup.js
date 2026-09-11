@@ -16,7 +16,7 @@ export default async function recalculateJobFromSetup(
   setupObject,
   state,
   actions,
-  queryClient
+  queryClient,
 ) {
   const systemIndexResults = await getSystemIndexes(setupObject.systemID);
 
@@ -24,7 +24,7 @@ export default async function recalculateJobFromSetup(
     setupObject.id,
     queryClient,
     undefined,
-    systemIndexResults
+    systemIndexResults,
   );
 
   actions.updateActiveJob(state.activeJob);
@@ -45,9 +45,12 @@ export function recalculateWatchListItemsFromSetup(
   mainTypeID,
   setupID,
   materialObject,
-  queryClient
+  queryClient,
 ) {
-  materialObject[requestedTypeID].recalculateSelectedSetup(setupID, queryClient);
+  materialObject[requestedTypeID].recalculateSelectedSetup(
+    setupID,
+    queryClient,
+  );
 
   if (requestedTypeID !== mainTypeID) return;
 

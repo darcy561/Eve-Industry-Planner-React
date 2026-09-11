@@ -16,7 +16,7 @@ const corporationBlueprintsQueryGroup = "corporation";
 function findCorporationMembers(corporationId) {
   const { corporations } = useUsersStore.getState().account;
   const corporation = corporations?.find(
-    (c) => Number(c.corporation_id) === Number(corporationId)
+    (c) => Number(c.corporation_id) === Number(corporationId),
   );
   return corporation?.members ?? [];
 }
@@ -42,7 +42,8 @@ function findCorporationMembers(corporationId) {
  * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
 function corporationBlueprintsQuery(corporationId) {
-  const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
+  const findCharacterByHash =
+    useUsersStore.getState().account.actions.findCharacterByHash;
   const memberHashes = findCorporationMembers(corporationId);
   // The rate-limit bucket is per character. Members are tried in order, so the first is the one
   // whose budget this query normally spends.
@@ -51,14 +52,26 @@ function corporationBlueprintsQuery(corporationId) {
   return {
     queryKey: [corporationBlueprintsQueryKey, corporationId],
     queryFn: async () => {
-      const corporationStatus = getESIRateLimitStatus('corporation', budgetHash);
+      const corporationStatus = getESIRateLimitStatus(
+        "corporation",
+        budgetHash,
+      );
 
-      if (corporationStatus && corporationStatus.availableTokens <= 0 && corporationStatus.maxTokens && corporationStatus.windowSize) {
-        const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
-        const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
+      if (
+        corporationStatus &&
+        corporationStatus.availableTokens <= 0 &&
+        corporationStatus.maxTokens &&
+        corporationStatus.windowSize
+      ) {
+        const tokensPerMs =
+          corporationStatus.maxTokens / corporationStatus.windowSize;
+        const tokensToRecover =
+          corporationStatus.maxTokens - corporationStatus.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
+        );
       }
 
       try {
@@ -74,9 +87,9 @@ function corporationBlueprintsQuery(corporationId) {
               config: {
                 characterHash: memberHash,
                 group: corporationBlueprintsQueryGroup,
-                priority: 'normal',
-                batchable: true
-              }
+                priority: "normal",
+                batchable: true,
+              },
             });
             if (result?.forbidden) forbidden = true;
             return result;
@@ -92,8 +105,10 @@ function corporationBlueprintsQuery(corporationId) {
 
         return { data: [], corporation_id: Number(corporationId) };
       } catch (error) {
-        console.error('Error fetching corporation blueprints:', error);
-        throw new Error(`Failed to fetch corporation blueprints: ${error.message}`);
+        console.error("Error fetching corporation blueprints:", error);
+        throw new Error(
+          `Failed to fetch corporation blueprints: ${error.message}`,
+        );
       }
     },
     enabled: isQueryExecutionEnabled(),
@@ -101,11 +116,20 @@ function corporationBlueprintsQuery(corporationId) {
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
-        const corporationStatus = getESIRateLimitStatus('corporation', budgetHash);
-        if (corporationStatus && corporationStatus.maxTokens && corporationStatus.windowSize) {
-          const tokensPerMs = corporationStatus.maxTokens / corporationStatus.windowSize;
-          const tokensToRecover = corporationStatus.maxTokens - corporationStatus.availableTokens;
+      if (error?.message?.includes("rate limited")) {
+        const corporationStatus = getESIRateLimitStatus(
+          "corporation",
+          budgetHash,
+        );
+        if (
+          corporationStatus &&
+          corporationStatus.maxTokens &&
+          corporationStatus.windowSize
+        ) {
+          const tokensPerMs =
+            corporationStatus.maxTokens / corporationStatus.windowSize;
+          const tokensToRecover =
+            corporationStatus.maxTokens - corporationStatus.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -117,4 +141,8 @@ function corporationBlueprintsQuery(corporationId) {
   };
 }
 
-export { corporationBlueprintsQueryKey, corporationBlueprintsQuery, corporationBlueprintsQueryGroup };
+export {
+  corporationBlueprintsQueryKey,
+  corporationBlueprintsQuery,
+  corporationBlueprintsQueryGroup,
+};

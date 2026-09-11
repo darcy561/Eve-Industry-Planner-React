@@ -11,8 +11,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Total Material Cost:
             </Typography>
@@ -20,12 +21,10 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
-            }}>
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
+              sm: 4,
+            }}
+          >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
               {formatNumberForLocale(state.activeJob.totalMaterialCost)}
             </Typography>
           </Grid>
@@ -34,8 +33,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Tooltip title="Calculated from linked jobs only, add any unlinked jobs manually as an extra.">
               <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                 Total Install Costs:
@@ -45,12 +45,10 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
-            }}>
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
+              sm: 4,
+            }}
+          >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
               {formatNumberForLocale(state.activeJob.totalInstallCost)}
             </Typography>
           </Grid>
@@ -59,8 +57,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Total Extras:
             </Typography>
@@ -68,14 +67,11 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
+              sm: 4,
             }}
             sx={{ marginBottom: 1 }}
           >
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
               {formatNumberForLocale(state.activeJob.totalExtrasCost)}
             </Typography>
           </Grid>
@@ -84,8 +80,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Total Invention Costs:
             </Typography>
@@ -93,14 +90,11 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
+              sm: 4,
             }}
             sx={{ marginBottom: 1 }}
           >
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
               {formatNumberForLocale(state.activeJob.totalInventionCost)}
             </Typography>
           </Grid>
@@ -109,8 +103,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Total Build Cost:
             </Typography>
@@ -118,12 +113,10 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
-            }}>
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
+              sm: 4,
+            }}
+          >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
               {formatNumberForLocale(state.activeJob.buildCost)}
             </Typography>
           </Grid>
@@ -132,8 +125,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Total Items Built:
             </Typography>
@@ -141,16 +135,13 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
-            }}>
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
-              {formatNumberForLocale(
-                state.activeJob.totalQuantityProduced,
-                { max: 0 }
-              )}
+              sm: 4,
+            }}
+          >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
+              {formatNumberForLocale(state.activeJob.totalQuantityProduced, {
+                max: 0,
+              })}
             </Typography>
           </Grid>
         </Grid>
@@ -158,8 +149,9 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               Build Cost Per Item:
             </Typography>
@@ -167,12 +159,10 @@ export function JobCostSummaryPanel({ state }) {
           <Grid
             size={{
               xs: 12,
-              sm: 4
-            }}>
-            <Typography
-              sx={{ typography: STANDARD_TEXT_FORMAT }}
-              align="right"
-            >
+              sm: 4,
+            }}
+          >
+            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
               {formatNumberForLocale(state.activeJob.buildCostPerItem())}
             </Typography>
           </Grid>

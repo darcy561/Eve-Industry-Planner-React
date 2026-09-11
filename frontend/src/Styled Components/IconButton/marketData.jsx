@@ -31,7 +31,7 @@ function MarketDataIconButton({
     locationID = MARKET_OPTIONS.find(
       (i) =>
         i.id ===
-        useUsersStore.getState().applicationSettings.defaultMarketLocation
+        useUsersStore.getState().applicationSettings.defaultMarketLocation,
     );
   }
 

@@ -21,7 +21,13 @@ export default function Step4JobCard({ job }) {
             Items Built
           </Typography>
         </Box>
-        <Box sx={{ flex: "0 0 50%", textAlign: "right", paddingRight: { xs: 2, md: 3 } }}>
+        <Box
+          sx={{
+            flex: "0 0 50%",
+            textAlign: "right",
+            paddingRight: { xs: 2, md: 3 },
+          }}
+        >
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             {formatNumberForLocale(job.totalQuantityProduced, { max: 0 })}
           </Typography>

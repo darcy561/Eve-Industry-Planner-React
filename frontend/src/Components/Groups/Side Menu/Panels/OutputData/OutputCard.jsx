@@ -21,10 +21,10 @@ import { formatNumberForLocale } from "../../../../../Functions/Helper/numberPar
 function OutputJobCard({ inputJob, state, actions }) {
   const { activeGroupID } = useUsersStore((state) => state.jobData);
   const defaultMarket = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation
+    (state) => state.applicationSettings.defaultMarketLocation,
   );
   const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType
+    (state) => state.applicationSettings.defaultOrderType,
   );
 
   const navigate = useNavigate();
@@ -56,9 +56,13 @@ function OutputJobCard({ inputJob, state, actions }) {
         }}
       >
         <CardContent>
-          <Grid container spacing={1} sx={{
-            alignItems: "center"
-          }}>
+          <Grid
+            container
+            spacing={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <Grid size={10}>
               <Typography variant="caption">{inputJob.name}</Typography>
             </Grid>
@@ -106,9 +110,7 @@ function OutputJobCard({ inputJob, state, actions }) {
               if (state.highlightedItems.has(inputJob.jobID)) {
                 actions.setHighlightedItems(new Set());
               } else {
-                actions.setHighlightedItems(
-                  findJobsToHighlight(inputJob)
-                );
+                actions.setHighlightedItems(findJobsToHighlight(inputJob));
               }
             }}
           >

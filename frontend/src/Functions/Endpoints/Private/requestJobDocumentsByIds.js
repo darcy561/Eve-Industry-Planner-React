@@ -37,7 +37,7 @@ export async function requestJobDocumentsByIdsFromApi(jobIDs) {
         mergeResponseJsonArrays: true,
         errorLabel: "POST /api/v1/job-documents",
       },
-    }
+    },
   );
 
   const data = await res.json();

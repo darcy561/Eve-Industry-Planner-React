@@ -25,7 +25,7 @@ export const inboundSkeletonActions = (set) => ({
         },
       }),
       false,
-      "addPendingInboundNewJobSkeleton"
+      "addPendingInboundNewJobSkeleton",
     );
   },
 
@@ -49,7 +49,7 @@ export const inboundSkeletonActions = (set) => ({
         };
       },
       false,
-      "removePendingInboundNewJobSkeletons"
+      "removePendingInboundNewJobSkeletons",
     );
   },
 });

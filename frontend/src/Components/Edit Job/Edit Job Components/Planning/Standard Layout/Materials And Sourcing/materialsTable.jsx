@@ -199,10 +199,7 @@ function MaterialRow({
       </TableCell>
       {/* The plan control acts on the row it sits on, so a click on it is not
           also a click on the row underneath asking to expand. */}
-      <TableCell
-        align="right"
-        onClick={(event) => event.stopPropagation()}
-      >
+      <TableCell align="right" onClick={(event) => event.stopPropagation()}>
         <PlanCell
           plan={row.plan}
           saving={saving}
@@ -295,17 +292,24 @@ function PlanCell({ plan, saving, coverage, childJobs, action }) {
   // that has stopped producing has no build price, so its row reads as Buy — and
   // that is the row most in need of the tag rather than least.
   return (
-    <Stack direction="row" spacing={0.5} justifyContent="flex-end" flexWrap="wrap" alignItems="center">
-      {action ?? (plan === MATERIAL_PLAN.BUILD ? (
-        <StatusChip label="Build" tone={STATUS_TONE.GOOD} />
-      ) : (
-        // Buying while building would cost less: the chip carries the warning
-        // rather than a separate marker, so the row says it in one place.
-        <StatusChip
-          label="Buy"
-          tone={saving ? STATUS_TONE.WARN : STATUS_TONE.NEUTRAL}
-        />
-      ))}
+    <Stack
+      direction="row"
+      spacing={0.5}
+      justifyContent="flex-end"
+      flexWrap="wrap"
+      alignItems="center"
+    >
+      {action ??
+        (plan === MATERIAL_PLAN.BUILD ? (
+          <StatusChip label="Build" tone={STATUS_TONE.GOOD} />
+        ) : (
+          // Buying while building would cost less: the chip carries the warning
+          // rather than a separate marker, so the row says it in one place.
+          <StatusChip
+            label="Buy"
+            tone={saving ? STATUS_TONE.WARN : STATUS_TONE.NEUTRAL}
+          />
+        ))}
       {short}
     </Stack>
   );
@@ -316,9 +320,14 @@ function PlanCell({ plan, saving, coverage, childJobs, action }) {
  * @param {boolean} saving
  */
 function accentStripe(building, saving) {
-  if (saving) return { boxShadow: (theme) => `inset 3px 0 0 ${theme.palette.warning.main}` };
+  if (saving)
+    return {
+      boxShadow: (theme) => `inset 3px 0 0 ${theme.palette.warning.main}`,
+    };
   if (building) {
-    return { boxShadow: (theme) => `inset 3px 0 0 ${theme.palette.success.main}` };
+    return {
+      boxShadow: (theme) => `inset 3px 0 0 ${theme.palette.success.main}`,
+    };
   }
   return {};
 }

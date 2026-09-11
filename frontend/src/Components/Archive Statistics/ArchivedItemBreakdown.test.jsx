@@ -12,7 +12,9 @@ vi.mock("../../Hooks/React Query/Backend/statisticsTimeline", () => ({
 
 vi.mock("../../Functions/Helper/getCachedData", async () => {
   const { cachedDataMock } = await import("../../tests/archiveHarness.jsx");
-  return cachedDataMock({ getFullItemList: (...args) => getFullItemList(...args) });
+  return cachedDataMock({
+    getFullItemList: (...args) => getFullItemList(...args),
+  });
 });
 
 const { ArchivedItemBreakdown } = await import("./ArchivedItemBreakdown.jsx");
@@ -152,16 +154,22 @@ describe("ArchivedItemBreakdown", () => {
       profitLoss: 1,
     }));
     getFullItemList.mockResolvedValue(
-      Object.fromEntries(tenItems.map((item) => [item.typeID, { name: `Item ${item.typeID}` }])),
+      Object.fromEntries(
+        tenItems.map((item) => [item.typeID, { name: `Item ${item.typeID}` }]),
+      ),
     );
     useAccountTimelineItemsQuery.mockReturnValue(page(tenItems, 40));
 
     renderWithProviders(<ArchivedItemBreakdown />);
     fireEvent.click(screen.getByRole("button", { name: "Show top 10" }));
-    await waitFor(() => expect(screen.getByText("Item 1009")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText("Item 1009")).toBeInTheDocument(),
+    );
 
     // The shorter page lands immediately, as a cached one would.
-    useAccountTimelineItemsQuery.mockReturnValue(page(tenItems.slice(0, 5), 40));
+    useAccountTimelineItemsQuery.mockReturnValue(
+      page(tenItems.slice(0, 5), 40),
+    );
     fireEvent.click(screen.getByRole("button", { name: "Show top 5" }));
 
     // Still drawn, mid-fade, rather than removed on the spot.

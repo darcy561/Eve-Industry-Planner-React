@@ -29,7 +29,7 @@ function BasicMineralOutput({ pageState }) {
   const findMarketData =
     useUsersStore.getState().worldData.actions.findMarketData;
   const { data: fullItemList, isLoading } = useCachedData(
-    CACHED_DATA_FILES.FULL_ITEM_LIST
+    CACHED_DATA_FILES.FULL_ITEM_LIST,
   );
 
   const totalReprocessingValue = useMemo(() => {
@@ -76,13 +76,15 @@ function BasicMineralOutput({ pageState }) {
         sx={{
           alignItems: "center",
           marginTop: 2,
-          marginBottom: 4
-        }}>
+          marginBottom: 4,
+        }}
+      >
         <Grid
           size={{
             xs: 6,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
               Total Unreprocessed Value:
@@ -100,8 +102,9 @@ function BasicMineralOutput({ pageState }) {
         <Grid
           size={{
             xs: 6,
-            md: 6
-          }}>
+            md: 6,
+          }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
               Total Reprocessed Value:
@@ -122,19 +125,22 @@ function BasicMineralOutput({ pageState }) {
         spacing={isMobile ? 0.5 : 2}
         sx={{
           alignItems: "center",
-          marginBottom: 2
-        }}>
+          marginBottom: 2,
+        }}
+      >
         <Grid
           sx={{ display: { xs: "none", md: "block" } }}
           size={{
             xs: 0,
-            md: 1
-          }} />
+            md: 1,
+          }}
+        />
         <Grid
           size={{
             xs: 3,
-            md: 3
-          }}>
+            md: 3,
+          }}
+        >
           <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
             Item Name
           </Typography>
@@ -148,8 +154,9 @@ function BasicMineralOutput({ pageState }) {
           sx={{ textAlign: "center" }}
           size={{
             xs: 3,
-            md: 2
-          }}>
+            md: 2,
+          }}
+        >
           <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
             Unit Price
           </Typography>
@@ -158,8 +165,9 @@ function BasicMineralOutput({ pageState }) {
           sx={{ textAlign: "center" }}
           size={{
             xs: 4,
-            md: 2
-          }}>
+            md: 2,
+          }}
+        >
           <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
             Total Value
           </Typography>
@@ -168,8 +176,9 @@ function BasicMineralOutput({ pageState }) {
           sx={{ textAlign: "center", display: { xs: "none", md: "block" } }}
           size={{
             xs: 0,
-            md: 2
-          }}>
+            md: 2,
+          }}
+        >
           <Typography
             sx={{ typography: LARGE_TEXT_FORMAT }}
             align="center"
@@ -195,14 +204,16 @@ function BasicMineralOutput({ pageState }) {
               spacing={isMobile ? 0.5 : 2}
               size={12}
               sx={{
-                alignItems: "center"
-              }}>
+                alignItems: "center",
+              }}
+            >
               <Grid
                 sx={{
                   textAlign: "center",
                   display: { xs: "none", md: "block" },
                 }}
-                size={1}>
+                size={1}
+              >
                 <Avatar
                   src={`https://images.evetech.net/types/${item.id}/icon?size=32`}
                   alt={matchedName}
@@ -214,8 +225,9 @@ function BasicMineralOutput({ pageState }) {
                 align="center"
                 size={{
                   xs: 3,
-                  md: 3
-                }}>
+                  md: 3,
+                }}
+              >
                 <MaterialPopoverIconButtons
                   typeID={item.id}
                   regionID={pageState.marketLocation}
@@ -242,8 +254,9 @@ function BasicMineralOutput({ pageState }) {
                 sx={{ textAlign: "center" }}
                 size={{
                   xs: 3,
-                  md: 2
-                }}>
+                  md: 2,
+                }}
+              >
                 <Fade in key={`${unitPrice}`} timeout={500}>
                   <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                     {formatNumberForLocale(unitPrice)}
@@ -254,8 +267,9 @@ function BasicMineralOutput({ pageState }) {
                 sx={{ textAlign: "center" }}
                 size={{
                   xs: 4,
-                  md: 2
-                }}>
+                  md: 2,
+                }}
+              >
                 <Fade in key={`${totalValue}`} timeout={500}>
                   <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                     {formatNumberForLocale(totalValue)}
@@ -269,20 +283,21 @@ function BasicMineralOutput({ pageState }) {
                 }}
                 size={{
                   xs: 0,
-                  md: 2
-                }}>
+                  md: 2,
+                }}
+              >
                 <MarketHistoryIconButton
                   itemTypeID={item.id}
                   tooltipPlacement="top"
                   regionID={MARKET_OPTIONS.find(
-                    (i) => i.id === pageState.marketLocation
+                    (i) => i.id === pageState.marketLocation,
                   )}
                 />
                 <MarketDataIconButton
                   itemTypeID={item.id}
                   tooltipPlacement="top"
                   locationID={MARKET_OPTIONS.find(
-                    (i) => i.id === pageState.marketLocation
+                    (i) => i.id === pageState.marketLocation,
                   )}
                 />
               </Grid>

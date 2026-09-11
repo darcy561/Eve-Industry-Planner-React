@@ -50,7 +50,7 @@ async function getCorpTransactions({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     if (response.status === 304) {
@@ -68,20 +68,20 @@ async function getCorpTransactions({
     if (response.status >= 400 && response.status < 500) {
       if (response.status === 403) {
         console.warn(
-          `Access forbidden for corporation transactions division ${division}: ${corporation_id}`
+          `Access forbidden for corporation transactions division ${division}: ${corporation_id}`,
         );
         // Reported rather than folded into empty rows: the caller tries another member for this
         // division on a refusal, and cannot tell one from a division that holds nothing.
         return { data: [], eTags: "", division, forbidden: true };
       }
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -91,7 +91,7 @@ async function getCorpTransactions({
       .filter(
         (item) =>
           currentDate - Date.parse(item.date) <=
-            ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy
+            ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy,
       )
       .map((transaction) => ({
         ...transaction,
@@ -102,7 +102,7 @@ async function getCorpTransactions({
     return { data, eTags, division };
   } catch (err) {
     console.error(
-      `Error fetching corporation transactions division ${division}: ${err}`
+      `Error fetching corporation transactions division ${division}: ${err}`,
     );
     return { data: [], eTags: "", division };
   }

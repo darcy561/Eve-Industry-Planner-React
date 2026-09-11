@@ -17,7 +17,7 @@ export default async function closeActiveJob(
   tempJobsToAdd,
   esiDataToLink,
   parentChildToEdit,
-  queryClient
+  queryClient,
 ) {
   const {
     setActiveJobID,
@@ -31,7 +31,8 @@ export default async function closeActiveJob(
 
   const isLoggedIn = useUsersStore.getState().account.isLoggedIn;
   const automaticJobRecalculation =
-    useUsersStore.getState().applicationSettings.enableAutomaticJobRecalculation;
+    useUsersStore.getState().applicationSettings
+      .enableAutomaticJobRecalculation;
 
   if (!jobModifiedFlag) {
     setActiveJobID(null);
@@ -48,16 +49,16 @@ export default async function closeActiveJob(
   const tempJobsSource = tempJobsToAdd ?? {};
   const tempJobs = Object.values(tempJobsSource);
   const IDsOfNewJobs = new Set(
-    Object.values(tempJobsSource).map(({ jobID }) => jobID)
+    Object.values(tempJobsSource).map(({ jobID }) => jobID),
   );
   const modifiedLinkedJobIDs = applyParentChildChanges(
     parentChildToEdit,
     inputJob,
-    tempJobs
+    tempJobs,
   );
   const repairedJobIDs = repairMissingParentChildRelationships(
     inputJob,
-    tempJobs
+    tempJobs,
   );
   const allRelatedJobs = getAllRelatedJobs(inputJob.jobID);
   const normalizedJobIDs = normaliseParentChildRelationships([
@@ -68,7 +69,7 @@ export default async function closeActiveJob(
 
   if (automaticJobRecalculation) {
     const existingObject = allRelatedJobs.findIndex(
-      (job) => job.jobID === inputJob.jobID
+      (job) => job.jobID === inputJob.jobID,
     );
     if (existingObject !== -1) {
       allRelatedJobs[existingObject] = inputJob;
@@ -83,7 +84,7 @@ export default async function closeActiveJob(
         if (before !== after) {
           adjustments.push({ jobID: job.jobID, name: job.name, before, after });
         }
-      }
+      },
     );
   }
 
@@ -93,7 +94,7 @@ export default async function closeActiveJob(
       ...repairedJobIDs,
       ...normalizedJobIDs,
       ...recalculatedJobIds,
-    ].filter((id) => !IDsOfNewJobs.has(id))
+    ].filter((id) => !IDsOfNewJobs.has(id)),
   );
 
   const batchUpdates = [];
@@ -141,12 +142,12 @@ export default async function closeActiveJob(
   const eslIj = esl.industryJobs ?? { add: [], remove: [] };
   const eslTr = esl.transactions ?? { add: [], remove: [] };
   const hasAnyChanges =
-    (eslMo.add?.length > 0) ||
-    (eslIj.add?.length > 0) ||
-    (eslTr.add?.length > 0) ||
-    (eslMo.remove?.length > 0) ||
-    (eslIj.remove?.length > 0) ||
-    (eslTr.remove?.length > 0);
+    eslMo.add?.length > 0 ||
+    eslIj.add?.length > 0 ||
+    eslTr.add?.length > 0 ||
+    eslMo.remove?.length > 0 ||
+    eslIj.remove?.length > 0 ||
+    eslTr.remove?.length > 0;
 
   useUsersStore.getState().account.actions.addLinkedEsiData({
     ordersToAdd: eslMo.add,
@@ -172,9 +173,7 @@ export default async function closeActiveJob(
   }
 
   if (isLoggedIn && !persistToServer) {
-    const pendingJobIDs = jobsToPersist
-      .map((j) => j?.jobID)
-      .filter(Boolean);
+    const pendingJobIDs = jobsToPersist.map((j) => j?.jobID).filter(Boolean);
     if (pendingJobIDs.length > 0) {
       clearPendingJobDocumentWrites(pendingJobIDs);
     }

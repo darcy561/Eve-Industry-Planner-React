@@ -19,7 +19,7 @@ export default function recalculateJobForNewTotal(
   inputJob,
   requiredQuantity,
   queryClient,
-  options = {}
+  options = {},
 ) {
   if (!inputJob || !requiredQuantity) return;
 
@@ -29,7 +29,7 @@ export default function recalculateJobForNewTotal(
     inputJob,
     requiredQuantity,
     queryClient,
-    options
+    options,
   );
 
   inputJob.build.setup = {};
@@ -39,7 +39,7 @@ export default function recalculateJobForNewTotal(
       setupQuantity,
       queryClient,
       context,
-      { basedOn }
+      { basedOn },
     );
     inputJob.build.setup[newSetup.id] = newSetup;
 

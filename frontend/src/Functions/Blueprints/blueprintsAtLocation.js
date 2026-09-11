@@ -9,7 +9,11 @@
  * @param {number} [locationId] - when absent, every row is offered
  * @returns {Array<import("./buildBlueprintRows").BlueprintRow>}
  */
-export default function blueprintsAtLocation(rows = [], locationIds, locationId) {
+export default function blueprintsAtLocation(
+  rows = [],
+  locationIds,
+  locationId,
+) {
   if (!locationId) return rows;
 
   return rows.filter((row) => locationIds?.get(row.itemId) === locationId);

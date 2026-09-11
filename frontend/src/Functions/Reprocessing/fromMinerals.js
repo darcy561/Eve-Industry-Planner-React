@@ -27,7 +27,7 @@ async function reprocessFromMinerals(
   marketLocation,
   marketListing,
   oreIDsToBeIgnored,
-  reprocessingCalculationSettings
+  reprocessingCalculationSettings,
 ) {
   const priceRequest = new Set();
 
@@ -70,7 +70,7 @@ async function reprocessFromMinerals(
     mineralRequestObjects,
     reprocessingObjects,
     oreIDsToBeIgnored,
-    reprocessingCalculationSettings
+    reprocessingCalculationSettings,
   );
   return {
     oreSelection,

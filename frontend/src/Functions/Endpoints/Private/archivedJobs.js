@@ -43,7 +43,7 @@ async function saveArchivedJobs(jobs) {
           arrayKey: "jobs",
           errorLabel: "PUT /api/v1/archived-jobs",
         },
-      }
+      },
     );
     return true;
   } catch (error) {

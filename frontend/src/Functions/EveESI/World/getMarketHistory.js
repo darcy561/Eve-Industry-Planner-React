@@ -3,16 +3,16 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 /**
  * Fetches market history data for a specific item in a region from EVE ESI API.
  * Returns historical price and volume data for the specified item and region.
- * 
+ *
  * @param {Object} params - Parameters object
  * @param {number} params.regionID - EVE Online region ID
  * @param {number} params.typeID - EVE Online item type ID
  * @param {Object} [params.existingData={}] - Existing data for caching with ETag support
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to market history data with etag
- * 
+ *
  * @throws {Error} Throws error if regionID or typeID is missing
- * 
+ *
  * @example
  * const history = await getMarketHistory({
  *   regionID: 10000002,
@@ -21,7 +21,12 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
  * });
  * console.log(history.data); // Array of historical price data
  */
-async function getMarketHistory({ regionID, typeID, existingData, config = {} }) {
+async function getMarketHistory({
+  regionID,
+  typeID,
+  existingData,
+  config = {},
+}) {
   try {
     if (!regionID || !typeID) {
       throw new Error("Missing Input Information");
@@ -29,12 +34,12 @@ async function getMarketHistory({ regionID, typeID, existingData, config = {} })
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'market',
-      ...config
+      group: "market",
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -44,7 +49,7 @@ async function getMarketHistory({ regionID, typeID, existingData, config = {} })
           "If-None-Match": existingData?.etag || null,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     if (response.status === 304) {
@@ -56,7 +61,7 @@ async function getMarketHistory({ regionID, typeID, existingData, config = {} })
 
     if (!response.ok) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

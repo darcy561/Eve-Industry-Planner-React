@@ -167,8 +167,8 @@ export default function useEditJobReducer() {
       return [
         ...new Set(
           [...activeJobParentJobs, ...parentJobsToAdd].filter(
-            (id) => !parentJobsToRemove.includes(id)
-          )
+            (id) => !parentJobsToRemove.includes(id),
+          ),
         ),
       ];
     },
@@ -193,8 +193,8 @@ export default function useEditJobReducer() {
       return [
         ...new Set(
           [...activeJobChildJobs, ...childJobsToAdd].filter(
-            (id) => !childJobsToRemove.includes(id)
-          )
+            (id) => !childJobsToRemove.includes(id),
+          ),
         ),
       ];
     },
@@ -318,7 +318,7 @@ export default function useEditJobReducer() {
         payload: transactions,
       });
     },
-    
+
     /**
      * Removes transactions from linking to the active job.
      *
@@ -330,8 +330,7 @@ export default function useEditJobReducer() {
         payload: transactions,
       });
     },
-
-  }
+  };
 
   return { state, actions };
 }

@@ -26,7 +26,7 @@ function characterView(expanded, excludeItemIds, search) {
     assetRowsByLocation(collection, {
       excludeRootFlags: ["Deliveries", "AssetSafety"],
     }),
-    { [JITA_STATION_ID]: { name: "Jita IV-4" } }
+    { [JITA_STATION_ID]: { name: "Jita IV-4" } },
   ).filter(({ locationId }) => locationId === JITA_STATION_ID);
 
   return flattenAssetTree({
@@ -138,7 +138,9 @@ describe("searching the tree", () => {
   it("keeps the containers above a match so the player can see which to open", () => {
     const flat = characterView([], undefined, "mexallon");
 
-    expect(flat.find(({ node }) => node?.itemId === 1002).expandable).toBe(true);
+    expect(flat.find(({ node }) => node?.itemId === 1002).expandable).toBe(
+      true,
+    );
     expect(flat.some(({ node }) => node?.itemId === 1003)).toBe(false);
   });
 
@@ -159,7 +161,7 @@ describe("searching the tree", () => {
     const flat = characterView([], undefined, "mexallon");
 
     expect(flat.filter(({ kind }) => kind === ASSET_ROW.LOCATION)).toHaveLength(
-      1
+      1,
     );
   });
 
@@ -179,7 +181,10 @@ describe("the rows of a corporation's office", () => {
   });
 
   it("files a division's assets under it", () => {
-    const flat = corporationView([LOCATION, `compartment:${JITA_STATION_ID}:CorpSAG3`]);
+    const flat = corporationView([
+      LOCATION,
+      `compartment:${JITA_STATION_ID}:CorpSAG3`,
+    ]);
 
     expect(flat.filter(({ kind }) => kind === ASSET_ROW.ITEM)).toHaveLength(1);
     expect(flat.at(-1).node.itemId).toBe(2002);
@@ -196,18 +201,16 @@ describe("the rows of a corporation's office", () => {
       compartments: HANGARS,
     });
 
-    const divisions = flat.filter(
-      ({ kind }) => kind === ASSET_ROW.COMPARTMENT
-    );
+    const divisions = flat.filter(({ kind }) => kind === ASSET_ROW.COMPARTMENT);
     expect(divisions).toHaveLength(2);
-    expect(divisions.every(({ expandable, count }) => !expandable && count === 0)).toBe(true);
+    expect(
+      divisions.every(({ expandable, count }) => !expandable && count === 0),
+    ).toBe(true);
   });
 
   it("counts the stacks a division holds, containers included", () => {
     const flat = corporationView([LOCATION]);
-    const divisions = flat.filter(
-      ({ kind }) => kind === ASSET_ROW.COMPARTMENT
-    );
+    const divisions = flat.filter(({ kind }) => kind === ASSET_ROW.COMPARTMENT);
 
     // Division 3 holds a crate with a stack inside it; division 1 holds one stack.
     expect(divisions.find(({ label }) => label === "Division 3").count).toBe(2);

@@ -10,7 +10,7 @@ export async function getLinkedCharacterOAuthHashes() {
   return requestWithPrivateHeaders(
     USER_LINKED_CHARACTERS_OAUTH_CREDENTIALS,
     { method: "GET", credentials: "same-origin" },
-    { requestName: "getLinkedCharacterOAuthHashes" }
+    { requestName: "getLinkedCharacterOAuthHashes" },
   );
 }
 
@@ -26,7 +26,7 @@ export async function putLinkedCharacterOAuthCredentials(body) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     },
-    { requestName: "putLinkedCharacterOAuthCredentials" }
+    { requestName: "putLinkedCharacterOAuthCredentials" },
   );
 }
 
@@ -42,6 +42,6 @@ export async function deleteLinkedCharacterOAuthCredentials(body) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     },
-    { requestName: "deleteLinkedCharacterOAuthCredentials" }
+    { requestName: "deleteLinkedCharacterOAuthCredentials" },
   );
 }

@@ -4,10 +4,10 @@ import { reprocessingItemTypes } from "../../Context/defaultValues";
  * Combines mineral quantities from multiple reprocessing objects into totals.
  * Aggregates materials from different ore types, handling gas materials differently
  * from other materials in quantity calculations.
- * 
+ *
  * @param {Array<Object>} objectArray - Array of reprocessing objects with materials
  * @returns {Array<Object>} Array of combined mineral objects with total quantities
- * 
+ *
  * @example
  * const reprocessingObjects = [
  *   { reprocessedMaterials: { 34: 100 }, itemType: 'ore', reprocessableQuantity: 1000, batchSize: 100 },

@@ -15,7 +15,7 @@ export default async function buildNextMaterialsTree(
   inputJobIDs,
   setNumberOfVisibleSkeletonElements,
   queryClient,
-  buildFullItemTree = false
+  buildFullItemTree = false,
 ) {
   const isLoggedIn = useUsersStore.getState().account.isLoggedIn;
   const { activeGroupID } = useUsersStore.getState().jobData;
@@ -51,7 +51,7 @@ export default async function buildNextMaterialsTree(
       typeIDMap,
       availableBlueprints,
       ignoreItemsWithoutBlueprints,
-      checkTypeIDisExempt
+      checkTypeIDisExempt,
     );
 
     setNumberOfVisibleSkeletonElements(materialRequests.length);
@@ -64,19 +64,20 @@ export default async function buildNextMaterialsTree(
       availableBlueprints,
       queryClient,
       ignoreItemsWithoutBlueprints,
-      checkTypeIDisExempt
+      checkTypeIDisExempt,
     );
     buildParentChildRelationships([...allJobObjects, ...newJobs]);
-    materialTreeShaker([...allJobObjects, ...newJobs], (job, requiredQuantity) =>
-      recalculateJobForNewTotal(job, requiredQuantity, queryClient)
+    materialTreeShaker(
+      [...allJobObjects, ...newJobs],
+      (job, requiredQuantity) =>
+        recalculateJobForNewTotal(job, requiredQuantity, queryClient),
     );
-    const { requestedMarketData, requestedSystemIndexes } = await getMissingESIData(
-      [...allJobObjects, ...newJobs]
-    );
+    const { requestedMarketData, requestedSystemIndexes } =
+      await getMissingESIData([...allJobObjects, ...newJobs]);
     recalculateInstallCostsWithNewData(
       [...allJobObjects, ...newJobs],
       requestedMarketData,
-      requestedSystemIndexes
+      requestedSystemIndexes,
     );
 
     setNumberOfVisibleSkeletonElements(0);
@@ -87,8 +88,12 @@ export default async function buildNextMaterialsTree(
     }
 
     updateOrAddJobsToJobArray(newJobs);
-    useUsersStore.getState().worldData.actions.addMarketData(requestedMarketData);
-    useUsersStore.getState().worldData.actions.addSystemIndex(requestedSystemIndexes);
+    useUsersStore
+      .getState()
+      .worldData.actions.addMarketData(requestedMarketData);
+    useUsersStore
+      .getState()
+      .worldData.actions.addSystemIndex(requestedSystemIndexes);
     showSnackbarSuccess(`${newJobs.length} Jobs Added`);
 
     if (activeGroupID && newJobs.length > 0) {
@@ -126,7 +131,8 @@ function buildTypeIDMapObject(job, activeGroupID) {
 function mergeTypeIDMapEntries(existingEntry, newEntry) {
   return {
     ...existingEntry,
-    quantityRequired: existingEntry.quantityRequired + newEntry.quantityRequired,
+    quantityRequired:
+      existingEntry.quantityRequired + newEntry.quantityRequired,
     parentJobs: new Set([...existingEntry.parentJobs, ...newEntry.parentJobs]),
     requiresRecalculation:
       existingEntry.requiresRecalculation || newEntry.requiresRecalculation,
@@ -148,7 +154,7 @@ function generateMaterialRequests(
   typeIDMap,
   availableBlueprints,
   ignoreItemsWithoutBlueprints,
-  checkTypeIDisExempt
+  checkTypeIDisExempt,
 ) {
   return inputJobs.flatMap((job) =>
     job.build.materials
@@ -158,14 +164,14 @@ function generateMaterialRequests(
             material,
             availableBlueprints,
             ignoreItemsWithoutBlueprints,
-            checkTypeIDisExempt
-          ) && !typeIDMap[material.typeID]
+            checkTypeIDisExempt,
+          ) && !typeIDMap[material.typeID],
       )
       .map((material) => ({
         typeID: material.typeID,
         groupID: job.groupID,
         relatedJobID: job.jobID,
-      }))
+      })),
   );
 }
 
@@ -173,7 +179,7 @@ function checkMaterialIsBuildable(
   material,
   availableBlueprints,
   ignoreItemsWithoutBlueprints,
-  checkTypeIDisExempt
+  checkTypeIDisExempt,
 ) {
   if (ignoreItemsWithoutBlueprints) {
     return (
@@ -197,7 +203,7 @@ async function processMaterials(
   availableBlueprints,
   queryClient,
   ignoreItemsWithoutBlueprints,
-  checkTypeIDisExempt
+  checkTypeIDisExempt,
 ) {
   const newJobs = [];
   const processingQueue = [...materialRequests];
@@ -217,7 +223,7 @@ async function processMaterials(
       const matchedMaterial = typeIDMap[currentMaterial.typeID];
       if (matchedMaterial) {
         typeIDMap[currentMaterial.typeID].parentJobs.add(
-          currentMaterial.relatedJobID
+          currentMaterial.relatedJobID,
         );
       } else {
         manageMaterialRequestQueue(materialsAwaitingRequest, currentMaterial);
@@ -227,7 +233,7 @@ async function processMaterials(
         const newJobObjects = await retrieveNewMaterials(
           materialsAwaitingRequest,
           newJobs,
-          queryClient
+          queryClient,
         );
         addNewItemsToTypeIDMap(newJobObjects, typeIDMap);
         addNewItemsToJobIDMap(newJobObjects, jobIDMap);
@@ -246,18 +252,18 @@ async function processMaterials(
           typeIDMap,
           availableBlueprints,
           ignoreItemsWithoutBlueprints,
-          checkTypeIDisExempt
+          checkTypeIDisExempt,
         ).filter(
           (request) =>
             !processedJobMaterialPairs.has(
-              `${request.relatedJobID}-${request.typeID}`
-            )
+              `${request.relatedJobID}-${request.typeID}`,
+            ),
         );
 
         if (nextLevelOfRequests.length === 0) break;
 
         setNumberOfVisibleSkeletonElements(
-          (prev) => (prev += nextLevelOfRequests.length)
+          (prev) => (prev += nextLevelOfRequests.length),
         );
         processingQueue.push(...nextLevelOfRequests);
       }
@@ -268,7 +274,7 @@ async function processMaterials(
 
   if (currentDepth >= MAX_DEPTH) {
     console.warn(
-      "Reached maximum depth while building material tree. Some materials may be missing."
+      "Reached maximum depth while building material tree. Some materials may be missing.",
     );
   }
   return newJobs;

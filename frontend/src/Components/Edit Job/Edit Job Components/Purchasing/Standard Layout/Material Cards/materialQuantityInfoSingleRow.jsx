@@ -5,12 +5,13 @@ import {
   numberToShortText,
 } from "../../../../../../Functions/Helper/numberParser";
 
-export function MaterialQuantityInfoSingleRow({ material, remainingTotalToBeImported }) {
+export function MaterialQuantityInfoSingleRow({
+  material,
+  remainingTotalToBeImported,
+}) {
   const remaining = Math.max(
     0,
-    material.quantity -
-      material.quantityPurchased -
-      remainingTotalToBeImported
+    material.quantity - material.quantityPurchased - remainingTotalToBeImported,
   );
 
   return (
@@ -32,4 +33,3 @@ export function MaterialQuantityInfoSingleRow({ material, remainingTotalToBeImpo
     </Tooltip>
   );
 }
-

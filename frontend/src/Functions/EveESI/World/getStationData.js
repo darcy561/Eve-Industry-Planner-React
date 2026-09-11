@@ -10,12 +10,12 @@ async function getStationData(stationID) {
       return null;
     }
     const response = await fetchWithCustomHeaders(
-      `https://esi.evetech.net/universe/stations/${stationID}/?datasource=tranquility`
+      `https://esi.evetech.net/universe/stations/${stationID}/?datasource=tranquility`,
     );
 
     if (!response.ok) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

@@ -45,7 +45,7 @@ function GroupNameFrame({}) {
      * notifies other tabs — `updateModifiedGroups` alone only schedules a 2s debounced save. */
     await flushPendingGroupSave();
   }
-  
+
   function handleClose() {
     updateEditGroupNameText(selectedGroup.groupName);
     updateAllowEditGroupName(false);

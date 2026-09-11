@@ -7,42 +7,48 @@ import {
 
 describe("customStructureSetup helpers", () => {
   const getCustomStructureWithID = vi.fn((id) =>
-    id === "exists" ? { id: "exists" } : null
+    id === "exists" ? { id: "exists" } : null,
   );
 
   it("detects orphaned custom structure references", () => {
     expect(
       setupHasOrphanedCustomStructure(
         { customStructureID: "gone" },
-        getCustomStructureWithID
-      )
+        getCustomStructureWithID,
+      ),
     ).toBe(true);
     expect(
       setupHasOrphanedCustomStructure(
         { customStructureID: "exists" },
-        getCustomStructureWithID
-      )
+        getCustomStructureWithID,
+      ),
     ).toBe(false);
     expect(
-      setupHasOrphanedCustomStructure({ customStructureID: "" }, getCustomStructureWithID)
+      setupHasOrphanedCustomStructure(
+        { customStructureID: "" },
+        getCustomStructureWithID,
+      ),
     ).toBe(false);
   });
 
   it("shows manual fields when no custom structure or when orphaned", () => {
     expect(
-      setupShowsManualStructureFields({ customStructureID: "" }, getCustomStructureWithID)
+      setupShowsManualStructureFields(
+        { customStructureID: "" },
+        getCustomStructureWithID,
+      ),
     ).toBe(true);
     expect(
       setupShowsManualStructureFields(
         { customStructureID: "gone" },
-        getCustomStructureWithID
-      )
+        getCustomStructureWithID,
+      ),
     ).toBe(true);
     expect(
       setupShowsManualStructureFields(
         { customStructureID: "exists" },
-        getCustomStructureWithID
-      )
+        getCustomStructureWithID,
+      ),
     ).toBe(false);
   });
 

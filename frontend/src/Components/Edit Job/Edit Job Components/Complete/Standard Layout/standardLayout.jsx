@@ -13,15 +13,17 @@ export function Complete_StandardLayout_EditJob(props) {
       <Grid
         size={{
           xs: 12,
-          md: 6
-        }}>
+          md: 6,
+        }}
+      >
         <ExtrasPanel {...props} />
       </Grid>
       <Grid
         size={{
           xs: 12,
-          md: 6
-        }}>
+          md: 6,
+        }}
+      >
         <JobCostSummaryPanel {...props} />
       </Grid>
       <Grid size={12}>

@@ -12,9 +12,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 import { useNavigate } from "@tanstack/react-router";
 import useUsersStore from "../../../Zustand/usersStore";
-import {
-  flushPendingUserDocumentSaves,
-} from "../../../Functions/Debounce/userDocumentsPersistSchedule";
+import { flushPendingUserDocumentSaves } from "../../../Functions/Debounce/userDocumentsPersistSchedule";
 import { saveUserAccountDocument } from "../../../Functions/Endpoints/Private/userDocument";
 import { LoadingBrandBackdrop } from "../../loadingBrand";
 import { FIRST_LOGIN_STEPS } from "./firstLoginConstants";
@@ -131,7 +129,10 @@ export default function FirstLoginPage() {
     if (stepNav === "forward") {
       return {
         width: "100%",
-        "&.fl-step-enter": { transform: "translateX(-100%)", transition: "none" },
+        "&.fl-step-enter": {
+          transform: "translateX(-100%)",
+          transition: "none",
+        },
         "&.fl-step-enter-active": {
           transform: "translateX(0)",
           transition: trEnter,

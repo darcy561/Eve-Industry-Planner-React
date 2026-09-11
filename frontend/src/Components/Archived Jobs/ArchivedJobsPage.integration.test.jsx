@@ -29,13 +29,13 @@ vi.mock("../../Functions/Endpoints/Private/statisticsTotals.js", () => ({
   getAccountTotalsSummary: vi.fn(async () => null),
 }));
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
+  const { emptyArchiveListMock } =
+    await import("../../tests/archiveHarness.jsx");
   return emptyArchiveListMock();
 });
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock, archiveStoreState } = await import(
-    "../../tests/archiveHarness.jsx"
-  );
+  const { usersStoreMock, archiveStoreState } =
+    await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(archiveStoreState());
 });
 vi.mock("../../Functions/Helper/getCachedData", async () => {
@@ -108,7 +108,9 @@ describe("the archive page, end to end", () => {
 
     // Unbounded is how the server is asked for its own comparison window, and
     // it is what the overview reads too — so the page opens on one entry.
-    expect(timelineCalls().every((o) => !o.from && !o.to && !o.range)).toBe(true);
+    expect(timelineCalls().every((o) => !o.from && !o.to && !o.range)).toBe(
+      true,
+    );
   });
 
   it("reads a window once however many panels plot months", async () => {
@@ -148,7 +150,9 @@ describe("the archive page, end to end", () => {
     getAccountTimelineItems.mockResolvedValue({
       period: {},
       paging: { totalItems: 1 },
-      items: [{ typeID: 34, jobCostTotal: 400, salesTotal: 1000, profitLoss: 600 }],
+      items: [
+        { typeID: 34, jobCostTotal: 400, salesTotal: 1000, profitLoss: 600 },
+      ],
     });
     renderWithProviders(<ArchivedJobsPage />);
 
@@ -189,9 +193,8 @@ describe("the archive page, end to end", () => {
   });
 
   it("does not query the job list until its tab is opened", async () => {
-    const { getArchivedJobs } = await import(
-      "../../Functions/Endpoints/Private/archivedJobsList"
-    );
+    const { getArchivedJobs } =
+      await import("../../Functions/Endpoints/Private/archivedJobsList");
     renderWithProviders(<ArchivedJobsPage />);
     await screen.findAllByTestId("chart");
 

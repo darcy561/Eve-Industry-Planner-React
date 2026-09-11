@@ -70,7 +70,7 @@ export const themeStorage = {
 export function resolveInitialThemeMode(
   storedTheme,
   systemPrefersDark,
-  hasWindow = true
+  hasWindow = true,
 ) {
   if (!hasWindow) {
     return PRIMARY_THEME;
@@ -103,7 +103,7 @@ export function ThemeProvider({ children }) {
     return resolveInitialThemeMode(
       themeStorage.getItem("theme"),
       systemPrefersDark,
-      hasWindow
+      hasWindow,
     );
   });
 
@@ -196,7 +196,9 @@ export function ThemeProvider({ children }) {
     };
 
     try {
-      return responsiveFontSizes(createTheme(withAugmentedCustomColours(designTokens)));
+      return responsiveFontSizes(
+        createTheme(withAugmentedCustomColours(designTokens)),
+      );
     } catch (error) {
       console.error("Error creating theme:", error);
       // Return a basic theme if creation fails
@@ -209,11 +211,11 @@ export function ThemeProvider({ children }) {
       mode,
       toggleColorMode: () => {
         setMode((prevMode) =>
-          prevMode === SECONDARY_THEME ? PRIMARY_THEME : SECONDARY_THEME
+          prevMode === SECONDARY_THEME ? PRIMARY_THEME : SECONDARY_THEME,
         );
       },
     }),
-    [mode]
+    [mode],
   );
 
   return (

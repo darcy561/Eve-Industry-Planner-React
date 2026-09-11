@@ -61,8 +61,7 @@ export function writeJobStatusExpandedMap(accountId, map) {
  */
 export function buildJobStatusesDisplayList(namesMap, expandedMap) {
   const nm = namesMap && typeof namesMap === "object" ? namesMap : {};
-  const em =
-    expandedMap && typeof expandedMap === "object" ? expandedMap : {};
+  const em = expandedMap && typeof expandedMap === "object" ? expandedMap : {};
 
   return JOB_STATUS_CATALOG.slice()
     .sort((a, b) => a.order - b.order)
@@ -73,8 +72,7 @@ export function buildJobStatusesDisplayList(namesMap, expandedMap) {
         typeof raw === "string" && raw.trim() !== ""
           ? raw.trim()
           : entry.defaultName;
-      const expanded =
-        em[key] !== undefined ? Boolean(em[key]) : true;
+      const expanded = em[key] !== undefined ? Boolean(em[key]) : true;
 
       return {
         id: entry.id,

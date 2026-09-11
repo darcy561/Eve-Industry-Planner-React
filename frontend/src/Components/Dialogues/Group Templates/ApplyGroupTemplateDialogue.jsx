@@ -10,11 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  useMutation,
-  useQueryClient,
-  useQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import ContentDialogue, {
   useDialogueCloseReset,
   useDialogueEventState,
@@ -56,13 +52,13 @@ const defaultState = () => ({
 function ApplyGroupTemplateDialogueInner() {
   const [messageData, , resetDialogue] = useDialogueEventState(
     GROUP_TEMPLATES_APPLY_DIALOGUE_EVENT,
-    defaultState
+    defaultState,
   );
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const getGroupObject = useUsersStore((s) => s.jobData.actions.getGroupObject);
   const getActiveGroupObject = useUsersStore(
-    (s) => s.jobData.actions.getActiveGroupObject
+    (s) => s.jobData.actions.getActiveGroupObject,
   );
 
   const [selectedBySession, setSelectedBySession] = useState({
@@ -72,13 +68,12 @@ function ApplyGroupTemplateDialogueInner() {
 
   const open = Boolean(messageData.isOpen);
   const activeSession = Number(messageData.openSession || 0);
-  const formatQty = (qty) =>
-    new Intl.NumberFormat().format(Number(qty || 0));
+  const formatQty = (qty) => new Intl.NumberFormat().format(Number(qty || 0));
   const { data: catalog = [] } = useQuery(
-    buildCatalogQueryOptions(activeSession, open)
+    buildCatalogQueryOptions(activeSession, open),
   );
   const { data: fullItemList = null } = useQuery(
-    buildFullItemListQueryOptions(open)
+    buildFullItemListQueryOptions(open),
   );
   const getItemName = (itemID) =>
     fullItemList?.[itemID]?.name || `Type ${itemID}`;
@@ -90,7 +85,7 @@ function ApplyGroupTemplateDialogueInner() {
             .map((id) => fullItemList?.[id]?.name || "")
             .join(" "),
       }),
-    [fullItemList]
+    [fullItemList],
   );
 
   const selected = useMemo(() => {
@@ -106,14 +101,12 @@ function ApplyGroupTemplateDialogueInner() {
       return getGroupObject(messageData.contextGroupId);
     }
     return getActiveGroupObject();
-  }, [
-    messageData.contextGroupId,
-    getGroupObject,
-    getActiveGroupObject,
-  ]);
+  }, [messageData.contextGroupId, getGroupObject, getActiveGroupObject]);
 
   const handleCloseWithReset = useDialogueCloseReset({
-    resetFns: [() => setSelectedBySession({ session: activeSession, templateID: null })],
+    resetFns: [
+      () => setSelectedBySession({ session: activeSession, templateID: null }),
+    ],
     onClose: resetDialogue,
   });
 
@@ -131,7 +124,8 @@ function ApplyGroupTemplateDialogueInner() {
         payload,
         mode,
         queryClient,
-        activeGroupOverride: mode === "activeGroup" ? resolvedActiveGroup : null,
+        activeGroupOverride:
+          mode === "activeGroup" ? resolvedActiveGroup : null,
       });
       return { mode, ...result };
     },
@@ -141,7 +135,7 @@ function ApplyGroupTemplateDialogueInner() {
         mode === "newGroup"
           ? `Created ${jobs.length} job(s) in a new group.`
           : `Added ${jobs.length} job(s) to the group.`,
-        4
+        4,
       );
       handleCloseWithReset();
       if (mode === "newGroup" && group?.groupID) {
@@ -154,7 +148,7 @@ function ApplyGroupTemplateDialogueInner() {
     onError: (e) => {
       showSnackbarError(
         e instanceof Error ? e.message : "Failed to apply template",
-        6
+        6,
       );
     },
   });
@@ -181,7 +175,8 @@ function ApplyGroupTemplateDialogueInner() {
   const busy = applyMutation.isPending || deleteMutation.isPending;
 
   const onApply = async () => {
-    if (!selected?.templateID) return showSnackbarError("Select a template first.", 3);
+    if (!selected?.templateID)
+      return showSnackbarError("Select a template first.", 3);
     await applyMutation.mutateAsync();
   };
 
@@ -191,7 +186,7 @@ function ApplyGroupTemplateDialogueInner() {
       return;
     }
     const ok = window.confirm(
-      `Delete "${selected.name}"? This cannot be undone.`
+      `Delete "${selected.name}"? This cannot be undone.`,
     );
     if (!ok) return;
     await deleteMutation.mutateAsync();

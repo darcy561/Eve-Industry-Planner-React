@@ -1,7 +1,10 @@
 import { useQueries } from "@tanstack/react-query";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useCallback } from "react";
-import { characterMarketOrdersQuery, characterMarketOrdersQueryKey } from "../../React Query/Character/marketOrders";
+import {
+  characterMarketOrdersQuery,
+  characterMarketOrdersQueryKey,
+} from "../../React Query/Character/marketOrders";
 import {
   isQueryObserverResultLoading,
   isQueryStateLoading,
@@ -13,12 +16,12 @@ import {
  * @param {Array<Object>} results - Array of query result objects
  * @param {Array<Object>} characters - Array of user objects with CharacterHash
  * @returns {Object} Object with character hashes as keys and market order arrays as values
- * 
+ *
  * @private
  */
 function extractMarketOrdersByCharacter(results, characters) {
   const marketOrdersObject = {};
-  
+
   results.forEach((result, index) => {
     const characterHash = characters[index]?.CharacterHash;
     if (characterHash) {
@@ -27,7 +30,7 @@ function extractMarketOrdersByCharacter(results, characters) {
       marketOrdersObject[characterHash] = characterOrders;
     }
   });
-  
+
   return marketOrdersObject;
 }
 
@@ -36,7 +39,7 @@ function extractMarketOrdersByCharacter(results, characters) {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {boolean} True if any query is loading
- * 
+ *
  * @private
  */
 function checkLoadingState(results) {
@@ -48,7 +51,7 @@ function checkLoadingState(results) {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Error|null} First error found, or null if none
- * 
+ *
  * @private
  */
 function findFirstError(results) {
@@ -60,7 +63,7 @@ function findFirstError(results) {
  *
  * @param {Error} error - Error object
  * @returns {Object} Error state object
- * 
+ *
  * @private
  */
 function createErrorObject(error) {
@@ -76,7 +79,7 @@ function createErrorObject(error) {
  * Utility function to create loading object for character market orders queries.
  *
  * @returns {Object} Loading state object
- * 
+ *
  * @private
  */
 function createLoadingObject() {
@@ -93,7 +96,7 @@ function createLoadingObject() {
  *
  * @param {Object} data - Object with character hashes as keys and market order arrays as values
  * @returns {Object} Success state object
- * 
+ *
  * @private
  */
 function createSuccessObject(data) {
@@ -110,11 +113,13 @@ function createSuccessObject(data) {
  *
  * @param {Array<Object>} marketOrders - Array of market order objects
  * @returns {Array<Object>} Sorted array of market order objects
- * 
+ *
  * @private
  */
 function sortMarketOrdersByDate(marketOrders) {
-  return marketOrders.sort((a, b) => Date.parse(b.issued) - Date.parse(a.issued));
+  return marketOrders.sort(
+    (a, b) => Date.parse(b.issued) - Date.parse(a.issued),
+  );
 }
 
 /**
@@ -149,7 +154,7 @@ export function getAllCachedCharacterMarketOrders(queryClient) {
 
   // Check loading state
   const isLoading = queryStates.some(({ queryState }) =>
-    isQueryStateLoading(queryState)
+    isQueryStateLoading(queryState),
   );
 
   if (isLoading) {
@@ -157,12 +162,13 @@ export function getAllCachedCharacterMarketOrders(queryClient) {
   }
 
   // Check for errors
-  const error = queryStates.find(({ queryState }) => queryState?.error)?.queryState?.error;
+  const error = queryStates.find(({ queryState }) => queryState?.error)
+    ?.queryState?.error;
 
   if (error) {
     return createErrorObject(error);
   }
-  
+
   // Extract cached market orders and organise by character hash
   const marketOrdersObject = {};
   queryStates.forEach(({ cachedData, CharacterHash }) => {
@@ -192,24 +198,32 @@ export function getAllCachedCharacterMarketOrders(queryClient) {
 export function useGetAllCharacterMarketOrders() {
   const characters = useUsersStore((state) => state.account.characters);
 
-  const combineFunction = useCallback((results) => {
-    const isLoading = checkLoadingState(results);
-    const error = findFirstError(results);
-    const marketOrdersObject = extractMarketOrdersByCharacter(results, characters);
+  const combineFunction = useCallback(
+    (results) => {
+      const isLoading = checkLoadingState(results);
+      const error = findFirstError(results);
+      const marketOrdersObject = extractMarketOrdersByCharacter(
+        results,
+        characters,
+      );
 
-    if (isLoading) {
-      return createLoadingObject();
-    }
+      if (isLoading) {
+        return createLoadingObject();
+      }
 
-    if (error) {
-      return createErrorObject(error);
-    }
+      if (error) {
+        return createErrorObject(error);
+      }
 
-    return createSuccessObject(marketOrdersObject);
-  }, [characters]);
+      return createSuccessObject(marketOrdersObject);
+    },
+    [characters],
+  );
 
   const result = useQueries({
-    queries: characters.map(({ CharacterHash }) => characterMarketOrdersQuery(CharacterHash)),
+    queries: characters.map(({ CharacterHash }) =>
+      characterMarketOrdersQuery(CharacterHash),
+    ),
     combine: combineFunction,
   });
 

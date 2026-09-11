@@ -147,7 +147,8 @@ export function useEditJobLeaveConfirm({ backupJobRef, state }) {
     const resolve = pendingNavigationResolveRef.current;
     const pending = pendingNavRef.current;
     if (!resolve || !pending) return;
-    const { updateOrAddJobsToJobArray } = useUsersStore.getState().jobData.actions;
+    const { updateOrAddJobsToJobArray } =
+      useUsersStore.getState().jobData.actions;
     updateOrAddJobsToJobArray(backupJobRef.current);
     await yieldLocksForCurrentEditJob();
     setActiveJobID(null);
@@ -186,7 +187,7 @@ export function useEditJobLeaveConfirm({ backupJobRef, state }) {
           s.temporaryChildJobs,
           s.esiDataToLink,
           s.parentChildToEdit,
-          queryClient
+          queryClient,
         );
         const { handOverEditAccess } =
           useUsersStore.getState().documentLock.actions;
@@ -223,7 +224,7 @@ export function useEditJobLeaveConfirm({ backupJobRef, state }) {
         s.temporaryChildJobs,
         s.esiDataToLink,
         s.parentChildToEdit,
-        queryClient
+        queryClient,
       );
       await yieldLocksForCurrentEditJob();
       navigate({
@@ -263,10 +264,12 @@ export function useEditJobLeaveConfirm({ backupJobRef, state }) {
           return;
         }
         const rawPayloadSearch =
-          payload.search && typeof payload.search === "object" ? payload.search : {};
+          payload.search && typeof payload.search === "object"
+            ? payload.search
+            : {};
         const navSearch = mergeEditJobNavigationSearch(
           rawPayloadSearch,
-          routeSearchRef.current
+          routeSearchRef.current,
         );
 
         if (!s.jobModified) {

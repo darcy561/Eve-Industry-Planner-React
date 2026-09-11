@@ -2,7 +2,12 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
-async function getCorpIndustryJobs({ character, page = 1, existingData = {}, config = {} }) {
+async function getCorpIndustryJobs({
+  character,
+  page = 1,
+  existingData = {},
+  config = {},
+}) {
   try {
     if (
       !character ||
@@ -19,13 +24,13 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'industry',
+      group: "industry",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -36,7 +41,7 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -65,7 +70,7 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
         console.warn(
-          `Access forbidden for corporation industry jobs: ${corporation_id}`
+          `Access forbidden for corporation industry jobs: ${corporation_id}`,
         );
         // Reported rather than folded into empty rows: the caller tries another member on a
         // refusal, and cannot tell one from a corporation that genuinely holds nothing.
@@ -78,14 +83,14 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -103,9 +108,14 @@ async function getCorpIndustryJobs({ character, page = 1, existingData = {}, con
         (job) =>
           !job.completed_date ||
           currentDate - Date.parse(job.completed_date) <=
-            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000,
       )
-      .map((job) => ({ ...job, is_corporation: true, corporation_id, character_id: CharacterID }));
+      .map((job) => ({
+        ...job,
+        is_corporation: true,
+        corporation_id,
+        character_id: CharacterID,
+      }));
 
     return {
       data,

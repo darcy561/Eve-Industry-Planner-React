@@ -32,12 +32,12 @@ export async function fetchPlannersFromApi() {
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "GET" },
-    { requestName: "getPlanners" }
+    { requestName: "getPlanners" },
   );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET ${PLANNERS_ROOT} failed: ${res.status} ${text || res.statusText}`
+      `GET ${PLANNERS_ROOT} failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const data = await res.json();
@@ -67,12 +67,12 @@ export async function ensurePlannerViaApi(ownerHandle) {
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "PUT" },
-    { requestName: "ensurePlanner" }
+    { requestName: "ensurePlanner" },
   );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `PUT ${path} failed: ${res.status} ${text || res.statusText}`
+      `PUT ${path} failed: ${res.status} ${text || res.statusText}`,
     );
   }
   return res.json();
@@ -117,12 +117,12 @@ export async function fetchPlannerSettingsFromApi(ownerHandle) {
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "GET" },
-    { requestName: "getPlannerSettings" }
+    { requestName: "getPlannerSettings" },
   );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET ${path} failed: ${res.status} ${text || res.statusText}`
+      `GET ${path} failed: ${res.status} ${text || res.statusText}`,
     );
   }
   return res.json();

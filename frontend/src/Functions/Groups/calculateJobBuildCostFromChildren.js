@@ -27,7 +27,7 @@ function toFinite(n, fallback = 0) {
  */
 export function calculateCurrentJobBuildCostFromChildren(
   outputJob,
-  options = {}
+  options = {},
 ) {
   if (!outputJob?.build) {
     return 0;
@@ -44,8 +44,7 @@ export function calculateCurrentJobBuildCostFromChildren(
     return 0;
   }
 
-  let finalBuildCost =
-    getInstallCost(outputJob) + outputJob.totalExtrasCost;
+  let finalBuildCost = getInstallCost(outputJob) + outputJob.totalExtrasCost;
 
   // The job being costed opens the walk's ancestry so a job listing itself as
   // its own child is caught on the first descent rather than the second.
@@ -58,7 +57,7 @@ export function calculateCurrentJobBuildCostFromChildren(
       childJobs,
       findJobInJobArray,
       getInstallCost,
-      ancestry
+      ancestry,
     );
   }
 
@@ -77,7 +76,7 @@ function findItemBuildCost(
   inputChildJobs,
   findJobInJobArray,
   getInstallCost,
-  ancestry
+  ancestry,
 ) {
   const childIds = Array.isArray(inputChildJobs) ? inputChildJobs : [];
 
@@ -118,7 +117,7 @@ function findItemBuildCost(
         nestedChildIds,
         findJobInJobArray,
         getInstallCost,
-        branchAncestry
+        branchAncestry,
       );
     }
   }
@@ -159,6 +158,6 @@ function reportChildJobCycle(childJobID, ancestry) {
     {
       tags: { feature: "buildCost", errorType: "childJobCycle" },
       extra: { childJobID, ancestry: path },
-    }
+    },
   );
 }

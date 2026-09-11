@@ -15,7 +15,7 @@ export function resolveEditJobLinkTreePayload(
   jobId,
   searchActiveGroup,
   jobArray,
-  getGroupObject
+  getGroupObject,
 ) {
   if (jobId == null || jobId === "" || !jobArray.length) {
     return null;
@@ -54,9 +54,7 @@ export function resolveEditJobLinkTreePayload(
   const allRelated = getAllRelatedJobs(jid);
   let jobIds = [
     ...new Set(
-      allRelated
-        .map((j) => String(j.jobID))
-        .filter((id) => poolSet.has(id))
+      allRelated.map((j) => String(j.jobID)).filter((id) => poolSet.has(id)),
     ),
   ];
   if (jobIds.length === 0 && poolSet.has(jid)) {

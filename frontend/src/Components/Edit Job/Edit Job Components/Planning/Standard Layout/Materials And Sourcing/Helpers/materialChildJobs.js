@@ -52,7 +52,8 @@ export function resolveMaterialChildJobStatus({
   isExistingJobInGroup = false,
 }) {
   const inGroup = Boolean(state.activeJob.includedInGroup);
-  const hasLinked = Array.isArray(childJobsLocation) && childJobsLocation.length > 0;
+  const hasLinked =
+    Array.isArray(childJobsLocation) && childJobsLocation.length > 0;
   const tempJob = state.temporaryChildJobs?.[materialTypeID] || null;
   const hasTemp = Boolean(tempJob);
   const hasPendingAdd =

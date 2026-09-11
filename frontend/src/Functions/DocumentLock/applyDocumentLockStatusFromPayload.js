@@ -72,7 +72,7 @@ export function applyDocumentLockStatusFromPayload(collection, docID, data) {
     const prev = selectScopedDocumentLock(
       useUsersStore.getState(),
       collection,
-      docID
+      docID,
     );
     readOnly = prev.readOnly === true;
     lockHeld = false;

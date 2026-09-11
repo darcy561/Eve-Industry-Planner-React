@@ -15,7 +15,7 @@ export async function buildShoppingList(inputJobIDs) {
 
   trackAppEvent(
     AppEvent.BUILD_SHOPPING_LIST,
-    Math.max(1, requestedJobObjects.length)
+    Math.max(1, requestedJobObjects.length),
   );
 
   return requestedJobObjects;

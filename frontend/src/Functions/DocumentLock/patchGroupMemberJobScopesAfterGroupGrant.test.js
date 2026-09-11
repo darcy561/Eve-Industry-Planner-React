@@ -48,9 +48,12 @@ describe("patchGroupMemberJobScopesAfterGroupGrant", () => {
         {
           collection: USER_JOBS_COLLECTION,
           docID: "j2",
-          partial: expect.objectContaining({ readOnly: false, lockHeld: false }),
+          partial: expect.objectContaining({
+            readOnly: false,
+            lockHeld: false,
+          }),
         },
-      ])
+      ]),
     );
   });
 

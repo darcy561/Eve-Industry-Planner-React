@@ -18,7 +18,7 @@ export { canonicalCharacterHashKey };
  * @returns {Promise<import("../../Classes/character").default[]>}
  */
 export async function hydrateLinkedCharactersFromAccessSessions(
-  linkedCharacters
+  linkedCharacters,
 ) {
   const out = [];
   if (!Array.isArray(linkedCharacters)) return out;
@@ -54,7 +54,7 @@ export async function hydrateLinkedCharactersFromAccessSessions(
  * @param {string} mainCharacterHash
  */
 export function getLocalAdditionalAccountsStorageKey(mainCharacterHash) {
-    return `${mainCharacterHash} AdditionalAccounts`;
+  return `${mainCharacterHash} AdditionalAccounts`;
 }
 
 /**
@@ -65,42 +65,42 @@ export function getLocalAdditionalAccountsStorageKey(mainCharacterHash) {
  */
 
 export async function buildAccountDataFromRefreshToken(refreshToken) {
-    try {
-        const character = await buildCharacterFromClientSecret(refreshToken);
-        if (character instanceof Error) {
-            throw character;
-        }
-
-        await character.getPublicCharacterData();
-        await buildCorporationObjectFromUserObject(character);
-
-        emitUserDataUpdate({
-            eveLoginComplete: true,
-            userArray: [
-                {
-                    CharacterID: character.CharacterID,
-                    CharacterName: character.CharacterName,
-                },
-            ],
-        });
-
-        return character;
-    } catch (err) {
-        console.error(err);
-        return err;
+  try {
+    const character = await buildCharacterFromClientSecret(refreshToken);
+    if (character instanceof Error) {
+      throw character;
     }
+
+    await character.getPublicCharacterData();
+    await buildCorporationObjectFromUserObject(character);
+
+    emitUserDataUpdate({
+      eveLoginComplete: true,
+      userArray: [
+        {
+          CharacterID: character.CharacterID,
+          CharacterName: character.CharacterName,
+        },
+      ],
+    });
+
+    return character;
+  } catch (err) {
+    console.error(err);
+    return err;
+  }
 }
 
 /** @param {string[]} strings */
 function orderedUniqueStrings(strings) {
-    const seen = new Set();
-    const out = [];
-    for (const s of strings) {
-        if (seen.has(s)) continue;
-        seen.add(s);
-        out.push(s);
-    }
-    return out;
+  const seen = new Set();
+  const out = [];
+  for (const s of strings) {
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  return out;
 }
 
 /**
@@ -114,30 +114,30 @@ function orderedUniqueStrings(strings) {
  * @returns {Map<string, { rTokens: string[], representativeCharacterHash: string }>}
  */
 export function groupRefreshTokensByCharacterHash(tokens) {
-    const pending = new Map();
-    for (const t of tokens) {
-        if (!t?.CharacterHash) continue;
-        const key = canonicalCharacterHashKey(t.CharacterHash);
-        if (!key) continue;
-        if (!pending.has(key)) {
-            pending.set(key, {
-                rTokens: [],
-                representativeCharacterHash: t.CharacterHash,
-            });
-        }
-        const rTok = typeof t.rToken === "string" ? t.rToken.trim() : "";
-        if (rTok) {
-            pending.get(key).rTokens.push(rTok);
-        }
+  const pending = new Map();
+  for (const t of tokens) {
+    if (!t?.CharacterHash) continue;
+    const key = canonicalCharacterHashKey(t.CharacterHash);
+    if (!key) continue;
+    if (!pending.has(key)) {
+      pending.set(key, {
+        rTokens: [],
+        representativeCharacterHash: t.CharacterHash,
+      });
     }
-    const result = new Map();
-    for (const [key, entry] of pending) {
-        result.set(key, {
-            rTokens: orderedUniqueStrings(entry.rTokens),
-            representativeCharacterHash: entry.representativeCharacterHash,
-        });
+    const rTok = typeof t.rToken === "string" ? t.rToken.trim() : "";
+    if (rTok) {
+      pending.get(key).rTokens.push(rTok);
     }
-    return result;
+  }
+  const result = new Map();
+  for (const [key, entry] of pending) {
+    result.set(key, {
+      rTokens: orderedUniqueStrings(entry.rTokens),
+      representativeCharacterHash: entry.representativeCharacterHash,
+    });
+  }
+  return result;
 }
 
 /**
@@ -147,12 +147,12 @@ export function groupRefreshTokensByCharacterHash(tokens) {
  * @returns {Promise<import("../../Classes/character").default | null>}
  */
 export async function buildAccountDataFromRefreshTokenCandidates(rTokens) {
-    if (!Array.isArray(rTokens) || rTokens.length === 0) return null;
-    for (const rToken of rTokens) {
-        const user = await buildAccountDataFromRefreshToken(rToken);
-        if (!(user instanceof Error)) return user;
-    }
-    return null;
+  if (!Array.isArray(rTokens) || rTokens.length === 0) return null;
+  for (const rToken of rTokens) {
+    const user = await buildAccountDataFromRefreshToken(rToken);
+    if (!(user instanceof Error)) return user;
+  }
+  return null;
 }
 
 /**
@@ -162,92 +162,87 @@ export async function buildAccountDataFromRefreshTokenCandidates(rTokens) {
  * @returns {Promise<import("../../Classes/character").default | null>}
  */
 export async function buildCharacterFromCloudStoredAccess(characterHash) {
-    const character = await buildCharacterFromStoredCredential(characterHash);
-    if (!character) return null;
-    try {
-        await character.getPublicCharacterData();
-        await buildCorporationObjectFromUserObject(character);
-        return character;
-    } catch (e) {
-        console.error(e);
-        return null;
-    }
+  const character = await buildCharacterFromStoredCredential(characterHash);
+  if (!character) return null;
+  try {
+    await character.getPublicCharacterData();
+    await buildCorporationObjectFromUserObject(character);
+    return character;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
 export async function buildUsersFromRefreshTokens(userData) {
-    const cloudAccountsActive =
-        userData.settings?.userCloudAccounts ??
-        userData.userCloudAccounts ??
-        false;
-    // Normalise refreshTokens from database (characterHash -> CharacterHash) for internal use
-    const refreshTokens = (userData.refreshTokens || []).map(token => ({
-        CharacterHash: token.CharacterHash || token.characterHash,
-        rToken: token.rToken,
-    }));
-    const newUsers = [];
-    try {
-        refreshTokens.push(...extractLocalRefreshTokens(userData));
+  const cloudAccountsActive =
+    userData.settings?.userCloudAccounts ?? userData.userCloudAccounts ?? false;
+  // Normalise refreshTokens from database (characterHash -> CharacterHash) for internal use
+  const refreshTokens = (userData.refreshTokens || []).map((token) => ({
+    CharacterHash: token.CharacterHash || token.characterHash,
+    rToken: token.rToken,
+  }));
+  const newUsers = [];
+  try {
+    refreshTokens.push(...extractLocalRefreshTokens(userData));
 
-        const groups = groupRefreshTokensByCharacterHash(refreshTokens);
-        const existingCharacters = useUsersStore.getState().account.characters;
-        const existingHashes = new Set(
-            existingCharacters.map((c) =>
-                canonicalCharacterHashKey(c.CharacterHash)
-            )
+    const groups = groupRefreshTokensByCharacterHash(refreshTokens);
+    const existingCharacters = useUsersStore.getState().account.characters;
+    const existingHashes = new Set(
+      existingCharacters.map((c) => canonicalCharacterHashKey(c.CharacterHash)),
+    );
+
+    const buildTasks = [];
+    for (const [canonicalHash, group] of groups) {
+      if (existingHashes.has(canonicalHash)) continue;
+      if (
+        cloudAccountsActive &&
+        (!group.rTokens || group.rTokens.length === 0)
+      ) {
+        buildTasks.push(
+          buildCharacterFromCloudStoredAccess(
+            group.representativeCharacterHash,
+          ),
         );
-
-        const buildTasks = [];
-        for (const [canonicalHash, group] of groups) {
-            if (existingHashes.has(canonicalHash)) continue;
-            if (
-                cloudAccountsActive &&
-                (!group.rTokens || group.rTokens.length === 0)
-            ) {
-                buildTasks.push(
-                    buildCharacterFromCloudStoredAccess(
-                        group.representativeCharacterHash
-                    )
-                );
-            } else {
-                buildTasks.push(
-                    buildAccountDataFromRefreshTokenCandidates(group.rTokens)
-                );
-            }
-        }
-
-        const userResults = await Promise.all(buildTasks);
-
-        const seenBuiltHashes = new Set();
-        for (const user of userResults) {
-            if (!user || user instanceof Error) continue;
-            const canon = canonicalCharacterHashKey(user.CharacterHash);
-            if (!canon || seenBuiltHashes.has(canon)) continue;
-            seenBuiltHashes.add(canon);
-            newUsers.push(user);
-        }
-
-        const canonicalRefreshTokens = [...groups.entries()].map(
-            ([, group]) => ({
-                CharacterHash: group.representativeCharacterHash,
-                rToken: group.rTokens[0] ?? "",
-            })
-        ).filter((row) => row.rToken);
-
-        if (cloudAccountsActive) {
-            userData.refreshTokens = updateCloudRefreshTokens(
-                canonicalRefreshTokens,
-                newUsers
-            );
-        } else if (newUsers.length > 0) {
-            updateLocalRefreshTokens(newUsers);
-        }
-
-        return newUsers;
-
-    } catch (err) {
-        console.error(err);
-        return newUsers;
+      } else {
+        buildTasks.push(
+          buildAccountDataFromRefreshTokenCandidates(group.rTokens),
+        );
+      }
     }
+
+    const userResults = await Promise.all(buildTasks);
+
+    const seenBuiltHashes = new Set();
+    for (const user of userResults) {
+      if (!user || user instanceof Error) continue;
+      const canon = canonicalCharacterHashKey(user.CharacterHash);
+      if (!canon || seenBuiltHashes.has(canon)) continue;
+      seenBuiltHashes.add(canon);
+      newUsers.push(user);
+    }
+
+    const canonicalRefreshTokens = [...groups.entries()]
+      .map(([, group]) => ({
+        CharacterHash: group.representativeCharacterHash,
+        rToken: group.rTokens[0] ?? "",
+      }))
+      .filter((row) => row.rToken);
+
+    if (cloudAccountsActive) {
+      userData.refreshTokens = updateCloudRefreshTokens(
+        canonicalRefreshTokens,
+        newUsers,
+      );
+    } else if (newUsers.length > 0) {
+      updateLocalRefreshTokens(newUsers);
+    }
+
+    return newUsers;
+  } catch (err) {
+    console.error(err);
+    return newUsers;
+  }
 }
 
 /**
@@ -258,37 +253,37 @@ export async function buildUsersFromRefreshTokens(userData) {
  * @returns {Array} Array of refresh token objects, or empty array if cloud accounts enabled or no tokens found
  */
 function extractLocalRefreshTokens(userSettings) {
-    if (
-        userSettings.userCloudAccounts ??
-        userSettings.settings?.userCloudAccounts
-    ) {
-        return [];
+  if (
+    userSettings.userCloudAccounts ??
+    userSettings.settings?.userCloudAccounts
+  ) {
+    return [];
+  }
+
+  const characterHash = useUsersStore
+    .getState()
+    .account.actions.getMainCharacterHash();
+
+  if (!characterHash) {
+    return [];
+  }
+
+  const storageKey = getLocalAdditionalAccountsStorageKey(characterHash);
+
+  try {
+    const storedAccounts = localStorage.getItem(storageKey);
+    if (!storedAccounts) {
+      return [];
     }
 
-    const characterHash = useUsersStore
-        .getState()
-        .account.actions.getMainCharacterHash();
-
-    if (!characterHash) {
-        return [];
-    }
-
-    const storageKey = getLocalAdditionalAccountsStorageKey(characterHash);
-
-    try {
-        const storedAccounts = localStorage.getItem(storageKey);
-        if (!storedAccounts) {
-            return [];
-        }
-
-        const rTokens = JSON.parse(storedAccounts);
-        return Array.isArray(rTokens) ? rTokens : [];
-    } catch (err) {
-        // Reset corrupted data
-        localStorage.setItem(storageKey, JSON.stringify([]));
-        console.warn("Failed to parse stored accounts:", err);
-        return [];
-    }
+    const rTokens = JSON.parse(storedAccounts);
+    return Array.isArray(rTokens) ? rTokens : [];
+  } catch (err) {
+    // Reset corrupted data
+    localStorage.setItem(storageKey, JSON.stringify([]));
+    console.warn("Failed to parse stored accounts:", err);
+    return [];
+  }
 }
 
 /**
@@ -302,37 +297,33 @@ function extractLocalRefreshTokens(userSettings) {
  * @returns {Array} Filtered and updated array of refresh tokens
  */
 function updateCloudRefreshTokens(refreshTokens, newUsers) {
-    const tokenMap = new Map(
-        refreshTokens.map((token) => [
-            canonicalCharacterHashKey(token.CharacterHash),
-            token,
-        ])
+  const tokenMap = new Map(
+    refreshTokens.map((token) => [
+      canonicalCharacterHashKey(token.CharacterHash),
+      token,
+    ]),
+  );
+
+  const validCanonicalHashes = new Set(
+    newUsers
+      .filter((character) => !character.isMainCharacter)
+      .map((character) => canonicalCharacterHashKey(character.CharacterHash)),
+  );
+
+  for (const character of newUsers) {
+    if (character.isMainCharacter) continue;
+
+    const token = tokenMap.get(
+      canonicalCharacterHashKey(character.CharacterHash),
     );
-
-    const validCanonicalHashes = new Set(
-        newUsers
-            .filter((character) => !character.isMainCharacter)
-            .map((character) =>
-                canonicalCharacterHashKey(character.CharacterHash)
-            )
-    );
-
-    for (const character of newUsers) {
-        if (character.isMainCharacter) continue;
-
-        const token = tokenMap.get(
-            canonicalCharacterHashKey(character.CharacterHash)
-        );
-        if (token && character.esiRefreshToken !== token.rToken) {
-            token.rToken = character.esiRefreshToken;
-        }
+    if (token && character.esiRefreshToken !== token.rToken) {
+      token.rToken = character.esiRefreshToken;
     }
+  }
 
-    return refreshTokens.filter((token) =>
-        validCanonicalHashes.has(
-            canonicalCharacterHashKey(token.CharacterHash)
-        )
-    );
+  return refreshTokens.filter((token) =>
+    validCanonicalHashes.has(canonicalCharacterHashKey(token.CharacterHash)),
+  );
 }
 
 /**
@@ -343,31 +334,33 @@ function updateCloudRefreshTokens(refreshTokens, newUsers) {
  * @param {Array} newUsers - Array of successfully built user objects
  */
 export function updateLocalRefreshTokens(newUsers) {
-    const primaryHash = useUsersStore
-        .getState()
-        .account.actions.getMainCharacterHash();
+  const primaryHash = useUsersStore
+    .getState()
+    .account.actions.getMainCharacterHash();
 
-    if (!primaryHash) {
-        console.error("Cannot update local refresh tokens: main character hash not found");
-        return;
-    }
+  if (!primaryHash) {
+    console.error(
+      "Cannot update local refresh tokens: main character hash not found",
+    );
+    return;
+  }
 
-    // Extract tokens from additional characters (not main)
-    const tokenArray = newUsers
-        .filter(character => !character.isMainCharacter)
-        .map(character => ({
-            CharacterHash: character.CharacterHash,
-            rToken: character.esiRefreshToken,
-        }));
+  // Extract tokens from additional characters (not main)
+  const tokenArray = newUsers
+    .filter((character) => !character.isMainCharacter)
+    .map((character) => ({
+      CharacterHash: character.CharacterHash,
+      rToken: character.esiRefreshToken,
+    }));
 
-    try {
-        localStorage.setItem(
-            getLocalAdditionalAccountsStorageKey(primaryHash),
-            JSON.stringify(tokenArray)
-        );
-    } catch (err) {
-        console.error("Failed to save refresh tokens to localStorage:", err);
-    }
+  try {
+    localStorage.setItem(
+      getLocalAdditionalAccountsStorageKey(primaryHash),
+      JSON.stringify(tokenArray),
+    );
+  } catch (err) {
+    console.error("Failed to save refresh tokens to localStorage:", err);
+  }
 }
 
 /**
@@ -377,11 +370,11 @@ export function updateLocalRefreshTokens(newUsers) {
  * settings event before `runPostLoginAccountSync` has finished building alts).
  */
 export function updateLocalRefreshTokensIfAccountHasAdditionalCharacters() {
-    const characters = useUsersStore.getState().account.characters;
-    if (!characters.some((c) => c && !c.isMainCharacter)) {
-        return;
-    }
-    updateLocalRefreshTokens(characters);
+  const characters = useUsersStore.getState().account.characters;
+  if (!characters.some((c) => c && !c.isMainCharacter)) {
+    return;
+  }
+  updateLocalRefreshTokens(characters);
 }
 
 /**
@@ -389,30 +382,30 @@ export function updateLocalRefreshTokensIfAccountHasAdditionalCharacters() {
  * Additional Accounts toggle when switching to cloud — avoids duplicate/stale local copies).
  */
 export function clearLocalAdditionalAccountsStorage() {
-    if (typeof localStorage === "undefined") return;
-    const primaryHash = useUsersStore
-        .getState()
-        .account.actions.getMainCharacterHash();
-    if (!primaryHash) return;
-    try {
-        localStorage.removeItem(getLocalAdditionalAccountsStorageKey(primaryHash));
-    } catch (err) {
-        console.warn("Failed to clear additional accounts localStorage:", err);
-    }
+  if (typeof localStorage === "undefined") return;
+  const primaryHash = useUsersStore
+    .getState()
+    .account.actions.getMainCharacterHash();
+  if (!primaryHash) return;
+  try {
+    localStorage.removeItem(getLocalAdditionalAccountsStorageKey(primaryHash));
+  } catch (err) {
+    console.warn("Failed to clear additional accounts localStorage:", err);
+  }
 }
 
 export async function getSystemIndexDataFromUserStructures(settings) {
-    const cs = settings.customStructures || settings.structures;
-    const manufacturingStructures = cs?.manufacturing ?? [];
-    const reactionStructures = cs?.reaction ?? [];
+  const cs = settings.customStructures || settings.structures;
+  const manufacturingStructures = cs?.manufacturing ?? [];
+  const reactionStructures = cs?.reaction ?? [];
 
-    const requestIDs = new Set(
-        [...manufacturingStructures, ...reactionStructures].map(
-            (entry) => entry.systemID
-        )
-    );
+  const requestIDs = new Set(
+    [...manufacturingStructures, ...reactionStructures].map(
+      (entry) => entry.systemID,
+    ),
+  );
 
-    const retrievedSystemIndexes = await getSystemIndexes(requestIDs);
+  const retrievedSystemIndexes = await getSystemIndexes(requestIDs);
 
-    return retrievedSystemIndexes;
-};
+  return retrievedSystemIndexes;
+}

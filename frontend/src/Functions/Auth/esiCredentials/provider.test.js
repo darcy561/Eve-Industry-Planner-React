@@ -23,7 +23,10 @@ function countingStrategy(exp, { fail } = {}) {
 }
 
 function providerFor(strategy, nowSec = 1_000) {
-  return createEsiCredentialProvider({ strategy: () => strategy, now: () => nowSec });
+  return createEsiCredentialProvider({
+    strategy: () => strategy,
+    now: () => nowSec,
+  });
 }
 
 describe("esi credential provider", () => {
@@ -75,7 +78,11 @@ describe("esi credential provider", () => {
     const results = await all;
 
     expect(strategy.calls).toBe(1);
-    expect(results.map((r) => r.accessToken)).toEqual(["token", "token", "token"]);
+    expect(results.map((r) => r.accessToken)).toEqual([
+      "token",
+      "token",
+      "token",
+    ]);
   });
 
   it("refreshes each character separately", async () => {
@@ -103,7 +110,7 @@ describe("esi credential provider", () => {
     const provider = providerFor(
       countingStrategy(5_000, {
         fail: new EsiCredentialError("dead", ESI_CREDENTIAL_REAUTH_REQUIRED),
-      })
+      }),
     );
 
     await expect(provider.getEsiAccessToken(HASH)).rejects.toMatchObject({
@@ -115,7 +122,9 @@ describe("esi credential provider", () => {
     const strategy = countingStrategy(5_000);
     const provider = providerFor(strategy);
 
-    await expect(provider.getEsiAccessToken("")).rejects.toBeInstanceOf(EsiCredentialError);
+    await expect(provider.getEsiAccessToken("")).rejects.toBeInstanceOf(
+      EsiCredentialError,
+    );
     expect(strategy.calls).toBe(0);
   });
 
@@ -142,8 +151,14 @@ describe("esi credential provider", () => {
   });
 
   it("reports only reauth-required credential errors as terminal", () => {
-    expect(isReauthRequired(new EsiCredentialError("x", ESI_CREDENTIAL_REAUTH_REQUIRED))).toBe(true);
-    expect(isReauthRequired(new EsiCredentialError("x", ESI_CREDENTIAL_RECOVERABLE))).toBe(false);
+    expect(
+      isReauthRequired(
+        new EsiCredentialError("x", ESI_CREDENTIAL_REAUTH_REQUIRED),
+      ),
+    ).toBe(true);
+    expect(
+      isReauthRequired(new EsiCredentialError("x", ESI_CREDENTIAL_RECOVERABLE)),
+    ).toBe(false);
     expect(isReauthRequired(new Error("a plain failure"))).toBe(false);
     expect(isReauthRequired(undefined)).toBe(false);
   });

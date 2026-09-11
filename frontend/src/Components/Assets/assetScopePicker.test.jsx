@@ -9,7 +9,11 @@ describe("naming whose assets a view is showing", () => {
   });
 
   it("keeps a corporation id whole", () => {
-    expect(readScopeValue(scopeValue({ kind: ASSET_OWNER.CORPORATION, id: 98000001 }))).toEqual({
+    expect(
+      readScopeValue(
+        scopeValue({ kind: ASSET_OWNER.CORPORATION, id: 98000001 }),
+      ),
+    ).toEqual({
       kind: "corporation",
       id: "98000001",
     });
@@ -19,6 +23,8 @@ describe("naming whose assets a view is showing", () => {
   it("keeps a hash containing a separator whole", () => {
     const id = "a:b:c";
 
-    expect(readScopeValue(scopeValue({ kind: ASSET_OWNER.CHARACTER, id })).id).toBe(id);
+    expect(
+      readScopeValue(scopeValue({ kind: ASSET_OWNER.CHARACTER, id })).id,
+    ).toBe(id);
   });
 });

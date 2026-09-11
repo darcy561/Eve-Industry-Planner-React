@@ -30,13 +30,13 @@ beforeEach(() => {
 describe("what the library calls a blueprint's holder", () => {
   it("names the character holding it, and where", () => {
     expect(blueprintHolderLabel(characterBlueprint, "Jita IV-4")).toBe(
-      "Aura — Jita IV-4"
+      "Aura — Jita IV-4",
     );
   });
 
   it("names the corporation holding it", () => {
     expect(blueprintHolderLabel(corporationBlueprint, "Jita IV-4")).toBe(
-      "A Corp — Jita IV-4"
+      "A Corp — Jita IV-4",
     );
   });
 
@@ -49,7 +49,7 @@ describe("what the library calls a blueprint's holder", () => {
   // used to say and is what the asset views say too.
   it("says so when the holder is not one the account tracks", () => {
     expect(blueprintHolderLabel({ ownerId: "hash-z" }, "Jita IV-4")).toBe(
-      "Unknown character — Jita IV-4"
+      "Unknown character — Jita IV-4",
     );
   });
 

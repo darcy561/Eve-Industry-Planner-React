@@ -101,12 +101,20 @@ export default function PricingBasisSelect({
             aria-selected={option.isCurrent}
             selected={option.isCurrent}
             onClick={() => choose(option.id)}
-            sx={{ gap: 3, justifyContent: "space-between", alignItems: "flex-start" }}
+            sx={{
+              gap: 3,
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
           >
             <Box sx={{ minWidth: 0, maxWidth: 260 }}>
               <Typography variant="body2">{option.label}</Typography>
               {option.caption ? (
-                <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block" }}
+                >
                   {option.caption}
                 </Typography>
               ) : null}
@@ -155,7 +163,9 @@ function BasisUsage({ usage, onReset }) {
   return (
     <Box>
       <Divider sx={{ my: 0.5 }} />
-      <Box sx={{ px: 2, py: 0.5, display: "flex", alignItems: "center", gap: 2 }}>
+      <Box
+        sx={{ px: 2, py: 0.5, display: "flex", alignItems: "center", gap: 2 }}
+      >
         <Typography variant="caption" color="text.secondary">
           {parts.join(" \u00b7 ")}
         </Typography>

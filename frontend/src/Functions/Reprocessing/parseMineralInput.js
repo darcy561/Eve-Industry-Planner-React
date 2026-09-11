@@ -56,7 +56,7 @@ async function parseInputMineralString(inputString) {
           (mineralIDS.has(item.type_id) ||
             moonMineralIDS.has(item.type_id) ||
             iceProductIDs.has(item.type_id))) ||
-        unrefinedMineralIDS.has(item.type_id)
+        unrefinedMineralIDS.has(item.type_id),
     );
 
     if (mineral) {

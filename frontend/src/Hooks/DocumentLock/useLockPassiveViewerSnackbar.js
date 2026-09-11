@@ -62,10 +62,10 @@ export function useLockPassiveViewerSnackbar({
       const message =
         typeof passiveViewerMessage === "function"
           ? passiveViewerMessage(count)
-          : passiveViewerMessage ??
+          : (passiveViewerMessage ??
             (count === 1
               ? "Another session is viewing this document — you still hold the edit lock."
-              : `${count} other sessions are viewing this document — you still hold the edit lock.`);
+              : `${count} other sessions are viewing this document — you still hold the edit lock.`));
       showSnackbarInfo(message, 5);
     }
 

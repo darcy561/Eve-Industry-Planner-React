@@ -96,7 +96,10 @@ describe("groupArchivedRows", () => {
       "oldest",
     ]);
     // A block sits where its first member did, and still collects the rest.
-    expect(blocks[1].jobs.map((j) => j.jobID)).toEqual(["linked-1", "linked-2"]);
+    expect(blocks[1].jobs.map((j) => j.jobID)).toEqual([
+      "linked-1",
+      "linked-2",
+    ]);
   });
 
   // A block is named after everything it holds, including members that arrive

@@ -19,10 +19,10 @@ import AssetLibraryView, { ASSET_VIEWS } from "./assetLibraryView";
 
 export default function AssetLibrary() {
   const mainCharacterHash = useUsersStore((state) =>
-    state.account.actions.getMainCharacterHash()
+    state.account.actions.getMainCharacterHash(),
   );
   const [scope, setScope] = useState(() =>
-    scopeValue({ kind: ASSET_OWNER.CHARACTER, id: mainCharacterHash })
+    scopeValue({ kind: ASSET_OWNER.CHARACTER, id: mainCharacterHash }),
   );
   const [view, setView] = useState("held");
   const [search, setSearch] = useState("");

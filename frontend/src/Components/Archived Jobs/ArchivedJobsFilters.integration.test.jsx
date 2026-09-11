@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
-import { renderWithProviders, setViewportWide } from "../../tests/archiveHarness.jsx";
+import {
+  renderWithProviders,
+  setViewportWide,
+} from "../../tests/archiveHarness.jsx";
 
 /**
  * Searching, sorting and paging the archive.
@@ -14,13 +17,16 @@ import { renderWithProviders, setViewportWide } from "../../tests/archiveHarness
 const getArchivedJobs = vi.fn();
 
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
-  return { ...emptyArchiveListMock(), getArchivedJobs: (...args) => getArchivedJobs(...args) };
+  const { emptyArchiveListMock } =
+    await import("../../tests/archiveHarness.jsx");
+  return {
+    ...emptyArchiveListMock(),
+    getArchivedJobs: (...args) => getArchivedJobs(...args),
+  };
 });
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock, archiveStoreState } = await import(
-    "../../tests/archiveHarness.jsx"
-  );
+  const { usersStoreMock, archiveStoreState } =
+    await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(archiveStoreState());
 });
 
@@ -31,7 +37,11 @@ function job(jobID, name) {
     jobID,
     name,
     archivedAt: "2026-08-21T00:00:00Z",
-    measures: { jobCostTotal: 1000, profitLoss: 250, segment: "standaloneRecordedSale" },
+    measures: {
+      jobCostTotal: 1000,
+      profitLoss: 250,
+      segment: "standaloneRecordedSale",
+    },
   };
 }
 
@@ -102,7 +112,9 @@ describe("filtering and paging the archive", () => {
     await screen.findByText("Rifter");
     const { limit } = lastRequest();
 
-    fireEvent.click(await screen.findByRole("button", { name: "Go to page 2" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Go to page 2" }),
+    );
 
     await waitFor(() => expect(lastRequest().offset).toBe(limit));
     expect(lastRequest().limit).toBe(limit);
@@ -113,7 +125,9 @@ describe("filtering and paging the archive", () => {
   it("returns to the first page when the search changes", async () => {
     renderWithProviders(<ArchivedJobsList enabled />);
     await screen.findByText("Rifter");
-    fireEvent.click(await screen.findByRole("button", { name: "Go to page 2" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Go to page 2" }),
+    );
     await waitFor(() => expect(lastRequest().offset).toBeGreaterThan(0));
 
     fireEvent.change(screen.getByLabelText("Search by name"), {
@@ -126,7 +140,9 @@ describe("filtering and paging the archive", () => {
   it("returns to the first page when the sort changes", async () => {
     renderWithProviders(<ArchivedJobsList enabled />);
     await screen.findByText("Rifter");
-    fireEvent.click(await screen.findByRole("button", { name: "Go to page 2" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Go to page 2" }),
+    );
     await waitFor(() => expect(lastRequest().offset).toBeGreaterThan(0));
 
     fireEvent.mouseDown(screen.getAllByRole("combobox")[0]);
@@ -140,6 +156,8 @@ describe("filtering and paging the archive", () => {
     renderWithProviders(<ArchivedJobsList enabled />);
     await screen.findByText("Rifter");
 
-    expect(screen.queryByRole("button", { name: "Go to page 2" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Go to page 2" }),
+    ).not.toBeInTheDocument();
   });
 });

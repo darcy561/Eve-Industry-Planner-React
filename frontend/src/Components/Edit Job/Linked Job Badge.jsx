@@ -21,8 +21,8 @@ export function LinkedJobBadge(props) {
   const { state, actions } = props;
   const { findJobInJobArray } = useUsersStore.getState().jobData.actions;
   const [dialogueTrigger, updateDialogueTrigger] = useState(false);
-  const navigate = useNavigate({ from: '/editjob/$jobID' });
-  const search = useSearch({ from: '/editjob/$jobID' });
+  const navigate = useNavigate({ from: "/editjob/$jobID" });
+  const search = useSearch({ from: "/editjob/$jobID" });
   const jobLockReadOnly = useActiveJobReadOnly(state);
 
   const parentJobSelection = actions.getCurrentParentJobs();
@@ -40,7 +40,11 @@ export function LinkedJobBadge(props) {
       >
         <Box sx={{ width: "100%" }}>
           <Grid container>
-            <Grid align="center" sx={{ marginBottom: { xs: "10px", sm: "0px" } }} size={12}>
+            <Grid
+              align="center"
+              sx={{ marginBottom: { xs: "10px", sm: "0px" } }}
+              size={12}
+            >
               <Typography variant="h6" color="primary">
                 Parent Jobs
               </Typography>

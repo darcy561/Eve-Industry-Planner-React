@@ -14,7 +14,7 @@ export function useAfterLoginStepNavigation({ completedSteps, navigate }) {
 
   useEffect(() => {
     const allStepsDone = Object.values(LOGIN_STEPS).every((step) =>
-      completedSteps.has(step)
+      completedSteps.has(step),
     );
     if (!hasNavigated.current && allStepsDone) {
       hasNavigated.current = true;

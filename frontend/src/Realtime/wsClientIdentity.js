@@ -20,7 +20,7 @@ function dispatchClientIdChanged(previousClientID, clientID) {
   window.dispatchEvent(
     new CustomEvent("eip-ws-client-id-changed", {
       detail: { previousClientID, clientID },
-    })
+    }),
   );
 }
 

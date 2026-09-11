@@ -25,7 +25,7 @@ export function calculateChildJobTotals(
   childJob,
   temporaryChildJobs = {},
   marketSelect,
-  listingSelect
+  listingSelect,
 ) {
   const totalCostOfMaterials = (childJob?.build?.materials || []).reduce(
     (total, material) =>
@@ -36,9 +36,9 @@ export function calculateChildJobTotals(
         temporaryChildJobs[material.typeID],
         {},
         marketSelect,
-        listingSelect
+        listingSelect,
       ),
-    0
+    0,
   );
 
   const totalInstallCosts = getJobInstallCostForPlanning(childJob);

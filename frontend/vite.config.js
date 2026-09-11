@@ -8,18 +8,29 @@ import path from "path";
 
 export default defineConfig(({ command, mode }) => {
   // Repo root `.env` (monorepo) then app dir (`frontend/`) — same keys in `frontend/.env*` override root.
-  const envFromRoot = loadEnv(mode, path.resolve(import.meta.dirname, ".."), "");
+  const envFromRoot = loadEnv(
+    mode,
+    path.resolve(import.meta.dirname, ".."),
+    "",
+  );
   const envFromAppDir = loadEnv(mode, process.cwd(), "");
   const env = { ...envFromRoot, ...envFromAppDir };
 
   // Read ENVIRONMENT from merged .env, process (Dockerfile / CI), or default to production
-  const environment = env.ENVIRONMENT || process.env.ENVIRONMENT || process.env.NODE_ENV || "production";
+  const environment =
+    env.ENVIRONMENT ||
+    process.env.ENVIRONMENT ||
+    process.env.NODE_ENV ||
+    "production";
 
   const sentryOrg = env.SENTRY_ORG || process.env.SENTRY_ORG;
-  const sentryProjectId = env.SENTRY_PROJECT_ID || process.env.SENTRY_PROJECT_ID;
+  const sentryProjectId =
+    env.SENTRY_PROJECT_ID || process.env.SENTRY_PROJECT_ID;
   const sentryDsn = env.SENTRY_DSN || process.env.SENTRY_DSN;
   const sentryTracesSampleRate =
-    env.SENTRY_TRACES_SAMPLE_RATE ?? process.env.SENTRY_TRACES_SAMPLE_RATE ?? "";
+    env.SENTRY_TRACES_SAMPLE_RATE ??
+    process.env.SENTRY_TRACES_SAMPLE_RATE ??
+    "";
   const sentryErrorSampleRate =
     env.SENTRY_ERROR_SAMPLE_RATE ?? process.env.SENTRY_ERROR_SAMPLE_RATE ?? "";
 
@@ -32,7 +43,7 @@ export default defineConfig(({ command, mode }) => {
   ).trim();
   if (!frontendAppVersion) {
     throw new Error(
-      "FRONTEND_APP_VERSION or APP_VERSION must be set (repo-root .env for local dev; Docker/CI build args for images)."
+      "FRONTEND_APP_VERSION or APP_VERSION must be set (repo-root .env for local dev; Docker/CI build args for images).",
     );
   }
 
@@ -44,16 +55,20 @@ export default defineConfig(({ command, mode }) => {
   // `vite build` still runs it for release/source maps. Set SENTRY_VITE_PLUGIN_IN_DEV=1 to enable during dev.
   const runSentryVitePlugin =
     command === "build" ||
-    String(env.SENTRY_VITE_PLUGIN_IN_DEV || process.env.SENTRY_VITE_PLUGIN_IN_DEV || "").trim() === "1";
+    String(
+      env.SENTRY_VITE_PLUGIN_IN_DEV ||
+        process.env.SENTRY_VITE_PLUGIN_IN_DEV ||
+        "",
+    ).trim() === "1";
 
   return {
     plugins: [
       tanstackRouter({
-        target: 'react',
+        target: "react",
         autoCodeSplitting: true,
-        routesDirectory: './src/routes',
-        generatedRouteTree: './src/routeTree.gen.js',
-        quoteStyle: 'single',
+        routesDirectory: "./src/routes",
+        generatedRouteTree: "./src/routeTree.gen.js",
+        quoteStyle: "single",
         disableTypes: true,
       }),
       react(),
@@ -85,8 +100,12 @@ export default defineConfig(({ command, mode }) => {
       __APP_VERSION__: JSON.stringify(frontendAppVersion),
       "import.meta.env.SENTRY_PROJECT_ID": JSON.stringify(sentryProjectId),
       "import.meta.env.SENTRY_DSN": JSON.stringify(sentryDsn),
-      "import.meta.env.SENTRY_TRACES_SAMPLE_RATE": JSON.stringify(sentryTracesSampleRate),
-      "import.meta.env.SENTRY_ERROR_SAMPLE_RATE": JSON.stringify(sentryErrorSampleRate),
+      "import.meta.env.SENTRY_TRACES_SAMPLE_RATE": JSON.stringify(
+        sentryTracesSampleRate,
+      ),
+      "import.meta.env.SENTRY_ERROR_SAMPLE_RATE": JSON.stringify(
+        sentryErrorSampleRate,
+      ),
       "import.meta.env.ENVIRONMENT": JSON.stringify(environment),
       "process.env.NODE_ENV": JSON.stringify(environment),
       "process.env.ENVIRONMENT": JSON.stringify(environment),
@@ -94,8 +113,12 @@ export default defineConfig(({ command, mode }) => {
       "process.env.VITE_fbAuthDomain": JSON.stringify(env.VITE_fbAuthDomain),
       "process.env.VITE_fbDatabaseURL": JSON.stringify(env.VITE_fbDatabaseURL),
       "process.env.VITE_fbProjectID": JSON.stringify(env.VITE_fbProjectID),
-      "process.env.VITE_fbStorageBucket": JSON.stringify(env.VITE_fbStorageBucket),
-      "process.env.VITE_fbMessagingSenderID": JSON.stringify(env.VITE_fbMessagingSenderID),
+      "process.env.VITE_fbStorageBucket": JSON.stringify(
+        env.VITE_fbStorageBucket,
+      ),
+      "process.env.VITE_fbMessagingSenderID": JSON.stringify(
+        env.VITE_fbMessagingSenderID,
+      ),
       "process.env.VITE_fbAppID": JSON.stringify(env.VITE_fbAppID),
       "process.env.VITE_measurmentID": JSON.stringify(env.VITE_measurmentID),
       "process.env.VITE_fbVapidKey": JSON.stringify(env.VITE_fbVapidKey),
@@ -103,7 +126,7 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       port: 3000,
-      host: '0.0.0.0', // Bind to all interfaces so Docker containers can access it
+      host: "0.0.0.0", // Bind to all interfaces so Docker containers can access it
       strictPort: false,
       cors: true, // Enable CORS
       proxy: {},
@@ -118,23 +141,23 @@ export default defineConfig(({ command, mode }) => {
       maxWorkers: 4,
       setupFiles: ["src/tests/setup.js"],
       coverage: {
-        provider: 'v8',
-        reporter: ['text', 'json', 'html'],
-        include: ['src/**/*.{js,jsx}'],
+        provider: "v8",
+        reporter: ["text", "json", "html"],
+        include: ["src/**/*.{js,jsx}"],
         exclude: [
-          'node_modules/',
-          'dist/',
-          'src/tests/',
-          'src/routeTree.gen.js',
-          '**/*.test.*',
-          '**/*.spec.*',
-          '**/coverage/**',
-          '**/.{idea,git,cache,output,temp}/**',
-          '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'
-        ]
+          "node_modules/",
+          "dist/",
+          "src/tests/",
+          "src/routeTree.gen.js",
+          "**/*.test.*",
+          "**/*.spec.*",
+          "**/coverage/**",
+          "**/.{idea,git,cache,output,temp}/**",
+          "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*",
+        ],
       },
       // `include` is Vitest's default. Only the build output needs excluding beyond the default.
-      exclude: [...defaultExclude, '**/dist/**'],
+      exclude: [...defaultExclude, "**/dist/**"],
       // Test timeout
       testTimeout: 10000,
       // Hook timeout

@@ -4,12 +4,15 @@ import GLOBAL_CONFIG from "../../global-config-app";
 
 const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 
-export function useStripRedundantJobMarketHubOverrides(activeJob, updateActiveJob) {
+export function useStripRedundantJobMarketHubOverrides(
+  activeJob,
+  updateActiveJob,
+) {
   const defaultMarketLocation = useUsersStore(
-    (s) => s.applicationSettings.defaultMarketLocation
+    (s) => s.applicationSettings.defaultMarketLocation,
   );
   const defaultOrderType = useUsersStore(
-    (s) => s.applicationSettings.defaultOrderType
+    (s) => s.applicationSettings.defaultOrderType,
   );
 
   useEffect(() => {

@@ -66,7 +66,9 @@ function BucketSection({ title, bucket, metricsMode = METRICS_FULL }) {
   // built through a production chain should not have to read a block of noughts
   // to learn that.
   const hasActivity =
-    bucket.totalJobs > 0 || bucket.itemBuildCount > 0 || bucket.jobCostTotal > 0;
+    bucket.totalJobs > 0 ||
+    bucket.itemBuildCount > 0 ||
+    bucket.jobCostTotal > 0;
 
   if (!hasActivity) {
     return null;
@@ -102,11 +104,15 @@ function BucketSection({ title, bucket, metricsMode = METRICS_FULL }) {
           <>
             <StatRow label="Items sold (qty on transactions)">
               <Typography variant="body2">
-                {formatNumberForLocale(bucket.totalSoldQuantity ?? 0, { max: 0 })}
+                {formatNumberForLocale(bucket.totalSoldQuantity ?? 0, {
+                  max: 0,
+                })}
               </Typography>
             </StatRow>
             <StatRow label="Avg sale / sold unit">
-              <Typography variant="body2">{avgSalePerSoldUnit(bucket)}</Typography>
+              <Typography variant="body2">
+                {avgSalePerSoldUnit(bucket)}
+              </Typography>
             </StatRow>
             <StatRow label="Sales total">
               <Typography variant="body2">

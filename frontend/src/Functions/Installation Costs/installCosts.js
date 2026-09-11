@@ -28,26 +28,26 @@ import useUsersStore from "../../Zustand/usersStore";
 export function calculateInstallCostfromSetup(
   setup,
   additionalMaterialPrices = {},
-  additionalSystemIndexValues = {}
+  additionalSystemIndexValues = {},
 ) {
   if (!(setup instanceof Setup)) return 0;
 
   const estimatedItemValue = estimatedItemPriceCalc(
     setup.materialCount,
     setup.jobCount,
-    additionalMaterialPrices
+    additionalMaterialPrices,
   );
 
   const facilityModifier = findFacilityModifier(
     setup.structureID,
-    setup.jobType
+    setup.jobType,
   );
 
   const facilityTax = findFacilityTax(
     setup.customStructureID,
     setup.structureID,
     setup.jobType,
-    setup.taxValue
+    setup.taxValue,
   );
 
   const systemIndexValue = findSystemIndexForJob(
@@ -55,7 +55,7 @@ export function calculateInstallCostfromSetup(
     setup.jobType,
     setup.useAlternativeSystemIndexValue,
     setup.alternativeSystemIndexValue,
-    additionalSystemIndexValues
+    additionalSystemIndexValues,
   );
 
   const cloneValue = findCloneValue(setup.selectedCharacter);
@@ -67,12 +67,10 @@ export function calculateInstallCostfromSetup(
       SCC_SURCHARGE +
       cloneValue);
 
-  const systemIndexDeduction = Math.ceil(
-    systemIndexValue * estimatedItemValue
-  );
+  const systemIndexDeduction = Math.ceil(systemIndexValue * estimatedItemValue);
 
   const facilityBonusDeduction = Math.ceil(
-    facilityModifier * systemIndexDeduction
+    facilityModifier * systemIndexDeduction,
   );
 
   const jobGrossCost = systemIndexDeduction - facilityBonusDeduction;
@@ -127,7 +125,7 @@ export function getJobInstallCostForPlanning(job) {
 export function recalculateInstallCostsWithNewData(
   inputJobs,
   newMarketData,
-  newSystemIndexData
+  newSystemIndexData,
 ) {
   const jobsArray = Array.isArray(inputJobs) ? inputJobs : [inputJobs];
   if (
@@ -141,13 +139,17 @@ export function recalculateInstallCostsWithNewData(
       setup.estimatedInstallCost = calculateInstallCostfromSetup(
         setup,
         newMarketData,
-        newSystemIndexData
+        newSystemIndexData,
       );
     });
   });
 }
 
-function estimatedItemPriceCalc(materialArray, jobCount, additionalMaterialPrices) {
+function estimatedItemPriceCalc(
+  materialArray,
+  jobCount,
+  additionalMaterialPrices,
+) {
   if (!materialArray || typeof materialArray !== "object") {
     return 0;
   }
@@ -157,22 +159,22 @@ function estimatedItemPriceCalc(materialArray, jobCount, additionalMaterialPrice
       return (preValue += estimatedMaterialPriceCalc(
         material.quantity / jobCount,
         material.typeID,
-        additionalMaterialPrices
+        additionalMaterialPrices,
       ));
-    }, 0)
+    }, 0),
   );
 }
 
 function estimatedMaterialPriceCalc(
   materialQuantity,
   materialTypeID,
-  additionalMaterialPrices
+  additionalMaterialPrices,
 ) {
   const adjustedPrice = useUsersStore
     .getState()
     .worldData.actions.findMarketData(
       materialTypeID,
-      additionalMaterialPrices
+      additionalMaterialPrices,
     )?.adjustedPrice;
 
   return materialQuantity * adjustedPrice;
@@ -194,10 +196,9 @@ function findFacilityTax(facilityID, structureType, jobType, taxValue) {
 
   if (!useUsersStore.getState().account.actions.getMainCharacter()) return 0;
 
-  const customStructureTax =
-    useUsersStore
-      .getState()
-      .applicationSettings.actions.getCustomStructureWithID(facilityID)?.tax;
+  const customStructureTax = useUsersStore
+    .getState()
+    .applicationSettings.actions.getCustomStructureWithID(facilityID)?.tax;
 
   if (customStructureTax == null) return taxValue / 100;
 

@@ -122,9 +122,7 @@ export default function SaleLocationRates({
 
           <FigureRow
             label="Sales tax"
-            sublabel={
-              accountingDetail(rates.salesTax)
-            }
+            sublabel={accountingDetail(rates.salesTax)}
             value={formatPercentage(fraction(rates.salesTax.rate), {
               places: 3,
             })}

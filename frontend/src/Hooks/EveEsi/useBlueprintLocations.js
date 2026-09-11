@@ -25,12 +25,12 @@ export default function useBlueprintLocations(blueprints) {
 
   const locationIds = useMemo(
     () => blueprintLocations(blueprints, assets),
-    [blueprints, assets]
+    [blueprints, assets],
   );
 
   const requested = useMemo(
     () => [...new Set(locationIds.values())],
-    [locationIds]
+    [locationIds],
   );
   const {
     names,

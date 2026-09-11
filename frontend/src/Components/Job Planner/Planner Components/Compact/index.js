@@ -1,1 +1,1 @@
-export * from "./Compact"
+export * from "./Compact";

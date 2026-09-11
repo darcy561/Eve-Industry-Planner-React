@@ -10,7 +10,7 @@
 export default function findAllChildJobCountOrIDs(
   childJobsFromJobObject = {},
   temporaryChildJobObject = {},
-  parentChildCache = {}
+  parentChildCache = {},
 ) {
   const persistedChildIDs = Object.values(childJobsFromJobObject).flat();
   const temporaryChildIDs = Object.values(temporaryChildJobObject).flatMap(
@@ -22,14 +22,15 @@ export default function findAllChildJobCountOrIDs(
       }
       const singleID = entries?.jobID;
       return singleID !== undefined && singleID !== null ? [singleID] : [];
-    }
+    },
   );
 
   const parentCacheIDsToAdd = new Set();
   const parentCacheIDsToRemove = new Set();
   for (const materialObject of Object.values(parentChildCache)) {
     for (const id of materialObject?.add ?? []) parentCacheIDsToAdd.add(id);
-    for (const id of materialObject?.remove ?? []) parentCacheIDsToRemove.add(id);
+    for (const id of materialObject?.remove ?? [])
+      parentCacheIDsToRemove.add(id);
   }
 
   const finalChildIDSet = new Set([

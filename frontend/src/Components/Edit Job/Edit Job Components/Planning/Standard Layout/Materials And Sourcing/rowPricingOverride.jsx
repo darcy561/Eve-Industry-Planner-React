@@ -36,7 +36,11 @@ export default function RowPricingOverride({
 
   return (
     <Box>
-      <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block" }}
+      >
         Priced at
       </Typography>
       <Box
@@ -68,7 +72,11 @@ export default function RowPricingOverride({
           />
         </Box>
         {hasOverride ? (
-          <Button size="small" onClick={() => onReset?.(typeID)} disabled={disabled}>
+          <Button
+            size="small"
+            onClick={() => onReset?.(typeID)}
+            disabled={disabled}
+          >
             Follow panel
           </Button>
         ) : null}

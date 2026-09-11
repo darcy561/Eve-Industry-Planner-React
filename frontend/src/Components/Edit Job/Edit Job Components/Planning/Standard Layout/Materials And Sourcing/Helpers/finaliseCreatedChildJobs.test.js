@@ -3,9 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const recalculateJobForNewTotal = vi.fn();
 const hydrateChildJobsWithMissingData = vi.fn().mockResolvedValue(undefined);
 
-vi.mock("../../../../../../../Functions/JobPlanner/recalculateJobForNewTotal", () => ({
-  default: (...args) => recalculateJobForNewTotal(...args),
-}));
+vi.mock(
+  "../../../../../../../Functions/JobPlanner/recalculateJobForNewTotal",
+  () => ({
+    default: (...args) => recalculateJobForNewTotal(...args),
+  }),
+);
 
 vi.mock("./childJobBuildPipeline", () => ({
   asJobArray: (jobs) => (Array.isArray(jobs) ? jobs : [jobs]),
@@ -18,7 +21,10 @@ const { finaliseCreatedChildJobs } = await import("./finaliseCreatedChildJobs");
 const queryClient = {};
 const actions = { markChildJobsForAddition: vi.fn() };
 
-const job = (produced) => ({ jobID: "child-1", totalQuantityProduced: produced });
+const job = (produced) => ({
+  jobID: "child-1",
+  totalQuantityProduced: produced,
+});
 
 const commit = (overrides = {}) =>
   finaliseCreatedChildJobs({

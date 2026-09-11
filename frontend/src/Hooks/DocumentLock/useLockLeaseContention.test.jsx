@@ -18,7 +18,7 @@ describe("useLockLeaseContentionEffects", () => {
           leasePressure: false,
           syncLockFromServer,
         },
-      }
+      },
     );
 
     expect(syncLockFromServer).not.toHaveBeenCalled();
@@ -51,7 +51,7 @@ describe("useLockLeaseContentionEffects", () => {
           leasePressure: true,
           syncLockFromServer,
         },
-      }
+      },
     );
 
     syncLockFromServer.mockClear();

@@ -18,7 +18,7 @@ vi.mock("../../Zustand/usersStore.js", () => ({
           findJobInJobArray: (id) => store.jobs.get(id) ?? null,
           jobsFromIdsOrObjects: async (input) =>
             (Array.isArray(input) ? input : [...input]).map((i) =>
-              typeof i === "string" ? store.jobs.get(i) : i
+              typeof i === "string" ? store.jobs.get(i) : i,
             ),
           updateOrAddJobsToJobArray: () => {},
         },
@@ -144,7 +144,7 @@ describe("importing child job costs into a parent", () => {
     distributeItemCostsBetweenJobs(
       { 34: { totalQuantity: 50, costs } },
       [job],
-      { 34: new Set(["parent-1"]) }
+      { 34: new Set(["parent-1"]) },
     );
 
     expect(job.build.materials[0].quantityPurchased).toBe(30);

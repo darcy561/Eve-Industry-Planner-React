@@ -16,10 +16,9 @@ const store = {
 };
 
 vi.mock("../Zustand/usersStore", () => ({
-  default: Object.assign(
-    (selector) => selector(store),
-    { getState: () => store },
-  ),
+  default: Object.assign((selector) => selector(store), {
+    getState: () => store,
+  }),
 }));
 vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders", () => ({
   useGetAllCharacterMarketOrders: () => characterOrders,
@@ -61,9 +60,8 @@ vi.mock("../Hooks/App/useCachedData", () => ({
   useCachedData: () => ({ data: [{ itemID: 34, name: "Tritanium" }] }),
 }));
 
-const { NewTransactions } = await import(
-  "../Components/Dashboard/Components/NewTransactions.jsx"
-);
+const { NewTransactions } =
+  await import("../Components/Dashboard/Components/NewTransactions.jsx");
 const { LAST_JOB_STATUS_ID } = await import("./defaultValues");
 
 const SOLD_AT = "2026-08-01T12:00:00Z";
@@ -99,7 +97,14 @@ function setUp({
   linked = [900],
   jobs = [{ itemID: 34, jobStatus: LAST_JOB_STATUS_ID }],
   transactions = [
-    { transaction_id: 1, type_id: 34, location_id: 60003760, quantity: 7, unit_price: 5, date: SOLD_AT },
+    {
+      transaction_id: 1,
+      type_id: 34,
+      location_id: 60003760,
+      quantity: 7,
+      unit_price: 5,
+      date: SOLD_AT,
+    },
   ],
   journal = journalFor(1),
 } = {}) {

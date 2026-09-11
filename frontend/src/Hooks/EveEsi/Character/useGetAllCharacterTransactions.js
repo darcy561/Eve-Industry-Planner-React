@@ -16,7 +16,7 @@ import {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Array<Object>} Flattened array of transaction objects
- * 
+ *
  * @private
  */
 function extractTransactionsFromResults(results) {
@@ -31,7 +31,7 @@ function extractTransactionsFromResults(results) {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {boolean} True if any query is loading
- * 
+ *
  * @private
  */
 function checkLoadingState(results) {
@@ -43,7 +43,7 @@ function checkLoadingState(results) {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Error|null} First error found, or null if none
- * 
+ *
  * @private
  */
 function findFirstError(results) {
@@ -55,7 +55,7 @@ function findFirstError(results) {
  *
  * @param {Error} error - Error object
  * @returns {Object} Error state object
- * 
+ *
  * @private
  */
 function createErrorObject(error) {
@@ -71,7 +71,7 @@ function createErrorObject(error) {
  * Utility function to create loading object for character transactions queries.
  *
  * @returns {Object} Loading state object
- * 
+ *
  * @private
  */
 function createLoadingObject() {
@@ -88,7 +88,7 @@ function createLoadingObject() {
  *
  * @param {Object} data - Object with character hashes as keys and transaction arrays as values
  * @returns {Object} Success state object
- * 
+ *
  * @private
  */
 function createSuccessObject(data) {
@@ -105,7 +105,7 @@ function createSuccessObject(data) {
  *
  * @param {Array<Object>} transactions - Array of transaction objects
  * @returns {Array<Object>} Sorted array of transaction objects
- * 
+ *
  * @private
  */
 function sortTransactionsByDate(transactions) {
@@ -119,13 +119,13 @@ function sortTransactionsByDate(transactions) {
  * @param {Array<Object>} dataArray - Array of data objects (query results or cached data)
  * @param {boolean} isCachedData - Whether the data is from cache
  * @returns {Object} Object with character hashes as keys and transaction arrays as values
- * 
+ *
  * @private
  */
 function createTransactionsByCharacterObject(
   characters,
   dataArray,
-  isCachedData = false
+  isCachedData = false,
 ) {
   const transactionsByCharacter = {};
   dataArray.forEach((item, index) => {
@@ -176,7 +176,7 @@ export function getAllCachedCharacterTransactions(queryClient) {
 
   // Check loading state
   const isLoading = queryStates.some(({ queryState }) =>
-    isQueryStateLoading(queryState)
+    isQueryStateLoading(queryState),
   );
 
   if (isLoading) {
@@ -195,7 +195,7 @@ export function getAllCachedCharacterTransactions(queryClient) {
   const transactionsByCharacter = createTransactionsByCharacterObject(
     characters,
     queryStates,
-    true
+    true,
   );
 
   return createSuccessObject(transactionsByCharacter);
@@ -237,17 +237,17 @@ export default function useGetAllCharacterTransactions() {
       const transactionsByCharacter = createTransactionsByCharacterObject(
         characters,
         results,
-        false
+        false,
       );
 
       return createSuccessObject(transactionsByCharacter);
     },
-    [characters]
+    [characters],
   );
 
   const result = useQueries({
     queries: characters.map(({ CharacterHash }) =>
-      characterTransactionsQuery(CharacterHash)
+      characterTransactionsQuery(CharacterHash),
     ),
     combine: combineFunction,
   });

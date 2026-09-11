@@ -9,13 +9,11 @@ const EVE_SSO_AUTHORIZE = "https://login.eveonline.com/v2/oauth/authorize/";
  * @param {string} [state] - e.g. `"main"` or `"additional:<nonce>"` (see `additionalAccountImport.js`).
  * @returns {string}
  */
-export function getEveSsoAuthorizeUrl(
-  state = "main"
-) {
+export function getEveSsoAuthorizeUrl(state = "main") {
   return `${EVE_SSO_AUTHORIZE}?response_type=code&redirect_uri=${encodeURIComponent(
-    getRuntimeEnv("EVE_CALLBACK_URL")
+    getRuntimeEnv("EVE_CALLBACK_URL"),
   )}&client_id=${getRuntimeEnv("EVE_CLIENT_ID")}&scope=${getRuntimeEnv(
-    "EVE_SCOPE"
+    "EVE_SCOPE",
   )}&state=${encodeURIComponent(state)}`;
 }
 

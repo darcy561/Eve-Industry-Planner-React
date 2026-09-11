@@ -43,9 +43,7 @@ function PaletteProbe() {
   return (
     <div>
       <span data-testid="palette-mode">{theme.palette.mode}</span>
-      <span data-testid="primary">
-        {theme.palette.primary.main}
-      </span>
+      <span data-testid="primary">{theme.palette.primary.main}</span>
       <span data-testid="manufacturing">
         {theme.palette.manufacturing.main}
       </span>
@@ -141,13 +139,13 @@ describe("resolveInitialThemeMode", () => {
   it("returns primary when window is unavailable", () => {
     expect(resolveInitialThemeMode(null, true, false)).toBe(PRIMARY_THEME);
     expect(resolveInitialThemeMode(SECONDARY_THEME, false, false)).toBe(
-      PRIMARY_THEME
+      PRIMARY_THEME,
     );
   });
 
   it("prefers a stored theme over system preference", () => {
     expect(resolveInitialThemeMode(SECONDARY_THEME, true)).toBe(
-      SECONDARY_THEME
+      SECONDARY_THEME,
     );
     expect(resolveInitialThemeMode(PRIMARY_THEME, false)).toBe(PRIMARY_THEME);
   });
@@ -180,7 +178,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("mode")).toHaveTextContent(SECONDARY_THEME);
@@ -192,7 +190,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("mode")).toHaveTextContent(PRIMARY_THEME);
@@ -204,7 +202,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("mode")).toHaveTextContent(SECONDARY_THEME);
@@ -221,8 +219,8 @@ describe("ThemeProvider", () => {
       render(
         <ThemeProvider>
           <ThemeProbe />
-        </ThemeProvider>
-      )
+        </ThemeProvider>,
+      ),
     ).not.toThrow();
 
     expect(screen.getByTestId("mode")).toBeInTheDocument();
@@ -236,7 +234,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(localStorage.getItem("theme")).toBe(PRIMARY_THEME);
@@ -249,7 +247,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("mode")).toHaveTextContent(PRIMARY_THEME);
@@ -268,7 +266,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("mode")).toHaveTextContent(SECONDARY_THEME);
@@ -291,7 +289,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("mode")).toHaveTextContent(SECONDARY_THEME);
@@ -313,12 +311,12 @@ describe("ThemeProvider", () => {
     const { unmount } = render(
       <ThemeProvider>
         <ThemeProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(mediaQuery.addEventListener).toHaveBeenCalledWith(
       "change",
-      expect.any(Function)
+      expect.any(Function),
     );
     const handler = mediaQuery.addEventListener.mock.calls[0][1];
 
@@ -326,7 +324,7 @@ describe("ThemeProvider", () => {
 
     expect(mediaQuery.removeEventListener).toHaveBeenCalledWith(
       "change",
-      handler
+      handler,
     );
   });
 
@@ -336,14 +334,14 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <PaletteProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("palette-mode")).toHaveTextContent(PRIMARY_THEME);
     expect(screen.getByTestId("primary")).toHaveTextContent(blue[800]);
     expect(screen.getByTestId("manufacturing")).toHaveTextContent(green[600]);
     expect(screen.getByTestId("scrollbar-thumb")).toHaveTextContent(
-      "rgba(255, 255, 255, 0.2)"
+      "rgba(255, 255, 255, 0.2)",
     );
   });
 
@@ -353,18 +351,18 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <PaletteProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("palette-mode")).toHaveTextContent(
-      SECONDARY_THEME
+      SECONDARY_THEME,
     );
     expect(screen.getByTestId("primary")).toHaveTextContent(blue[600]);
     expect(screen.getByTestId("manufacturing")).toHaveTextContent(
-      lightGreen[200]
+      lightGreen[200],
     );
     expect(screen.getByTestId("scrollbar-thumb")).toHaveTextContent(
-      "rgba(0, 0, 0, 0.2)"
+      "rgba(0, 0, 0, 0.2)",
     );
   });
 
@@ -385,7 +383,7 @@ describe("ThemeProvider", () => {
     render(
       <ThemeProvider>
         <BasicPaletteProbe />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByTestId("palette-mode")).toHaveTextContent(PRIMARY_THEME);
@@ -398,7 +396,7 @@ describe("ThemeProvider", () => {
 describe("useThemeContext", () => {
   it("throws when used outside ThemeProvider", () => {
     expect(() => renderHook(() => useThemeContext())).toThrow(
-      /useThemeContext must be used within a ThemeProvider/
+      /useThemeContext must be used within a ThemeProvider/,
     );
   });
 });

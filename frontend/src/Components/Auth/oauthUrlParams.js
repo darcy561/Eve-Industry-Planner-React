@@ -7,7 +7,7 @@ import { parseAdditionalAccountState } from "./additionalAccountImport.js";
  * @returns {{ authCode: string | null, state: string | null }}
  */
 export function getAuthCallbackParams(
-  search = typeof window !== "undefined" ? window.location.search : ""
+  search = typeof window !== "undefined" ? window.location.search : "",
 ) {
   const urlParams = new URLSearchParams(search);
   return {

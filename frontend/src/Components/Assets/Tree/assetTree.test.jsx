@@ -20,7 +20,7 @@ const collection = buildAssetNodes(
     location_flag: "Hangar",
     location_id: STATION_ID,
     location_type: "station",
-  }))
+  })),
 );
 
 function renderTree(expanded) {
@@ -36,7 +36,7 @@ function renderTree(expanded) {
         expanded={new Set(expanded)}
         onToggle={() => {}}
       />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 

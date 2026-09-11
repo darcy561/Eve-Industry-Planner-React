@@ -27,7 +27,12 @@ const hubRates = {
     base: 3,
     rate: 1.35,
     terms: [
-      { id: "brokerRelations", label: "Broker Relations", amount: 1.5, level: 5 },
+      {
+        id: "brokerRelations",
+        label: "Broker Relations",
+        amount: 1.5,
+        level: 5,
+      },
       { id: "faction", label: "Faction standing", amount: 0.15, level: 5 },
       { id: "corporation", label: "Corporation standing", amount: 0, level: 0 },
     ],
@@ -36,7 +41,12 @@ const hubRates = {
 };
 
 const structureRates = {
-  brokerFee: { kind: SALE_LOCATION_KIND.STRUCTURE, base: null, rate: 1.5, terms: [] },
+  brokerFee: {
+    kind: SALE_LOCATION_KIND.STRUCTURE,
+    base: null,
+    rate: 1.5,
+    terms: [],
+  },
   salesTax: { base: 7.5, accounting: 5, rate: 3.375 },
 };
 
@@ -85,9 +95,13 @@ describe("the sale location rates block", () => {
   });
 
   it("shows one line at a citadel and says why there is no working", () => {
-    render(<SaleLocationRates saleLocation={structure} rates={structureRates} />);
+    render(
+      <SaleLocationRates saleLocation={structure} rates={structureRates} />,
+    );
 
-    expect(screen.getByText("the rate this structure's owner set")).toBeInTheDocument();
+    expect(
+      screen.getByText("the rate this structure's owner set"),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Broker fee, base")).not.toBeInTheDocument();
     expect(
       screen.getByText(/Broker Relations does not reduce a structure's fee/),
@@ -112,7 +126,11 @@ describe("the sale location rates block", () => {
 
   it("does not claim a hub's prices came from somewhere else", () => {
     render(
-      <SaleLocationRates saleLocation={hub} rates={hubRates} priceHubName="Jita" />,
+      <SaleLocationRates
+        saleLocation={hub}
+        rates={hubRates}
+        priceHubName="Jita"
+      />,
     );
 
     expect(screen.queryByText(/Prices from/)).not.toBeInTheDocument();
@@ -177,7 +195,9 @@ describe("the sale location rates block", () => {
       />,
     );
 
-    expect(screen.getByText("Accounting could not be read")).toBeInTheDocument();
+    expect(
+      screen.getByText("Accounting could not be read"),
+    ).toBeInTheDocument();
   });
 
   it("waits rather than quoting a rate it does not have yet", () => {
@@ -239,7 +259,9 @@ describe("naming where this job sells", () => {
 
     await userEvent.click(screen.getByLabelText("Where this job sells from"));
     await userEvent.click(
-      within(screen.getByRole("listbox")).getByText("Second Placeholder Citadel"),
+      within(screen.getByRole("listbox")).getByText(
+        "Second Placeholder Citadel",
+      ),
     );
 
     expect(onPlanChange).toHaveBeenCalledWith({
@@ -291,7 +313,10 @@ describe("naming where this job sells", () => {
   // click rather than picking the same thing again from a list.
   it("offers the way back once the job has departed", async () => {
     const onPlanChange = withPickers({
-      plan: { sellerCharacter: null, saleLocationID: "placeholder-sale-structure" },
+      plan: {
+        sellerCharacter: null,
+        saleLocationID: "placeholder-sale-structure",
+      },
     });
 
     await userEvent.click(screen.getByText("Back to the account default"));
@@ -302,7 +327,7 @@ describe("naming where this job sells", () => {
     });
   });
 
-  it("offers no way back while the job is on the default" , () => {
+  it("offers no way back while the job is on the default", () => {
     withPickers();
 
     expect(

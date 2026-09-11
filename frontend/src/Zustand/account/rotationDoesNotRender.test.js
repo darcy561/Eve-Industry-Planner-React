@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockClientRefresh } = vi.hoisted(() => ({ mockClientRefresh: vi.fn() }));
+const { mockClientRefresh } = vi.hoisted(() => ({
+  mockClientRefresh: vi.fn(),
+}));
 vi.mock("../../Functions/Endpoints/esiAccessClient.js", () => ({
   requestEsiAccessFromClientRefreshSecret: mockClientRefresh,
   requestEsiAccessFromServerStorage: vi.fn(),
@@ -44,7 +46,9 @@ describe("refreshing an ESI access token", () => {
   // value none of them display.
   it("notifies no store subscriber", async () => {
     mockClientRefresh.mockResolvedValue({
-      access_token: esiAccessToken({ exp: Math.floor(Date.now() / 1000) + 3600 }),
+      access_token: esiAccessToken({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      }),
     });
     const subscriber = vi.fn();
     const unsubscribe = useUsersStore.subscribe(subscriber);
@@ -58,7 +62,9 @@ describe("refreshing an ESI access token", () => {
 
   it("keeps the token off the character", async () => {
     mockClientRefresh.mockResolvedValue({
-      access_token: esiAccessToken({ exp: Math.floor(Date.now() / 1000) + 3600 }),
+      access_token: esiAccessToken({
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      }),
     });
 
     await esiCredentials.getEsiAccessToken("owner-hash");

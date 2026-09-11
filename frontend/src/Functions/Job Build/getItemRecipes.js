@@ -4,14 +4,14 @@ import fetchBlueprints from "../Endpoints/Public/blueprints";
 /**
  * Retrieves item recipes with cache-first strategy.
  * First attempts to get recipes from cached data, then falls back to the public blueprints API.
- * 
+ *
  * @param {string|string[]} itemRequests - The ID of the item to retrieve the recipe for or an array of item IDs
  * @returns {Promise<Object|Array>} The recipe for the item or an array of recipes for the items
- * 
+ *
  * @example
  * const recipe = await getItemRecipes("34");
  * console.log(recipe); // Tritanium recipe
- * 
+ *
  * @example
  * const recipes = await getItemRecipes(["34", "35"]);
  * console.log(recipes); // Array of recipes
@@ -32,8 +32,8 @@ export default async function getItemRecipes(itemRequests) {
       const foundItems = itemIDs
         .map((itemID) =>
           recipeList.find(
-            (item) => item.itemID === itemID || item.itemID === String(itemID)
-          )
+            (item) => item.itemID === itemID || item.itemID === String(itemID),
+          ),
         )
         .filter(Boolean);
 

@@ -23,7 +23,9 @@ import InventionStructure from "../../Classes/inventionStructure";
 function structuresFromServer(incoming) {
   const rows = incoming && typeof incoming === "object" ? incoming : {};
   const build = (lane, StructureClass) =>
-    Array.isArray(rows[lane]) ? rows[lane].map((x) => new StructureClass(x)) : [];
+    Array.isArray(rows[lane])
+      ? rows[lane].map((x) => new StructureClass(x))
+      : [];
   return {
     manufacturing: build("manufacturing", CustomStructure),
     reaction: build("reaction", CustomStructure),

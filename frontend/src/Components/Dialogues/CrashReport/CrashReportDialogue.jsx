@@ -128,8 +128,7 @@ function CrashReportSession({ eventId, hint, onDismiss }) {
         });
       }
 
-      const sentryHint =
-        attachments.length > 0 ? { attachments } : {};
+      const sentryHint = attachments.length > 0 ? { attachments } : {};
 
       try {
         captureFeedback(
@@ -208,7 +207,11 @@ function CrashReportSession({ eventId, hint, onDismiss }) {
           <>
             <br />
             <br />
-            <Typography variant="caption" color="text.secondary" component="div">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              component="div"
+            >
               Technical summary:{" "}
               <Box component="span" sx={{ fontFamily: "monospace" }}>
                 {hint}
@@ -273,12 +276,12 @@ function CrashReportSession({ eventId, hint, onDismiss }) {
                   return;
                 }
                 setScreenshots((prev) => {
-                  const { entries, errorMessage } =
-                    buildScreenshotAdditions(picked, prev.length);
+                  const { entries, errorMessage } = buildScreenshotAdditions(
+                    picked,
+                    prev.length,
+                  );
                   if (errorMessage) {
-                    queueMicrotask(() =>
-                      showSnackbarError(errorMessage),
-                    );
+                    queueMicrotask(() => showSnackbarError(errorMessage));
                   }
                   if (entries.length === 0) {
                     return prev;

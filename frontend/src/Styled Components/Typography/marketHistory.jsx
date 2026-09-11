@@ -32,7 +32,7 @@ function MarketHistoryDialogueTriggerText({
       MARKET_OPTIONS.find(
         (i) =>
           i.id ===
-          useUsersStore.getState().applicationSettings.defaultMarketLocation
+          useUsersStore.getState().applicationSettings.defaultMarketLocation,
       ) ?? MARKET_OPTIONS.find((i) => i.regionID === DEFAULT_REGION);
   }
 

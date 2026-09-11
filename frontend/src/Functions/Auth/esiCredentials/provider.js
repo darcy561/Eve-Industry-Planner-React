@@ -6,8 +6,14 @@
  * none of them display. Identity belongs in the store; credentials belong here.
  */
 import { decodeJwt } from "jose";
-import { createClientHeldCredentials, serverStoredCredentials } from "./strategies.js";
-import { EsiCredentialError, ESI_CREDENTIAL_REAUTH_REQUIRED } from "./errors.js";
+import {
+  createClientHeldCredentials,
+  serverStoredCredentials,
+} from "./strategies.js";
+import {
+  EsiCredentialError,
+  ESI_CREDENTIAL_REAUTH_REQUIRED,
+} from "./errors.js";
 import useUsersStore from "../../../Zustand/usersStore.js";
 
 /** Refresh when fewer than this many seconds remain, matching the ESI access token's ~20m life. */
@@ -19,7 +25,10 @@ const ESI_ACCESS_TOKEN_BUFFER_SEC = 660;
  *   switch between cloud and local while the app is running.
  * @param {() => number} [deps.now] - Unix seconds.
  */
-export function createEsiCredentialProvider({ strategy, now = () => Math.floor(Date.now() / 1000) }) {
+export function createEsiCredentialProvider({
+  strategy,
+  now = () => Math.floor(Date.now() / 1000),
+}) {
   /** @type {Map<string, { accessToken: string, exp: number }>} */
   const tokens = new Map();
   /** @type {Map<string, Promise<{ accessToken: string, exp: number }>>} */
@@ -40,10 +49,13 @@ export function createEsiCredentialProvider({ strategy, now = () => Math.floor(D
    */
   async function getEsiAccessToken(characterHash, options = {}) {
     const { minRemainingSec = ESI_ACCESS_TOKEN_BUFFER_SEC } = options;
-    if (typeof characterHash !== "string" || characterHash.trim().length === 0) {
+    if (
+      typeof characterHash !== "string" ||
+      characterHash.trim().length === 0
+    ) {
       throw new EsiCredentialError(
         "character hash is required to acquire an ESI access token",
-        ESI_CREDENTIAL_REAUTH_REQUIRED
+        ESI_CREDENTIAL_REAUTH_REQUIRED,
       );
     }
 
@@ -77,7 +89,11 @@ export function createEsiCredentialProvider({ strategy, now = () => Math.floor(D
    * @param {string} accessToken
    */
   function adoptEsiAccessToken(characterHash, accessToken) {
-    if (!characterHash || typeof accessToken !== "string" || !accessToken.trim()) {
+    if (
+      !characterHash ||
+      typeof accessToken !== "string" ||
+      !accessToken.trim()
+    ) {
       return;
     }
     const exp = Number(decodeJwt(accessToken).exp) || 0;
@@ -86,7 +102,9 @@ export function createEsiCredentialProvider({ strategy, now = () => Math.floor(D
 
   /** The token in hand without acquiring one — for callers that can proceed without it. */
   function heldEsiAccessToken(characterHash, options = {}) {
-    return fresh(characterHash, options.minRemainingSec ?? 0)?.accessToken ?? "";
+    return (
+      fresh(characterHash, options.minRemainingSec ?? 0)?.accessToken ?? ""
+    );
   }
 
   function forget(characterHash) {
@@ -99,7 +117,13 @@ export function createEsiCredentialProvider({ strategy, now = () => Math.floor(D
     inflight.clear();
   }
 
-  return { getEsiAccessToken, adoptEsiAccessToken, heldEsiAccessToken, forget, reset };
+  return {
+    getEsiAccessToken,
+    adoptEsiAccessToken,
+    heldEsiAccessToken,
+    forget,
+    reset,
+  };
 }
 
 /** Reads the client-held refresh secret for a character out of the account roster. */
@@ -118,7 +142,9 @@ function readClientSecret(characterHash) {
  */
 function writeClientSecret(characterHash, secret) {
   const { account } = useUsersStore.getState();
-  const character = account.characters.find((c) => c?.CharacterHash === characterHash);
+  const character = account.characters.find(
+    (c) => c?.CharacterHash === characterHash,
+  );
   if (!character) return;
   character.esiRefreshToken = secret;
   if (character.isMainCharacter) {
@@ -143,4 +169,5 @@ const esiCredentials = createEsiCredentialProvider({
 });
 
 export default esiCredentials;
-export const { getEsiAccessToken, adoptEsiAccessToken, heldEsiAccessToken } = esiCredentials;
+export const { getEsiAccessToken, adoptEsiAccessToken, heldEsiAccessToken } =
+  esiCredentials;

@@ -95,7 +95,7 @@ describe("serialiseGroupToTemplatePayload", () => {
     expect(tChild.parentTemplateJobIds).toContain(tParent.templateJobId);
     expect(
       tParent.childLinksByMaterialTypeId["35"] ||
-        tParent.childLinksByMaterialTypeId[35]
+        tParent.childLinksByMaterialTypeId[35],
     ).toContain(tChild.templateJobId);
   });
 });

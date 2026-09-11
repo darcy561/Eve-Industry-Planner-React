@@ -1,7 +1,10 @@
 import { jobTypes } from "../../Context/defaultValues";
 import manufacturingFormulaCalculation from "./manufacturingMaterialCalculation";
 import reactionFormulaCalculation from "./reactionMaterialCalculation";
-import { getStructureInfoFromID, getRigInfoFromID } from "../Helper/getStructureInfo";
+import {
+  getStructureInfoFromID,
+  getRigInfoFromID,
+} from "../Helper/getStructureInfo";
 
 /**
  * The material count a setup's configuration calls for, built from its job's raw
@@ -11,19 +14,22 @@ import { getStructureInfoFromID, getRigInfoFromID } from "../Helper/getStructure
  * @param {Array<{typeID: number, quantity: number}>} rawMaterialQuantities
  * @returns {Object} A new material count map keyed by type id
  */
-export default function materialQuantitiesForSetup(setupObject, rawMaterialQuantities) {
-    const calculateMaterial = materialCalculationForSetup(setupObject);
+export default function materialQuantitiesForSetup(
+  setupObject,
+  rawMaterialQuantities,
+) {
+  const calculateMaterial = materialCalculationForSetup(setupObject);
 
-    return Object.fromEntries(
-        rawMaterialQuantities.map((material) => [
-            material.typeID,
-            {
-                typeID: material.typeID,
-                rawQuantity: material.quantity,
-                quantity: calculateMaterial(material.quantity),
-            },
-        ])
-    );
+  return Object.fromEntries(
+    rawMaterialQuantities.map((material) => [
+      material.typeID,
+      {
+        typeID: material.typeID,
+        rawQuantity: material.quantity,
+        quantity: calculateMaterial(material.quantity),
+      },
+    ]),
+  );
 }
 
 /**
@@ -33,37 +39,37 @@ export default function materialQuantitiesForSetup(setupObject, rawMaterialQuant
  * @private
  */
 function materialCalculationForSetup(setupObject) {
-    const isManufacturing = setupObject.jobType === jobTypes.manufacturing;
-    if (!isManufacturing && setupObject.jobType !== jobTypes.reaction) {
-        return (rawQuantity) => rawQuantity;
-    }
+  const isManufacturing = setupObject.jobType === jobTypes.manufacturing;
+  if (!isManufacturing && setupObject.jobType !== jobTypes.reaction) {
+    return (rawQuantity) => rawQuantity;
+  }
 
-    const requirements = setupObject.gatherRequirements();
-    const rigValue = getRigData(setupObject, requirements);
-    const systemValue = getSystemData(setupObject, requirements);
+  const requirements = setupObject.gatherRequirements();
+  const rigValue = getRigData(setupObject, requirements);
+  const systemValue = getSystemData(setupObject, requirements);
 
-    if (!isManufacturing) {
-        return (rawQuantity) =>
-            reactionFormulaCalculation(
-                rawQuantity,
-                setupObject.runCount,
-                setupObject.jobCount,
-                rigValue,
-                systemValue
-            );
-    }
-
-    const structureValue = getStructureData(setupObject, requirements);
+  if (!isManufacturing) {
     return (rawQuantity) =>
-        manufacturingFormulaCalculation(
-            rawQuantity,
-            setupObject.runCount,
-            setupObject.jobCount,
-            setupObject.ME,
-            structureValue,
-            rigValue,
-            systemValue
-        );
+      reactionFormulaCalculation(
+        rawQuantity,
+        setupObject.runCount,
+        setupObject.jobCount,
+        rigValue,
+        systemValue,
+      );
+  }
+
+  const structureValue = getStructureData(setupObject, requirements);
+  return (rawQuantity) =>
+    manufacturingFormulaCalculation(
+      rawQuantity,
+      setupObject.runCount,
+      setupObject.jobCount,
+      setupObject.ME,
+      structureValue,
+      rigValue,
+      systemValue,
+    );
 }
 
 /**
@@ -77,14 +83,14 @@ function materialCalculationForSetup(setupObject) {
  * @private
  */
 function getStructureData(setupObject, requirements) {
-    if (Object.hasOwn(requirements, "structureID")) {
-        const requiredObject = getStructureInfoFromID(
-            setupObject.jobType,
-            requirements.structureID
-        );
-        return requiredObject?.material ?? 0;
-    }
-    return setupObject.getStructureObject()?.material ?? 0;
+  if (Object.hasOwn(requirements, "structureID")) {
+    const requiredObject = getStructureInfoFromID(
+      setupObject.jobType,
+      requirements.structureID,
+    );
+    return requiredObject?.material ?? 0;
+  }
+  return setupObject.getStructureObject()?.material ?? 0;
 }
 
 /**
@@ -97,14 +103,14 @@ function getStructureData(setupObject, requirements) {
  * @private
  */
 function getRigData(setupObject, requirements) {
-    if (Object.hasOwn(requirements, "rigID")) {
-        const requiredObject = getRigInfoFromID(
-            setupObject.jobType,
-            requirements.rigID
-        );
-        return requiredObject?.material ?? 0;
-    }
-    return setupObject.getRigObject()?.material ?? 0;
+  if (Object.hasOwn(requirements, "rigID")) {
+    const requiredObject = getRigInfoFromID(
+      setupObject.jobType,
+      requirements.rigID,
+    );
+    return requiredObject?.material ?? 0;
+  }
+  return setupObject.getRigObject()?.material ?? 0;
 }
 
 /**
@@ -118,10 +124,14 @@ function getRigData(setupObject, requirements) {
  * @private
  */
 function getSystemData(setupObject, requirements) {
-    const systemObject = setupObject.getSystemTypeObject();
+  const systemObject = setupObject.getSystemTypeObject();
 
-    if (Object.hasOwn(requirements, "alternativeSystemValue")) {
-        return requirements.alternativeSystemValue[systemObject.id] ?? systemObject?.value ?? 0;
-    }
-    return systemObject?.value ?? 0;
+  if (Object.hasOwn(requirements, "alternativeSystemValue")) {
+    return (
+      requirements.alternativeSystemValue[systemObject.id] ??
+      systemObject?.value ??
+      0
+    );
+  }
+  return systemObject?.value ?? 0;
 }

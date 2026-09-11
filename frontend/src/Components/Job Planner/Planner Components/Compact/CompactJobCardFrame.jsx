@@ -3,7 +3,10 @@ import {
   plannerDragPassThroughSx,
   usePlannerJobCardDrag,
 } from "../../Hooks/useDnD";
-import { jobTypes, STANDARD_TEXT_FORMAT } from "../../../../Context/defaultValues";
+import {
+  jobTypes,
+  STANDARD_TEXT_FORMAT,
+} from "../../../../Context/defaultValues";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
@@ -46,9 +49,9 @@ export function CompactJobCardFrame({ job }) {
 
   const jobCardChecked = useMemo(
     () => multiSelect.some((i) => i === job.jobID),
-    [multiSelect]
+    [multiSelect],
   );
-  const navigate = useNavigate({ from: '/jobplanner' });
+  const navigate = useNavigate({ from: "/jobplanner" });
 
   function getCardColor(theme, jobType) {
     switch (jobType) {
@@ -100,8 +103,9 @@ export function CompactJobCardFrame({ job }) {
           align="center"
           size={{
             xs: 2,
-            sm: 1
-          }}>
+            sm: 1,
+          }}
+        >
           <Checkbox
             disabled={jobLockReadOnly}
             checked={jobCardChecked}
@@ -120,9 +124,13 @@ export function CompactJobCardFrame({ job }) {
             }}
           />
         </Grid>
-        <Grid container size={isMobile ? 7 : 8} sx={{
-          alignItems: "center"
-        }}>
+        <Grid
+          container
+          size={isMobile ? 7 : 8}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             {job.name}
           </Typography>
@@ -134,8 +142,9 @@ export function CompactJobCardFrame({ job }) {
               alignItems: "center",
               justifyContent: "center",
               display: "flex",
-              minHeight: "100%"
-            }}>
+              minHeight: "100%",
+            }}
+          >
             <Tooltip title={tooltipContent} arrow placement="left">
               <Box
                 sx={{
@@ -157,8 +166,9 @@ export function CompactJobCardFrame({ job }) {
           size={isMobile ? 3 : 1}
           sx={{
             alignItems: "center",
-            justifyContent: "center"
-          }}>
+            justifyContent: "center",
+          }}
+        >
           <Tooltip
             title={jobLockReason}
             arrow
@@ -168,8 +178,8 @@ export function CompactJobCardFrame({ job }) {
               color={jobLockReadOnly ? "warning" : "primary"}
               onClick={() => {
                 navigate({
-                  to: '/editjob/$jobID',
-                  params: { jobID: job.jobID }
+                  to: "/editjob/$jobID",
+                  params: { jobID: job.jobID },
                 });
               }}
             >
@@ -178,9 +188,14 @@ export function CompactJobCardFrame({ job }) {
           </Tooltip>
         </Grid>
         {!isMobile && (
-          <Grid container align="center" size={1} sx={{
-            alignItems: "center"
-          }}>
+          <Grid
+            container
+            align="center"
+            size={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <IconButton
               disabled={jobLockReadOnly}
               sx={{
@@ -205,7 +220,8 @@ export function CompactJobCardFrame({ job }) {
             height: "2px",
             background: (theme) => getCardColor(theme, job.jobType),
           }}
-          size={12} />
+          size={12}
+        />
       </Grid>
     </Card>
   );

@@ -29,9 +29,8 @@ vi.mock("../../Functions/Endpoints/Private/statisticsTotals.js", () => ({
   getAccountTotalsSummary: vi.fn(async () => null),
 }));
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock, archiveStoreState } = await import(
-    "../../tests/archiveHarness.jsx"
-  );
+  const { usersStoreMock, archiveStoreState } =
+    await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(archiveStoreState());
 });
 vi.mock("../../Styled Components/Charts", async () => {
@@ -42,7 +41,10 @@ vi.mock("../../Styled Components/Charts", async () => {
 // the tab does with a chosen item.
 vi.mock("../../Styled Components/autocomplete/virtualisedRecipeSearch", () => ({
   default: ({ onSelect }) => (
-    <button type="button" onClick={() => onSelect({ itemID: 34, name: "Tritanium" })}>
+    <button
+      type="button"
+      onClick={() => onSelect({ itemID: 34, name: "Tritanium" })}
+    >
       pick Tritanium
     </button>
   ),
@@ -168,7 +170,9 @@ describe("the item statistics tab, end to end", () => {
     renderTab();
     fireEvent.click(screen.getByText("pick Tritanium"));
 
-    expect(await screen.findByText(/Nothing archived for Tritanium/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Nothing archived for Tritanium/i),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Cost composition")).toBeNull();
   });
 });

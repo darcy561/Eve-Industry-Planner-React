@@ -29,8 +29,9 @@ export function AddCustomTransactionDialogue({
   newTransactionTrigger,
   updateNewTransactionTrigger,
 }) {
-  const CharacterHash =
-    useUsersStore.getState().account.actions.getMainCharacterHash();
+  const CharacterHash = useUsersStore
+    .getState()
+    .account.actions.getMainCharacterHash();
   const jobLockReadOnly = useActiveJobReadOnly(state);
   const [transactionData, setTransactionData] = useState({
     order_id: null,
@@ -71,9 +72,9 @@ export function AddCustomTransactionDialogue({
                     color: (theme) => theme.palette.secondary.main,
                   },
                   "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    display: "none",
-                  },
+                    {
+                      display: "none",
+                    },
                 }}
                 onChange={(v) => {
                   setTransactionData((prev) => ({
@@ -92,9 +93,9 @@ export function AddCustomTransactionDialogue({
                     color: (theme) => theme.palette.secondary.main,
                   },
                   "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    display: "none",
-                  },
+                    {
+                      display: "none",
+                    },
                 }}
                 onBlur={(v) => {
                   setTransactionData((prev) => ({
@@ -118,9 +119,9 @@ export function AddCustomTransactionDialogue({
                     color: (theme) => theme.palette.secondary.main,
                   },
                   "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    display: "none",
-                  },
+                    {
+                      display: "none",
+                    },
                 }}
                 onBlur={(v) => {
                   const unitPrice = parseNonNegativeNumber(v.target.value);
@@ -135,7 +136,7 @@ export function AddCustomTransactionDialogue({
                     endAdornment: (
                       <InputAdornment position="end">ISK</InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -149,9 +150,9 @@ export function AddCustomTransactionDialogue({
                     color: (theme) => theme.palette.secondary.main,
                   },
                   "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    display: "none",
-                  },
+                    {
+                      display: "none",
+                    },
                 }}
                 onBlur={(v) => {
                   const quantity = parseNonNegativeNumber(v.target.value);
@@ -175,9 +176,9 @@ export function AddCustomTransactionDialogue({
                     color: (theme) => theme.palette.secondary.main,
                   },
                   "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    display: "none",
-                  },
+                    {
+                      display: "none",
+                    },
                 }}
                 onBlur={(v) => {
                   const tax = parseNonNegativeNumber(v.target.value);
@@ -191,7 +192,7 @@ export function AddCustomTransactionDialogue({
                     endAdornment: (
                       <InputAdornment position="end">ISK</InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -232,7 +233,6 @@ export function AddCustomTransactionDialogue({
     </Dialog>
   );
 }
-
 
 function parseNonNegativeNumber(value) {
   const parsed = Number(value);

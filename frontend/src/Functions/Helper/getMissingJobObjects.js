@@ -35,7 +35,7 @@ async function getMissingJobObjects(requestedJobIDs) {
           jobIDs.push(String(item.jobID));
         } else {
           throw new Error(
-            "Array or Set item must be a string, number, or an object with an 'jobID' property."
+            "Array or Set item must be a string, number, or an object with an 'jobID' property.",
           );
         }
       });
@@ -46,7 +46,7 @@ async function getMissingJobObjects(requestedJobIDs) {
       jobIDs.push(String(requestedJobIDs));
     } else {
       throw new Error(
-        "Invalid type for requestedJobIDs. Must be an array, Set, or a single ID."
+        "Invalid type for requestedJobIDs. Must be an array, Set, or a single ID.",
       );
     }
 

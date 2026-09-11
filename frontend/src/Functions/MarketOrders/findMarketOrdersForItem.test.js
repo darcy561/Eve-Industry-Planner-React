@@ -27,11 +27,16 @@ vi.mock("../../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders", () => ({
 }));
 vi.mock(
   "../../Hooks/EveEsi/Character/useGetAllCharacterHistoricMarketOrders",
-  () => ({ getAllCachedCharacterHistoricMarketOrders: () => characterHistoric }),
+  () => ({
+    getAllCachedCharacterHistoricMarketOrders: () => characterHistoric,
+  }),
 );
-vi.mock("../../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders", () => ({
-  getAllCachedCorporationMarketOrders: () => corporationOrders,
-}));
+vi.mock(
+  "../../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders",
+  () => ({
+    getAllCachedCorporationMarketOrders: () => corporationOrders,
+  }),
+);
 vi.mock(
   "../../Hooks/EveEsi/Corporation/useGetAllCorporationHistoricMarketOrders",
   () => ({
@@ -39,9 +44,8 @@ vi.mock(
   }),
 );
 
-const { default: findMarketOrdersForItem } = await import(
-  "./findMarketOrdersForItem.js"
-);
+const { default: findMarketOrdersForItem } =
+  await import("./findMarketOrdersForItem.js");
 
 const JOB = { itemID: 587 };
 
@@ -62,11 +66,18 @@ function order(order_id, overrides = {}) {
   };
 }
 
-function withOrders({ character = [], historic = [], corp = [], corpHistoric = [] } = {}) {
+function withOrders({
+  character = [],
+  historic = [],
+  corp = [],
+  corpHistoric = [],
+} = {}) {
   characterOrders.data = { "hash-1": character };
   characterHistoric.data = { "hash-1": historic };
   corporationOrders.data = corp.length ? { 98000001: corp } : {};
-  corporationHistoric.data = corpHistoric.length ? { 98000001: corpHistoric } : {};
+  corporationHistoric.data = corpHistoric.length
+    ? { 98000001: corpHistoric }
+    : {};
   linkedOrders.clear();
 }
 

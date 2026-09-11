@@ -12,7 +12,8 @@ vi.mock("../../../../../../Zustand/usersStore.js", () => ({
     }),
 }));
 
-const { default: RowPricingOverride } = await import("./rowPricingOverride.jsx");
+const { default: RowPricingOverride } =
+  await import("./rowPricingOverride.jsx");
 
 function renderControl(props = {}) {
   render(
@@ -24,7 +25,7 @@ function renderControl(props = {}) {
       onListingCommit={() => {}}
       onReset={() => {}}
       {...props}
-    />
+    />,
   );
 }
 
@@ -47,7 +48,7 @@ describe("where a single material is priced", () => {
     renderControl({ overrideMarket: "amarr" });
 
     expect(
-      screen.getByRole("button", { name: /follow panel/i })
+      screen.getByRole("button", { name: /follow panel/i }),
     ).toBeInTheDocument();
   });
 
@@ -55,7 +56,7 @@ describe("where a single material is priced", () => {
     renderControl({ overrideListing: "buyP95" });
 
     expect(
-      screen.getByRole("button", { name: /follow panel/i })
+      screen.getByRole("button", { name: /follow panel/i }),
     ).toBeInTheDocument();
   });
 
@@ -72,7 +73,9 @@ describe("where a single material is priced", () => {
   it("cannot be changed while the job is read only", () => {
     renderControl({ overrideMarket: "amarr", disabled: true });
 
-    expect(screen.getByRole("button", { name: /follow panel/i })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /follow panel/i }),
+    ).toBeDisabled();
   });
 });
 
@@ -89,10 +92,12 @@ describe("a locked job", () => {
         onListingCommit={() => {}}
         onReset={() => {}}
         disabled
-      />
+      />,
     );
 
-    const selects = container.querySelectorAll(".Mui-disabled.MuiInputBase-root");
+    const selects = container.querySelectorAll(
+      ".Mui-disabled.MuiInputBase-root",
+    );
     expect(selects.length).toBe(2);
   });
 });

@@ -1,1 +1,1 @@
-export * from "Api Job Card"
+export * from "Api Job Card";

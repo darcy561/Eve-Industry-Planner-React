@@ -6,7 +6,7 @@ export function Selling_MobileLayout_EditJob({
   updateActiveJob,
   setJobModified,
   esiDataToLink,
-  updateEsiDataToLink
+  updateEsiDataToLink,
 }) {
   const [showAvailableOrders, updateShowAvailableOrders] = useState(false);
   const [activeOrder, updateActiveOrder] = useState([]);

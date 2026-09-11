@@ -10,9 +10,8 @@ vi.mock("../../Zustand/usersStore", () => ({
   },
 }));
 
-const { default: findIndustryJobsForItem } = await import(
-  "./findIndustryJobsForItem.js"
-);
+const { default: findIndustryJobsForItem } =
+  await import("./findIndustryJobsForItem.js");
 const { default: Job } = await import("../../Classes/job.js");
 
 const OWNER = { CharacterHash: "hash-1", CharacterID: 2117000001 };
@@ -43,7 +42,12 @@ const ids = (runs) => runs.map((r) => r.job_id);
 describe("the industry runs a job can link", () => {
   it("offers runs that made this job's item", () => {
     expect(
-      ids(findIndustryJobsForItem([run(1), run(2, { product_type_id: 34 })], job())),
+      ids(
+        findIndustryJobsForItem(
+          [run(1), run(2, { product_type_id: 34 })],
+          job(),
+        ),
+      ),
     ).toEqual([1]);
   });
 
@@ -59,7 +63,9 @@ describe("the industry runs a job can link", () => {
     const activeJob = job();
     activeJob.linkESIJob(run(1), OWNER);
 
-    expect(ids(findIndustryJobsForItem([run(1), run(2)], activeJob))).toEqual([2]);
+    expect(ids(findIndustryJobsForItem([run(1), run(2)], activeJob))).toEqual([
+      2,
+    ]);
   });
 
   it("does not offer a run another job on the account holds", () => {

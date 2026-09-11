@@ -17,9 +17,8 @@ vi.mock("../../../../../../Zustand/usersStore", () => {
   return { default: useUsersStore };
 });
 
-const { default: InventionEditor, invitesInvention } = await import(
-  "./inventionEditor"
-);
+const { default: InventionEditor, invitesInvention } =
+  await import("./inventionEditor");
 const { default: Job } = await import("../../../../../../Classes/job");
 
 const jobFor = (overrides = {}) =>
@@ -60,11 +59,16 @@ describe("recording what invention cost", () => {
     const job = jobFor({ metaGroupID: 2 });
     const actions = show(job);
 
-    await userEvent.type(screen.getByPlaceholderText("What invention used…"), "Datacore");
+    await userEvent.type(
+      screen.getByPlaceholderText("What invention used…"),
+      "Datacore",
+    );
     const cost = screen.getByPlaceholderText("0.00");
     await userEvent.clear(cost);
     await userEvent.type(cost, "1500");
-    await userEvent.click(screen.getByRole("button", { name: "Add invention cost" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add invention cost" }),
+    );
 
     expect(job.build.costs.inventionEntries).toHaveLength(1);
     expect(job.build.costs.inventionEntries[0]).toMatchObject({
@@ -83,7 +87,9 @@ describe("recording what invention cost", () => {
     const cost = screen.getByPlaceholderText("0.00");
     await userEvent.clear(cost);
     await userEvent.type(cost, "1500");
-    await userEvent.click(screen.getByRole("button", { name: "Add invention cost" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add invention cost" }),
+    );
 
     expect(job.build.costs.inventionEntries).toHaveLength(0);
   });
@@ -92,8 +98,13 @@ describe("recording what invention cost", () => {
     const job = jobFor({ metaGroupID: 2 });
     show(job);
 
-    await userEvent.type(screen.getByPlaceholderText("What invention used…"), "Datacore");
-    await userEvent.click(screen.getByRole("button", { name: "Add invention cost" }));
+    await userEvent.type(
+      screen.getByPlaceholderText("What invention used…"),
+      "Datacore",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add invention cost" }),
+    );
 
     expect(job.build.costs.inventionEntries).toHaveLength(0);
   });
@@ -111,7 +122,9 @@ describe("recording what invention cost", () => {
 
     expect(screen.getByText("Datacore")).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Remove Datacore" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Remove Datacore" }),
+    );
 
     expect(job.build.costs.inventionEntries).toHaveLength(0);
   });

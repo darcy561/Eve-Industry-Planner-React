@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 const invalidateArchiveQueries = vi.fn();
 const showSnackbar = vi.fn();
 
-vi.mock("../queryClient.js", () => ({ queryClient: { marker: "queryClient" } }));
+vi.mock("../queryClient.js", () => ({
+  queryClient: { marker: "queryClient" },
+}));
 vi.mock("../Hooks/React Query/Backend/archivedJobsList.js", () => ({
   invalidateArchiveQueries: (...args) => invalidateArchiveQueries(...args),
 }));
@@ -35,7 +37,11 @@ describe("applyRemoteMessage", () => {
   });
 
   test("an explicit document type routes the same way", async () => {
-    await applyRemoteMessage({ type: "document", collection: "accounts", docID: "a1" });
+    await applyRemoteMessage({
+      type: "document",
+      collection: "accounts",
+      docID: "a1",
+    });
     expect(applyDocumentMessage).toHaveBeenCalledOnce();
   });
 
@@ -47,13 +53,18 @@ describe("applyRemoteMessage", () => {
       subtype: "archiveStatsProcessed",
       data: { accountID: "acct-1" },
     });
-    expect(invalidateArchiveQueries).toHaveBeenCalledWith({ marker: "queryClient" });
+    expect(invalidateArchiveQueries).toHaveBeenCalledWith({
+      marker: "queryClient",
+    });
     expect(showSnackbar).toHaveBeenCalled();
     expect(applyDocumentMessage).not.toHaveBeenCalled();
   });
 
   test("an unrecognised subtype is reported rather than dropped in silence", async () => {
-    await applyRemoteMessage({ type: "notification", subtype: "somethingElse" });
+    await applyRemoteMessage({
+      type: "notification",
+      subtype: "somethingElse",
+    });
     expect(console.warn).toHaveBeenCalledWith(
       "[realtime] no handler for notification",
       "somethingElse",

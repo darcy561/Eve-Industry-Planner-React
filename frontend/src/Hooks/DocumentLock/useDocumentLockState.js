@@ -34,7 +34,7 @@ import { lockReasonText } from "../../Components/DocumentLock/LockGatedTooltip";
  */
 export function useJobLockReadOnly(jobID) {
   return useUsersStore((s) =>
-    jobID ? selectDocumentLockReadOnly(s, USER_JOBS_COLLECTION, jobID) : false
+    jobID ? selectDocumentLockReadOnly(s, USER_JOBS_COLLECTION, jobID) : false,
   );
 }
 
@@ -50,7 +50,7 @@ export function useGroupLockReadOnly(groupID) {
   return useUsersStore((s) =>
     groupID
       ? selectDocumentLockReadOnly(s, USER_JOB_GROUPS_COLLECTION, groupID)
-      : false
+      : false,
   );
 }
 

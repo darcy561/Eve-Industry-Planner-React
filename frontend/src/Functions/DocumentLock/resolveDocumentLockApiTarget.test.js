@@ -24,12 +24,12 @@ describe("resolveDocumentLockApiTarget", () => {
       groupID: "group-1",
     });
     getGroupObject.mockReturnValue({ groupID: "group-1" });
-    expect(
-      resolveDocumentLockApiTarget(USER_JOBS_COLLECTION, "job-1")
-    ).toEqual({
-      collection: USER_JOB_GROUPS_COLLECTION,
-      docID: "group-1",
-    });
+    expect(resolveDocumentLockApiTarget(USER_JOBS_COLLECTION, "job-1")).toEqual(
+      {
+        collection: USER_JOB_GROUPS_COLLECTION,
+        docID: "group-1",
+      },
+    );
   });
 
   it("uses per-job lock when the group document is gone", () => {
@@ -40,7 +40,7 @@ describe("resolveDocumentLockApiTarget", () => {
     });
     getGroupObject.mockReturnValue(null);
     expect(
-      resolveDocumentLockApiTarget(USER_JOBS_COLLECTION, "job-orphan")
+      resolveDocumentLockApiTarget(USER_JOBS_COLLECTION, "job-orphan"),
     ).toEqual({
       collection: USER_JOBS_COLLECTION,
       docID: "job-orphan",
@@ -53,17 +53,17 @@ describe("resolveDocumentLockApiTarget", () => {
       includedInGroup: false,
       groupID: null,
     });
-    expect(
-      resolveDocumentLockApiTarget(USER_JOBS_COLLECTION, "job-2")
-    ).toEqual({
-      collection: USER_JOBS_COLLECTION,
-      docID: "job-2",
-    });
+    expect(resolveDocumentLockApiTarget(USER_JOBS_COLLECTION, "job-2")).toEqual(
+      {
+        collection: USER_JOBS_COLLECTION,
+        docID: "job-2",
+      },
+    );
   });
 
   it("passes group collection through unchanged", () => {
     expect(
-      resolveDocumentLockApiTarget(USER_JOB_GROUPS_COLLECTION, "group-1")
+      resolveDocumentLockApiTarget(USER_JOB_GROUPS_COLLECTION, "group-1"),
     ).toEqual({
       collection: USER_JOB_GROUPS_COLLECTION,
       docID: "group-1",

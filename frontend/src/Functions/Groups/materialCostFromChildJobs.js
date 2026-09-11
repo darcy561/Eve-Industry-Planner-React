@@ -42,7 +42,10 @@ function calculateJobUnitCost(inputJob, ctx) {
 
       if (material.purchaseComplete) {
         jobCost += material.purchasedCost;
-      } else if (Array.isArray(childJobLocation) && childJobLocation.length > 0) {
+      } else if (
+        Array.isArray(childJobLocation) &&
+        childJobLocation.length > 0
+      ) {
         for (const childJobID of childJobLocation) {
           const matchedJob = jobsById.get(childJobID);
           if (!matchedJob) continue;
@@ -77,7 +80,7 @@ export function calculateMaterialCostFromChildJobs(
   alternativeJobLocation = [],
   alternativePriceLocation,
   defaultMarketLocation,
-  defaultOrderType
+  defaultOrderType,
 ) {
   const jobArray = useUsersStore.getState().jobData.jobArray || [];
   const altLocs = Array.isArray(alternativeJobLocation)
@@ -93,7 +96,7 @@ export function calculateMaterialCostFromChildJobs(
       .getState()
       .worldData.actions.findMarketData(
         materialObject.typeID,
-        alternativePriceLocation
+        alternativePriceLocation,
       )?.[defaultMarketLocation]?.[defaultOrderType] ||
     materialObject.purchasedCost;
 
@@ -107,8 +110,11 @@ export function calculateMaterialCostFromChildJobs(
       const matchedJob = jobsById.get(childJobID);
       if (!matchedJob) continue;
       jobCost +=
-        calculateJobUnitCost(matchedJob, { jobsById, getMaterialPrice, visiting }) *
-        inputMaterial.quantity;
+        calculateJobUnitCost(matchedJob, {
+          jobsById,
+          getMaterialPrice,
+          visiting,
+        }) * inputMaterial.quantity;
     }
     return jobCost;
   }

@@ -32,16 +32,13 @@ export async function patchPlannerJobLockScopeFromApi(jobID) {
 export async function patchPlannerGroupLockScopeFromApi(groupID) {
   if (!groupID) return;
   try {
-    const res = await getDocumentLockState(
-      USER_JOB_GROUPS_COLLECTION,
-      groupID
-    );
+    const res = await getDocumentLockState(USER_JOB_GROUPS_COLLECTION, groupID);
     if (!res.ok) return;
     const data = await res.json().catch(() => ({}));
     applyDocumentLockStatusFromPayload(
       USER_JOB_GROUPS_COLLECTION,
       groupID,
-      data
+      data,
     );
   } catch {
     /* ignore */

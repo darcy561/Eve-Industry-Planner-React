@@ -52,22 +52,18 @@ vi.mock("../Hooks/EveEsi/Character/useGetCharacterStandings", () => ({
 }));
 
 const { default: Job } = await import("./job.js");
-const { default: calcSellingCharges } = await import(
-  "../Functions/MarketOrders/calcSellingCharges.js"
-);
+const { default: calcSellingCharges } =
+  await import("../Functions/MarketOrders/calcSellingCharges.js");
 
 // A real client: both charges are worked out from reads this fetches if absent.
 const client = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
-const { default: findBrokersFeeEntry } = await import(
-  "../Functions/MarketOrders/findBrokersFeeEntry.js"
-);
-const { default: findOrderTransactions } = await import(
-  "../Functions/MarketOrders/findOrderTransactions.js"
-);
-const { default: applyLatestOrderData } = await import(
-  "../Functions/MarketOrders/applyLatestOrderData.js"
-);
+const { default: findBrokersFeeEntry } =
+  await import("../Functions/MarketOrders/findBrokersFeeEntry.js");
+const { default: findOrderTransactions } =
+  await import("../Functions/MarketOrders/findOrderTransactions.js");
+const { default: applyLatestOrderData } =
+  await import("../Functions/MarketOrders/applyLatestOrderData.js");
 
 const CITADEL = 1035466617946;
 const ISSUED = "2026-08-01T00:00:00Z";
@@ -95,8 +91,24 @@ function esiOrder(overrides = {}) {
 // Two fills of that order, with the journal entries that carry the money.
 function esiSales() {
   return [
-    { transaction_id: 700, type_id: 587, location_id: CITADEL, quantity: 60, unit_price: 1000000, date: SOLD_AT, is_personal: true },
-    { transaction_id: 701, type_id: 587, location_id: CITADEL, quantity: 40, unit_price: 1000000, date: SOLD_AT, is_personal: true },
+    {
+      transaction_id: 700,
+      type_id: 587,
+      location_id: CITADEL,
+      quantity: 60,
+      unit_price: 1000000,
+      date: SOLD_AT,
+      is_personal: true,
+    },
+    {
+      transaction_id: 701,
+      type_id: 587,
+      location_id: CITADEL,
+      quantity: 40,
+      unit_price: 1000000,
+      date: SOLD_AT,
+      is_personal: true,
+    },
   ];
 }
 
@@ -187,9 +199,9 @@ describe("selling a job's output, from listing to a stored document", () => {
     job.addTransaction(offered, 900);
 
     expect(job.esiTransactionIDs.size).toBe(2);
-    expect(job.build.sale.transactions.every((t) => t.belongsToOrder(900))).toBe(
-      true,
-    );
+    expect(
+      job.build.sale.transactions.every((t) => t.belongsToOrder(900)),
+    ).toBe(true);
 
     // 5. What the job made: 100,000,000 of sales, 3.6% tax, and the listing fee.
     expect(job.totalSales).toBe(100000000);
@@ -223,7 +235,10 @@ describe("selling a job's output, from listing to a stored document", () => {
     const reopened = new Job(document);
 
     expect(reopened.totalSales).toBe(job.totalSales);
-    expect(reopened.totalTransactionFees).toBeCloseTo(job.totalTransactionFees, 6);
+    expect(reopened.totalTransactionFees).toBeCloseTo(
+      job.totalTransactionFees,
+      6,
+    );
     expect(reopened.totalBrokersFees).toBe(job.totalBrokersFees);
     expect(reopened.build.sale.marketOrders[0].isComplete).toBe(true);
   });
@@ -238,7 +253,11 @@ describe("selling a job's output, from listing to a stored document", () => {
 
     job.addMarketOrder(
       order,
-      findBrokersFeeEntry(order, await calcSellingCharges(order, client(), 1.5), null),
+      findBrokersFeeEntry(
+        order,
+        await calcSellingCharges(order, client(), 1.5),
+        null,
+      ),
     );
 
     const sales = esiSales();
@@ -269,7 +288,10 @@ describe("selling a job's output, from listing to a stored document", () => {
     const job = newJob();
     const order = esiOrder();
     characterJournal.data = { 2117000001: [] };
-    job.addMarketOrder(order, findBrokersFeeEntry(order, { brokerFee: 1500000, salesTax: 0 }, null));
+    job.addMarketOrder(
+      order,
+      findBrokersFeeEntry(order, { brokerFee: 1500000, salesTax: 0 }, null),
+    );
 
     const sales = esiSales();
     characterTransactions.data = { "hash-1": sales };

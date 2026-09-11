@@ -18,7 +18,7 @@ describe("InsetSurface", () => {
 
   it("takes an sx override without losing its own", () => {
     const { container } = render(
-      <InsetSurface sx={{ padding: "40px" }}>x</InsetSurface>
+      <InsetSurface sx={{ padding: "40px" }}>x</InsetSurface>,
     );
 
     expect(container.firstChild).toHaveStyle({ padding: "40px" });

@@ -29,12 +29,12 @@ export async function fetchTemplateCatalogSummaries() {
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "GET" },
-    { requestName: "getGroupTemplateCatalog" }
+    { requestName: "getGroupTemplateCatalog" },
   );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET /api/v1/group-templates failed: ${res.status} ${text || res.statusText}`
+      `GET /api/v1/group-templates failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const data = await res.json();
@@ -48,16 +48,20 @@ export async function fetchTemplateCatalogSummaries() {
 export async function getGroupTemplateSummary(templateID) {
   const path = `/api/v1/group-templates/${encodeURIComponent(templateID)}`;
   const url = new URL(path, window.location.origin);
-  const res = await requestWithPrivateHeaders(url.toString(), { method: "GET" }, {
-    requestName: "getGroupTemplateSummary",
-  });
+  const res = await requestWithPrivateHeaders(
+    url.toString(),
+    { method: "GET" },
+    {
+      requestName: "getGroupTemplateSummary",
+    },
+  );
   if (res.status === 404) {
     throw new Error("Template not found");
   }
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET group-template summary failed: ${res.status} ${text || res.statusText}`
+      `GET group-template summary failed: ${res.status} ${text || res.statusText}`,
     );
   }
   return res.json();
@@ -72,16 +76,20 @@ export async function getGroupTemplateSummary(templateID) {
 export async function getGroupTemplateFull(templateID) {
   const path = `/api/v1/group-templates/${encodeURIComponent(templateID)}/full`;
   const url = new URL(path, window.location.origin);
-  const res = await requestWithPrivateHeaders(url.toString(), { method: "GET" }, {
-    requestName: "getGroupTemplateFull",
-  });
+  const res = await requestWithPrivateHeaders(
+    url.toString(),
+    { method: "GET" },
+    {
+      requestName: "getGroupTemplateFull",
+    },
+  );
   if (res.status === 404) {
     throw new Error("Template not found");
   }
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET group-template full failed: ${res.status} ${text || res.statusText}`
+      `GET group-template full failed: ${res.status} ${text || res.statusText}`,
     );
   }
   return res.json();
@@ -100,7 +108,7 @@ export async function postGroupTemplate(body) {
       headers: jsonHeaders,
       body: JSON.stringify(body),
     },
-    { requestName: "postGroupTemplate", retry: privateBatchRetryConfig }
+    { requestName: "postGroupTemplate", retry: privateBatchRetryConfig },
   );
   if (res.status === 409) {
     const text = await res.text().catch(() => "");
@@ -109,7 +117,7 @@ export async function postGroupTemplate(body) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `POST /api/v1/group-templates failed: ${res.status} ${text || res.statusText}`
+      `POST /api/v1/group-templates failed: ${res.status} ${text || res.statusText}`,
     );
   }
   return res.json();
@@ -129,7 +137,7 @@ export async function patchGroupTemplate(templateID, patch) {
       headers: jsonHeaders,
       body: JSON.stringify(patch),
     },
-    { requestName: "patchGroupTemplate", retry: privateBatchRetryConfig }
+    { requestName: "patchGroupTemplate", retry: privateBatchRetryConfig },
   );
   if (res.status === 404) {
     throw new Error("Template not found");
@@ -137,7 +145,7 @@ export async function patchGroupTemplate(templateID, patch) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `PATCH group-template failed: ${res.status} ${text || res.statusText}`
+      `PATCH group-template failed: ${res.status} ${text || res.statusText}`,
     );
   }
 }
@@ -151,7 +159,7 @@ export async function deleteGroupTemplate(templateID) {
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "DELETE" },
-    { requestName: "deleteGroupTemplate", retry: privateBatchRetryConfig }
+    { requestName: "deleteGroupTemplate", retry: privateBatchRetryConfig },
   );
   if (res.status === 404) {
     throw new Error("Template not found");
@@ -159,7 +167,7 @@ export async function deleteGroupTemplate(templateID) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `DELETE group-template failed: ${res.status} ${text || res.statusText}`
+      `DELETE group-template failed: ${res.status} ${text || res.statusText}`,
     );
   }
 }

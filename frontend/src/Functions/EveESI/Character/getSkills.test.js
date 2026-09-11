@@ -34,7 +34,11 @@ beforeEach(() => vi.clearAllMocks());
 describe("reading a character's skills", () => {
   it("maps the levels the character has trained", async () => {
     respond({
-      body: { skills: [{ skill_id: 3446, active_skill_level: 4, trained_skill_level: 5 }] },
+      body: {
+        skills: [
+          { skill_id: 3446, active_skill_level: 4, trained_skill_level: 5 },
+        ],
+      },
     });
 
     const { data } = await getCharacterSkills({ character });

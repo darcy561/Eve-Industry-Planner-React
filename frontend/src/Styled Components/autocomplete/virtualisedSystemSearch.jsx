@@ -1,7 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import Autocomplete, {
-  createFilterOptions,
-} from "@mui/material/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import systemIDsJSON from "../../RawData/systems.json";
 import { FormControl, FormHelperText } from "@mui/material";
@@ -51,13 +49,13 @@ function VirtualisedSystemSearch({
       filteredOptionsSnapshotRef.current = filtered;
       return filtered;
     },
-    []
+    [],
   );
 
   const handleHighlightChange = (event, option) => {
     if (option == null) return;
     const index = filteredOptionsSnapshotRef.current.findIndex(
-      (o) => o.id === option.id
+      (o) => o.id === option.id,
     );
     if (index < 0) return;
     requestAnimationFrame(() => {
@@ -85,7 +83,7 @@ function VirtualisedSystemSearch({
 
   const autocompleteOptions = useMemo(
     () => Object.values(systemIDMap),
-    [systemIDMap]
+    [systemIDMap],
   );
 
   const handleChange = (event, newValue) => {
@@ -106,9 +104,7 @@ function VirtualisedSystemSearch({
     listbox: {
       component: VirtualisedListbox,
       virtualizerControlRef,
-      ...(appShellStyled
-        ? { sx: appShellAutocompleteListboxSx(theme) }
-        : {}),
+      ...(appShellStyled ? { sx: appShellAutocompleteListboxSx(theme) } : {}),
     },
     ...(appShellStyled
       ? {
@@ -177,9 +173,7 @@ function VirtualisedSystemSearch({
             size="small"
             error={hasError}
             sx={
-              appShellStyled
-                ? (t) => appShellTextFieldOutlinedSx(t)
-                : undefined
+              appShellStyled ? (t) => appShellTextFieldOutlinedSx(t) : undefined
             }
           />
         )}

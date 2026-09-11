@@ -1,7 +1,5 @@
 import { useMemo, useRef } from "react";
-import Autocomplete, {
-  createFilterOptions,
-} from "@mui/material/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { FormControl, useTheme } from "@mui/material";
 
@@ -51,15 +49,15 @@ export default function VirtualisedLocationSearch({
       anywhereLabel
         ? [{ locationId: "", name: anywhereLabel }, ...places]
         : places,
-    [places, anywhereLabel]
+    [places, anywhereLabel],
   );
 
   const selected = useMemo(
     () =>
       options.find(
-        (place) => String(place.locationId) === String(value ?? "")
+        (place) => String(place.locationId) === String(value ?? ""),
       ) ?? null,
-    [options, value]
+    [options, value],
   );
 
   return (

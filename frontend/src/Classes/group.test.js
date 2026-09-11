@@ -1,7 +1,10 @@
 import { describe, expect, test } from "vitest";
 import Group from "./group.js";
 
-function jobStub(jobID, { groupID = "group-1", itemID = 34, parents = [] } = {}) {
+function jobStub(
+  jobID,
+  { groupID = "group-1", itemID = 34, parents = [] } = {},
+) {
   return {
     jobID,
     groupID,

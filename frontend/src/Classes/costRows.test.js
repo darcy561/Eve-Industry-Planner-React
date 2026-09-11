@@ -54,7 +54,9 @@ describe("ExtraCost", () => {
   });
 
   it("writes a settled category for a row that has none", () => {
-    expect(new ExtraCost({ id: "extra-1", extraValue: 10 }).toDocument()).toEqual({
+    expect(
+      new ExtraCost({ id: "extra-1", extraValue: 10 }).toDocument(),
+    ).toEqual({
       id: "extra-1",
       category: "0",
       categoryLabel: "",
@@ -66,7 +68,10 @@ describe("ExtraCost", () => {
 
 describe("InventionEntry", () => {
   it("records what invention consumed and what it cost", () => {
-    const entry = InventionEntry.forItem("Datacore - Mechanical Engineering", 125000);
+    const entry = InventionEntry.forItem(
+      "Datacore - Mechanical Engineering",
+      125000,
+    );
 
     expect(entry.itemName).toBe("Datacore - Mechanical Engineering");
     expect(entry.itemCost).toBe(125000);
@@ -121,7 +126,11 @@ describe("invention entries on a job", () => {
     const activeJob = job([]);
 
     activeJob.addInventionCost(InventionEntry.forItem("Datacore", 125000));
-    activeJob.addInventionCost({ id: 7, itemName: "Decryptor", itemCost: 400000 });
+    activeJob.addInventionCost({
+      id: 7,
+      itemName: "Decryptor",
+      itemCost: 400000,
+    });
 
     expect(activeJob.build.costs.inventionEntries).toHaveLength(2);
     expect(activeJob.totalInventionCost).toBe(525000);
@@ -165,7 +174,12 @@ describe("extra costs on a job", () => {
 
   it("holds stored rows as extras and totals what they cost", () => {
     const activeJob = job([
-      { id: "extra-1", category: "3", extraText: "Courier", extraValue: 1500000 },
+      {
+        id: "extra-1",
+        category: "3",
+        extraText: "Courier",
+        extraValue: 1500000,
+      },
       { id: "extra-2", category: 0, extraText: "", extraValue: 250000 },
     ]);
 
@@ -184,15 +198,32 @@ describe("extra costs on a job", () => {
 
     const document = activeJob.toDocument();
     expect(document.build.costs.extrasCosts).toEqual([
-      { id: "extra-1", category: "3", categoryLabel: "", extraText: "Courier", extraValue: 10 },
-      { id: "extra-2", category: "0", categoryLabel: "", extraText: "", extraValue: 5 },
+      {
+        id: "extra-1",
+        category: "3",
+        categoryLabel: "",
+        extraText: "Courier",
+        extraValue: 10,
+      },
+      {
+        id: "extra-2",
+        category: "0",
+        categoryLabel: "",
+        extraText: "",
+        extraValue: 5,
+      },
     ]);
     expect(new Job(document).totalExtrasCost).toBe(15);
   });
 
   it("removes a row by its id", () => {
     const activeJob = job([
-      { id: "extra-1", category: "3", extraText: "Courier", extraValue: 1500000 },
+      {
+        id: "extra-1",
+        category: "3",
+        extraText: "Courier",
+        extraValue: 1500000,
+      },
       { id: "extra-2", category: "0", extraText: "", extraValue: 250000 },
     ]);
 

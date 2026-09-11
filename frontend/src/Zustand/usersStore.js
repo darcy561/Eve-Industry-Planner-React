@@ -40,8 +40,8 @@ const createUsersStore = () =>
         name: "usersStore",
         // import.meta.env.ENVIRONMENT is defined in vite.config (same merged .ENVIRONMENT as root .env)
         enabled: import.meta.env.ENVIRONMENT === "development",
-      }
-    )
+      },
+    ),
   );
 
 /**

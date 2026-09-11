@@ -26,7 +26,13 @@ const STATISTICS_STALE_TIME_MS =
  *
  * @param {{from?: string, to?: string, range?: "all", typeID?: string|number}} [options]
  */
-function rangeKeyPart({ from, to, range, typeID, includeProductionChain } = {}) {
+function rangeKeyPart({
+  from,
+  to,
+  range,
+  typeID,
+  includeProductionChain,
+} = {}) {
   return {
     // An all-time read is its own window, not a default one, so it caches apart
     // from both.

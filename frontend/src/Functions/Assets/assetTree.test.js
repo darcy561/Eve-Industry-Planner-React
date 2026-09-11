@@ -15,7 +15,8 @@ import {
 const characters = buildAssetNodes(characterAssetRows);
 const corporation = buildAssetNodes(corporationAssetRows);
 
-const itemIds = (nodes) => nodes.map((node) => node.itemId).sort((a, b) => a - b);
+const itemIds = (nodes) =>
+  nodes.map((node) => node.itemId).sort((a, b) => a - b);
 
 describe("the top rows at a location", () => {
   it("takes what sits directly there and not what is inside a container", () => {
@@ -88,13 +89,13 @@ describe("a location's rows split by compartment", () => {
 });
 
 describe("ordering rows for display", () => {
-  const fullItemList = { 34: { name: "Tritanium" }, 3465: { name: "Container" } };
+  const fullItemList = {
+    34: { name: "Tritanium" },
+    3465: { name: "Container" },
+  };
 
   it("orders by the name of what the row is", () => {
-    const rows = [
-      characters.byItemId.get(1001),
-      characters.byItemId.get(1002),
-    ];
+    const rows = [characters.byItemId.get(1001), characters.byItemId.get(1002)];
 
     expect(sortNodesByName(rows, fullItemList).map((n) => n.itemId)).toEqual([
       1002, 1001,

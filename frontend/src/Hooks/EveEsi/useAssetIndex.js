@@ -45,7 +45,7 @@ const readOwners = (key) =>
 
 const deriveNodes = createCollectionCache(
   (sources, key) => buildAssetCollection(sources, readOwners(key)),
-  EMPTY_COLLECTION
+  EMPTY_COLLECTION,
 );
 
 /**
@@ -74,8 +74,8 @@ function queriesForScope(scope, id, characters, corporations) {
       held(
         characterAssetsQuery(CharacterHash),
         OWNER_KIND.CHARACTER,
-        CharacterHash
-      )
+        CharacterHash,
+      ),
     );
 
   const corporationQueries = (corporation) =>
@@ -83,8 +83,8 @@ function queriesForScope(scope, id, characters, corporations) {
       held(
         corporationAssetsQuery(memberHash),
         OWNER_KIND.CORPORATION,
-        corporation.corporation_id
-      )
+        corporation.corporation_id,
+      ),
     );
 
   switch (scope) {
@@ -98,14 +98,11 @@ function queriesForScope(scope, id, characters, corporations) {
 
     case ASSET_SCOPE.CORPORATION:
       return corporationQueries(
-        corporations.find((c) => Number(c.corporation_id) === Number(id))
+        corporations.find((c) => Number(c.corporation_id) === Number(id)),
       );
 
     case ASSET_SCOPE.ALL:
-      return [
-        ...everyCharacter(),
-        ...corporations.flatMap(corporationQueries),
-      ];
+      return [...everyCharacter(), ...corporations.flatMap(corporationQueries)];
 
     default:
       return [];
@@ -126,7 +123,12 @@ function queriesForScope(scope, id, characters, corporations) {
 export function getCachedAssetIndex(queryClient, { scope, id } = {}) {
   const { characters, corporations } = useUsersStore.getState().account;
 
-  const queries = queriesForScope(scope, id, characters ?? [], corporations ?? []);
+  const queries = queriesForScope(
+    scope,
+    id,
+    characters ?? [],
+    corporations ?? [],
+  );
 
   const sources = [];
   const owners = [];
@@ -162,7 +164,7 @@ export default function useAssetIndex({ scope, id, enabled = true } = {}) {
 
   const queries = useMemo(
     () => queriesForScope(scope, id, characters ?? [], corporations ?? []),
-    [scope, id, characters, corporations]
+    [scope, id, characters, corporations],
   );
   const owners = useMemo(() => queries.map((query) => query.owner), [queries]);
 
@@ -192,10 +194,16 @@ export default function useAssetIndex({ scope, id, enabled = true } = {}) {
         error,
       };
     },
-    [owners]
+    [owners],
   );
 
-  const { sources, owners: key, isLoading, isError, error } = useQueries({
+  const {
+    sources,
+    owners: key,
+    isLoading,
+    isError,
+    error,
+  } = useQueries({
     // `owner` is ours, not React Query's, so it does not travel into the query configuration.
     queries: queries.map(({ owner, ...query }) => ({
       ...query,

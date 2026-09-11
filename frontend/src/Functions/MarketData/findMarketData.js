@@ -27,7 +27,7 @@ async function getMarketData(inputIDs) {
  *
  * @param {Set<string|number>} inputSet - Set of item IDs to check
  * @returns {Array<string|number>} Array of item IDs that need to be requested
- * 
+ *
  * @private
  */
 function findRequiredPrices(inputSet) {

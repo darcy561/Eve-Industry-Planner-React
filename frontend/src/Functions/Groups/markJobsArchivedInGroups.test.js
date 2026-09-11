@@ -11,7 +11,8 @@ vi.mock("../../Zustand/usersStore.js", () => ({
   default: { getState: () => getState() },
 }));
 
-const { markJobsArchivedInGroups } = await import("./markJobsArchivedInGroups.js");
+const { markJobsArchivedInGroups } =
+  await import("./markJobsArchivedInGroups.js");
 const { default: Group } = await import("../../Classes/group.js");
 
 function job(jobID, groupID, itemID = 587, parents = []) {
@@ -47,7 +48,10 @@ beforeEach(() => {
 
 describe("markJobsArchivedInGroups", () => {
   it("marks the job archived while leaving it a member", async () => {
-    const jobs = [job("job-a", "group-1"), job("job-b", "group-1", 34, ["job-a"])];
+    const jobs = [
+      job("job-a", "group-1"),
+      job("job-b", "group-1", 34, ["job-a"]),
+    ];
     const group = new Group({ groupID: "group-1" });
     group.createGroup(jobs);
     getState.mockReturnValue(storeWith([group], jobs));
@@ -82,7 +86,10 @@ describe("markJobsArchivedInGroups", () => {
   // Logged out there is no server to write to, but the local group still needs
   // to know its member is archived.
   it("updates the store without a server write when logged out", async () => {
-    const jobs = [job("job-a", "group-1"), job("job-b", "group-1", 34, ["job-a"])];
+    const jobs = [
+      job("job-a", "group-1"),
+      job("job-b", "group-1", 34, ["job-a"]),
+    ];
     const group = new Group({ groupID: "group-1" });
     group.createGroup(jobs);
     getState.mockReturnValue(storeWith([group], jobs, false));

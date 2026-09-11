@@ -73,7 +73,7 @@ export default function GroupPlannerAccordion({
       >
         {jobStatuses.map((status) => {
           const plannerJobs = jobArray.filter(
-            (job) => Number(job.jobStatus) === Number(status.id)
+            (job) => Number(job.jobStatus) === Number(status.id),
           );
           if (status.id === 4) return null;
           const statusForRow = {

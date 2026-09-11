@@ -112,7 +112,7 @@ export function planPrefetch(characterHashes, phase) {
  */
 function firstMemberOf(corporations, corporationId) {
   const corporation = corporations?.find(
-    (c) => Number(c.corporation_id) === Number(corporationId)
+    (c) => Number(c.corporation_id) === Number(corporationId),
   );
   return corporation?.members?.[0];
 }
@@ -126,7 +126,10 @@ function firstMemberOf(corporations, corporationId) {
 function isBucketExhausted({ group, budgetHash }) {
   const status = getESIRateLimitStatus(group, budgetHash);
   return Boolean(
-    status && status.maxTokens && status.windowSize && status.availableTokens <= 0
+    status &&
+    status.maxTokens &&
+    status.windowSize &&
+    status.availableTokens <= 0,
   );
 }
 
@@ -148,7 +151,7 @@ async function fetchItem(queryClient, item) {
     const duration = trackQuery();
     if (ENABLE_QUERY_WATERFALL_LOGGING) {
       console.log(
-        `[${item.budgetHash.slice(0, 8)}] ${item.name} (${duration.toFixed(0)}ms)`
+        `[${item.budgetHash.slice(0, 8)}] ${item.name} (${duration.toFixed(0)}ms)`,
       );
     }
   }
@@ -310,7 +313,11 @@ function ensureDraining(queryClient) {
  * @param {string[]} characterHashes
  * @param {boolean} [shouldLog] - print the query waterfall when it finishes
  */
-export async function prefetchCollections(queryClient, characterHashes, shouldLog = false) {
+export async function prefetchCollections(
+  queryClient,
+  characterHashes,
+  shouldLog = false,
+) {
   const hashes = characterHashes?.filter(Boolean) ?? [];
   if (hashes.length === 0) return;
 
@@ -318,7 +325,7 @@ export async function prefetchCollections(queryClient, characterHashes, shouldLo
 
   for (const phase of PREFETCHED_PHASES) {
     const items = planPrefetch(hashes, phase).filter(
-      (item) => item.query.enabled !== false
+      (item) => item.query.enabled !== false,
     );
     if (items.length > 0) {
       enqueue(phase, items);
@@ -330,7 +337,7 @@ export async function prefetchCollections(queryClient, characterHashes, shouldLo
   if (shouldLog) {
     const duration = performance.now() - start;
     console.log(
-      `Prefetch complete for ${hashes.length} character(s) in ${duration.toFixed(2)}ms`
+      `Prefetch complete for ${hashes.length} character(s) in ${duration.toFixed(2)}ms`,
     );
     logWaterfall();
   }

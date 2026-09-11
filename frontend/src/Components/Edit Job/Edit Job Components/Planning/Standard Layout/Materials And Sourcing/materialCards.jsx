@@ -4,7 +4,10 @@ import {
   Figure,
   SignedPercent,
 } from "../../../../../../Styled Components/Typography/figures";
-import { MATERIAL_PLAN, hasSavingAvailable } from "../../../../../../Functions/MarketData/materialSourcingRow";
+import {
+  MATERIAL_PLAN,
+  hasSavingAvailable,
+} from "../../../../../../Functions/MarketData/materialSourcingRow";
 import { eveImageSize } from "../../../../../../Functions/Shared/eveOwner";
 import { formatCompactNumber } from "../../../../../../Functions/Helper/numberParser";
 import {
@@ -105,7 +108,9 @@ function MaterialCard({
           gap: 1,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}
+        >
           <MaterialMark mark={row.mark} />
           <Box
             component="img"
@@ -194,7 +199,9 @@ function CardFigure({ label, value, full, tone }) {
       <Tooltip title={full ?? ""} enterTouchDelay={0}>
         <span>
           <Figure tone={tone}>
-            {value === null || value === undefined ? null : formatCompactNumber(value)}
+            {value === null || value === undefined
+              ? null
+              : formatCompactNumber(value)}
           </Figure>
         </span>
       </Tooltip>

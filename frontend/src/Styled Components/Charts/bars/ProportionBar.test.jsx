@@ -12,19 +12,27 @@ describe("ProportionBar", () => {
   it("sizes each part by its share of the total", () => {
     render(<ProportionBar parts={parts} />);
 
-    expect(screen.getByTestId("proportion-materials")).toHaveStyle({ width: "75%" });
-    expect(screen.getByTestId("proportion-install")).toHaveStyle({ width: "25%" });
+    expect(screen.getByTestId("proportion-materials")).toHaveStyle({
+      width: "75%",
+    });
+    expect(screen.getByTestId("proportion-install")).toHaveStyle({
+      width: "25%",
+    });
   });
 
   it("leaves out a part that is nothing", () => {
-    render(<ProportionBar parts={[...parts, { id: "extras", label: "Extras", value: 0 }]} />);
+    render(
+      <ProportionBar
+        parts={[...parts, { id: "extras", label: "Extras", value: 0 }]}
+      />,
+    );
 
     expect(screen.queryByTestId("proportion-extras")).toBeNull();
   });
 
   it("draws nothing at all when the total is nothing", () => {
     const { container } = render(
-      <ProportionBar parts={[{ id: "a", label: "A", value: 0 }]} />
+      <ProportionBar parts={[{ id: "a", label: "A", value: 0 }]} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -34,7 +42,7 @@ describe("ProportionBar", () => {
     render(
       <ProportionBar
         parts={[{ id: "a", label: "A", value: 1, colour: "rgb(4, 5, 6)" }]}
-      />
+      />,
     );
 
     expect(screen.getByTestId("proportion-a")).toHaveStyle({

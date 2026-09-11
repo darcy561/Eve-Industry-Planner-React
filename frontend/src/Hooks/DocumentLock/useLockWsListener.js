@@ -38,9 +38,7 @@ export function useLockWsListener({
         ) {
           return;
         }
-        const hit = payload.releases.some(
-          (r) => r && r.docID === docID
-        );
+        const hit = payload.releases.some((r) => r && r.docID === docID);
         if (!hit) return;
         cancelReadOnlyGrace();
         patch({
@@ -61,10 +59,9 @@ export function useLockWsListener({
         const scope = selectScopedDocumentLock(
           useUsersStore.getState(),
           collection,
-          docID
+          docID,
         );
-        const isHolder =
-          scope.lockHeld === true || heldRef.current === true;
+        const isHolder = scope.lockHeld === true || heldRef.current === true;
         if (!isHolder) return;
         patch({ pendingAccessRequest: true });
         showDocumentLockAccessRequestSnackbar(pendingAccessRequestMessage, {
@@ -104,7 +101,7 @@ export function useLockWsListener({
         const scope = selectScopedDocumentLock(
           useUsersStore.getState(),
           collection,
-          docID
+          docID,
         );
         patch({
           lockHeld: false,
@@ -132,7 +129,7 @@ export function useLockWsListener({
         const cur = selectScopedDocumentLock(
           useUsersStore.getState(),
           collection,
-          docID
+          docID,
         );
         const prev = typeof cur.viewerCount === "number" ? cur.viewerCount : 0;
         const next =

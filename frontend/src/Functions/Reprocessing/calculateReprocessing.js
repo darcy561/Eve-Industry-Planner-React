@@ -12,10 +12,7 @@ import useUsersStore from "../../Zustand/usersStore";
  * @param {Object} params.pageActions - Page action functions
  * @returns {Promise<Object>} - Result object with success status and data
  */
-export async function calculateReprocessing({
-  pageState,
-  pageActions,
-}) {
+export async function calculateReprocessing({ pageState, pageActions }) {
   pageActions.setPageLoading(true);
 
   try {
@@ -26,7 +23,7 @@ export async function calculateReprocessing({
         await reprocessIntoMinerals(
           pageState.inputText,
           pageState.activeSkills,
-          pageState.currentStructure
+          pageState.currentStructure,
         );
 
       pageActions.setReprocessingObjects(reprocessingObjects);
@@ -35,7 +32,7 @@ export async function calculateReprocessing({
 
       trackAppEvent(
         AppEvent.REPROCESSING_CALCULATION_TO_MINERALS,
-        Math.max(1, reprocessingObjects?.length ?? 0)
+        Math.max(1, reprocessingObjects?.length ?? 0),
       );
 
       result = {
@@ -44,15 +41,16 @@ export async function calculateReprocessing({
         newMarketPrices,
       };
     } else {
-      const { newMarketPrices, oreSelection, requestedMinerals } = await reprocessFromMinerals(
-        pageState.inputText,
-        pageState.activeSkills,
-        pageState.currentStructure,
-        pageState.marketLocation,
-        pageState.marketListing,
-        pageState.oreIDsToBeIgnored,
-        pageState.reprocessingCalculationSettings
-      );
+      const { newMarketPrices, oreSelection, requestedMinerals } =
+        await reprocessFromMinerals(
+          pageState.inputText,
+          pageState.activeSkills,
+          pageState.currentStructure,
+          pageState.marketLocation,
+          pageState.marketListing,
+          pageState.oreIDsToBeIgnored,
+          pageState.reprocessingCalculationSettings,
+        );
 
       pageActions.setReprocessingObjects(oreSelection);
       pageActions.setRequestedMinerals(requestedMinerals);
@@ -60,7 +58,7 @@ export async function calculateReprocessing({
 
       trackAppEvent(
         AppEvent.REPROCESSING_CALCULATION_FROM_MINERALS,
-        Math.max(1, oreSelection?.length ?? 0)
+        Math.max(1, oreSelection?.length ?? 0),
       );
 
       result = {
@@ -85,7 +83,8 @@ export async function calculateReprocessing({
         marketLocation: pageState?.marketLocation,
         marketListing: pageState?.marketListing,
         oreIDsToBeIgnored: pageState?.oreIDsToBeIgnored,
-        reprocessingCalculationSettings: pageState?.reprocessingCalculationSettings,
+        reprocessingCalculationSettings:
+          pageState?.reprocessingCalculationSettings,
         activeSkills: pageState?.activeSkills,
         currentStructure: pageState?.currentStructure,
       },

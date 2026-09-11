@@ -12,12 +12,9 @@ vi.mock("../Functions/Endpoints/Private/planners.js", () => ({
   },
 }));
 
-const { default: useUsersStore } = await import(
-  "../Zustand/usersStore.js"
-);
-const { extrasCategoriesDefault } = await import(
-  "../Context/defaultValues.jsx"
-);
+const { default: useUsersStore } = await import("../Zustand/usersStore.js");
+const { extrasCategoriesDefault } =
+  await import("../Context/defaultValues.jsx");
 
 const OWNER = "corporation:98000001";
 
@@ -46,19 +43,19 @@ describe("planner settings slice", () => {
     actions().setPlannerSettings(
       OWNER,
       { extrasCategories: [{ id: "a", label: "Freight" }] },
-      true
+      true,
     );
     actions().setPlannerSettings(
       "account:acct-1",
       { extrasCategories: [{ id: "b", label: "Fees" }] },
-      true
+      true,
     );
 
     expect(actions().getPlannerSettings(OWNER).extrasCategories).toEqual([
       { id: "a", label: "Freight" },
     ]);
     expect(
-      actions().getPlannerSettings("account:acct-1").extrasCategories
+      actions().getPlannerSettings("account:acct-1").extrasCategories,
     ).toEqual([{ id: "b", label: "Fees" }]);
   });
 
@@ -72,7 +69,9 @@ describe("planner settings slice", () => {
     await actions().loadPlannerSettings(OWNER);
 
     expect(fetched).toEqual([OWNER]);
-    expect(actions().getPlannerSettings(OWNER).defaultCitadelBrokersFee).toBe(3);
+    expect(actions().getPlannerSettings(OWNER).defaultCitadelBrokersFee).toBe(
+      3,
+    );
     expect(actions().isPlannerSeeded(OWNER)).toBe(true);
   });
 
@@ -104,7 +103,7 @@ describe("planner settings slice", () => {
           { id: "b", label: "Gone", deleted: true },
         ],
       },
-      true
+      true,
     );
 
     expect(actions().getPlannerExtrasCategories(OWNER)).toEqual([
@@ -133,7 +132,7 @@ describe("planner settings slice", () => {
     await actions().loadPlannerSettings(OWNER);
 
     expect(useUsersStore.getState().applicationSettings.extrasCategories).toBe(
-      before
+      before,
     );
   });
 
@@ -180,7 +179,9 @@ describe("planner settings slice", () => {
     actions().resetPlannerSettingsStore();
 
     expect(actions().isPlannerSeeded(OWNER)).toBe(false);
-    expect(actions().getPlannerSettings(OWNER).defaultCitadelBrokersFee).toBe(1);
+    expect(actions().getPlannerSettings(OWNER).defaultCitadelBrokersFee).toBe(
+      1,
+    );
   });
 
   it("reads nothing for a signed-out user rather than firing a private request", async () => {
@@ -197,6 +198,8 @@ describe("planner settings slice", () => {
 
     expect(settings.extrasCategories).toEqual(extrasCategoriesDefault);
     expect(settings.defaultCitadelBrokersFee).toBe(1);
-    expect(actions().getPlannerExtrasCategories(null).length).toBeGreaterThan(0);
+    expect(actions().getPlannerExtrasCategories(null).length).toBeGreaterThan(
+      0,
+    );
   });
 });

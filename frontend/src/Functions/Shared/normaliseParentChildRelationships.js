@@ -10,7 +10,9 @@
  */
 export default function normaliseParentChildRelationships(jobs = []) {
   const modifiedJobIDs = new Set();
-  const jobMap = new Map(jobs.map((job) => [job?.jobID, job]).filter(([id]) => !!id));
+  const jobMap = new Map(
+    jobs.map((job) => [job?.jobID, job]).filter(([id]) => !!id),
+  );
 
   for (const job of jobs) {
     if (!job?.jobID) continue;
@@ -22,7 +24,7 @@ export default function normaliseParentChildRelationships(jobs = []) {
 
       const parentMaterials = parentJob.build?.materials ?? [];
       const canBuildChildType = parentMaterials.some(
-        (material) => material.typeID === job.itemID
+        (material) => material.typeID === job.itemID,
       );
 
       if (!canBuildChildType) {

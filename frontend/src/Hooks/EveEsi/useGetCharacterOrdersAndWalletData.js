@@ -49,7 +49,7 @@ export function useGetCharacterOrdersAndWalletData(characterHashes) {
     : [characterHashes].filter(Boolean);
 
   const requested = (characters ?? []).filter((character) =>
-    hashes.includes(character.CharacterHash)
+    hashes.includes(character.CharacterHash),
   );
 
   const corporationIds = [
@@ -68,17 +68,17 @@ export function useGetCharacterOrdersAndWalletData(characterHashes) {
   return useQueries({
     queries: [
       ...requested.flatMap(({ CharacterHash }) =>
-        CHARACTER_QUERIES.map((query) => query(CharacterHash))
+        CHARACTER_QUERIES.map((query) => query(CharacterHash)),
       ),
       ...corporationIds.flatMap((corporationId) =>
-        CORPORATION_QUERIES.map((query) => query(corporationId))
+        CORPORATION_QUERIES.map((query) => query(corporationId)),
       ),
       ...corporationIds.flatMap((corporationId) =>
         CORPORATION_DIVISION_QUERIES.flatMap((query) =>
           CORPORATION_WALLET_DIVISIONS.map((division) =>
-            query(corporationId, division)
-          )
-        )
+            query(corporationId, division),
+          ),
+        ),
       ),
     ],
     combine,

@@ -12,7 +12,9 @@ const corporationJournalQueryKey = "corporationJournal";
 const corporationJournalQueryGroup = "corporation";
 
 /** Wallet divisions a corporation holds. */
-export const CORPORATION_WALLET_DIVISIONS = Object.freeze([1, 2, 3, 4, 5, 6, 7]);
+export const CORPORATION_WALLET_DIVISIONS = Object.freeze([
+  1, 2, 3, 4, 5, 6, 7,
+]);
 
 /**
  * React Query configuration for one wallet division's journal.
@@ -36,7 +38,7 @@ function corporationJournalQuery(corporationId, division) {
     queryFn: async () => {
       const status = getESIRateLimitStatus(
         corporationJournalQueryGroup,
-        budgetHash
+        budgetHash,
       );
 
       if (
@@ -50,7 +52,7 @@ function corporationJournalQuery(corporationId, division) {
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
         throw new Error(
-          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`
+          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
         );
       }
 
@@ -74,7 +76,7 @@ function corporationJournalQuery(corporationId, division) {
             return result;
           });
           return { rows, forbidden };
-        }
+        },
       );
 
       return { data, corporation_id: Number(corporationId), division };
@@ -87,7 +89,7 @@ function corporationJournalQuery(corporationId, division) {
       if (error?.message?.includes("rate limited")) {
         const status = getESIRateLimitStatus(
           corporationJournalQueryGroup,
-          budgetHash
+          budgetHash,
         );
         if (status && status.maxTokens && status.windowSize) {
           const tokensPerMs = status.maxTokens / status.windowSize;

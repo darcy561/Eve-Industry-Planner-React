@@ -113,7 +113,12 @@ describe("Transaction", () => {
 describe("MarketOrder", () => {
   it("takes ESI's price as the item price and opens the timestamp history", () => {
     const order = MarketOrder.fromESI(
-      { order_id: 1, price: 250, issued: "2026-01-01T00:00:00Z", volume_total: 10 },
+      {
+        order_id: 1,
+        price: 250,
+        issued: "2026-01-01T00:00:00Z",
+        volume_total: 10,
+      },
       { CharacterHash: "hash-1", CharacterID: 95465499 },
     );
 
@@ -161,8 +166,12 @@ describe("MarketOrder", () => {
   });
 
   it("reads completion from what is left rather than a stored flag", () => {
-    expect(new MarketOrder({ volume_total: 10, volume_remain: 0 }).isComplete).toBe(true);
-    expect(new MarketOrder({ volume_total: 10, volume_remain: 4 }).isComplete).toBe(false);
+    expect(
+      new MarketOrder({ volume_total: 10, volume_remain: 0 }).isComplete,
+    ).toBe(true);
+    expect(
+      new MarketOrder({ volume_total: 10, volume_remain: 4 }).isComplete,
+    ).toBe(false);
   });
 
   // An order can leave the market without selling out, and it will not change
@@ -173,8 +182,11 @@ describe("MarketOrder", () => {
         .isComplete,
     ).toBe(true);
     expect(
-      new MarketOrder({ volume_total: 10, volume_remain: 4, state: "cancelled" })
-        .isComplete,
+      new MarketOrder({
+        volume_total: 10,
+        volume_remain: 4,
+        state: "cancelled",
+      }).isComplete,
     ).toBe(true);
     expect(
       new MarketOrder({ volume_total: 10, volume_remain: 4, state: "open" })
@@ -183,7 +195,11 @@ describe("MarketOrder", () => {
   });
 
   it("says how much has sold and how much is still listed", () => {
-    const order = new MarketOrder({ volume_total: 10, volume_remain: 4, item_price: 100 });
+    const order = new MarketOrder({
+      volume_total: 10,
+      volume_remain: 4,
+      item_price: 100,
+    });
 
     expect(order.quantitySold).toBe(6);
     expect(order.quantityRemaining).toBe(4);
@@ -217,7 +233,11 @@ describe("MarketOrder", () => {
   // A sold-out order is finished, so a later read of the same order cannot
   // reopen it.
   it("leaves a sold out order alone", () => {
-    const order = new MarketOrder({ volume_total: 10, volume_remain: 0, item_price: 100 });
+    const order = new MarketOrder({
+      volume_total: 10,
+      volume_remain: 0,
+      item_price: 100,
+    });
 
     expect(order.applyLatest({ price: 50, volume_remain: 5 })).toBe(false);
     expect(order.item_price).toBe(100);
@@ -308,11 +328,14 @@ describe("linking a market order", () => {
       name: "Tritanium",
     });
 
-    job.addMarketOrder({ order_id: 1, price: 5, volume_total: 10 }, {
-      order_id: 1,
-      id: 500,
-      amount: 1200,
-    });
+    job.addMarketOrder(
+      { order_id: 1, price: 5, volume_total: 10 },
+      {
+        order_id: 1,
+        id: 500,
+        amount: 1200,
+      },
+    );
 
     expect(job.esiOrderIDs.has(1)).toBe(true);
     expect(job.totalBrokersFees).toBe(1200);
@@ -329,7 +352,13 @@ describe("linking a market order", () => {
       build: {
         sale: {
           brokersFee: [
-            { order_id: 1, id: 500, date: "2026-01-01T00:00:00Z", amount: 1200, complete: true },
+            {
+              order_id: 1,
+              id: 500,
+              date: "2026-01-01T00:00:00Z",
+              amount: 1200,
+              complete: true,
+            },
           ],
         },
       },
@@ -358,7 +387,10 @@ describe("linking a market order", () => {
       build: {
         sale: {
           marketOrders: [{ order_id: 1, location_id: 60003760 }],
-          brokersFee: [{ order_id: 1, amount: 1200 }, { order_id: 2, amount: 800 }],
+          brokersFee: [
+            { order_id: 1, amount: 1200 },
+            { order_id: 2, amount: 800 },
+          ],
         },
       },
     });

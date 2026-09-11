@@ -32,22 +32,32 @@ const characterIndustryJobsQueryGroup = "industry";
  * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
 function characterIndustryJobsQuery(characterHash) {
-  const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
+  const findCharacterByHash =
+    useUsersStore.getState().account.actions.findCharacterByHash;
   return {
     queryKey: [characterIndustryJobsQueryKey, characterHash],
     queryFn: async () => {
       const userObject = findCharacterByHash(characterHash);
-      
+
       // Check if industry group is rate limited for this specific character
       // Use config.group as hint, will be updated from headers if different
-      const industryStatus = getESIRateLimitStatus('industry', characterHash);
+      const industryStatus = getESIRateLimitStatus("industry", characterHash);
 
-      if (industryStatus && industryStatus.availableTokens <= 0 && industryStatus.maxTokens && industryStatus.windowSize) {
-        const tokensPerMs = industryStatus.maxTokens / industryStatus.windowSize;
-        const tokensToRecover = industryStatus.maxTokens - industryStatus.availableTokens;
+      if (
+        industryStatus &&
+        industryStatus.availableTokens <= 0 &&
+        industryStatus.maxTokens &&
+        industryStatus.windowSize
+      ) {
+        const tokensPerMs =
+          industryStatus.maxTokens / industryStatus.windowSize;
+        const tokensToRecover =
+          industryStatus.maxTokens - industryStatus.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Industry group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Industry group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
+        );
       }
 
       try {
@@ -60,13 +70,15 @@ function characterIndustryJobsQuery(characterHash) {
           config: {
             characterHash,
             group: characterIndustryJobsQueryGroup,
-            priority: 'normal',
-            batchable: true
-          }
+            priority: "normal",
+            batchable: true,
+          },
         });
       } catch (error) {
-        console.error('Error fetching character industry jobs:', error);
-        throw new Error(`Failed to fetch character industry jobs: ${error.message}`);
+        console.error("Error fetching character industry jobs:", error);
+        throw new Error(
+          `Failed to fetch character industry jobs: ${error.message}`,
+        );
       }
     },
     enabled: isQueryExecutionEnabled(),
@@ -74,12 +86,18 @@ function characterIndustryJobsQuery(characterHash) {
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
+      if (error?.message?.includes("rate limited")) {
         // Get status for this specific character's industry bucket
-        const industryStatus = getESIRateLimitStatus('industry', characterHash);
-        if (industryStatus && industryStatus.maxTokens && industryStatus.windowSize) {
-          const tokensPerMs = industryStatus.maxTokens / industryStatus.windowSize;
-          const tokensToRecover = industryStatus.maxTokens - industryStatus.availableTokens;
+        const industryStatus = getESIRateLimitStatus("industry", characterHash);
+        if (
+          industryStatus &&
+          industryStatus.maxTokens &&
+          industryStatus.windowSize
+        ) {
+          const tokensPerMs =
+            industryStatus.maxTokens / industryStatus.windowSize;
+          const tokensToRecover =
+            industryStatus.maxTokens - industryStatus.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -91,4 +109,8 @@ function characterIndustryJobsQuery(characterHash) {
   };
 }
 
-export { characterIndustryJobsQuery, characterIndustryJobsQueryKey, characterIndustryJobsQueryGroup };
+export {
+  characterIndustryJobsQuery,
+  characterIndustryJobsQueryKey,
+  characterIndustryJobsQueryGroup,
+};

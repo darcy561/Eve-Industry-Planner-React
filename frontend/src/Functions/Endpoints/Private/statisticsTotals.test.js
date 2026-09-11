@@ -13,7 +13,8 @@ vi.mock("../../../Zustand/usersStore", () => ({
   default: { getState: () => plannerState },
 }));
 
-const { default: getAccountTotalsByTypeID } = await import("./statisticsTotals.js");
+const { default: getAccountTotalsByTypeID } =
+  await import("./statisticsTotals.js");
 
 function jsonResponse(body) {
   return { ok: true, status: 200, statusText: "OK", json: async () => body };
@@ -39,7 +40,7 @@ describe("getAccountTotalsByTypeID", () => {
   // unwrapping happens at this boundary rather than in every panel.
   it("unwraps the single row from the items list", async () => {
     requestWithPrivateHeaders.mockResolvedValue(
-      jsonResponse({ typeID: 34, items: [sampleRow] })
+      jsonResponse({ typeID: 34, items: [sampleRow] }),
     );
 
     const got = await getAccountTotalsByTypeID(34);
@@ -50,7 +51,7 @@ describe("getAccountTotalsByTypeID", () => {
 
   it("requests the totals route with the type as a query parameter", async () => {
     requestWithPrivateHeaders.mockResolvedValue(
-      jsonResponse({ typeID: 34, items: [sampleRow] })
+      jsonResponse({ typeID: 34, items: [sampleRow] }),
     );
 
     await getAccountTotalsByTypeID(34);
@@ -65,7 +66,7 @@ describe("getAccountTotalsByTypeID", () => {
   // shape stays the same rather than becoming a null every panel must guard.
   it("returns a zeroed aggregate when the account has never built the type", async () => {
     requestWithPrivateHeaders.mockResolvedValue(
-      jsonResponse({ typeID: 99, items: [] })
+      jsonResponse({ typeID: 99, items: [] }),
     );
 
     const got = await getAccountTotalsByTypeID(99);

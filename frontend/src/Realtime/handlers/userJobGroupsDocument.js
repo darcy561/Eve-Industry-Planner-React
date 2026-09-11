@@ -26,7 +26,7 @@ export async function handleUserJobGroupDelete(ctx) {
     window.dispatchEvent(
       new CustomEvent("eip-group-deleted-remotely", {
         detail: { groupID: docID },
-      })
+      }),
     );
     actions.clearPendingJobGroupWrites(docID);
     rs.setCursorMs(docKey, Date.now());
@@ -46,7 +46,7 @@ export async function handleUserJobGroupDelete(ctx) {
   window.dispatchEvent(
     new CustomEvent("eip-group-deleted-remotely", {
       detail: { groupID: docID },
-    })
+    }),
   );
 
   actions.replaceGroupArray(next);

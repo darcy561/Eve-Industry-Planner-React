@@ -44,7 +44,9 @@ export function ProportionBar({
 
   return (
     <Box>
-      <Box sx={{ display: "flex", height, borderRadius: 1, overflow: "hidden" }}>
+      <Box
+        sx={{ display: "flex", height, borderRadius: 1, overflow: "hidden" }}
+      >
         {present.map((part, index) => (
           <Tooltip
             key={part.id}

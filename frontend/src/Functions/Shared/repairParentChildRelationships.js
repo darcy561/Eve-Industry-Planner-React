@@ -3,21 +3,18 @@ import useUsersStore from "../../Zustand/usersStore";
 /**
  * Repairs missing or broken parent-child relationships in a job.
  * Validates parent and child job relationships and removes invalid ones.
- * 
+ *
  * @param {Object} inputJob - Job object to repair relationships for
  * @param {Array<Object>} tempJobs - In-flight job objects created/updated in this flow
  * @returns {Set<string>} Set of modified job IDs
- * 
+ *
  * @throws {Error} Throws error if inputJob or tempJobs is missing
- * 
+ *
  * @example
  * const modifiedJobs = repairMissingParentChildRelationships(job, []);
  * console.log(`Repaired ${modifiedJobs.size} jobs`);
  */
-function repairMissingParentChildRelationships(
-  inputJob,
-  tempJobs
-) {
+function repairMissingParentChildRelationships(inputJob, tempJobs) {
   try {
     if (!inputJob || !tempJobs) {
       throw new Error("Missing Inputs");
@@ -32,7 +29,7 @@ function repairMissingParentChildRelationships(
           parentID,
           inputJob,
           jobLookup,
-          modifiedJobIDs
+          modifiedJobIDs,
         );
 
         if (!isParentIDValid) {
@@ -54,7 +51,7 @@ function repairMissingParentChildRelationships(
           material,
           inputJob.jobID,
           jobLookup,
-          modifiedJobIDs
+          modifiedJobIDs,
         );
 
         if (!isChildValid) {
@@ -74,26 +71,21 @@ export default repairMissingParentChildRelationships;
 
 /**
  * Processes a parent job ID and validates the relationship.
- * 
+ *
  * @param {string} parentID - Parent job ID to process
  * @param {Object} inputJob - Input job object
  * @param {Map<string, Object>} jobLookup - Map of jobs keyed by jobID
  * @param {Set<string>} modifiedJobsSet - Set to track modified job IDs
  * @returns {boolean} True when parent relationship is valid
- * 
+ *
  * @private
  */
-function processParentID(
-  parentID,
-  inputJob,
-  jobLookup,
-  modifiedJobsSet
-) {
+function processParentID(parentID, inputJob, jobLookup, modifiedJobsSet) {
   const matchedJob = jobLookup.get(parentID);
   if (!matchedJob) return false;
 
   const parentMaterial = matchedJob.build.materials.find(
-    (mat) => mat.typeID === inputJob.itemID
+    (mat) => mat.typeID === inputJob.itemID,
   );
 
   if (!parentMaterial) {
@@ -120,14 +112,14 @@ function processParentID(
 
 /**
  * Processes a child job ID and validates the relationship.
- * 
+ *
  * @param {string} childID - Child job ID to process
  * @param {Object} material - Material object
  * @param {string} inputJobID - Input job ID
  * @param {Map<string, Object>} jobLookup - Map of jobs keyed by jobID
  * @param {Set<string>} modifiedJobsSet - Set to track modified job IDs
  * @returns {boolean} True when child relationship is valid
- * 
+ *
  * @private
  */
 function processChildID(
@@ -135,7 +127,7 @@ function processChildID(
   material,
   inputJobID,
   jobLookup,
-  modifiedJobsSet
+  modifiedJobsSet,
 ) {
   const matchedJob = jobLookup.get(childID);
 

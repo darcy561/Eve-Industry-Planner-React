@@ -1,7 +1,12 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
-async function getCorpBlueprints({ character, page = 1, existingData = {}, config = {} }) {
+async function getCorpBlueprints({
+  character,
+  page = 1,
+  existingData = {},
+  config = {},
+}) {
   try {
     if (!character || !character.CharacterHash || !character.corporation_id) {
       throw new Error("Character information is incomplete.");
@@ -13,13 +18,13 @@ async function getCorpBlueprints({ character, page = 1, existingData = {}, confi
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'corporation',
+      group: "corporation",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -30,7 +35,7 @@ async function getCorpBlueprints({ character, page = 1, existingData = {}, confi
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -59,7 +64,7 @@ async function getCorpBlueprints({ character, page = 1, existingData = {}, confi
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
         console.warn(
-          `Access forbidden for corporation blueprints for ${character.CharacterName}: ${corporation_id}`
+          `Access forbidden for corporation blueprints for ${character.CharacterName}: ${corporation_id}`,
         );
         // Reported rather than folded into an empty result: the caller tries another member on a
         // refusal, and cannot tell one from a corporation that genuinely owns no blueprints.
@@ -72,14 +77,14 @@ async function getCorpBlueprints({ character, page = 1, existingData = {}, confi
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

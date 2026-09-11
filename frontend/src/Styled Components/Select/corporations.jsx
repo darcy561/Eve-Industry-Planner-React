@@ -5,15 +5,15 @@ import useUsersStore from "../../Zustand/usersStore";
 /**
  * A select component for choosing corporations.
  * Displays a dropdown with all available corporations from the user store.
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.value - Currently selected corporation ID
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the corporation ID.
  * @param {string} [props.formHelperText] - Custom helper text to display below the select
  * @returns {JSX.Element} Corporation select component
- * 
+ *
  * @example
- * <CorporationSelect 
+ * <CorporationSelect
  *   value={selectedCorpId}
  *   onChange={(corpId) => setSelectedCorp(corpId)}
  *   formHelperText="Choose corporation"
@@ -24,7 +24,7 @@ export default function CorporationSelect({ value, onChange, formHelperText }) {
 
   const selectedCorporation = useMemo(() => {
     const c = corporations.find(
-      (x) => Number(x.corporation_id) === Number(value)
+      (x) => Number(x.corporation_id) === Number(value),
     );
     return c?.corporation_id ?? "";
   }, [corporations, value]);
@@ -52,15 +52,13 @@ export default function CorporationSelect({ value, onChange, formHelperText }) {
           }
         }}
       >
-        {corporations.map(
-          ({ corporation_id, corporationName }) => {
-            return (
-              <MenuItem key={corporation_id} value={corporation_id}>
-                {corporationName}
-              </MenuItem>
-            );
-          }
-        )}
+        {corporations.map(({ corporation_id, corporationName }) => {
+          return (
+            <MenuItem key={corporation_id} value={corporation_id}>
+              {corporationName}
+            </MenuItem>
+          );
+        })}
       </Select>
       <FormHelperText id="corporation-helper" variant="standard">
         {formHelperText ? formHelperText : "Corporation"}

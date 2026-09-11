@@ -67,7 +67,9 @@ export async function resolveLoginWithEveOauthCode(authCode) {
   if (!character) {
     throw new Error("Unable to Authenticate SSO Token");
   }
-  const tokenResponse = await establishPlannerSession(heldEsiAccessToken(character.CharacterHash));
+  const tokenResponse = await establishPlannerSession(
+    heldEsiAccessToken(character.CharacterHash),
+  );
   return { character, tokenResponse };
 }
 
@@ -87,10 +89,9 @@ export async function resolveLoginWithCookieCloudResume() {
     throw new Error("Session response missing main character hash");
   }
 
-  useUsersStore.getState().account.actions.applyLoginAuthResponse(
-    tokenResponse,
-    mainHash
-  );
+  useUsersStore
+    .getState()
+    .account.actions.applyLoginAuthResponse(tokenResponse, mainHash);
 
   const linkedCharacters = Array.isArray(tokenResponse.linked_characters)
     ? tokenResponse.linked_characters
@@ -101,14 +102,16 @@ export async function resolveLoginWithCookieCloudResume() {
       typeof row.characterHash === "string" &&
       row.characterHash === mainHash &&
       typeof row.access_token === "string" &&
-      row.access_token.trim().length > 0
+      row.access_token.trim().length > 0,
   );
   if (!mainLinked) {
     throw new Error("Session response missing main character ESI access token");
   }
   const esiAccess = mainLinked.access_token;
 
-  const character = buildCharacterFromAccessToken(esiAccess, { isMainCharacter: true });
+  const character = buildCharacterFromAccessToken(esiAccess, {
+    isMainCharacter: true,
+  });
 
   await persistCloudMainEsiRefreshToken(character, tokenResponse);
 
@@ -126,11 +129,11 @@ export async function resolveLoginWithCookieCloudResume() {
  * @returns {Promise<{ character: object, tokenResponse: object }>}
  */
 export async function resolveLoginWithEveClientRefreshToken(
-  eveClientRefreshToken
+  eveClientRefreshToken,
 ) {
   const character = await buildCharacterFromClientSecret(
     eveClientRefreshToken,
-    true
+    true,
   );
   if (character instanceof Error) {
     throw character;
@@ -141,13 +144,17 @@ export async function resolveLoginWithEveClientRefreshToken(
     try {
       tokenResponse = await bootstrapPlannerSession(
         tabRefresh,
-        heldEsiAccessToken(character.CharacterHash)
+        heldEsiAccessToken(character.CharacterHash),
       );
     } catch {
-      tokenResponse = await establishPlannerSession(heldEsiAccessToken(character.CharacterHash));
+      tokenResponse = await establishPlannerSession(
+        heldEsiAccessToken(character.CharacterHash),
+      );
     }
   } else {
-    tokenResponse = await establishPlannerSession(heldEsiAccessToken(character.CharacterHash));
+    tokenResponse = await establishPlannerSession(
+      heldEsiAccessToken(character.CharacterHash),
+    );
   }
   return { character, tokenResponse };
 }
@@ -163,7 +170,12 @@ export async function resolveLoginWithEveClientRefreshToken(
  * @returns {Promise<void>}
  */
 export async function applyClientSessionAfterAppTokens(input) {
-  const { queryClient, character, tokenResponse, loginAlreadyApplied = false } = input;
+  const {
+    queryClient,
+    character,
+    tokenResponse,
+    loginAlreadyApplied = false,
+  } = input;
 
   try {
     if (!loginAlreadyApplied) {
@@ -171,7 +183,7 @@ export async function applyClientSessionAfterAppTokens(input) {
         .getState()
         .account.actions.applyLoginAuthResponse(
           tokenResponse,
-          character.CharacterHash
+          character.CharacterHash,
         );
       await persistCloudMainEsiRefreshToken(character, tokenResponse);
     }
@@ -183,9 +195,11 @@ export async function applyClientSessionAfterAppTokens(input) {
     useUsersStore.getState().account.actions.updateCharacters([character]);
     // The account sync below builds only the characters not already in the store, so the main
     // character is never in its list and is warmed here.
-    prefetchCollections(queryClient, [character.CharacterHash]).catch((error) => {
-      console.error("Error during character data prefetch:", error);
-    });
+    prefetchCollections(queryClient, [character.CharacterHash]).catch(
+      (error) => {
+        console.error("Error during character data prefetch:", error);
+      },
+    );
 
     emitUserDataUpdate({
       eveLoginComplete: true,
@@ -233,7 +247,9 @@ export async function runAppLogin(p) {
       ? await resolveLoginWithEveOauthCode(mode.authCode)
       : mode.type === "cookieCloudResume"
         ? await resolveLoginWithCookieCloudResume()
-        : await resolveLoginWithEveClientRefreshToken(mode.eveClientRefreshToken);
+        : await resolveLoginWithEveClientRefreshToken(
+            mode.eveClientRefreshToken,
+          );
 
   await applyClientSessionAfterAppTokens({
     queryClient,

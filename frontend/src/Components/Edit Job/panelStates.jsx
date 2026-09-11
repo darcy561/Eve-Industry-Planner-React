@@ -11,15 +11,17 @@ export default function PanelFallBack({ isLoading, isError, error }) {
           alignItems: "center",
           minHeight: "200px",
           width: "100%",
-          height: "100%"
-        }}>
+          height: "100%",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: 2
-          }}>
+            gap: 2,
+          }}
+        >
           <CircularProgress />
           <Typography variant="caption">Gathering ESI Data...</Typography>
         </Box>
@@ -32,8 +34,9 @@ export default function PanelFallBack({ isLoading, isError, error }) {
       <Box
         sx={{
           width: "100%",
-          height: "100%"
-        }}>
+          height: "100%",
+        }}
+      >
         <Alert severity="error" icon={<ErrorOutlineIcon />} sx={{ mb: 2 }}>
           Failed to load data: {error?.message || "Unknown error"}
         </Alert>

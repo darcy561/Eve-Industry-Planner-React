@@ -5,10 +5,10 @@ const { DEFAULT_SYSTEMINDEX_REFRESH_PERIOD } = GLOBAL_CONFIG;
 /**
  * Determines if a system index object requires refresh based on its last updated timestamp.
  * Compares the last updated time against the configured refresh period.
- * 
+ *
  * @param {Object} systemIndexObject - System index object with lastUpdated property
  * @returns {boolean} True if the system index requires refresh, false otherwise
- * 
+ *
  * @example
  * const needsRefresh = doesSystemIndexRequireRefresh(systemIndex);
  * if (needsRefresh) {

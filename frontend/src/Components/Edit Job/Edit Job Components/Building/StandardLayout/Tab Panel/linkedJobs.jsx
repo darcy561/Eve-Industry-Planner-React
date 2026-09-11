@@ -13,13 +13,14 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  LARGE_TEXT_FORMAT
-} from "../../../../../../Context/defaultValues";
+import { LARGE_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
 import { showSnackbarSuccess } from "../../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import PanelFallBack from "../../../../panelStates";
-import { formatNumberForLocale, formatTimeRemaining } from "../../../../../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  formatTimeRemaining,
+} from "../../../../../../Functions/Helper/numberParser";
 import findBlueprintType from "../../../../../../Functions/Shared/findBlueprintType";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
@@ -111,7 +112,10 @@ export function LinkedJobsTab(props) {
               .getState()
               .account.actions.findCharacterByHash(job.CharacterHash);
 
-            const blueprintType = findBlueprintType(job.blueprint_id, queryClient);
+            const blueprintType = findBlueprintType(
+              job.blueprint_id,
+              queryClient,
+            );
             const facilityData = useUsersStore
               .getState()
               .worldData.actions.findUniverseData(job.station_id);
@@ -126,8 +130,9 @@ export function LinkedJobsTab(props) {
                   xs: 12,
                   sm: 6,
                   md: 4,
-                  lg: 3
-                }}>
+                  lg: 3,
+                }}
+              >
                 <Tooltip
                   title={
                     jobLockReadOnly
@@ -217,9 +222,13 @@ export function LinkedJobsTab(props) {
                         )
                       }
                       title={
-                        <Stack direction="row" spacing={1} sx={{
-                          alignItems: "center"
-                        }}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{
+                            alignItems: "center",
+                          }}
+                        >
                           <Typography variant="body1" noWrap>
                             {formatNumberForLocale(job.runs, { max: 0 })} Runs
                           </Typography>
@@ -230,7 +239,7 @@ export function LinkedJobsTab(props) {
                           variant="caption"
                           noWrap
                           sx={{
-                            color: "text.secondary"
+                            color: "text.secondary",
                           }}
                         >
                           {facilityData
@@ -246,7 +255,7 @@ export function LinkedJobsTab(props) {
                             variant="caption"
                             align="center"
                             sx={{
-                              color: "text.secondary"
+                              color: "text.secondary",
                             }}
                           >
                             {isReadyToDeliver
@@ -258,7 +267,7 @@ export function LinkedJobsTab(props) {
                           variant="caption"
                           align="center"
                           sx={{
-                            color: "text.secondary"
+                            color: "text.secondary",
                           }}
                         >
                           Install Cost: {formatNumberForLocale(job.cost)} ISK
@@ -296,7 +305,8 @@ export function LinkedJobsTab(props) {
         sx={{
           marginTop: { xs: "20px", sm: "30px" },
         }}
-        size={12}>
+        size={12}
+      >
         <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
           You currently have no industry jobs from the ESI linked to the this
           job.

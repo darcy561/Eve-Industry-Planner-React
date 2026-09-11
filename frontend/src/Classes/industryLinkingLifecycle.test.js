@@ -12,12 +12,15 @@ vi.mock("../Zustand/usersStore", () => ({
 
 const { default: Job } = await import("./job.js");
 const { default: LinkedESIJob } = await import("./linkedESIJob.js");
-const { default: findIndustryJobsForItem } = await import(
-  "../Functions/IndustryJobs/findIndustryJobsForItem.js"
-);
+const { default: findIndustryJobsForItem } =
+  await import("../Functions/IndustryJobs/findIndustryJobsForItem.js");
 
 // The shipped rule the Building panel offers runs by.
-function offeredRuns(allIndustryJobs, activeJob, linkedAcrossAccount = new Set()) {
+function offeredRuns(
+  allIndustryJobs,
+  activeJob,
+  linkedAcrossAccount = new Set(),
+) {
   return findIndustryJobsForItem(allIndustryJobs, activeJob, {
     linkedAcrossAccount,
   });
@@ -95,7 +98,11 @@ describe("linking industry runs to a job", () => {
 
     // 6. ESI reports the first run delivered; the row takes it.
     job.updateLinkedJobData([
-      { ...reported[0], status: "delivered", completed_date: "2026-08-02T01:00:00Z" },
+      {
+        ...reported[0],
+        status: "delivered",
+        completed_date: "2026-08-02T01:00:00Z",
+      },
       reported[1],
     ]);
 

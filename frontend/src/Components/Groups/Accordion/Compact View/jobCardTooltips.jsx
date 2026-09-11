@@ -1,4 +1,7 @@
-import { formatNumberForLocale, formatTimeRemaining } from "../../../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  formatTimeRemaining,
+} from "../../../../Functions/Helper/numberParser";
 
 function getTooltipContent(job) {
   switch (job.jobStatus) {
@@ -11,9 +14,7 @@ function getTooltipContent(job) {
               max: 0,
             })}
           </p>
-          <p>
-            Job Setups: {formatNumberForLocale(job.setupCount, { max: 0 })}
-          </p>
+          <p>Job Setups: {formatNumberForLocale(job.setupCount, { max: 0 })}</p>
         </span>
       );
     case 1: {
@@ -58,7 +59,9 @@ function getTooltipContent(job) {
               max: 0,
             })}
           </p>
-          <p>Build Cost Per Item: {formatNumberForLocale(job.buildCostPerItem())}</p>
+          <p>
+            Build Cost Per Item: {formatNumberForLocale(job.buildCostPerItem())}
+          </p>
         </span>
       );
     case 4:

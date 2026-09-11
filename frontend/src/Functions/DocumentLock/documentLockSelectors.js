@@ -11,7 +11,7 @@ export function selectScopedDocumentLock(state, collection, docID) {
   return mergeScopedDocumentLockState(
     state.documentLock.scopes,
     collection,
-    docID
+    docID,
   );
 }
 

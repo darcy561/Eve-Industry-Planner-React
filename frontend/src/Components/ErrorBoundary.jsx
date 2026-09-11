@@ -43,8 +43,14 @@ function ErrorFallback({ error, componentStack, componentName }) {
         </Button>
       </Box>
       {import.meta.env.ENVIRONMENT === "development" && (
-        <Box sx={{ mt: 4, textAlign: "left", maxWidth: "800px", width: "100%" }}>
-          <Typography variant="body2" gutterBottom sx={{ color: "text.secondary" }}>
+        <Box
+          sx={{ mt: 4, textAlign: "left", maxWidth: "800px", width: "100%" }}
+        >
+          <Typography
+            variant="body2"
+            gutterBottom
+            sx={{ color: "text.secondary" }}
+          >
             Error details:
           </Typography>
           <Box

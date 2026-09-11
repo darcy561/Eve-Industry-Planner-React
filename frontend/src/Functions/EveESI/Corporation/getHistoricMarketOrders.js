@@ -6,10 +6,15 @@ async function getCorpHistoricMarketOrders({
   character,
   page = 1,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
-    if (!character || !character.CharacterID || !character.CharacterHash || !character.corporation_id) {
+    if (
+      !character ||
+      !character.CharacterID ||
+      !character.CharacterHash ||
+      !character.corporation_id
+    ) {
       throw new Error("Character information is incomplete.");
     }
 
@@ -19,13 +24,13 @@ async function getCorpHistoricMarketOrders({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'corporation',
+      group: "corporation",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -36,7 +41,7 @@ async function getCorpHistoricMarketOrders({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -64,7 +69,9 @@ async function getCorpHistoricMarketOrders({
     if (response.status >= 400 && response.status < 500) {
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
-        console.warn(`Access forbidden for corporation historic market orders: ${corporation_id}`);
+        console.warn(
+          `Access forbidden for corporation historic market orders: ${corporation_id}`,
+        );
         // Reported rather than folded into empty rows: the caller tries another member on a
         // refusal, and cannot tell one from a corporation that genuinely holds nothing.
         return {
@@ -76,14 +83,14 @@ async function getCorpHistoricMarketOrders({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -104,7 +111,7 @@ async function getCorpHistoricMarketOrders({
         (item) =>
           !item.is_buy_order &&
           currentDate - Date.parse(item.issued) <=
-            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000,
       )
       .map((order) => ({ ...order, is_corporation: true, corporation_id }));
 
@@ -113,7 +120,6 @@ async function getCorpHistoricMarketOrders({
       etag,
       totalPages,
     };
-
   } catch (err) {
     console.error(`Error fetching corporation historic market orders: ${err}`);
     return {

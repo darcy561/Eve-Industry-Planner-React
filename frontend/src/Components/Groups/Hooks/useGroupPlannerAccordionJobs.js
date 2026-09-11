@@ -20,7 +20,7 @@ export function useGroupPlannerAccordionJobs(plannerJobs, statusId) {
   return useMemo(() => {
     const visible = filterJobsVisibleInActiveGroup(
       plannerJobs,
-      activeGroupObject
+      activeGroupObject,
     );
     return sortJobsForPlannerStage(visible, Number(statusId));
   }, [plannerJobs, activeGroupObject, statusId]);

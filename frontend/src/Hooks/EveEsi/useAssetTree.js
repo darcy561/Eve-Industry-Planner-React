@@ -42,8 +42,14 @@ export default function useAssetTree({
   hideAssembledShips = false,
   enabled = true,
 }) {
-  const { collection, fullItemList, containerNames, isLoading, isError, error } =
-    useAssetSource({ assets, namesCharacter, namesScope, enabled });
+  const {
+    collection,
+    fullItemList,
+    containerNames,
+    isLoading,
+    isError,
+    error,
+  } = useAssetSource({ assets, namesCharacter, namesScope, enabled });
 
   const {
     data: blueprintCollection,
@@ -82,17 +88,20 @@ export default function useAssetTree({
         includeLocations,
         excludeItemIds: hidden,
       }),
-    [collection, rootFlags, excludeRootFlags, includeLocations, hidden]
+    [collection, rootFlags, excludeRootFlags, includeLocations, hidden],
   );
 
-  const locationIds = useMemo(() => [...rowsByLocation.keys()], [rowsByLocation]);
+  const locationIds = useMemo(
+    () => [...rowsByLocation.keys()],
+    [rowsByLocation],
+  );
   const { names: locationNames, isLoading: namesLoading } =
     useLocationNames(locationIds);
 
   const locations = useMemo(
     () =>
       enabled ? orderLocations(rowsByLocation, locationNames) : EMPTY_LOCATIONS,
-    [enabled, rowsByLocation, locationNames]
+    [enabled, rowsByLocation, locationNames],
   );
 
   return {

@@ -22,7 +22,7 @@ export async function passBuildCostsToParentJobs(jobsToPass) {
     distributeItemCostsBetweenJobs(
       collectedMaterials,
       parentJobs,
-      parentJobMap
+      parentJobMap,
     );
 
   useUsersStore
@@ -34,7 +34,7 @@ export async function passBuildCostsToParentJobs(jobsToPass) {
   return {
     messageText: buildNotificationText(
       successfulJobImportCount,
-      priceItemsImportedCount
+      priceItemsImportedCount,
     ),
   };
 }
@@ -121,17 +121,22 @@ function findNeededParentJobs(parentMap) {
  * @returns {number} returns.priceItemsImportedCount - Number of price items imported
  * @returns {Set<string>} returns.modifiedJobIDs - Set of job IDs that were modified
  */
-export function distributeItemCostsBetweenJobs(collectedMaterials, jobSelection, materialIDMap) {
-
+export function distributeItemCostsBetweenJobs(
+  collectedMaterials,
+  jobSelection,
+  materialIDMap,
+) {
   let priceItemsImportedCount = 0;
-  const modifiedJobIDs = new Set(); 
+  const modifiedJobIDs = new Set();
   for (const job of jobSelection) {
     for (const materialID of Object.keys(collectedMaterials)) {
       if (!materialIDMap[materialID]?.has(job.jobID)) continue;
 
       // Convert materialID to number for comparison (Object.keys returns strings)
       const materialIDNum = Number(materialID);
-      const material = job.build.materials.find((i) => i.typeID == materialIDNum);
+      const material = job.build.materials.find(
+        (i) => i.typeID == materialIDNum,
+      );
       if (!material) continue;
       const materialToImport = collectedMaterials[materialID];
       if (!materialToImport) continue;
@@ -143,11 +148,14 @@ export function distributeItemCostsBetweenJobs(collectedMaterials, jobSelection,
 
         if (isMaterialPurchased(material, costEntry.id, job)) continue;
 
-        const { taken, leftOver } = job.importPurchaseToMaterial(materialIDNum, {
-          itemCount: costEntry.quantity,
-          itemCost: costEntry.cost,
-          childID: costEntry?.id || null,
-        });
+        const { taken, leftOver } = job.importPurchaseToMaterial(
+          materialIDNum,
+          {
+            itemCount: costEntry.quantity,
+            itemCost: costEntry.cost,
+            childID: costEntry?.id || null,
+          },
+        );
 
         if (taken > 0) {
           modifiedJobIDs.add(job.jobID);
@@ -159,7 +167,11 @@ export function distributeItemCostsBetweenJobs(collectedMaterials, jobSelection,
     }
   }
 
-  return { successfulJobImportCount : modifiedJobIDs.size, priceItemsImportedCount, modifiedJobIDs };
+  return {
+    successfulJobImportCount: modifiedJobIDs.size,
+    priceItemsImportedCount,
+    modifiedJobIDs,
+  };
 }
 
 /**
@@ -174,7 +186,7 @@ export function distributeItemCostsBetweenJobs(collectedMaterials, jobSelection,
 
 export function buildNotificationText(
   successfulJobImportCount,
-  priceItemsImportedCount
+  priceItemsImportedCount,
 ) {
   if (priceItemsImportedCount === 0) {
     return null;

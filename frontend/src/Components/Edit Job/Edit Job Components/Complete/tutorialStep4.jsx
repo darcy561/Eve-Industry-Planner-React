@@ -2,7 +2,10 @@ import { Typography, Grid } from "@mui/material";
 
 export function TutorialStep4({ state }) {
   return (
-    <Grid container sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <Grid
+      container
+      sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+    >
       <Grid size={12} sx={{ flexShrink: 0 }}>
         <Typography
           color="primary"
@@ -12,11 +15,11 @@ export function TutorialStep4({ state }) {
         </Typography>
       </Grid>
       <Grid sx={{ flex: 1, overflow: "auto", minHeight: 0 }} size={12}>
-        <Typography 
-          sx={{ 
+        <Typography
+          sx={{
             typography: { xs: "caption", sm: "body2" },
             wordWrap: "break-word",
-            overflowWrap: "break-word"
+            overflowWrap: "break-word",
           }}
         >
           You have now finished building your {state.activeJob.name}. This stage

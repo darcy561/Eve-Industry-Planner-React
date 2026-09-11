@@ -8,9 +8,8 @@ import {
 
 export function MarkAsCompleteButton({ state, actions }) {
   const { groupArray } = useUsersStore((state) => state.jobData);
-  const { updateModifiedGroups, queueJobGroupWritesAndSchedule } = useUsersStore(
-    (state) => state.jobData.actions
-  );
+  const { updateModifiedGroups, queueJobGroupWritesAndSchedule } =
+    useUsersStore((state) => state.jobData.actions);
   const { activeGroupID } = useUsersStore((state) => state.jobData);
   const jobLockReadOnly = useActiveJobReadOnly(state);
 

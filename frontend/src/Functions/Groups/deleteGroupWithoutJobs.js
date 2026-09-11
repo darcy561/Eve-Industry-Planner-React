@@ -16,8 +16,11 @@ import useUsersStore from "../../Zustand/usersStore.js";
  */
 export async function deleteGroupWithoutJobs(inputGroupID) {
   const isLoggedIn = useUsersStore.getState().account.isLoggedIn;
-  const { getGroupObject, removeGroupFromGroupArray, clearActiveGroupIfMatches } =
-    useUsersStore.getState().jobData.actions;
+  const {
+    getGroupObject,
+    removeGroupFromGroupArray,
+    clearActiveGroupIfMatches,
+  } = useUsersStore.getState().jobData.actions;
 
   const chosenGroup = getGroupObject(inputGroupID);
   if (!chosenGroup) return;
@@ -25,7 +28,7 @@ export async function deleteGroupWithoutJobs(inputGroupID) {
   if (isLoggedIn) {
     const lockRes = await getDocumentLockState(
       USER_JOB_GROUPS_COLLECTION,
-      inputGroupID
+      inputGroupID,
     );
     if (lockRes.ok) {
       const lockBody = await lockRes.json().catch(() => ({}));
@@ -38,14 +41,14 @@ export async function deleteGroupWithoutJobs(inputGroupID) {
         ) {
           showSnackbarError(
             "Cannot delete this group: another session holds the edit lock.",
-            5
+            5,
           );
           return;
         }
         if (lockBody.holderSessionID && !mySessionID) {
           showSnackbarError(
             "Cannot delete this group: session identity is unavailable.",
-            5
+            5,
           );
           return;
         }
@@ -59,7 +62,7 @@ export async function deleteGroupWithoutJobs(inputGroupID) {
       if (status === 409) {
         showSnackbarError(
           "Cannot delete this group: another session holds the edit lock.",
-          5
+          5,
         );
         return;
       }

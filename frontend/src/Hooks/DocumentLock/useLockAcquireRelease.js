@@ -49,11 +49,7 @@ export function useLockAcquireRelease({
   const release = useCallback(async () => {
     const { collection: c, docID: d } = keyRef.current;
     if (!c || !d) return;
-    const scope = selectScopedDocumentLock(
-      useUsersStore.getState(),
-      c,
-      d
-    );
+    const scope = selectScopedDocumentLock(useUsersStore.getState(), c, d);
     if (!heldRef.current && scope.lockHeld !== true) return;
     dispatchHeld({ type: DOCUMENT_LOCK_HELD_ACTIONS.SET, held: false });
     patch({
@@ -91,9 +87,7 @@ export function useLockAcquireRelease({
         return;
       }
       if (
-        (res.status === 200 &&
-          data.held === true &&
-          data.acquired !== true) ||
+        (res.status === 200 && data.held === true && data.acquired !== true) ||
         res.status === 409
       ) {
         dispatchHeld({ type: DOCUMENT_LOCK_HELD_ACTIONS.SET, held: false });
@@ -169,7 +163,7 @@ export function useLockAcquireRelease({
     const scopeOnMount = selectScopedDocumentLock(
       useUsersStore.getState(),
       collection,
-      docID
+      docID,
     );
     void (async () => {
       try {
@@ -187,7 +181,7 @@ export function useLockAcquireRelease({
           const scope = selectScopedDocumentLock(
             useUsersStore.getState(),
             collection,
-            docID
+            docID,
           );
           // Vacant acquire: stay un-bootstrapped so the header stays hidden while
           // #21 self-heal retries; only mark ready once holder/read-only is known.
@@ -232,18 +226,11 @@ export function useLockAcquireRelease({
     const scope = selectScopedDocumentLock(
       useUsersStore.getState(),
       collection,
-      docID
+      docID,
     );
     if (scope.suppressVacancyAcquire === true) return;
     void runTryAcquireGuarded();
-  }, [
-    enabled,
-    collection,
-    docID,
-    lockHeld,
-    readOnly,
-    runTryAcquireGuarded,
-  ]);
+  }, [enabled, collection, docID, lockHeld, readOnly, runTryAcquireGuarded]);
 
   return { tryAcquire, release };
 }

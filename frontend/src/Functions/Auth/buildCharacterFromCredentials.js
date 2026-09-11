@@ -40,7 +40,7 @@ function characterFromTokenResponse(tokenResponse, isMainCharacter) {
 export function buildCharacterFromAccessToken(accessToken, options = {}) {
   return characterFromTokenResponse(
     { access_token: accessToken, refresh_token: "" },
-    options.isMainCharacter ?? false
+    options.isMainCharacter ?? false,
   );
 }
 
@@ -54,11 +54,18 @@ export function buildCharacterFromAccessToken(accessToken, options = {}) {
  * @param {boolean} [options.isMainCharacter=false]
  * @returns {Promise<Character|Error>} An {@link Error} on failure — callers branch on `instanceof`.
  */
-export async function buildCharacterFromClientSecret(refreshSecret, options = {}) {
+export async function buildCharacterFromClientSecret(
+  refreshSecret,
+  options = {},
+) {
   const { isMainCharacter = false } = options;
   try {
-    const tokenResponse = await requestEsiAccessFromClientRefreshSecret(refreshSecret);
-    const character = characterFromTokenResponse(tokenResponse, isMainCharacter);
+    const tokenResponse =
+      await requestEsiAccessFromClientRefreshSecret(refreshSecret);
+    const character = characterFromTokenResponse(
+      tokenResponse,
+      isMainCharacter,
+    );
     if (isMainCharacter && tokenResponse.refresh_token) {
       localStorage.setItem("Auth", tokenResponse.refresh_token);
     }

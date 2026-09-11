@@ -119,7 +119,8 @@ export function buildCostBreakdown({
 
   const counts = countRows(rows, buyEverything);
 
-  const each = (value) => (quantityProduced > 0 ? value / quantityProduced : null);
+  const each = (value) =>
+    quantityProduced > 0 ? value / quantityProduced : null;
 
   const toBuild = band(each, [
     {
@@ -140,7 +141,12 @@ export function buildCostBreakdown({
       detail: `${counts.paid} of ${counts.total} at what you paid`,
       value: paid,
     },
-    { id: "install", label: "Install cost", detail: "this job only", value: installCost },
+    {
+      id: "install",
+      label: "Install cost",
+      detail: "this job only",
+      value: installCost,
+    },
     {
       id: "invention",
       label: "Invention",
@@ -210,7 +216,9 @@ function extrasLines(rows) {
     // positioned so two rows saved without ids still draw as two lines.
     id: `extras:${row?.id ?? index}`,
     label: row?.extraText?.trim() || row?.categoryLabel || "Extra cost",
-    detail: row?.extraText?.trim() ? row?.categoryLabel || undefined : undefined,
+    detail: row?.extraText?.trim()
+      ? row?.categoryLabel || undefined
+      : undefined,
     value: row?.extraValue ?? 0,
   }));
 }
@@ -224,7 +232,8 @@ function countRows(rows, buyEverything = false) {
   const counts = { total: rows.length, bought: 0, built: 0, paid: 0 };
   for (const row of rows) {
     if (row.plan === MATERIAL_PLAN.PAID) counts.paid += 1;
-    else if (!buyEverything && row.plan === MATERIAL_PLAN.BUILD) counts.built += 1;
+    else if (!buyEverything && row.plan === MATERIAL_PLAN.BUILD)
+      counts.built += 1;
     else counts.bought += 1;
   }
   return counts;
@@ -240,7 +249,9 @@ function countRows(rows, buyEverything = false) {
 function materialsDetail({ total, bought, built }, includesShortfall = false) {
   const of = `${bought} of ${total}`;
   const base = built > 0 ? `${of} · ${built} replaced by child builds` : of;
-  return includesShortfall ? `${base} · includes what child jobs fall short of` : base;
+  return includesShortfall
+    ? `${base} · includes what child jobs fall short of`
+    : base;
 }
 
 /**

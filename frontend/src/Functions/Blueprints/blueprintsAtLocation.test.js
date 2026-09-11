@@ -14,7 +14,7 @@ describe("the blueprints held at a location", () => {
 
   it("offers the ones held there", () => {
     expect(
-      blueprintsAtLocation(rows, locationIds, 60003760).map((r) => r.itemId)
+      blueprintsAtLocation(rows, locationIds, 60003760).map((r) => r.itemId),
     ).toEqual([1, 2]);
   });
 
@@ -22,8 +22,8 @@ describe("the blueprints held at a location", () => {
   it("leaves out a blueprint the assets do not place", () => {
     expect(
       blueprintsAtLocation(rows, locationIds, 60003760).some(
-        (r) => r.itemId === 3
-      )
+        (r) => r.itemId === 3,
+      ),
     ).toBe(false);
   });
 

@@ -8,7 +8,7 @@ import {
   structureActions,
   preferencesActions,
   extrasActions,
-} from './applicationSettings';
+} from "./applicationSettings";
 
 /**
  * Application Settings Slice for Zustand Store.

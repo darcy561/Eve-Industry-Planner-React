@@ -81,7 +81,7 @@ export function AssetsFromClipboardButton_ShoppingList({ state, actions }) {
             if (!hasPermission) {
               showSnackbarError(
                 "Clipboard access denied. Please enable clipboard permissions in your browser settings.",
-                3
+                3,
               );
               return;
             }
@@ -98,13 +98,13 @@ export function AssetsFromClipboardButton_ShoppingList({ state, actions }) {
               ) {
                 showSnackbarError(
                   "Clipboard access denied. Please enable clipboard permissions in your browser settings.",
-                  3
+                  3,
                 );
                 return;
               }
               console.error("Failed to import assets from clipboard:", error);
               showSnackbarError(
-                error.message || "Failed to import assets from clipboard"
+                error.message || "Failed to import assets from clipboard",
               );
             }
           }}

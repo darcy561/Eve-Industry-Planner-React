@@ -2,7 +2,7 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 
 /**
  * Fetches market data for a specific item in a region from EVE ESI API.
- * 
+ *
  * @param {Object} params - Parameters object
  * @param {number} params.regionID - EVE Online region ID
  * @param {number} params.typeID - EVE Online item type ID
@@ -10,9 +10,9 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
  * @param {Object} [params.existingData={}] - Existing data for caching
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to market data with etag and totalPages
- * 
+ *
  * @throws {Error} Throws error if regionID or typeID is missing
- * 
+ *
  * @example
  * const marketData = await getMarketData({
  *   regionID: 10000002,
@@ -25,14 +25,14 @@ async function getMarketData({
   typeID,
   page = 1,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
     // Input validation
     if (!regionID || !typeID) {
       console.error("Missing required parameters:", { regionID, typeID });
       throw new Error(
-        "Missing required parameters: regionID and typeID are required"
+        "Missing required parameters: regionID and typeID are required",
       );
     }
 
@@ -40,18 +40,22 @@ async function getMarketData({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal', // Can be 'high', 'normal', 'low'
-      batchable: true,     // Can be batched with other requests
-      maxRetries: 3,       // Maximum retry attempts
-      useQueue: true,      // Use queue management
-      ...config
+      priority: "normal", // Can be 'high', 'normal', 'low'
+      batchable: true, // Can be batched with other requests
+      maxRetries: 3, // Maximum retry attempts
+      useQueue: true, // Use queue management
+      ...config,
     };
 
-    const response = await fetchWithCustomHeaders(endpointURL, {
-      headers: {
-        "If-None-Match": existingData?.etag || "",
+    const response = await fetchWithCustomHeaders(
+      endpointURL,
+      {
+        headers: {
+          "If-None-Match": existingData?.etag || "",
+        },
       },
-    }, enhancedConfig);
+      enhancedConfig,
+    );
 
     if (response.status === 304) {
       return {
@@ -67,7 +71,7 @@ async function getMarketData({
         statusText: response.statusText,
       });
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

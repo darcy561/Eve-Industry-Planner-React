@@ -18,7 +18,7 @@ const MARKET_TRANSACTION = "market_transaction_id";
  */
 export default function findJournalEntriesFromTransaction(
   transaction,
-  queryClient
+  queryClient,
 ) {
   const { data: characterJournal } = getAllCachedCharacterJournal(queryClient);
   const { data: corporationJournal } =
@@ -45,7 +45,7 @@ export default function findJournalEntriesFromTransaction(
   const journalEntry =
     allJournalEntries.find(
       (entry) =>
-        entry?.ref_type === "market_transaction" && namesThisTransaction(entry)
+        entry?.ref_type === "market_transaction" && namesThisTransaction(entry),
     ) ??
     // Anything else naming this transaction: the typed match is an addition,
     // and must never lose an entry the id alone would have found.
@@ -53,13 +53,14 @@ export default function findJournalEntriesFromTransaction(
 
   const transactionTax =
     allJournalEntries.find(
-      (entry) => entry?.ref_type === "transaction_tax" && namesThisTransaction(entry)
+      (entry) =>
+        entry?.ref_type === "transaction_tax" && namesThisTransaction(entry),
     ) ??
     allJournalEntries.find(
       (entry) =>
         entry?.ref_type === "transaction_tax" &&
         sameMoment(entry) &&
-        !namesAnotherTransaction(entry)
+        !namesAnotherTransaction(entry),
     );
 
   return { journalEntry, transactionTax };

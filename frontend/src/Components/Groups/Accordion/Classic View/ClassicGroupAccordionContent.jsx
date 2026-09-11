@@ -16,7 +16,7 @@ export function ClassicGroupAccordionContent({
   const sortedJobs = useGroupPlannerAccordionJobs(plannerJobs, status.id);
   const { skeletonCount } = useGroupPlannerStageSkeletonCount(
     status,
-    skeletonElementsToDisplay
+    skeletonElementsToDisplay,
   );
 
   return (

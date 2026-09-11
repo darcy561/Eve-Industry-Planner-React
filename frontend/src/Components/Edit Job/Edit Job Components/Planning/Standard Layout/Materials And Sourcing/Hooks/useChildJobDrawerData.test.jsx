@@ -3,9 +3,12 @@ import { renderHook, waitFor } from "@testing-library/react";
 
 const findMaterialJobInGroup = vi.fn(() => null);
 
-vi.mock("../../../../../../../Functions/Groups/findMaterialJobInGroup.js", () => ({
-  findMaterialJobInGroup: (...args) => findMaterialJobInGroup(...args),
-}));
+vi.mock(
+  "../../../../../../../Functions/Groups/findMaterialJobInGroup.js",
+  () => ({
+    findMaterialJobInGroup: (...args) => findMaterialJobInGroup(...args),
+  }),
+);
 
 const { useChildJobDrawerData } = await import("./useChildJobDrawerData");
 

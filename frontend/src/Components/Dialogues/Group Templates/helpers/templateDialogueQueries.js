@@ -17,7 +17,7 @@ export function buildCatalogQueryOptions(querySuffix, enabled) {
       } catch (e) {
         showSnackbarError(
           e instanceof Error ? e.message : "Failed to load templates",
-          5
+          5,
         );
         return [];
       }
@@ -36,7 +36,7 @@ export function buildFullItemListQueryOptions(enabled) {
       } catch (e) {
         showSnackbarError(
           e instanceof Error ? e.message : "Failed to load item names",
-          5
+          5,
         );
         return null;
       }

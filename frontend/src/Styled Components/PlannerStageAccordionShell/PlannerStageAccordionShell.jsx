@@ -52,7 +52,7 @@ export function PlannerStageAccordionShell({
   children,
 }) {
   const enableCompactView = useUsersStore(
-    (state) => state.applicationSettings.enableCompactLayoutView
+    (state) => state.applicationSettings.enableCompactLayoutView,
   );
 
   const Contents =
@@ -74,7 +74,7 @@ export function PlannerStageAccordionShell({
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const canAcceptHere = Boolean(
-    activeDragPayload && canDropCard(activeDragPayload, { id: stageId })
+    activeDragPayload && canDropCard(activeDragPayload, { id: stageId }),
   );
 
   return (
@@ -112,11 +112,7 @@ export function PlannerStageAccordionShell({
       >
         <AccordionSummary
           expandIcon={
-            <Tooltip
-              title="Collapse/Expand Stage"
-              arrow
-              placement="bottom"
-            >
+            <Tooltip title="Collapse/Expand Stage" arrow placement="bottom">
               <ExpandMoreIcon />
             </Tooltip>
           }

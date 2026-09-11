@@ -15,18 +15,26 @@ describe("maintenance message", () => {
   });
 
   test("applies the pushed state without a fetch", () => {
-    expect(applyMaintenanceMessage({ type: "maintenance", enabled: true })).toBe(true);
+    expect(
+      applyMaintenanceMessage({ type: "maintenance", enabled: true }),
+    ).toBe(true);
     expect(setMaintenanceMode).toHaveBeenCalledWith(true);
   });
 
   test("a message without enabled is rejected, not applied", () => {
     expect(applyMaintenanceMessage({ type: "maintenance" })).toBe(false);
-    expect(applyMaintenanceMessage({ type: "maintenance", enabled: "yes" })).toBe(false);
+    expect(
+      applyMaintenanceMessage({ type: "maintenance", enabled: "yes" }),
+    ).toBe(false);
     expect(setMaintenanceMode).not.toHaveBeenCalled();
   });
 
   test("the router sends the family here", async () => {
-    await applyRemoteMessage({ type: "maintenance", enabled: true, message: "x" });
+    await applyRemoteMessage({
+      type: "maintenance",
+      enabled: true,
+      message: "x",
+    });
     expect(setMaintenanceMode).toHaveBeenCalledWith(true);
   });
 });

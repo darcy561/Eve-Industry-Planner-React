@@ -10,7 +10,7 @@ import useUsersStore from "../../Zustand/usersStore";
 export function corporationMembers(corporationId) {
   const { corporations } = useUsersStore.getState().account;
   const corporation = corporations?.find(
-    (c) => Number(c.corporation_id) === Number(corporationId)
+    (c) => Number(c.corporation_id) === Number(corporationId),
   );
   return corporation?.members ?? [];
 }

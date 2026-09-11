@@ -10,7 +10,10 @@ import {
   showMassBuildFeedback,
   hideMassBuildFeedback,
 } from "../../Events/massBuildEvents";
-import { showSnackbarError, showSnackbarSuccess } from "../../Events/snackbarEvents";
+import {
+  showSnackbarError,
+  showSnackbarSuccess,
+} from "../../Events/snackbarEvents";
 
 /**
  * Mass-builds one material level for selected jobs (planner scoped).
@@ -25,7 +28,8 @@ import { showSnackbarError, showSnackbarSuccess } from "../../Events/snackbarEve
  * }} options
  */
 export default async function massBuildMaterials(inputJobIDs, options) {
-  const { buildJob, queryClient, setNumberOfVisibleSkeletonElements } = options ?? {};
+  const { buildJob, queryClient, setNumberOfVisibleSkeletonElements } =
+    options ?? {};
   if (typeof buildJob !== "function") {
     throw new Error("massBuildMaterials requires options.buildJob");
   }
@@ -50,7 +54,8 @@ export default async function massBuildMaterials(inputJobIDs, options) {
 
   for (const inputJob of selectedJobs) {
     for (const material of inputJob.build?.materials ?? []) {
-      if ((inputJob.build?.childJobs?.[material.typeID] ?? []).length > 0) continue;
+      if ((inputJob.build?.childJobs?.[material.typeID] ?? []).length > 0)
+        continue;
       if (!checkJobTypeIsBuildable(material.jobType)) continue;
       if (checkTypeIDisExempt(material.typeID)) {
         materialsIgnored.add(material.typeID);
@@ -77,11 +82,13 @@ export default async function massBuildMaterials(inputJobIDs, options) {
     }
   }
 
-  const finalBuildRequests = [...buildRequestsByTypeID.values()].map((entry) => ({
-    itemID: entry.itemID,
-    itemQty: entry.itemQty,
-    parentJobs: [...entry.parentJobIDs],
-  }));
+  const finalBuildRequests = [...buildRequestsByTypeID.values()].map(
+    (entry) => ({
+      itemID: entry.itemID,
+      itemQty: entry.itemQty,
+      parentJobs: [...entry.parentJobIDs],
+    }),
+  );
 
   if (typeof setNumberOfVisibleSkeletonElements === "function") {
     setNumberOfVisibleSkeletonElements(finalBuildRequests.length);
@@ -89,7 +96,11 @@ export default async function massBuildMaterials(inputJobIDs, options) {
   if (finalBuildRequests.length === 0) {
     return;
   }
-  showMassBuildFeedback(0, finalBuildRequests.length, finalBuildRequests.length);
+  showMassBuildFeedback(
+    0,
+    finalBuildRequests.length,
+    finalBuildRequests.length,
+  );
 
   try {
     const rawNewJobs = await buildJob(finalBuildRequests);
@@ -102,7 +113,11 @@ export default async function massBuildMaterials(inputJobIDs, options) {
     const newJobsByTypeID = new Map(newJobs.map((job) => [job.itemID, job]));
     for (let i = 0; i < newJobs.length; i++) {
       await new Promise((resolve) => setTimeout(resolve, 50));
-      showMassBuildFeedback(i + 1, finalBuildRequests.length, finalBuildRequests.length);
+      showMassBuildFeedback(
+        i + 1,
+        finalBuildRequests.length,
+        finalBuildRequests.length,
+      );
     }
 
     const workingParentsByID = new Map();
@@ -145,9 +160,11 @@ export default async function massBuildMaterials(inputJobIDs, options) {
     recalculateInstallCostsWithNewData(
       newJobs,
       requestedMarketData,
-      requestedSystemIndexes
+      requestedSystemIndexes,
     );
-    useUsersStore.getState().worldData.actions.addMarketData(requestedMarketData);
+    useUsersStore
+      .getState()
+      .worldData.actions.addMarketData(requestedMarketData);
     useUsersStore
       .getState()
       .worldData.actions.addSystemIndex(requestedSystemIndexes);
@@ -156,7 +173,7 @@ export default async function massBuildMaterials(inputJobIDs, options) {
     const materialWord = materialsIgnored.size === 1 ? "Material" : "Materials";
     showSnackbarSuccess(
       `${newJobs.length} ${jobWord} Added, ${materialsIgnored.size} ${materialWord} Ignored.`,
-      3
+      3,
     );
   } catch (err) {
     console.error("massBuildMaterials failed", err);

@@ -43,7 +43,7 @@ export function canMoveJobBackward(job) {
  */
 export function canMoveJobForward(
   job,
-  { lastStepIndex = 4, lockFinalStep = false } = {}
+  { lastStepIndex = 4, lockFinalStep = false } = {},
 ) {
   if (!job) return false;
   const currentStep = Number(job.jobStatus) || 0;
@@ -65,7 +65,7 @@ export function canMoveJobForward(
 export function canJumpToJobStep(
   job,
   targetStep,
-  { lastStepIndex = 4, lockFinalStep = false } = {}
+  { lastStepIndex = 4, lockFinalStep = false } = {},
 ) {
   if (!job) return false;
   const currentStep = Number(job.jobStatus) || 0;

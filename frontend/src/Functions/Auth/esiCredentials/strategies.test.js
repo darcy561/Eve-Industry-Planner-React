@@ -13,7 +13,10 @@ import {
   createClientHeldCredentials,
   createServerStoredCredentials,
 } from "./strategies.js";
-import { ESI_CREDENTIAL_REAUTH_REQUIRED, ESI_CREDENTIAL_RECOVERABLE } from "./errors.js";
+import {
+  ESI_CREDENTIAL_REAUTH_REQUIRED,
+  ESI_CREDENTIAL_RECOVERABLE,
+} from "./errors.js";
 import { esiAccessToken } from "../../../tests/utils.js";
 
 const HASH = "owner-hash";
@@ -24,12 +27,16 @@ describe("server-stored credentials", () => {
   beforeEach(() => {
     mockServerBatch.mockReset();
     // Immediate scheduling: these cases are about one character's outcome, not the gathering.
-    serverStoredCredentials = createServerStoredCredentials({ schedule: (fn) => fn() });
+    serverStoredCredentials = createServerStoredCredentials({
+      schedule: (fn) => fn(),
+    });
   });
 
   it("reads the expiry from the returned JWT", async () => {
     mockServerBatch.mockResolvedValue({
-      tokens: [{ character_hash: HASH, access_token: esiAccessToken({ exp: 4_242 }) }],
+      tokens: [
+        { character_hash: HASH, access_token: esiAccessToken({ exp: 4_242 }) },
+      ],
     });
 
     const token = await serverStoredCredentials.refresh(HASH);
@@ -42,7 +49,7 @@ describe("server-stored credentials", () => {
   // failing — see "needs a full login when the batch reports the character failed".
   it("classifies a rejected request as retriable", async () => {
     mockServerBatch.mockRejectedValue(
-      new Error("Server-stored ESI access refresh failed: 401 Unauthorized")
+      new Error("Server-stored ESI access refresh failed: 401 Unauthorized"),
     );
 
     await expect(serverStoredCredentials.refresh(HASH)).rejects.toMatchObject({
@@ -52,7 +59,9 @@ describe("server-stored credentials", () => {
 
   it("classifies a server fault as retriable", async () => {
     mockServerBatch.mockRejectedValue(
-      new Error("Server-stored ESI access refresh failed: 503 Service Unavailable")
+      new Error(
+        "Server-stored ESI access refresh failed: 503 Service Unavailable",
+      ),
     );
 
     await expect(serverStoredCredentials.refresh(HASH)).rejects.toMatchObject({
@@ -71,7 +80,12 @@ describe("server-stored credentials", () => {
 
   it("needs a full login when the batch reports the character failed", async () => {
     mockServerBatch.mockResolvedValue({
-      tokens: [{ character_hash: HASH, error: "cloud esi: invalid_grant from EVE SSO" }],
+      tokens: [
+        {
+          character_hash: HASH,
+          error: "cloud esi: invalid_grant from EVE SSO",
+        },
+      ],
     });
 
     await expect(serverStoredCredentials.refresh(HASH)).rejects.toMatchObject({
@@ -129,7 +143,9 @@ describe("client-held credentials", () => {
   });
 
   it("keeps the existing secret when none is returned", async () => {
-    mockClientRefresh.mockResolvedValue({ access_token: esiAccessToken({ exp: 4_242 }) });
+    mockClientRefresh.mockResolvedValue({
+      access_token: esiAccessToken({ exp: 4_242 }),
+    });
 
     await strategy.refresh(HASH);
 
@@ -155,7 +171,9 @@ describe("client-held credentials", () => {
   });
 
   it("needs a full login when SSO rejects the secret", async () => {
-    mockClientRefresh.mockRejectedValue(new Error("API request failed with status 400: Bad Request"));
+    mockClientRefresh.mockRejectedValue(
+      new Error("API request failed with status 400: Bad Request"),
+    );
 
     await expect(strategy.refresh(HASH)).rejects.toMatchObject({
       classification: ESI_CREDENTIAL_REAUTH_REQUIRED,
@@ -220,7 +238,10 @@ describe("server-stored credentials gather into one request", () => {
   it("fails only the character the batch reported failed", async () => {
     mockServerBatch.mockResolvedValue({
       tokens: [
-        { character_hash: "a", access_token: esiAccessToken({ exp: 4_242, owner: "a" }) },
+        {
+          character_hash: "a",
+          access_token: esiAccessToken({ exp: 4_242, owner: "a" }),
+        },
         { character_hash: "b", error: "cloud esi: invalid_grant from EVE SSO" },
       ],
     });

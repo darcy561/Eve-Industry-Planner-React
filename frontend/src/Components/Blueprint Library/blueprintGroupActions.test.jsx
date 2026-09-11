@@ -33,7 +33,7 @@ function renderActions(bpData = BP_DATA) {
   return render(
     <QueryClientProvider client={client}>
       <BlueprintGroupActions bpData={bpData} />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -52,7 +52,7 @@ describe("a blueprint group's actions", () => {
 
     expect(addNewJobsToPlanner).toHaveBeenCalledWith(
       [{ itemID: 587 }],
-      expect.anything()
+      expect.anything(),
     );
   });
 
@@ -75,19 +75,19 @@ describe("a blueprint group's actions", () => {
     await user.click(screen.getByRole("button", { name: /Create job/ }));
 
     await waitFor(() => expect(showSnackbarError).toHaveBeenCalled());
-    expect(
-      screen.getByRole("button", { name: /Create job/ }).disabled
-    ).toBe(false);
+    expect(screen.getByRole("button", { name: /Create job/ }).disabled).toBe(
+      false,
+    );
   });
 
   it("offers nothing to act on for a blueprint the static data does not name", () => {
     renderActions(null);
 
     expect(screen.getByRole("button", { name: /Create job/ }).disabled).toBe(
-      true
+      true,
     );
     expect(screen.getByRole("button", { name: /Archived jobs/ }).disabled).toBe(
-      true
+      true,
     );
   });
 });

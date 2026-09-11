@@ -22,16 +22,17 @@ export function useChildJobDrawerData({
       const baseChildJobs = [...matchedChildJobs];
       const matchedGroupJob = findMaterialJobInGroup(
         material.typeID,
-        state.activeJob.groupID
+        state.activeJob.groupID,
       );
       let nextChildJobObjects = baseChildJobs;
 
-      const { hasLinked, hasTemp, hasPendingAdd } = resolveMaterialChildJobStatus({
-        state,
-        materialTypeID: material.typeID,
-        childJobsLocation,
-        isExistingJobInGroup: isExistingJobInGroup.current,
-      });
+      const { hasLinked, hasTemp, hasPendingAdd } =
+        resolveMaterialChildJobStatus({
+          state,
+          materialTypeID: material.typeID,
+          childJobsLocation,
+          isExistingJobInGroup: isExistingJobInGroup.current,
+        });
 
       if (hasLinked || hasTemp || hasPendingAdd) {
         nextChildJobObjects = baseChildJobs;

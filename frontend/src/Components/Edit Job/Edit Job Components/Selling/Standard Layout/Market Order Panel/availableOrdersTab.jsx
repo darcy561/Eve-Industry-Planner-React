@@ -20,14 +20,10 @@ import {
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 
-export function AvailableMarketOrdersTab({
-  state,
-  actions,
-  itemOrderMatch
-}) {
+export function AvailableMarketOrdersTab({ state, actions, itemOrderMatch }) {
   const queryClient = useQueryClient();
   const citadelBrokersFee = useUsersStore(
-    (state) => state.applicationSettings.defaultCitadelBrokersFee
+    (state) => state.applicationSettings.defaultCitadelBrokersFee,
   );
   const getCorporation =
     useUsersStore.getState().account.actions.getCorporation;
@@ -70,19 +66,25 @@ export function AvailableMarketOrdersTab({
                 sx={{ marginBottom: { xs: 2, sm: 0 } }}
                 size={{
                   xs: 12,
-                  sm: 6
-                }}>
+                  sm: 6,
+                }}
+              >
                 <Grid container>
-                  <Grid container align="center" size={12} sx={{
-                    justifyContent: "center"
-                  }}>
+                  <Grid
+                    container
+                    align="center"
+                    size={12}
+                    sx={{
+                      justifyContent: "center",
+                    }}
+                  >
                     <Tooltip
                       title={
                         order.is_corporation
-                          ? corpData?.corporationName ??
-                          "Corporation Data Unavailable"
-                          : charData?.CharacterName ??
-                          "Character Data Unavailable"
+                          ? (corpData?.corporationName ??
+                            "Corporation Data Unavailable")
+                          : (charData?.CharacterName ??
+                            "Character Data Unavailable")
                       }
                       arrow
                       placement="right"
@@ -106,8 +108,8 @@ export function AvailableMarketOrdersTab({
                     </Tooltip>
                     <Grid size={12}>
                       <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
-                        {formatNumberForLocale(order.volume_remain, { max: 0 })}/
-                        {formatNumberForLocale(order.volume_total, { max: 0 })}{" "}
+                        {formatNumberForLocale(order.volume_remain, { max: 0 })}
+                        /{formatNumberForLocale(order.volume_total, { max: 0 })}{" "}
                         Items Remaining
                       </Typography>
                     </Grid>
@@ -158,24 +160,26 @@ export function AvailableMarketOrdersTab({
                               const charges = await calcSellingCharges(
                                 order,
                                 queryClient,
-                                citadelBrokersFee
+                                citadelBrokersFee,
                               );
                               const brokersFeeObject = findBrokersFeeEntry(
                                 order,
                                 charges,
-                                queryClient
+                                queryClient,
                               );
                               state.activeJob.addMarketOrder(
                                 order,
-                                brokersFeeObject
+                                brokersFeeObject,
                               );
-                              actions.addMarketOrdersForAddition(order.order_id);
+                              actions.addMarketOrdersForAddition(
+                                order.order_id,
+                              );
                               actions.updateActiveJob(state.activeJob);
                               showSnackbarSuccess("Linked");
                             } catch (error) {
                               console.error(
                                 "Failed to link market order:",
-                                error
+                                error,
                               );
                               showSnackbarError("Failed to link market order");
                             }

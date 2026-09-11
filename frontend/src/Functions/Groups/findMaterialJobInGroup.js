@@ -20,8 +20,7 @@ export function findMaterialJobInGroup(requestedMaterialID, requestedGroupID) {
 
   return (
     jobArray.find(
-      (i) =>
-        i.groupID === requestedGroupID && i.itemID === requestedMaterialID
+      (i) => i.groupID === requestedGroupID && i.itemID === requestedMaterialID,
     ) || null
   );
 }

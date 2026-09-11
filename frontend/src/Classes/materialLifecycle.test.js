@@ -11,9 +11,8 @@ vi.mock("../Zustand/usersStore.js", () => ({
 
 const { default: Job } = await import("./job.js");
 const { default: Setup } = await import("./jobSetup.js");
-const { distributeItemCostsBetweenJobs } = await import(
-  "../Functions/Shared/passBuildCosts.js"
-);
+const { distributeItemCostsBetweenJobs } =
+  await import("../Functions/Shared/passBuildCosts.js");
 
 // A job walked through the stages a real one goes through, asserting the whole
 // chain each time: a setup says what a material needs, the job sums its setups,
@@ -53,7 +52,12 @@ function setupFor(id, { runCount, jobCount, tritanium, pyerite }) {
 }
 
 function newJob() {
-  const job = new Job({ jobID: "job-1", itemID: 587, jobType: 1, name: "Rifter" });
+  const job = new Job({
+    jobID: "job-1",
+    itemID: 587,
+    jobType: 1,
+    name: "Rifter",
+  });
   job.buildJobObject(recipe(), {});
   return job;
 }
@@ -80,7 +84,7 @@ describe("a job's materials through its life", () => {
         jobCount: 1,
         tritanium: 100,
         pyerite: 40,
-      })
+      }),
     );
     expect(tritanium.quantity).toBe(100);
     expect(job.totalQuantityProduced).toBe(100);
@@ -99,7 +103,7 @@ describe("a job's materials through its life", () => {
     const { taken, leftOver } = job.importPurchaseToMaterial(
       TRITANIUM,
       { itemCount: 60, itemCost: 8 },
-      { recordExcess: true }
+      { recordExcess: true },
     );
     expect({ taken, leftOver }).toEqual({ taken: 40, leftOver: 20 });
     expect(tritanium.quantityImported).toBe(120);
@@ -122,7 +126,7 @@ describe("a job's materials through its life", () => {
         jobCount: 1,
         tritanium: 50,
         pyerite: 20,
-      })
+      }),
     );
     expect(tritanium.quantity).toBe(150);
     expect(job.totalQuantityProduced).toBe(150);
@@ -166,7 +170,7 @@ describe("a job's materials through its life", () => {
         jobCount: 1,
         tritanium: 100,
         pyerite: 40,
-      })
+      }),
     );
     parent.build.childJobs[TRITANIUM] = ["child-1"];
 
@@ -178,7 +182,7 @@ describe("a job's materials through its life", () => {
     distributeItemCostsBetweenJobs(
       { [TRITANIUM]: { totalQuantity: 100, costs } },
       [parent],
-      { [TRITANIUM]: new Set(["job-1"]) }
+      { [TRITANIUM]: new Set(["job-1"]) },
     );
 
     const tritanium = materialOf(parent, TRITANIUM);
@@ -194,9 +198,14 @@ describe("a job's materials through its life", () => {
 
     // Re-running the import does not charge the same output twice.
     distributeItemCostsBetweenJobs(
-      { [TRITANIUM]: { totalQuantity: 30, costs: [{ id: "child-1", cost: 4, quantity: 30 }] } },
+      {
+        [TRITANIUM]: {
+          totalQuantity: 30,
+          costs: [{ id: "child-1", cost: 4, quantity: 30 }],
+        },
+      },
       [parent],
-      { [TRITANIUM]: new Set(["job-1"]) }
+      { [TRITANIUM]: new Set(["job-1"]) },
     );
     expect(tritanium.purchasedCost).toBe(430);
   });
@@ -209,7 +218,7 @@ describe("a job's materials through its life", () => {
         jobCount: 1,
         tritanium: 100,
         pyerite: 40,
-      })
+      }),
     );
 
     job.importPurchaseToMaterial(TRITANIUM, { itemCount: 60, itemCost: 5 });

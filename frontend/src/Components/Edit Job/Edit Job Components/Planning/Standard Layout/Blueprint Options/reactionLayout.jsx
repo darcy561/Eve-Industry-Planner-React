@@ -26,7 +26,7 @@ export function ReactionLayout_BlueprintOptions({ state }) {
     const activeJobBlueprintIDs = new Set(
       (industryJobs ?? [])
         .filter((job) => job.status === "active")
-        .map((job) => job.blueprint_id)
+        .map((job) => job.blueprint_id),
     );
 
     // Grouped by whoever holds them. The rows carry their own owner, so nothing is stamped onto
@@ -53,24 +53,21 @@ export function ReactionLayout_BlueprintOptions({ state }) {
         // A stack is one row carrying several, and each can hold its own job.
         totalBP: group.blueprints.reduce(
           (total, row) => total + Math.max(row.originalCount, 1),
-          0
+          0,
         ),
         inUse: group.blueprints.filter((row) =>
-          activeJobBlueprintIDs.has(row.itemId)
+          activeJobBlueprintIDs.has(row.itemId),
         ).length,
       }))
       .sort(
         (a, b) =>
           b.blueprints[0].me - a.blueprints[0].me ||
-          b.blueprints[0].te - a.blueprints[0].te
+          b.blueprints[0].te - a.blueprints[0].te,
       );
   }, [blueprints, industryJobs, state.activeJob.blueprintTypeID]);
 
   // Loading state
-  if (
-    isLoadingBlueprints ||
-        isLoadingIndustryJobs
-  ) {
+  if (isLoadingBlueprints || isLoadingIndustryJobs) {
     return (
       <Grid align="center" size={12}>
         <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
@@ -82,8 +79,7 @@ export function ReactionLayout_BlueprintOptions({ state }) {
 
   // Error state
   if (blueprintError || industryJobsError) {
-    const errorMessage =
-      blueprintError?.message || industryJobsError?.message;
+    const errorMessage = blueprintError?.message || industryJobsError?.message;
     return (
       <Grid align="center" size={12}>
         <Typography
@@ -110,9 +106,13 @@ export function ReactionLayout_BlueprintOptions({ state }) {
   }
 
   return (
-    <Grid container size={12} sx={{
-      alignItems: "center"
-    }}>
+    <Grid
+      container
+      size={12}
+      sx={{
+        alignItems: "center",
+      }}
+    >
       {blueprintOptions.map((charBP) => {
         if (charBP.blueprints.length === 0) return null;
 
@@ -123,8 +123,9 @@ export function ReactionLayout_BlueprintOptions({ state }) {
             size={{
               xs: 6,
               sm: 6,
-              md: 12
-            }}>
+              md: 12,
+            }}
+          >
             <Grid
               container
               align="center"
@@ -133,18 +134,17 @@ export function ReactionLayout_BlueprintOptions({ state }) {
                 sm: 4,
                 md: 5,
                 lg: 3,
-                xl: 3
+                xl: 3,
               }}
               sx={{
                 justifyContent: "center",
-                alignItems: "center"
-              }}>
+                alignItems: "center",
+              }}
+            >
               <Badge
                 overlap="circular"
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                badgeContent={
-                  <OwnerAvatar owner={charBP.owner} size={24} />
-                }
+                badgeContent={<OwnerAvatar owner={charBP.owner} size={24} />}
               >
                 <picture>
                   <source
@@ -165,8 +165,9 @@ export function ReactionLayout_BlueprintOptions({ state }) {
                 sm: 8,
                 md: 7,
                 lg: 9,
-                xl: 9
-              }}>
+                xl: 9,
+              }}
+            >
               <Grid size={12}>
                 <Typography variant="caption">
                   Total: {charBP.totalBP}

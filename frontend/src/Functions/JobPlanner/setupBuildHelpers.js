@@ -35,7 +35,7 @@ export function defaultCalculateSetupQuantities({
   return calculateSetupQuantitiesFromRequiredQuantity(
     maxProductionLimit,
     baseQuantity,
-    itemQuantityRequired
+    itemQuantityRequired,
   );
 }
 
@@ -45,13 +45,15 @@ export function defaultCalculateSetupQuantities({
  *
  * @type {CalculateSetupQuantities}
  */
-export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginalsFromContext(ctx) {
+export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginalsFromContext(
+  ctx,
+) {
   return calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
     ctx.job.blueprintTypeID,
     ctx.maxProductionLimit,
     ctx.itemQuantityRequired,
     ctx.baseQuantity,
-    ctx.queryClient
+    ctx.queryClient,
   );
 }
 
@@ -64,7 +66,7 @@ export function buildSetupContextForJob(job, queryClient) {
   const { ME, TE } = findHighestMaterialEfficiencyBlueprint(
     job.jobType,
     job.blueprintTypeID,
-    queryClient
+    queryClient,
   );
 
   return {
@@ -87,9 +89,10 @@ export function setupQuantitiesForTotal(
   job,
   requiredQuantity,
   queryClient,
-  options = {}
+  options = {},
 ) {
-  const { calculateSetupQuantities = defaultCalculateSetupQuantities } = options;
+  const { calculateSetupQuantities = defaultCalculateSetupQuantities } =
+    options;
 
   return calculateSetupQuantities({
     job,
@@ -118,7 +121,7 @@ function asStoredFieldNames({ characterToUse, ...rest }) {
  */
 function withoutUndefined(source) {
   return Object.fromEntries(
-    Object.entries(source).filter(([, value]) => value !== undefined)
+    Object.entries(source).filter(([, value]) => value !== undefined),
   );
 }
 
@@ -136,7 +139,7 @@ export function buildSetupFromQuantity(
   setupQuantity,
   queryClient,
   context,
-  { basedOn = null, overrides = {} } = {}
+  { basedOn = null, overrides = {} } = {},
 ) {
   const newSetup = new Setup({
     ME: context.ME,

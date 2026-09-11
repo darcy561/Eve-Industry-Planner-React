@@ -60,7 +60,7 @@ export default function EditJob_New() {
 
   useStripRedundantJobMarketHubOverrides(
     state.activeJob,
-    actions.updateActiveJob
+    actions.updateActiveJob,
   );
   useRefreshLinkedESIData(state.activeJob, actions.updateActiveJob);
   useEditJobDocumentLocks({
@@ -126,7 +126,7 @@ export default function EditJob_New() {
 
     const observer = new IntersectionObserver(
       ([entry]) => setShowFloatingPrevStep(!entry.isIntersecting),
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(element);
@@ -147,7 +147,7 @@ export default function EditJob_New() {
 
     const observer = new IntersectionObserver(
       ([entry]) => setShowFloatingNextStep(!entry.isIntersecting),
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
 
     observer.observe(element);
@@ -262,7 +262,8 @@ export default function EditJob_New() {
                         color="primary"
                         onClick={() => {
                           if (!state.activeJob) return;
-                          const { activeGroup, pageView } = readEditJobUrlSearch();
+                          const { activeGroup, pageView } =
+                            readEditJobUrlSearch();
                           openJobLinkTreeFromEditPage({
                             jobId: state.activeJob.jobID,
                             activeGroup,
@@ -273,7 +274,7 @@ export default function EditJob_New() {
                         aria-label="View this jobs item tree"
                         disabled={!state.activeJob}
                         sx={{
-                          paddingRight: 2
+                          paddingRight: 2,
                         }}
                       >
                         <SchemaIcon />
@@ -473,4 +474,3 @@ export default function EditJob_New() {
     };
   }
 }
-

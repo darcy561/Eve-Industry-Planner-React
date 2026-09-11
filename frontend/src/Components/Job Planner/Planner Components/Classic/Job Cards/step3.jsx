@@ -1,11 +1,8 @@
 import { Typography, Box } from "@mui/material";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
-import {
-  formatNumberForLocale,
-} from "../../../../../Functions/Helper/numberParser";
+import { formatNumberForLocale } from "../../../../../Functions/Helper/numberParser";
 
 export default function Step3JobCard({ job }) {
-
   return (
     <Box
       sx={{
@@ -36,7 +33,6 @@ export default function Step3JobCard({ job }) {
           </Typography>
         </Box>
       </Box>
-
     </Box>
   );
 }

@@ -28,7 +28,12 @@ export function assetImageUrl(node, fullItemList) {
  * @param {string} [compartmentName]
  * @returns {string}
  */
-export function assetName(node, fullItemList = {}, containerNames, compartmentName) {
+export function assetName(
+  node,
+  fullItemList = {},
+  containerNames,
+  compartmentName,
+) {
   const itemName =
     fullItemList[node.typeId]?.name ?? `Unknown Item - ${node.typeId}`;
   const givenName = containerNames?.get(node.itemId)?.name;

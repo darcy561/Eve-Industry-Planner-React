@@ -1,7 +1,9 @@
-import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
 
-const AssetLibrary = lazyRouteComponent(() => import('../../Components/Assets/assets'))
+const AssetLibrary = lazyRouteComponent(
+  () => import("../../Components/Assets/assets"),
+);
 
-export const Route = createFileRoute('/_protected/asset-library')({
+export const Route = createFileRoute("/_protected/asset-library")({
   component: AssetLibrary,
-})
+});

@@ -50,9 +50,12 @@ export function IconBanner() {
                   alignItems: "center",
                 }}
               >
-                <Stack spacing={{ xs: 0, sm: 1.25 }} sx={{
-                  alignItems: "center"
-                }}>
+                <Stack
+                  spacing={{ xs: 0, sm: 1.25 }}
+                  sx={{
+                    alignItems: "center",
+                  }}
+                >
                   <Icon fontSize="large">
                     <IconComponent />
                   </Icon>

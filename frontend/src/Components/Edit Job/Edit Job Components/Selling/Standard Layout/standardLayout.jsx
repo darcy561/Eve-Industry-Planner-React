@@ -22,8 +22,9 @@ export function Selling_StandardLayout_EditJob(props) {
       <Grid
         size={{
           xs: 12,
-          md: 8
-        }}>
+          md: 8,
+        }}
+      >
         <MarketOrderPanel
           {...props}
           activeOrder={activeOrder}
@@ -33,8 +34,9 @@ export function Selling_StandardLayout_EditJob(props) {
       <Grid
         size={{
           xs: 12,
-          md: 4
-        }}>
+          md: 4,
+        }}
+      >
         <SalesStats {...props} />
       </Grid>
       <Grid size={12}>

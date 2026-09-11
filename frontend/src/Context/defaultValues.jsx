@@ -480,19 +480,54 @@ export const structureOptions = {
   },
   inventionRigs: {
     0: { id: 0, label: "None", cost: 0, time: 0 },
-    1: { id: 1, label: "T1 - Cost Optimization", cost: 0, time: 0.1, relatedTo: [2, 5, 6] },
-    2: { id: 2, label: "T2 - Cost Optimization", cost: 0, time: 0.12, relatedTo: [1, 5, 6] },
-    3: { id: 3, label: "T1 - Invention Accelerator", cost: 0.2, time: 0, relatedTo: [4, 5, 6] },
-    4: { id: 4, label: "T2 - Invention Accelerator", cost: 0.24, time: 0, relatedTo: [3, 5, 6] },
-    5: { id: 5, label: "T1 - All", cost: 0.2, time: 0.1, relatedTo: [1, 2, 3, 4, 5, 6] },
-    6: { id: 6, label: "T2 - All", cost: 0.24, time: 0.12, relatedTo: [1, 2, 3, 4, 5, 6] },
+    1: {
+      id: 1,
+      label: "T1 - Cost Optimization",
+      cost: 0,
+      time: 0.1,
+      relatedTo: [2, 5, 6],
+    },
+    2: {
+      id: 2,
+      label: "T2 - Cost Optimization",
+      cost: 0,
+      time: 0.12,
+      relatedTo: [1, 5, 6],
+    },
+    3: {
+      id: 3,
+      label: "T1 - Invention Accelerator",
+      cost: 0.2,
+      time: 0,
+      relatedTo: [4, 5, 6],
+    },
+    4: {
+      id: 4,
+      label: "T2 - Invention Accelerator",
+      cost: 0.24,
+      time: 0,
+      relatedTo: [3, 5, 6],
+    },
+    5: {
+      id: 5,
+      label: "T1 - All",
+      cost: 0.2,
+      time: 0.1,
+      relatedTo: [1, 2, 3, 4, 5, 6],
+    },
+    6: {
+      id: 6,
+      label: "T2 - All",
+      cost: 0.24,
+      time: 0.12,
+      relatedTo: [1, 2, 3, 4, 5, 6],
+    },
   },
   inventionSystem: {
     0: { id: 0, label: "High Sec", value: 1 },
     1: { id: 1, label: "Low Sec", value: 1.9 },
     2: { id: 2, label: "Null Sec / WH", value: 2.1 },
   },
-
 };
 
 /**

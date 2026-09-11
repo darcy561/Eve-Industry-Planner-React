@@ -7,8 +7,12 @@ import { renderWithProviders } from "../../tests/archiveHarness.jsx";
 const getArchivedJobs = vi.fn();
 
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
-  return { ...emptyArchiveListMock(), getArchivedJobs: (...args) => getArchivedJobs(...args) };
+  const { emptyArchiveListMock } =
+    await import("../../tests/archiveHarness.jsx");
+  return {
+    ...emptyArchiveListMock(),
+    getArchivedJobs: (...args) => getArchivedJobs(...args),
+  };
 });
 const storeState = await (async () => {
   const { archiveStoreState } = await import("../../tests/archiveHarness.jsx");
@@ -29,7 +33,11 @@ const COUNTED = {
   jobID: "job-counted",
   name: "Rifter",
   archivedAt: "2026-08-21T00:00:00Z",
-  measures: { jobCostTotal: 1000, profitLoss: 250, segment: "standaloneRecordedSale" },
+  measures: {
+    jobCostTotal: 1000,
+    profitLoss: 250,
+    segment: "standaloneRecordedSale",
+  },
 };
 
 beforeEach(() => {
@@ -59,7 +67,15 @@ describe("the archived jobs list, end to end", () => {
   // totals a fold later, and the row says which side of that it is on.
   it("marks a job whose figures are not in the totals yet", async () => {
     getArchivedJobs.mockResolvedValue(
-      page([COUNTED, { ...COUNTED, jobID: "job-pending", name: "Hobgoblin II", awaitingTotals: true }]),
+      page([
+        COUNTED,
+        {
+          ...COUNTED,
+          jobID: "job-pending",
+          name: "Hobgoblin II",
+          awaitingTotals: true,
+        },
+      ]),
     );
     renderWithProviders(<ArchivedJobsList enabled />);
 
@@ -102,26 +118,39 @@ describe("the archived jobs list, end to end", () => {
     expect(
       await screen.findByRole("group", { name: "Costs count in" }),
     ).toHaveTextContent("2026-08");
-    expect(screen.getByRole("group", { name: "Sales count in" })).toHaveTextContent(
-      "2026-07",
-    );
+    expect(
+      screen.getByRole("group", { name: "Sales count in" }),
+    ).toHaveTextContent("2026-07");
   });
 
   // A set archived together is corrected together: the request names the group
   // rather than walking its members one at a time.
   it("files a whole group from the block header", async () => {
-    const { fileArchivedJobMonths } = await import(
-      "../../Functions/Endpoints/Private/archivedJobsList"
-    );
+    const { fileArchivedJobMonths } =
+      await import("../../Functions/Endpoints/Private/archivedJobsList");
     getArchivedJobs.mockResolvedValue(
       page([
-        { ...COUNTED, jobID: "a", groupID: "group-1", groupName: "Drone run", costMonth: "2026-08" },
-        { ...COUNTED, jobID: "b", groupID: "group-1", groupName: "Drone run", costMonth: "2026-08" },
+        {
+          ...COUNTED,
+          jobID: "a",
+          groupID: "group-1",
+          groupName: "Drone run",
+          costMonth: "2026-08",
+        },
+        {
+          ...COUNTED,
+          jobID: "b",
+          groupID: "group-1",
+          groupName: "Drone run",
+          costMonth: "2026-08",
+        },
       ]),
     );
     renderWithProviders(<ArchivedJobsList enabled />);
 
-    fireEvent.click((await screen.findAllByRole("button", { name: "Months" }))[0]);
+    fireEvent.click(
+      (await screen.findAllByRole("button", { name: "Months" }))[0],
+    );
     expect(await screen.findByText(/these 2 jobs/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
@@ -144,9 +173,8 @@ describe("the archived jobs list, end to end", () => {
   // key carrying the owner, so a switch reads again instead of showing what was
   // cached for the planner before it.
   it("caches its page under the planner it read for", async () => {
-    const { archivedJobsQueryKey } = await import(
-      "../../Hooks/React Query/Backend/archivedJobsList.js"
-    );
+    const { archivedJobsQueryKey } =
+      await import("../../Hooks/React Query/Backend/archivedJobsList.js");
     renderWithProviders(<ArchivedJobsList enabled />);
     expect(await screen.findByText("Rifter")).toBeInTheDocument();
 

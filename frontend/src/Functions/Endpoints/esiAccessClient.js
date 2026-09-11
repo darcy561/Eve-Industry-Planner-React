@@ -18,12 +18,12 @@ export async function requestEsiAccessFromServerStorage(characterHash) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ character_hash: characterHash }),
     },
-    { requestName: "requestEsiAccessFromServerStorage" }
+    { requestName: "requestEsiAccessFromServerStorage" },
   );
   if (!response.ok) {
     const errText = await response.text().catch(() => "");
     throw new Error(
-      `Server-stored ESI access refresh failed: ${response.status} ${response.statusText} ${errText}`
+      `Server-stored ESI access refresh failed: ${response.status} ${response.statusText} ${errText}`,
     );
   }
   return response.json();
@@ -49,12 +49,12 @@ export async function requestEsiAccessFromServerStorageBatch(characterHashes) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ character_hashes: characterHashes }),
     },
-    { requestName: "requestEsiAccessFromServerStorageBatch" }
+    { requestName: "requestEsiAccessFromServerStorageBatch" },
   );
   if (!response.ok) {
     const errText = await response.text().catch(() => "");
     const err = new Error(
-      `Server-stored ESI access batch refresh failed: ${response.status} ${response.statusText} ${errText}`
+      `Server-stored ESI access batch refresh failed: ${response.status} ${response.statusText} ${errText}`,
     );
     err.status = response.status;
     throw err;
@@ -76,13 +76,13 @@ export async function requestEsiAccessFromClientRefreshSecret(refreshToken) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: refreshToken }),
     },
-    { requestName: "requestEsiAccessFromClientRefreshSecret" }
+    { requestName: "requestEsiAccessFromClientRefreshSecret" },
   );
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
       errorData.error ||
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
     );
   }
   return response.json();

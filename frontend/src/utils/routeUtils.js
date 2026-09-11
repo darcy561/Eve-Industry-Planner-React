@@ -4,7 +4,7 @@
  * This module provides functions to:
  */
 
-import { routeTree } from '../routeTree.gen.js';
+import { routeTree } from "../routeTree.gen.js";
 
 /**
  * Extracts all protected route paths from the TanStack Router route tree.
@@ -28,7 +28,7 @@ export function getProtectedRoutes() {
 
         if (protectedRoute && protectedRoute.children) {
           // Extract all child routes under the protected container
-          Object.values(protectedRoute.children).forEach(childRoute => {
+          Object.values(protectedRoute.children).forEach((childRoute) => {
             if (childRoute && childRoute.path) {
               protectedRoutes.push(childRoute.path);
             }
@@ -43,25 +43,27 @@ export function getProtectedRoutes() {
     // If no routes were found, fall back to a known list
     if (protectedRoutes.length === 0) {
       return [
-        '/dashboard',
-        '/accounts',
-        '/settings',
-        '/blueprint-library',
-        '/asset-library'
+        "/dashboard",
+        "/accounts",
+        "/settings",
+        "/blueprint-library",
+        "/asset-library",
       ];
     }
 
     return protectedRoutes;
-
   } catch (error) {
-    console.error("❌ Error extracting protected routes from route tree:", error);
+    console.error(
+      "❌ Error extracting protected routes from route tree:",
+      error,
+    );
     // Fallback to known protected routes
     return [
-      '/dashboard',
-      '/accounts',
-      '/settings',
-      '/blueprint-library',
-      '/asset-library'
+      "/dashboard",
+      "/accounts",
+      "/settings",
+      "/blueprint-library",
+      "/asset-library",
     ];
   }
 }
@@ -77,21 +79,21 @@ export function isProtectedRoute(path) {
   const protectedRoutes = getProtectedRoutes();
 
   // Check if path matches any protected route exactly or starts with it
-  const isStaticallyProtected = protectedRoutes.some(route => {
-    return path === route || path.startsWith(route + '/');
+  const isStaticallyProtected = protectedRoutes.some((route) => {
+    return path === route || path.startsWith(route + "/");
   });
   // Also check for dynamic routes that should be protected
   const dynamicProtectedPatterns = [
-    /^\/editjob\/\w+$/,  // /editjob/:jobID
-    /^\/group\/\w+$/,    // /group/:groupID (but not /group/new)
+    /^\/editjob\/\w+$/, // /editjob/:jobID
+    /^\/group\/\w+$/, // /group/:groupID (but not /group/new)
   ];
 
-  const isDynamicallyProtected = dynamicProtectedPatterns.some(pattern => {
+  const isDynamicallyProtected = dynamicProtectedPatterns.some((pattern) => {
     return pattern.test(path);
   });
 
   // Special case: /group/new should not be protected
-  if (path === '/group/new') {
+  if (path === "/group/new") {
     return false;
   }
   return isStaticallyProtected || isDynamicallyProtected;
@@ -104,7 +106,10 @@ export function isProtectedRoute(path) {
  * @param {string} defaultPath - The default path to redirect to if original is protected (default: '/dashboard')
  * @returns {string} The path to redirect to after authentication
  */
-export function getRedirectPathAfterAuth(originalPath, defaultPath = '/dashboard') {
+export function getRedirectPathAfterAuth(
+  originalPath,
+  defaultPath = "/dashboard",
+) {
   if (!originalPath) {
     return defaultPath;
   }

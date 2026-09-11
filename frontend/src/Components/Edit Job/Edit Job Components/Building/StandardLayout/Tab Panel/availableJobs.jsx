@@ -19,7 +19,10 @@ import { showSnackbarSuccess } from "../../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { useState } from "react";
 import PanelFallBack from "../../../../panelStates";
-import { formatNumberForLocale, formatTimeRemaining } from "../../../../../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  formatTimeRemaining,
+} from "../../../../../../Functions/Helper/numberParser";
 import findBlueprintType from "../../../../../../Functions/Shared/findBlueprintType";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
@@ -31,8 +34,7 @@ import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
  * (matches the save/delete-icon pattern, no need for the composite hook).
  */
 export function AvailableJobsTab(props) {
-  const { state, actions, jobMatches, isLoading, isError, error } =
-    props;
+  const { state, actions, jobMatches, isLoading, isError, error } = props;
   const queryClient = useQueryClient();
   const [clickedJobs, setClickedJobs] = useState(new Set());
   const jobLockReadOnly = useActiveJobReadOnly(state);
@@ -137,7 +139,10 @@ export function AvailableJobsTab(props) {
 
             if (!jobOwner) return null;
 
-            const blueprintType = findBlueprintType(job.blueprint_id, queryClient);
+            const blueprintType = findBlueprintType(
+              job.blueprint_id,
+              queryClient,
+            );
             const facilityName =
               useUsersStore
                 .getState()
@@ -145,9 +150,9 @@ export function AvailableJobsTab(props) {
               "Location Data Unavailable";
             const timeRemaining = formatTimeRemaining(Date.parse(job.end_date));
             const isReadyToDeliver =
-              job.status === "active" && 
-              (timeRemaining === "Complete" || 
-               Date.parse(job.end_date) - Date.now() <= 0);
+              job.status === "active" &&
+              (timeRemaining === "Complete" ||
+                Date.parse(job.end_date) - Date.now() <= 0);
 
             return (
               <Grid
@@ -157,8 +162,9 @@ export function AvailableJobsTab(props) {
                   xs: 12,
                   sm: 6,
                   md: 4,
-                  lg: 3
-                }}>
+                  lg: 3,
+                }}
+              >
                 <Tooltip
                   title={
                     jobLockReadOnly
@@ -189,14 +195,14 @@ export function AvailableJobsTab(props) {
                         job.status === "delivered"
                           ? "100"
                           : isReadyToDeliver
-                          ? "100"
-                          : Math.round(
-                              100 -
-                                ((Date.parse(job.end_date) - Date.now()) /
-                                  (Date.parse(job.end_date) -
-                                    Date.parse(job.start_date))) *
-                                  100
-                            )
+                            ? "100"
+                            : Math.round(
+                                100 -
+                                  ((Date.parse(job.end_date) - Date.now()) /
+                                    (Date.parse(job.end_date) -
+                                      Date.parse(job.start_date))) *
+                                    100,
+                              )
                       }%`}
                       arrow
                     >
@@ -206,12 +212,12 @@ export function AvailableJobsTab(props) {
                           job.status === "delivered"
                             ? 100
                             : isReadyToDeliver
-                            ? 100
-                            : 100 -
-                              ((Date.parse(job.end_date) - Date.now()) /
-                                (Date.parse(job.end_date) -
-                                  Date.parse(job.start_date))) *
-                                100
+                              ? 100
+                              : 100 -
+                                ((Date.parse(job.end_date) - Date.now()) /
+                                  (Date.parse(job.end_date) -
+                                    Date.parse(job.start_date))) *
+                                  100
                         }
                         sx={{
                           position: "absolute",
@@ -274,9 +280,13 @@ export function AvailableJobsTab(props) {
                         )
                       }
                       title={
-                        <Stack direction="row" spacing={1} sx={{
-                          alignItems: "center"
-                        }}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{
+                            alignItems: "center",
+                          }}
+                        >
                           <Typography variant="body1" noWrap>
                             {formatNumberForLocale(job.runs, { max: 0 })} Runs
                           </Typography>
@@ -287,7 +297,7 @@ export function AvailableJobsTab(props) {
                           variant="caption"
                           noWrap
                           sx={{
-                            color: "text.secondary"
+                            color: "text.secondary",
                           }}
                         >
                           {facilityName}
@@ -301,7 +311,7 @@ export function AvailableJobsTab(props) {
                             variant="caption"
                             align="center"
                             sx={{
-                              color: "text.secondary"
+                              color: "text.secondary",
                             }}
                           >
                             {isReadyToDeliver
@@ -376,7 +386,8 @@ export function AvailableJobsTab(props) {
         sx={{
           marginTop: { xs: "20px", sm: "30px" },
         }}
-        size={12}>
+        size={12}
+      >
         <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
           You have linked the maximum number of jobs from the API, if you need
           to link more increase the number of job slots used.
@@ -390,7 +401,8 @@ export function AvailableJobsTab(props) {
         sx={{
           marginTop: { xs: "20px", sm: "30px" },
         }}
-        size={12}>
+        size={12}
+      >
         <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
           There are no matching industry jobs from the API that match this job.
         </Typography>

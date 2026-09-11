@@ -11,7 +11,7 @@ import {
   watchlistManagementActions,
   groupManagementActions,
   jobDocumentPersistenceActions,
-} from './jobsSlice/index.js';
+} from "./jobsSlice/index.js";
 
 /**
  * Jobs Slice for Zustand Store.
@@ -28,16 +28,16 @@ const jobsSlice = (set, get) => ({
       ...coreActions(set, get),
 
       ...inboundSkeletonActions(set, get),
-      
+
       // Multi-selection actions
       ...multiSelectionActions(set, get),
-      
+
       // Active tracking actions
       ...activeTrackingActions(set, get),
-      
+
       // Watchlist management actions
       ...watchlistManagementActions(set, get),
-      
+
       // Group management actions
       ...groupManagementActions(set, get),
 

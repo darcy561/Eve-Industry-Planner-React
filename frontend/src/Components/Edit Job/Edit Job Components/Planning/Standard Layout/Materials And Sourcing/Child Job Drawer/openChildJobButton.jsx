@@ -9,13 +9,9 @@ import EditJobLeaveConfirmDialogue from "../../../../../EditJobLeaveConfirmDialo
 import { yieldEditJobDocumentLocksOnLeave } from "../../../../../../../Functions/DocumentLock/yieldEditJobDocumentLocksOnLeave.js";
 import { useActiveJobPersistGate } from "../../../../../Edit Job Hooks/useActiveJobDocumentLock";
 
-export function OpenChildJobButton({
-  state,
-  childJobObjects,
-  jobDisplay,
-}) {
-  const navigate = useNavigate({ from: '/editjob/$jobID' });
-  const search = useSearch({ from: '/editjob/$jobID' });
+export function OpenChildJobButton({ state, childJobObjects, jobDisplay }) {
+  const navigate = useNavigate({ from: "/editjob/$jobID" });
+  const search = useSearch({ from: "/editjob/$jobID" });
   const { jobID: routeJobID } = useParams({ from: "/editjob/$jobID" });
   const queryClient = useQueryClient();
   const [fallbackOpen, setFallbackOpen] = useState(false);
@@ -97,7 +93,7 @@ export function OpenChildJobButton({
               state.temporaryChildJobs,
               state.esiDataToLink,
               state.parentChildToEdit,
-              queryClient
+              queryClient,
             );
             navigateToPendingJob();
           } finally {

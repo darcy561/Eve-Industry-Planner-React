@@ -44,12 +44,11 @@ function canEditLocallyOrAsHolder(hasDocument, state, holderEligible) {
  * @param {*} [state] — root store state; defaults to current snapshot
  * @returns {boolean}
  */
-export function canPersistGroupClose(groupID, state = useUsersStore.getState()) {
-  return canPersistDocumentScope(
-    state,
-    USER_JOB_GROUPS_COLLECTION,
-    groupID
-  );
+export function canPersistGroupClose(
+  groupID,
+  state = useUsersStore.getState(),
+) {
+  return canPersistDocumentScope(state, USER_JOB_GROUPS_COLLECTION, groupID);
 }
 
 /**
@@ -62,7 +61,11 @@ export function canPersistGroupClose(groupID, state = useUsersStore.getState()) 
  * @param {*} [state] — root store state; defaults to current snapshot
  * @returns {boolean}
  */
-export function canPersistJobClose(jobID, groupID, state = useUsersStore.getState()) {
+export function canPersistJobClose(
+  jobID,
+  groupID,
+  state = useUsersStore.getState(),
+) {
   if (!jobID) return false;
   if (isJobLockSubordinateToGroup(state, groupID)) {
     return canPersistDocumentScope(state, USER_JOB_GROUPS_COLLECTION, groupID);
@@ -82,11 +85,15 @@ export function canPersistJobClose(jobID, groupID, state = useUsersStore.getStat
  * @param {*} [state] — root store state; defaults to current snapshot
  * @returns {boolean}
  */
-export function canEditActiveJob(jobID, groupID, state = useUsersStore.getState()) {
+export function canEditActiveJob(
+  jobID,
+  groupID,
+  state = useUsersStore.getState(),
+) {
   return canEditLocallyOrAsHolder(
     Boolean(jobID),
     state,
-    canPersistJobClose(jobID, groupID, state)
+    canPersistJobClose(jobID, groupID, state),
   );
 }
 
@@ -102,6 +109,6 @@ export function canEditActiveGroup(groupID, state = useUsersStore.getState()) {
   return canEditLocallyOrAsHolder(
     Boolean(groupID),
     state,
-    canPersistGroupClose(groupID, state)
+    canPersistGroupClose(groupID, state),
   );
 }

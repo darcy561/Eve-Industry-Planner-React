@@ -1,10 +1,12 @@
-import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
-import { allowPublicAccess } from '../../utils/authGuard'
-import { parseGroupPageViewSearchParam } from '../../Functions/Groups/groupPageViewSearch'
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
+import { allowPublicAccess } from "../../utils/authGuard";
+import { parseGroupPageViewSearchParam } from "../../Functions/Groups/groupPageViewSearch";
 
-const GroupFrame = lazyRouteComponent(() => import('../../Components/Groups/groupFrame'))
+const GroupFrame = lazyRouteComponent(
+  () => import("../../Components/Groups/groupFrame"),
+);
 
-export const Route = createFileRoute('/group/$groupID')({
+export const Route = createFileRoute("/group/$groupID")({
   beforeLoad: allowPublicAccess,
   validateSearch: (raw) => ({
     pageView: parseGroupPageViewSearchParam(raw.pageView),
@@ -14,4 +16,4 @@ export const Route = createFileRoute('/group/$groupID')({
         : undefined,
   }),
   component: GroupFrame,
-})
+});

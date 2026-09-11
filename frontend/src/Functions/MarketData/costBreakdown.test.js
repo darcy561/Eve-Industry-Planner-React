@@ -139,14 +139,21 @@ describe("what a breakdown leaves out", () => {
     const cost = buildCostBreakdown({
       rows: [row()],
       extras: [
-        { id: "a", categoryLabel: "Hauling", extraText: "Courier", extraValue: 500 },
+        {
+          id: "a",
+          categoryLabel: "Hauling",
+          extraText: "Courier",
+          extraValue: 500,
+        },
       ],
     });
 
-    expect(cost.toBuild.lines.find((line) => line.id === "extras")).toBeUndefined();
-    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").value).toBe(
-      500,
-    );
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "extras"),
+    ).toBeUndefined();
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "extras:a").value,
+    ).toBe(500);
   });
 
   it("costs nothing for a job with no materials at all", () => {
@@ -164,7 +171,7 @@ describe("what each line says about itself", () => {
     });
 
     expect(lineDetail(cost.toBuild, "bought")).toBe(
-      "2 of 3 · 1 replaced by child builds"
+      "2 of 3 · 1 replaced by child builds",
     );
   });
 
@@ -186,7 +193,7 @@ describe("what each line says about itself", () => {
     });
 
     expect(lineDetail(cost.toSell, "brokerFee")).toBe(
-      "1.5% at Jita · Broker Relations IV"
+      "1.5% at Jita · Broker Relations IV",
     );
     expect(lineDetail(cost.toSell, "salesTax")).toContain("Accounting IV");
   });
@@ -222,7 +229,12 @@ describe("a material bought in part", () => {
   it("charges nothing more for a material bought in full", () => {
     const cost = buildCostBreakdown({
       rows: [
-        row({ quantity: 1000, paidQuantity: 1000, paidCost: 9_000, plan: MATERIAL_PLAN.PAID }),
+        row({
+          quantity: 1000,
+          paidQuantity: 1000,
+          paidCost: 9_000,
+          plan: MATERIAL_PLAN.PAID,
+        }),
       ],
     });
 
@@ -249,7 +261,12 @@ describe("per unit", () => {
 // the materials line grows and the child-builds line disappears.
 describe("pricing every material at market", () => {
   const linked = () =>
-    row({ plan: MATERIAL_PLAN.BUILD, buildPrice: 4, buyPrice: 10, quantity: 100 });
+    row({
+      plan: MATERIAL_PLAN.BUILD,
+      buildPrice: 4,
+      buyPrice: 10,
+      quantity: 100,
+    });
 
   it("prices a linked row at market and drops the child-builds line", () => {
     const cost = buildCostBreakdown({ rows: [linked()], buyEverything: true });
@@ -278,9 +295,9 @@ describe("pricing every material at market", () => {
 
     for (const buyEverything of [false, true]) {
       const cost = buildCostBreakdown({ rows: [paid], buyEverything });
-      expect(
-        cost.toBuild.lines.find((line) => line.id === "paid").value,
-      ).toBe(700);
+      expect(cost.toBuild.lines.find((line) => line.id === "paid").value).toBe(
+        700,
+      );
     }
   });
 });
@@ -302,9 +319,15 @@ it("counts what the invention attempts cost", () => {
 });
 
 it("drops the invention line on a job that invented nothing", () => {
-  const cost = buildCostBreakdown({ rows: [], installCost: 1_000, quantityProduced: 10 });
+  const cost = buildCostBreakdown({
+    rows: [],
+    installCost: 1_000,
+    quantityProduced: 10,
+  });
 
-  expect(cost.toBuild.lines.some((line) => line.id === "invention")).toBe(false);
+  expect(cost.toBuild.lines.some((line) => line.id === "invention")).toBe(
+    false,
+  );
 });
 
 // A child job that no longer covers its material is part built and part bought.
@@ -345,7 +368,10 @@ describe("a row whose child jobs fall short", () => {
       coverage: { ...shortRow.coverage, buyCost: 0, assumed: true },
     };
 
-    const cost = buildCostBreakdown({ rows: [assumedRow], quantityProduced: 10 });
+    const cost = buildCostBreakdown({
+      rows: [assumedRow],
+      quantityProduced: 10,
+    });
     const built = cost.toBuild.lines.find((line) => line.id === "built");
 
     expect(built.value).toBe(700);
@@ -356,7 +382,12 @@ describe("a row whose child jobs fall short", () => {
     const covered = {
       ...shortRow,
       buildPrice: 7,
-      coverage: { ...shortRow.coverage, isShort: false, buyCost: 0, assumed: false },
+      coverage: {
+        ...shortRow.coverage,
+        isShort: false,
+        buyCost: 0,
+        assumed: false,
+      },
     };
 
     const cost = buildCostBreakdown({ rows: [covered], quantityProduced: 10 });
@@ -393,8 +424,12 @@ describe("a row that is both short and partly paid", () => {
     const cost = buildCostBreakdown({ rows: [row], quantityProduced: 10 });
 
     // Of the 50 still to source, the jobs make 30 at 5 and 20 are bought at 10.
-    expect(cost.toBuild.lines.find((line) => line.id === "built").value).toBe(150);
-    expect(cost.toBuild.lines.find((line) => line.id === "bought").value).toBe(200);
+    expect(cost.toBuild.lines.find((line) => line.id === "built").value).toBe(
+      150,
+    );
+    expect(cost.toBuild.lines.find((line) => line.id === "bought").value).toBe(
+      200,
+    );
   });
 
   it("never costs more than the same row with nothing paid yet", () => {
@@ -413,8 +448,12 @@ describe("a row that is both short and partly paid", () => {
       quantityProduced: 10,
     });
 
-    expect(cost.toBuild.lines.find((line) => line.id === "bought")).toBeUndefined();
-    expect(cost.toBuild.lines.find((line) => line.id === "built").value).toBe(100);
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "bought"),
+    ).toBeUndefined();
+    expect(cost.toBuild.lines.find((line) => line.id === "built").value).toBe(
+      100,
+    );
   });
 });
 
@@ -471,9 +510,9 @@ describe("extras, a line each as they were recorded", () => {
       extras: [extra("a", "Courier to Jita", 300, "Hauling")],
     });
 
-    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").detail).toBe(
-      "Hauling",
-    );
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "extras:a").detail,
+    ).toBe("Hauling");
   });
 
   it("falls back to the category for a cost with no description", () => {
@@ -482,9 +521,9 @@ describe("extras, a line each as they were recorded", () => {
       extras: [extra("a", "", 300, "Hauling")],
     });
 
-    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").label).toBe(
-      "Hauling",
-    );
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "extras:a").label,
+    ).toBe("Hauling");
   });
 
   it("names a cost with neither a description nor a category", () => {
@@ -493,9 +532,9 @@ describe("extras, a line each as they were recorded", () => {
       extras: [{ id: "a", extraValue: 300 }],
     });
 
-    expect(cost.toBuild.lines.find((line) => line.id === "extras:a").label).toBe(
-      "Extra cost",
-    );
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "extras:a").label,
+    ).toBe("Extra cost");
   });
 
   // A row's id could otherwise collide with a component's own.
@@ -505,7 +544,9 @@ describe("extras, a line each as they were recorded", () => {
       extras: [extra("install", "Odd", 100)],
     });
 
-    expect(cost.toBuild.lines.find((line) => line.id === "install")).toBeUndefined();
+    expect(
+      cost.toBuild.lines.find((line) => line.id === "install"),
+    ).toBeUndefined();
     expect(
       cost.toBuild.lines.find((line) => line.id === "extras:install"),
     ).toBeDefined();

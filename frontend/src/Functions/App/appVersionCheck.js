@@ -87,8 +87,7 @@ export function getLastKnownRemoteAppVersion() {
  * @returns {boolean} outdated
  */
 export function considerRemoteAppVersion(remoteVersion) {
-  const remote =
-    typeof remoteVersion === "string" ? remoteVersion.trim() : "";
+  const remote = typeof remoteVersion === "string" ? remoteVersion.trim() : "";
   if (!remote) {
     return isClientAppVersionOutdated();
   }

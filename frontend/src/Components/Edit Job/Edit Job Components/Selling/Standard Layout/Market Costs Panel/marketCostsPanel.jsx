@@ -16,7 +16,11 @@ export function MarketCostsPanel({ state }) {
     .worldData.actions.findMarketData(state.activeJob.itemID);
 
   return (
-    <ContentPanel title="Current Market Prices" componentName="Market Costs Panel" paperSx={{ position: "relative" }}>
+    <ContentPanel
+      title="Current Market Prices"
+      componentName="Market Costs Panel"
+      paperSx={{ position: "relative" }}
+    >
       <Box
         sx={{
           position: "absolute",
@@ -30,10 +34,12 @@ export function MarketCostsPanel({ state }) {
         <MarketHistoryIconButton itemTypeID={state.activeJob.itemID} />
         <MarketDataIconButton itemTypeID={state.activeJob.itemID} />
       </Box>
-      <Grid container sx={{
-        width: "100%"
-      }}>
-
+      <Grid
+        container
+        sx={{
+          width: "100%",
+        }}
+      >
         {MARKET_OPTIONS.map(({ id, name }) => {
           const optionCosts = itemCosts[id];
           return (
@@ -44,13 +50,15 @@ export function MarketCostsPanel({ state }) {
               size={{
                 xs: 12,
                 sm: 6,
-                md: 3
-              }}>
+                md: 3,
+              }}
+            >
               <Grid
                 size={{
                   xs: 12,
-                  sm: 2
-                }}>
+                  sm: 2,
+                }}
+              >
                 <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   {name}
                 </Typography>
@@ -58,8 +66,9 @@ export function MarketCostsPanel({ state }) {
               <Grid
                 size={{
                   xs: 12,
-                  sm: 10
-                }}>
+                  sm: 10,
+                }}
+              >
                 <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   Sell:{" "}
                   {itemCosts ? formatNumberForLocale(optionCosts.sell) : 0}

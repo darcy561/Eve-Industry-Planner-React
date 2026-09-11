@@ -1,7 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import Autocomplete, {
-  createFilterOptions,
-} from "@mui/material/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { FormControl, useTheme } from "@mui/material";
 import {
@@ -44,7 +42,7 @@ function RecipeSearchAutocomplete({
   appShellStyled = false,
 }) {
   const skipMissingBpSetting = useUsersStore(
-    (state) => state.applicationSettings.enableSkipMissingBlueprints
+    (state) => state.applicationSettings.enableSkipMissingBlueprints,
   );
   const [selectedValue, setSelectedValue] = useState(null);
   const [inputValue, setInputValue] = useState("");
@@ -58,13 +56,13 @@ function RecipeSearchAutocomplete({
       filteredOptionsSnapshotRef.current = filtered;
       return filtered;
     },
-    []
+    [],
   );
 
   const handleHighlightChange = (event, option) => {
     if (option == null) return;
     const index = filteredOptionsSnapshotRef.current.findIndex(
-      (o) => o.itemID === option.itemID
+      (o) => o.itemID === option.itemID,
     );
     if (index < 0) return;
     requestAnimationFrame(() => {
@@ -91,9 +89,7 @@ function RecipeSearchAutocomplete({
     listbox: {
       component: VirtualisedListbox,
       virtualizerControlRef,
-      ...(appShellStyled
-        ? { sx: appShellAutocompleteListboxSx(theme) }
-        : {}),
+      ...(appShellStyled ? { sx: appShellAutocompleteListboxSx(theme) } : {}),
     },
     ...(appShellStyled
       ? {
@@ -154,7 +150,9 @@ function RecipeSearchAutocomplete({
                 })
               : {
                   "& .MuiFormHelperText-root": {
-                    color: isListFiltered ? theme.palette.primary.main : "inherit",
+                    color: isListFiltered
+                      ? theme.palette.primary.main
+                      : "inherit",
                   },
                 }
           }
@@ -248,12 +246,11 @@ function VirtualisedRecipeSearch({
   appShellStyled = false,
 }) {
   const ignoreItemsWithoutBlueprints = useUsersStore(
-    (state) => state.applicationSettings.enableSkipMissingBlueprints
+    (state) => state.applicationSettings.enableSkipMissingBlueprints,
   );
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
   const { data: tranquilityStatus } = useTranquilityServerStatusQuery();
-  const queryEnabled =
-    isLoggedIn && !!tranquilityStatus?.online;
+  const queryEnabled = isLoggedIn && !!tranquilityStatus?.online;
 
   const {
     data: itemList,

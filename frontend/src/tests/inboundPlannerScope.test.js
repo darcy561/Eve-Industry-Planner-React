@@ -30,9 +30,8 @@ vi.mock("../Realtime/handlers/index.js", () => ({
   handleWatchlistDeprecatedDelete: () => {},
 }));
 
-const { applyDocumentMessage } = await import(
-  "../Realtime/handlers/documentMessage.js"
-);
+const { applyDocumentMessage } =
+  await import("../Realtime/handlers/documentMessage.js");
 
 function groupMessage(owner) {
   return {
@@ -40,7 +39,10 @@ function groupMessage(owner) {
     docID: "group-1",
     owner,
     operationType: "update",
-    document: { groupID: "group-1", _meta: { lastModified: "2026-01-01T00:00:00Z" } },
+    document: {
+      groupID: "group-1",
+      _meta: { lastModified: "2026-01-01T00:00:00Z" },
+    },
   };
 }
 
@@ -50,7 +52,10 @@ function jobMessage(owner) {
     docID: "job-1",
     owner,
     operationType: "update",
-    document: { jobID: "job-1", _meta: { lastModified: "2026-01-01T00:00:00Z" } },
+    document: {
+      jobID: "job-1",
+      _meta: { lastModified: "2026-01-01T00:00:00Z" },
+    },
   };
 }
 

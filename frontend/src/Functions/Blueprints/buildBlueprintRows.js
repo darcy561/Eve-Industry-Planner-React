@@ -78,12 +78,10 @@ export default function buildBlueprintRows(rows = [], searchIndex = []) {
       // reaction formulas carry no such state and restack after every use, so for them a stack is
       // the everyday condition rather than an edge case.
       originalCount: isCopy ? 0 : Math.max(quantity, 1),
-      ownerType: isCorporation
-        ? OWNER_KIND.CORPORATION
-        : OWNER_KIND.CHARACTER,
+      ownerType: isCorporation ? OWNER_KIND.CORPORATION : OWNER_KIND.CHARACTER,
       ownerId: isCorporation
-        ? row.corporation_id ?? null
-        : row.CharacterHash ?? null,
+        ? (row.corporation_id ?? null)
+        : (row.CharacterHash ?? null),
       locationId: row.location_id,
       flag: row.location_flag,
       productTypeId: product?.itemID ?? null,
@@ -106,7 +104,7 @@ export default function buildBlueprintRows(rows = [], searchIndex = []) {
     // the library both want, decided once rather than by a comparator on stringified quantities.
     group.sort(
       (a, b) =>
-        Number(a.isCopy) - Number(b.isCopy) || b.me - a.me || b.te - a.te
+        Number(a.isCopy) - Number(b.isCopy) || b.me - a.me || b.te - a.te,
     );
   }
 

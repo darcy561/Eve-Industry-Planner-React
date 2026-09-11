@@ -6,7 +6,10 @@ import { alpha } from "@mui/material/styles";
  * @param {import("@mui/material").Theme} theme
  * @param {{ activeDragPayload: object | null, isOver: boolean, canAcceptHere: boolean }} args
  */
-export function plannerStageDropZoneSx(theme, { activeDragPayload, isOver, canAcceptHere }) {
+export function plannerStageDropZoneSx(
+  theme,
+  { activeDragPayload, isOver, canAcceptHere },
+) {
   const dragging = Boolean(activeDragPayload);
   const rejectDrop = Boolean(activeDragPayload && isOver && !canAcceptHere);
   const canHint = Boolean(activeDragPayload && canAcceptHere && !isOver);

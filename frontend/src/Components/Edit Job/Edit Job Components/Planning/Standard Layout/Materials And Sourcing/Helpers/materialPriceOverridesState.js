@@ -23,7 +23,11 @@ export function normalizeOverrideEntry(overrideEntry) {
     : normalized;
 }
 
-export function setMaterialOverrideMap(currentOverrides, materialTypeID, patch = {}) {
+export function setMaterialOverrideMap(
+  currentOverrides,
+  materialTypeID,
+  patch = {},
+) {
   const currentEntry = currentOverrides[materialTypeID] || {};
   const nextEntry = normalizeOverrideEntry({
     ...currentEntry,

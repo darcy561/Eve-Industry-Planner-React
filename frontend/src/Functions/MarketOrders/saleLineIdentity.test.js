@@ -22,7 +22,8 @@ vi.mock("../../Hooks/EveEsi/Corporation/useGetAllCorporationJournal", () => ({
   }),
 }));
 
-const { default: findBrokersFeeEntry } = await import("./findBrokersFeeEntry.js");
+const { default: findBrokersFeeEntry } =
+  await import("./findBrokersFeeEntry.js");
 
 // A corporation sale can only be reported against a corporation if the id ESI
 // supplied reaches the stored job. Nothing later can recover it: the archive is
@@ -96,7 +97,10 @@ describe("corporation identity on stored sale lines", () => {
 
   // The character is recorded the same way, so character_ref has an input at all.
   it("keeps the character each line was fetched for", () => {
-    const order = MarketOrder.fromESI({ order_id: 900, character_id: 2117000001 });
+    const order = MarketOrder.fromESI({
+      order_id: 900,
+      character_id: 2117000001,
+    });
     const transaction = Transaction.fromESI(
       { transaction_id: 1, character_id: 2117000001, is_personal: true },
       {

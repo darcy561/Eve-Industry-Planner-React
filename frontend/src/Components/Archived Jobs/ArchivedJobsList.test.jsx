@@ -20,7 +20,7 @@ vi.mock("@tanstack/react-query", async (importOriginal) => ({
 const { ArchivedJobsList } = await import("./ArchivedJobsList.jsx");
 
 function renderList(props) {
-  return renderWithTheme(      <ArchivedJobsList {...props} />);
+  return renderWithTheme(<ArchivedJobsList {...props} />);
 }
 
 const jobs = [
@@ -219,6 +219,8 @@ describe("jobs filed under months of their own", () => {
     withRow({});
     renderList();
 
-    expect(screen.getAllByRole("button", { name: "Months" }).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("button", { name: "Months" }).length,
+    ).toBeGreaterThan(0);
   });
 });

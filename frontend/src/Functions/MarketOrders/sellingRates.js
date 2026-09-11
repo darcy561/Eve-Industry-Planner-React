@@ -44,7 +44,7 @@ export function getSellerSkills(queryClient, characterHash) {
 
   const { data, isLoading, isError } = getCachedCharacterSkills(
     queryClient,
-    characterHash
+    characterHash,
   );
 
   // Same rule as standings: a level that could not be read is not level zero,
@@ -75,7 +75,11 @@ export function getSellerSkills(queryClient, characterHash) {
  * @returns {Promise<number>} Percentage
  */
 export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
-  const { rate } = await brokerFeeWorking(saleLocation, queryClient, characterHash);
+  const { rate } = await brokerFeeWorking(
+    saleLocation,
+    queryClient,
+    characterHash,
+  );
   return rate;
 }
 
@@ -113,7 +117,11 @@ export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
  * @param {string|null} [characterHash]
  * @returns {Promise<BrokerFeeWorking>}
  */
-export async function brokerFeeWorking(saleLocation, queryClient, characterHash) {
+export async function brokerFeeWorking(
+  saleLocation,
+  queryClient,
+  characterHash,
+) {
   if (saleLocation?.kind === SALE_LOCATION_KIND.STRUCTURE) {
     return {
       kind: SALE_LOCATION_KIND.STRUCTURE,
@@ -125,13 +133,13 @@ export async function brokerFeeWorking(saleLocation, queryClient, characterHash)
 
   const { brokerRelations, unknown: skillsUnknown } = getSellerSkills(
     queryClient,
-    characterHash
+    characterHash,
   );
   const { faction, corporation, unknown, factionName, corporationName } =
     await getStationStandings(
       saleLocation?.priceHubStationID,
       queryClient,
-      characterHash
+      characterHash,
     );
 
   const terms = [
@@ -260,7 +268,11 @@ async function getStationStandings(stationID, queryClient, characterHash) {
 
   return {
     faction: standingFrom(standings, factionID, STANDING_FROM.FACTION),
-    corporation: standingFrom(standings, station.owner, STANDING_FROM.CORPORATION),
+    corporation: standingFrom(
+      standings,
+      station.owner,
+      STANDING_FROM.CORPORATION,
+    ),
     factionName: names?.[factionID]?.name ?? null,
     corporationName: names?.[station.owner]?.name ?? null,
     unknown: false,

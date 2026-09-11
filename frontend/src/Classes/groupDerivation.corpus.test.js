@@ -10,7 +10,7 @@ import Job from "./job.js";
 // the bundler from outside the app root.
 const corpusPath = resolve(
   process.cwd(),
-  "../testing/fixtures/group-derivation/cases.json"
+  "../testing/fixtures/group-derivation/cases.json",
 );
 const corpus = JSON.parse(readFileSync(corpusPath, "utf8"));
 

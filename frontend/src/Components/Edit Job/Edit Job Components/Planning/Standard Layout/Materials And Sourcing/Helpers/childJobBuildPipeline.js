@@ -25,7 +25,7 @@ export async function hydrateChildJobsWithMissingData(inputJobs) {
   recalculateInstallCostsWithNewData(
     jobs,
     requestedMarketData,
-    requestedSystemIndexes
+    requestedSystemIndexes,
   );
 
   useUsersStore.getState().worldData.actions.addMarketData(requestedMarketData);

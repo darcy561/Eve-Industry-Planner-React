@@ -1,11 +1,13 @@
-import { Box, ToggleButtonGroup, ToggleButton, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  ToggleButtonGroup,
+  ToggleButton,
+  useMediaQuery,
+} from "@mui/material";
 import MarketLocationSelect from "../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../Styled Components/Select/marketListing";
 
-function OptionsPanel({
-  pageState,
-  pageActions,
-}) {
+function OptionsPanel({ pageState, pageActions }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   return (
@@ -17,8 +19,9 @@ function OptionsPanel({
         alignItems: { xs: "stretch", md: "center" },
         width: "100%",
         height: "100%",
-        gap: { xs: 2, md: 0 }
-      }}>
+        gap: { xs: 2, md: 0 },
+      }}
+    >
       <Box
         sx={{
           display: "flex",
@@ -26,8 +29,9 @@ function OptionsPanel({
           alignItems: "center",
           justifyContent: { xs: "center", md: "flex-start" },
           gap: 2,
-          order: { xs: 1, md: 1 }
-        }}>
+          order: { xs: 1, md: 1 },
+        }}
+      >
         <ToggleButtonGroup
           value={pageState.toMinerals}
           exclusive
@@ -76,8 +80,9 @@ function OptionsPanel({
           alignItems: "center",
           justifyContent: "center",
           flexGrow: { xs: 0, md: 1 },
-          order: { xs: 2, md: 2 }
-        }}>
+          order: { xs: 2, md: 2 },
+        }}
+      >
         {pageState.toMinerals && (
           <ToggleButtonGroup
             value={pageState.displayAdvancedView}
@@ -125,8 +130,9 @@ function OptionsPanel({
           justifyContent: { xs: "center", md: "center" },
           gap: 2,
           order: { xs: 3, md: 3 },
-          flexWrap: { xs: "wrap", md: "nowrap" }
-        }}>
+          flexWrap: { xs: "wrap", md: "nowrap" },
+        }}
+      >
         <MarketLocationSelect
           value={pageState.marketLocation}
           onChange={({ id }) => pageActions.setMarketLocation(id)}

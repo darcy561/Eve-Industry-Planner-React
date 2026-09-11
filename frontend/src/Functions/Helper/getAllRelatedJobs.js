@@ -26,7 +26,7 @@ function getAllRelatedJobs(inputJobIDs) {
       stack = Array.from(inputJobIDs);
     } else {
       throw new Error(
-        "Invalid inputItem type. Expected a string, array, or set."
+        "Invalid inputItem type. Expected a string, array, or set.",
       );
     }
 
@@ -34,9 +34,9 @@ function getAllRelatedJobs(inputJobIDs) {
       const jobID = stack.pop();
       if (jobIDMap[jobID]) continue;
 
-      const matchedJob = useUsersStore.getState().jobData.actions.findJobInJobArray(
-        jobID
-      );
+      const matchedJob = useUsersStore
+        .getState()
+        .jobData.actions.findJobInJobArray(jobID);
       if (!matchedJob) continue;
 
       jobIDMap[jobID] = matchedJob;

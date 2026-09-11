@@ -84,10 +84,10 @@ function JobDependencyNodeImpl({ id, data }) {
                 background: (t) =>
                   `linear-gradient(90deg, transparent, ${alpha(
                     selectionColor,
-                    0.95
+                    0.95,
                   )}, ${alpha(
                     t.palette.common.white,
-                    t.palette.mode === "dark" ? 0.4 : 0.65
+                    t.palette.mode === "dark" ? 0.4 : 0.65,
                   )}, ${alpha(selectionColor, 0.9)}, transparent)`,
                 filter: (t) =>
                   t.palette.mode === "dark"
@@ -95,7 +95,9 @@ function JobDependencyNodeImpl({ id, data }) {
                     : "brightness(1.05)",
                 animation:
                   "jobDependencyNodeEdgeShimmer 2.2s ease-in-out infinite",
-                "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+                "@media (prefers-reduced-motion: reduce)": {
+                  animation: "none",
+                },
               }}
             />
           </Box>
@@ -299,7 +301,11 @@ function JobDependencyNodeImpl({ id, data }) {
         </Box>
       )}
 
-      <Handle id={HANDLE_FROM_CHILDREN} type="target" position={Position.Bottom} />
+      <Handle
+        id={HANDLE_FROM_CHILDREN}
+        type="target"
+        position={Position.Bottom}
+      />
     </Box>
   );
 }

@@ -81,7 +81,7 @@ class ESIFetchWrapper {
   async fetch(url, options = {}, config = {}) {
     // Get group from cache if available, otherwise use 'default' until headers are received
     const cachedGroup = this.rateLimiter.getGroupForUrl(url);
-    const initialGroup = config.group || cachedGroup || 'default';
+    const initialGroup = config.group || cachedGroup || "default";
     const userID = this.generateUserID(options, config.characterHash);
     const maxRetries = config.maxRetries || this.maxRetries;
 
@@ -95,7 +95,7 @@ class ESIFetchWrapper {
 
         if (!canMake.canProceed) {
           console.log(
-            `Rate limit reached for ${actualGroup}. Waiting ${canMake.waitTime}ms...`
+            `Rate limit reached for ${actualGroup}. Waiting ${canMake.waitTime}ms...`,
           );
           await this.rateLimiter.sleep(canMake.waitTime);
         }
@@ -108,7 +108,7 @@ class ESIFetchWrapper {
           url,
           actualGroup,
           userID,
-          response.headers
+          response.headers,
         );
 
         // Handle different response statuses
@@ -129,7 +129,7 @@ class ESIFetchWrapper {
           if (attempt < maxRetries) {
             const delay = this.calculateBackoffDelay(attempt);
             console.warn(
-              `Server error ${response.status}. Retrying in ${delay}ms...`
+              `Server error ${response.status}. Retrying in ${delay}ms...`,
             );
             await this.rateLimiter.sleep(delay);
             continue;
@@ -140,7 +140,7 @@ class ESIFetchWrapper {
         const tokenCost = this.rateLimiter.calculateTokenCost(response.status);
         this.rateLimiter.consumeTokens(
           this.rateLimiter.getBucket(actualGroup, userID),
-          tokenCost
+          tokenCost,
         );
 
         return response;
@@ -159,7 +159,7 @@ class ESIFetchWrapper {
         if (attempt < maxRetries) {
           const delay = this.calculateBackoffDelay(attempt);
           console.warn(
-            `Request failed: ${error.message}. Retrying in ${delay}ms...`
+            `Request failed: ${error.message}. Retrying in ${delay}ms...`,
           );
           await this.rateLimiter.sleep(delay);
           continue;
@@ -182,7 +182,7 @@ class ESIFetchWrapper {
   async queueFetch(url, options = {}, config = {}) {
     // Get group from cache if available, otherwise use 'default' until headers are received
     const cachedGroup = this.rateLimiter.getGroupForUrl(url);
-    const initialGroup = config.group || cachedGroup || 'default';
+    const initialGroup = config.group || cachedGroup || "default";
     const userID = this.generateUserID(options, config.characterHash);
 
     return this.rateLimiter.queueRequest(
@@ -190,7 +190,7 @@ class ESIFetchWrapper {
       [],
       initialGroup,
       userID,
-      url // Pass URL for path-to-group mapping
+      url, // Pass URL for path-to-group mapping
     );
   }
 

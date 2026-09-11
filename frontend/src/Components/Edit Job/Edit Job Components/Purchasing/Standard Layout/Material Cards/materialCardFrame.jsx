@@ -31,7 +31,7 @@ export function MaterialCardFrame_Purchasing(props) {
       material.typeID,
       state.activeJob,
       state.temporaryChildJobs,
-      state.parentChildToEdit
+      state.parentChildToEdit,
     );
 
     if (childJobLocation.length > 0) {
@@ -43,11 +43,11 @@ export function MaterialCardFrame_Purchasing(props) {
         childJobs = filterJobs(jobArray);
         childJobProductionTotal = childJobs.reduce(
           (total, job) => total + job.totalQuantityProduced,
-          0
+          0,
         );
         remainingTotalToBeImported = childJobs.reduce((total, job) => {
           const matchingCostImport = material.purchasing.find(
-            (i) => i.childID === job.jobID
+            (i) => i.childID === job.jobID,
           );
 
           if (!matchingCostImport) {
@@ -66,7 +66,7 @@ export function MaterialCardFrame_Purchasing(props) {
 
         remainingTotalToBeImported = childJobs.reduce((total, job) => {
           const matchingCostImport = material.purchasing.find(
-            (i) => i.childID === job.jobID
+            (i) => i.childID === job.jobID,
           );
 
           if (!matchingCostImport) {

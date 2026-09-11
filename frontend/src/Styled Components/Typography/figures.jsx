@@ -47,7 +47,6 @@ export function figureToneColour(tone) {
   return TONE_COLOUR[tone] ?? TONE_COLOUR[FIGURE_TONE.PLAIN];
 }
 
-
 /**
  * A number, lined up with the numbers above and below it.
  *
@@ -125,10 +124,7 @@ export function SignedPercent({
   const good = fell === lowerIsBetter;
 
   return (
-    <Figure
-      variant={variant}
-      tone={good ? FIGURE_TONE.GOOD : FIGURE_TONE.BAD}
-    >
+    <Figure variant={variant} tone={good ? FIGURE_TONE.GOOD : FIGURE_TONE.BAD}>
       {`${fell ? "−" : "+"}${formatPercentage(Math.abs(value), { places })}`}
     </Figure>
   );
@@ -164,7 +160,11 @@ export function BandCaption({ children, tone = FIGURE_TONE.PLAIN }) {
     <Figure
       tone={tone}
       variant="caption"
-      sx={{ display: "block", letterSpacing: "0.06em", textTransform: "uppercase" }}
+      sx={{
+        display: "block",
+        letterSpacing: "0.06em",
+        textTransform: "uppercase",
+      }}
     >
       {children}
     </Figure>

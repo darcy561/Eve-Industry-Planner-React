@@ -19,7 +19,7 @@ import { buildJob } from "./buildJob";
 export default async function addNewJobsToPlanner(
   buildRequests,
   queryClient,
-  options = {}
+  options = {},
 ) {
   const { onBeforeCommit } = options;
   const {
@@ -51,7 +51,9 @@ export default async function addNewJobsToPlanner(
 
   for (const jobObject of createdJobs) {
     if (jobObject.groupID && !shouldCreateNewGroup) {
-      const matchedGroup = groupArray.find((i) => i.groupID === jobObject.groupID);
+      const matchedGroup = groupArray.find(
+        (i) => i.groupID === jobObject.groupID,
+      );
       if (matchedGroup) {
         matchedGroup.addJobsToGroup(jobObject);
         modifiedGroupsByID.set(matchedGroup.groupID, matchedGroup);
@@ -72,14 +74,13 @@ export default async function addNewJobsToPlanner(
   }
   updateOrAddJobsToJobArray(createdJobs);
 
-  const { requestedMarketData, requestedSystemIndexes } = await getMissingESIData(
-    createdJobs
-  );
+  const { requestedMarketData, requestedSystemIndexes } =
+    await getMissingESIData(createdJobs);
 
   recalculateInstallCostsWithNewData(
     createdJobs,
     requestedMarketData,
-    requestedSystemIndexes
+    requestedSystemIndexes,
   );
 
   if (createdGroup) {
@@ -91,11 +92,15 @@ export default async function addNewJobsToPlanner(
   }
 
   useUsersStore.getState().worldData.actions.addMarketData(requestedMarketData);
-  useUsersStore.getState().worldData.actions.addSystemIndex(requestedSystemIndexes);
+  useUsersStore
+    .getState()
+    .worldData.actions.addSystemIndex(requestedSystemIndexes);
 
   showSnackbarSuccess(
-    isSingleJobBuild ? `${createdJobs[0].name} Added` : `${createdJobs.length} Jobs Added.`,
-    3
+    isSingleJobBuild
+      ? `${createdJobs[0].name} Added`
+      : `${createdJobs.length} Jobs Added.`,
+    3,
   );
   if (isSingleJobBuild && createdJobs[0].parentJobs.length > 0) {
     return createdJobs[0];

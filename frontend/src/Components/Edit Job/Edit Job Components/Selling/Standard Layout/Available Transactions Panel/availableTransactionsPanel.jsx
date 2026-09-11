@@ -107,17 +107,17 @@ export function AvailableTransactionsPanel({
     if (combinedIsLoading) {
       return [];
     }
-    
+
     // Guard against missing job data
     if (!state.activeJob?.build?.sale?.marketOrders) {
       return [];
     }
-    
+
     return findOrderTransactions(
       state.activeJob,
       queryClient,
       state.esiDataToLink.transactions.add,
-      state.esiDataToLink.transactions.remove
+      state.esiDataToLink.transactions.remove,
     );
   }, [
     state.activeJob,
@@ -144,9 +144,12 @@ export function AvailableTransactionsPanel({
       isError={combinedIsError}
       error={combinedError}
     >
-      <Grid container sx={{
-        width: "100%"
-      }}>
+      <Grid
+        container
+        sx={{
+          width: "100%",
+        }}
+      >
         <Grid
           container
           sx={{
@@ -175,7 +178,7 @@ export function AvailableTransactionsPanel({
                   container
                   size={12}
                   sx={{
-                    alignItems: "center"
+                    alignItems: "center",
                   }}
                 >
                   <Grid size={1}>
@@ -291,7 +294,7 @@ export function AvailableTransactionsPanel({
                             if (jobLockReadOnly) return;
                             state.activeJob.addTransaction(tData, activeOrder);
                             actions.addTransactionsForAddition(
-                              tData.transaction_id
+                              tData.transaction_id,
                             );
                             actions.updateActiveJob(state.activeJob);
                             showSnackbarSuccess("Linked");
@@ -332,9 +335,12 @@ export function AvailableTransactionsPanel({
                   disabled={jobLockReadOnly}
                   onClick={() => {
                     if (jobLockReadOnly) return;
-                    state.activeJob.addTransaction(transactionData, activeOrder);
+                    state.activeJob.addTransaction(
+                      transactionData,
+                      activeOrder,
+                    );
                     actions.addTransactionsForAddition(
-                      transactionData.map((trans) => trans.transaction_id)
+                      transactionData.map((trans) => trans.transaction_id),
                     );
                     actions.updateActiveJob(state.activeJob);
                     showSnackbarSuccess("All Transactions Linked");

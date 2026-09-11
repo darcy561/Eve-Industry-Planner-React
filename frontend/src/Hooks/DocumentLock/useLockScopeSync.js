@@ -37,10 +37,7 @@ async function syncLockScopesFromApi(jobIDs, groupIDs, isCancelled, chunkSize) {
   let offset = 0;
   let first = true;
 
-  while (
-    offset < uj.length ||
-    (first && ug.length > 0 && uj.length === 0)
-  ) {
+  while (offset < uj.length || (first && ug.length > 0 && uj.length === 0)) {
     if (isCancelled()) return;
     const jobs = uj.slice(offset, offset + chunkSize);
     const groups = first ? ug : [];
@@ -78,7 +75,7 @@ async function syncLockScopesFromApi(jobIDs, groupIDs, isCancelled, chunkSize) {
           applyDocumentLockStatusFromPayload(
             USER_JOB_GROUPS_COLLECTION,
             gid,
-            row
+            row,
           );
         }
       }
@@ -144,12 +141,7 @@ export function useLockScopeSync({
       const jobIDs = getJobIDs();
       const groupIDs = trackGroups ? getGroupIDs() : [];
       if (jobIDs.length === 0 && groupIDs.length === 0) return;
-      void syncLockScopesFromApi(
-        jobIDs,
-        groupIDs,
-        () => cancelled,
-        chunkSize
-      );
+      void syncLockScopesFromApi(jobIDs, groupIDs, () => cancelled, chunkSize);
     }, LOCK_SCOPE_SYNC_DEBOUNCE_MS);
 
     return () => {
@@ -217,7 +209,7 @@ export function useLockScopeSync({
     return () =>
       window.removeEventListener(
         DOCUMENT_LOCK_CUSTOM_EVENT,
-        onDocumentLockEvent
+        onDocumentLockEvent,
       );
   }, [isLoggedIn, trackGroups]);
 }

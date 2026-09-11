@@ -34,7 +34,11 @@ export default function SkillsTimeEffect({
   // The proposal read as a skills map, so the same calculation answers both.
   const asked = { ...(characterSkills ?? {}) };
   for (const [typeID, activeLevel] of Object.entries(proposed)) {
-    asked[typeID] = { ...(asked[typeID] ?? {}), id: Number(typeID), activeLevel };
+    asked[typeID] = {
+      ...(asked[typeID] ?? {}),
+      id: Number(typeID),
+      activeLevel,
+    };
   }
   const then = timeForSetup(setup, jobSkills, asked);
 

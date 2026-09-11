@@ -270,11 +270,7 @@ export function ArchivedItemBreakdown({ from, to, range, onSelectItem } = {}) {
 
       {canExpand && (
         <Grid container sx={{ justifyContent: "center", mt: 1 }}>
-          <Button
-            size="small"
-            onClick={toggleRows}
-            disabled={isLoading}
-          >
+          <Button size="small" onClick={toggleRows} disabled={isLoading}>
             {expanded
               ? `Show top ${ROWS_COLLAPSED}`
               : `Show top ${ROWS_EXPANDED}`}

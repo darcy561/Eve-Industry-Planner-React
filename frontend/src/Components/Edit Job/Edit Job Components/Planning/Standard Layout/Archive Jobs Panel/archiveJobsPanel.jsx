@@ -85,8 +85,12 @@ function ComparisonStrip({ history }) {
       />
       <Figure
         label="Average"
-        value={builds > 0 ? formatNumberForLocale(averageCostPerItem(history)) : "—"}
-        title={builds > 0 ? numberToShortText(averageCostPerItem(history)) : null}
+        value={
+          builds > 0 ? formatNumberForLocale(averageCostPerItem(history)) : "—"
+        }
+        title={
+          builds > 0 ? numberToShortText(averageCostPerItem(history)) : null
+        }
       />
       <Figure
         label="Range"

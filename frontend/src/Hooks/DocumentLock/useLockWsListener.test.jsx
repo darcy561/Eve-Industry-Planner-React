@@ -34,9 +34,7 @@ vi.mock("../../Zustand/usersStore.js", () => ({
 }));
 
 function dispatchLockEvent(detail) {
-  window.dispatchEvent(
-    new CustomEvent(DOCUMENT_LOCK_CUSTOM_EVENT, { detail })
-  );
+  window.dispatchEvent(new CustomEvent(DOCUMENT_LOCK_CUSTOM_EVENT, { detail }));
 }
 
 describe("useLockWsListener — document_lock_requested (regression)", () => {
@@ -67,7 +65,7 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
         cancelReadOnlyGrace,
         heldRef,
         dispatchHeld,
-      })
+      }),
     );
     return {
       ...view,
@@ -100,7 +98,7 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
     expect(showDocumentLockAccessRequestSnackbar).toHaveBeenCalledTimes(1);
     expect(showDocumentLockAccessRequestSnackbar).toHaveBeenCalledWith(
       "Another tab wants access.",
-      { collection, docID }
+      { collection, docID },
     );
     expect(patch).toHaveBeenCalledWith({ pendingAccessRequest: true });
     expect(heldRef.current).toBe(false);
@@ -152,7 +150,10 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
   });
 
   it("ignores REQUESTED without requesterSessionID", async () => {
-    storeSnapshot.documentLock.scopes[scopeKey] = { lockHeld: true, readOnly: false };
+    storeSnapshot.documentLock.scopes[scopeKey] = {
+      lockHeld: true,
+      readOnly: false,
+    };
     const { patch, unmount } = mountListener(false);
 
     await act(async () => {
@@ -170,7 +171,10 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
   });
 
   it("ignores REQUESTED for a different docID", async () => {
-    storeSnapshot.documentLock.scopes[scopeKey] = { lockHeld: true, readOnly: false };
+    storeSnapshot.documentLock.scopes[scopeKey] = {
+      lockHeld: true,
+      readOnly: false,
+    };
     const { patch, unmount } = mountListener(true);
 
     await act(async () => {
@@ -205,7 +209,8 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
   });
 
   it("ACQUIRED triggers cancelReadOnlyGrace and syncLockFromServer", async () => {
-    const { syncLockFromServer, cancelReadOnlyGrace, unmount } = mountListener(false);
+    const { syncLockFromServer, cancelReadOnlyGrace, unmount } =
+      mountListener(false);
 
     await act(async () => {
       dispatchLockEvent({
@@ -222,7 +227,8 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
   });
 
   it("HANDOFF_COMPLETED triggers cancelReadOnlyGrace and syncLockFromServer", async () => {
-    const { syncLockFromServer, cancelReadOnlyGrace, unmount } = mountListener(false);
+    const { syncLockFromServer, cancelReadOnlyGrace, unmount } =
+      mountListener(false);
 
     await act(async () => {
       dispatchLockEvent({
@@ -239,7 +245,8 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
   });
 
   it("RELEASED clears lock and dispatchHeld false", async () => {
-    const { patch, dispatchHeld, cancelReadOnlyGrace, unmount } = mountListener(true);
+    const { patch, dispatchHeld, cancelReadOnlyGrace, unmount } =
+      mountListener(true);
 
     await act(async () => {
       dispatchLockEvent({
@@ -261,7 +268,7 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
         lockHeld: false,
         readOnly: false,
         pendingAccessRequest: false,
-      })
+      }),
     );
     unmount();
   });
@@ -366,7 +373,8 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
   });
 
   it("GROUP_CASCADE clears scope when releases include this docID", async () => {
-    const { patch, dispatchHeld, cancelReadOnlyGrace, unmount } = mountListener(true);
+    const { patch, dispatchHeld, cancelReadOnlyGrace, unmount } =
+      mountListener(true);
 
     await act(async () => {
       dispatchLockEvent({
@@ -383,7 +391,7 @@ describe("useLockWsListener — document_lock_requested (regression)", () => {
       held: false,
     });
     expect(patch).toHaveBeenCalledWith(
-      expect.objectContaining({ lockHeld: false, readOnly: false })
+      expect.objectContaining({ lockHeld: false, readOnly: false }),
     );
     unmount();
   });

@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockUpdateCorporationClaims, mockGetEsiAccessToken } = vi.hoisted(() => ({
-  mockUpdateCorporationClaims: vi.fn(),
-  mockGetEsiAccessToken: vi.fn(),
-}));
+const { mockUpdateCorporationClaims, mockGetEsiAccessToken } = vi.hoisted(
+  () => ({
+    mockUpdateCorporationClaims: vi.fn(),
+    mockGetEsiAccessToken: vi.fn(),
+  }),
+);
 vi.mock("../Endpoints/Private/corporationClaims", () => ({
   default: mockUpdateCorporationClaims,
 }));
@@ -37,11 +39,16 @@ describe("refreshing account session grants", () => {
       { CharacterHash: "a", isPlaceholder: false },
       { CharacterHash: "b", isPlaceholder: false },
     ]);
-    mockGetEsiAccessToken.mockImplementation(async (hash) => ({ accessToken: `token-${hash}` }));
+    mockGetEsiAccessToken.mockImplementation(async (hash) => ({
+      accessToken: `token-${hash}`,
+    }));
 
     await refreshAccountSessionGrants();
 
-    expect(mockUpdateCorporationClaims).toHaveBeenCalledWith(["token-a", "token-b"]);
+    expect(mockUpdateCorporationClaims).toHaveBeenCalledWith([
+      "token-a",
+      "token-b",
+    ]);
   });
 
   // One character's credentials being dead must not stop the others' grants being refreshed.
@@ -83,7 +90,9 @@ describe("refreshing account session grants", () => {
 
   // Cloud accounts have their grants refreshed server-side during login and rotate.
   it("does nothing for cloud accounts", async () => {
-    seedRoster([{ CharacterHash: "a", isPlaceholder: false }], { userCloudAccounts: true });
+    seedRoster([{ CharacterHash: "a", isPlaceholder: false }], {
+      userCloudAccounts: true,
+    });
 
     await refreshAccountSessionGrants();
 

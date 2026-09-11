@@ -25,7 +25,7 @@ export default function AssetContainerTemplate_AssetDialogueWindow({
     branch.node,
     fullItemList,
     containerNames,
-    compartmentNames?.get(branch.node.rootFlag)
+    compartmentNames?.get(branch.node.rootFlag),
   );
 
   return (

@@ -22,7 +22,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
 }) {
   const queryClient = useQueryClient();
   const getCustomStructureWithID = useUsersStore(
-    (state) => state.applicationSettings.actions.getCustomStructureWithID
+    (state) => state.applicationSettings.actions.getCustomStructureWithID,
   );
   const jobSetup = Object.values(materialJobs[itemToModify]?.build?.setup)[0];
 
@@ -40,7 +40,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
               watchlistItemRequest,
               jobSetup.id,
               materialJobs,
-              queryClient
+              queryClient,
             );
 
             setMaterialJobs({ ...materialJobs });
@@ -59,7 +59,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}
@@ -75,7 +75,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}
@@ -96,7 +96,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}
@@ -113,7 +113,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}
@@ -130,7 +130,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}
@@ -147,7 +147,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}
@@ -163,7 +163,7 @@ export function WatchListSetupOptions_WatchlistDialogue({
                   watchlistItemRequest,
                   jobSetup.id,
                   materialJobs,
-                  queryClient
+                  queryClient,
                 );
                 setMaterialJobs({ ...materialJobs });
               }}

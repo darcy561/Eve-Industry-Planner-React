@@ -17,7 +17,7 @@ export function MarketOrderPanel(props) {
     error: parentError,
   } = props;
   const [currentTab, updateTab] = useState(() =>
-    state.activeJob.build.sale.marketOrders.length === 0 ? "1" : "0"
+    state.activeJob.build.sale.marketOrders.length === 0 ? "1" : "0",
   );
   const queryClient = useQueryClient();
   const linkedOrders = useUsersStore((state) => state.account.linkedOrders);
@@ -31,7 +31,7 @@ export function MarketOrderPanel(props) {
     state.activeJob,
     linkedOrders,
     state.esiDataToLink,
-    actions
+    actions,
   );
 
   const isLoading = parentIsLoading || isWorldDataLoading;

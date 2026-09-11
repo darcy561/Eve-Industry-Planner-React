@@ -262,7 +262,6 @@ describe("toExtrasRows", () => {
   });
 });
 
-
 describe("toExtrasTotalRows", () => {
   const labels = { 1: "Hauling Service", 90: "Retired Courier Contract" };
 
@@ -290,12 +289,16 @@ describe("toExtrasTotalRows", () => {
       },
     });
 
-    expect(rows).toEqual([{ category: "Retired Courier Contract", value: 700 }]);
+    expect(rows).toEqual([
+      { category: "Retired Courier Contract", value: 700 },
+    ]);
   });
 
   // A total recorded before names were stored still has to draw.
   test("falls back to the id when a category has no stored name", () => {
-    const rows = toExtrasTotalRows({ totals: { extraCategoryTotals: { 7: 10 } } });
+    const rows = toExtrasTotalRows({
+      totals: { extraCategoryTotals: { 7: 10 } },
+    });
 
     expect(rows).toEqual([{ category: "Category 7", value: 10 }]);
   });
@@ -312,7 +315,10 @@ describe("toExtrasTotalRows", () => {
 
   test("drops categories with nothing in them, which a slice cannot show", () => {
     const rows = toExtrasTotalRows({
-      totals: { extraCategoryTotals: { 1: 0, 90: -5 }, extraCategoryLabels: labels },
+      totals: {
+        extraCategoryTotals: { 1: 0, 90: -5 },
+        extraCategoryLabels: labels,
+      },
     });
 
     expect(rows).toEqual([]);
@@ -323,7 +329,6 @@ describe("toExtrasTotalRows", () => {
     expect(toExtrasTotalRows({})).toEqual([]);
   });
 });
-
 
 describe("cost components", () => {
   const data = {
@@ -428,7 +433,9 @@ describe("toBuildCostPerUnitRows", () => {
 
   it("reports null for a month that produced nothing", () => {
     const [row] = toBuildCostPerUnitRows({
-      months: [{ year: 2026, month: 4, quantityProduced: 0, materialCostTotal: 500 }],
+      months: [
+        { year: 2026, month: 4, quantityProduced: 0, materialCostTotal: 500 },
+      ],
     });
 
     expect(row.materialCostTotal).toBeNull();
@@ -460,6 +467,9 @@ describe("summing a window", () => {
   });
 
   it("sums an empty window to zeroes rather than nothing", () => {
-    expect(sumTimelineMeasures([])).toMatchObject({ profitLoss: 0, salesTotal: 0 });
+    expect(sumTimelineMeasures([])).toMatchObject({
+      profitLoss: 0,
+      salesTotal: 0,
+    });
   });
 });

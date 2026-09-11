@@ -103,7 +103,14 @@ export function SnackBarNotification() {
     }
     if (snackbarData.action === "DOCUMENT_LOCK_EXTEND_NUDGE") {
       return (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            flexShrink: 0,
+          }}
+        >
           <Button
             color="inherit"
             size="small"
@@ -119,7 +126,7 @@ export function SnackBarNotification() {
                 window.dispatchEvent(
                   new CustomEvent(DOCUMENT_LOCK_RENEW_REQUEST_EVENT, {
                     detail: { collection, docID },
-                  })
+                  }),
                 );
               }
               handleSnackbarClose({}, "renew");
@@ -142,7 +149,14 @@ export function SnackBarNotification() {
     }
     if (snackbarData.action === "DOCUMENT_LOCK_ACCESS_REQUEST") {
       return (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            flexShrink: 0,
+          }}
+        >
           <IconButton
             aria-label="Hand over editing"
             color="inherit"
@@ -185,7 +199,7 @@ export function SnackBarNotification() {
                   .getState()
                   .documentLock.actions.clearPendingAccessNotice(
                     collection,
-                    docID
+                    docID,
                   );
               }
               handleSnackbarClose({}, "dismiss");
@@ -205,8 +219,7 @@ export function SnackBarNotification() {
   const isDocLockAccess =
     snackbarData.action === "DOCUMENT_LOCK_ACCESS_REQUEST";
 
-  const hideAlertClose =
-    snackbarData.action === "DOCUMENT_LOCK_EXTEND_NUDGE";
+  const hideAlertClose = snackbarData.action === "DOCUMENT_LOCK_EXTEND_NUDGE";
 
   return (
     <Snackbar
@@ -216,7 +229,7 @@ export function SnackBarNotification() {
       open={snackbarData.open}
       onClose={handleSnackbarClose}
       slots={{
-        transition: slideTransition
+        transition: slideTransition,
       }}
     >
       <Alert

@@ -45,7 +45,14 @@ function buildHarness() {
     if (a?.type === DOCUMENT_LOCK_HELD_ACTIONS.SET) heldRef.current = a.held;
   });
   const cancelReadOnlyGrace = vi.fn();
-  return { heldRef, keyRef, patch, resetScope, dispatchHeld, cancelReadOnlyGrace };
+  return {
+    heldRef,
+    keyRef,
+    patch,
+    resetScope,
+    dispatchHeld,
+    cancelReadOnlyGrace,
+  };
 }
 
 describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
@@ -73,7 +80,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
           cancelReadOnlyGrace: h.cancelReadOnlyGrace,
           waitingInHandoffQueue: false,
         }),
-      { initialProps: { lockHeld: false, readOnly: true } }
+      { initialProps: { lockHeld: false, readOnly: true } },
     );
 
     await act(async () => {
@@ -113,7 +120,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
         cancelReadOnlyGrace: h.cancelReadOnlyGrace,
         waitingInHandoffQueue: false,
         releaseOnUnmount: false,
-      })
+      }),
     );
 
     await act(async () => {
@@ -122,7 +129,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
 
     expect(acquireDocumentLock).toHaveBeenCalledWith("job_groups", "g1");
     expect(h.patch).toHaveBeenCalledWith(
-      expect.objectContaining({ suppressVacancyAcquire: false })
+      expect.objectContaining({ suppressVacancyAcquire: false }),
     );
     unmount();
   });
@@ -152,7 +159,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
           cancelReadOnlyGrace: h.cancelReadOnlyGrace,
           waitingInHandoffQueue: false,
         }),
-      { initialProps: { lockHeld: true, readOnly: false } }
+      { initialProps: { lockHeld: true, readOnly: false } },
     );
 
     await act(async () => {
@@ -185,7 +192,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
         keyRef: h.keyRef,
         cancelReadOnlyGrace: h.cancelReadOnlyGrace,
         waitingInHandoffQueue: false,
-      })
+      }),
     );
 
     await act(async () => {
@@ -196,7 +203,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
       expect.objectContaining({
         lockHeld: true,
         lockScopeBootstrapped: true,
-      })
+      }),
     );
     unmount();
   });
@@ -222,15 +229,15 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
         keyRef: h.keyRef,
         cancelReadOnlyGrace: h.cancelReadOnlyGrace,
         waitingInHandoffQueue: false,
-      })
+      }),
     );
 
     await act(async () => {
       await Promise.resolve();
     });
 
-    const bootstrappedCalls = h.patch.mock.calls.filter((args) =>
-      args[0]?.lockScopeBootstrapped === true
+    const bootstrappedCalls = h.patch.mock.calls.filter(
+      (args) => args[0]?.lockScopeBootstrapped === true,
     );
     expect(bootstrappedCalls).toHaveLength(0);
     unmount();
@@ -252,7 +259,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
         keyRef: h.keyRef,
         cancelReadOnlyGrace: h.cancelReadOnlyGrace,
         waitingInHandoffQueue: false,
-      })
+      }),
     );
 
     await act(async () => {
@@ -271,10 +278,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
       await Promise.resolve();
     });
 
-    expect(releaseDocumentLock).toHaveBeenCalledWith(
-      "job_documents",
-      "j1"
-    );
+    expect(releaseDocumentLock).toHaveBeenCalledWith("job_documents", "j1");
   });
 
   it("does not release on unmount when releaseOnUnmount is false", async () => {
@@ -300,7 +304,7 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
         cancelReadOnlyGrace: h.cancelReadOnlyGrace,
         waitingInHandoffQueue: false,
         releaseOnUnmount: false,
-      })
+      }),
     );
 
     await act(async () => {

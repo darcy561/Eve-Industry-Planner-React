@@ -12,7 +12,7 @@ describe("scopeHasOtherSessionContention", () => {
         ...initialScopedDocumentLockState(),
         lockHeld: true,
         readOnly: false,
-      })
+      }),
     ).toBe(false);
   });
 
@@ -21,19 +21,19 @@ describe("scopeHasOtherSessionContention", () => {
       scopeHasOtherSessionContention({
         ...initialScopedDocumentLockState(),
         readOnly: true,
-      })
+      }),
     ).toBe(true);
     expect(
       scopeHasOtherSessionContention({
         ...initialScopedDocumentLockState(),
         viewerCount: 1,
-      })
+      }),
     ).toBe(true);
     expect(
       scopeHasOtherSessionContention({
         ...initialScopedDocumentLockState(),
         waitlistLen: 1,
-      })
+      }),
     ).toBe(true);
   });
 });
@@ -46,7 +46,7 @@ describe("scopeHasLeasePressure", () => {
       viewerCount: 2,
     };
     expect(scopeHasLeasePressure(withViewers)).toBe(
-      scopeHasOtherSessionContention(withViewers)
+      scopeHasOtherSessionContention(withViewers),
     );
     expect(scopeHasLeasePressure(withViewers)).toBe(true);
   });
@@ -56,13 +56,13 @@ describe("scopeHasLeasePressure", () => {
       scopeHasLeasePressure({
         ...initialScopedDocumentLockState(),
         waitlistLen: 1,
-      })
+      }),
     ).toBe(true);
     expect(
       scopeHasLeasePressure({
         ...initialScopedDocumentLockState(),
         pendingAccessRequest: true,
-      })
+      }),
     ).toBe(true);
   });
 });

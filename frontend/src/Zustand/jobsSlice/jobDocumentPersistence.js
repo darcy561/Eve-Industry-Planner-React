@@ -22,12 +22,12 @@ export const jobDocumentPersistenceActions = (set, get) => ({
           ...state.jobData,
           pendingJobDocumentWrites: mergePendingJobDocumentWrites(
             state.jobData.pendingJobDocumentWrites,
-            ids
+            ids,
           ),
         },
       }),
       false,
-      "queueJobDocumentWrites"
+      "queueJobDocumentWrites",
     );
   },
 
@@ -71,9 +71,7 @@ export const jobDocumentPersistenceActions = (set, get) => ({
             jobData: { ...state.jobData, pendingJobDocumentWrites: [] },
           };
         }
-        const remove = new Set(
-          Array.isArray(jobIDs) ? jobIDs : [jobIDs]
-        );
+        const remove = new Set(Array.isArray(jobIDs) ? jobIDs : [jobIDs]);
         return {
           ...state,
           jobData: {
@@ -83,7 +81,7 @@ export const jobDocumentPersistenceActions = (set, get) => ({
         };
       },
       false,
-      "clearPendingJobDocumentWrites"
+      "clearPendingJobDocumentWrites",
     );
   },
 

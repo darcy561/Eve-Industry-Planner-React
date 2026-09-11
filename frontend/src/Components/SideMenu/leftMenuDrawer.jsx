@@ -21,7 +21,7 @@ function LeftCollapsibleMenuDrawer({
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
 
   const [expandedDrawer, setExpandedDrawer] = useState(
-    getInitialExpandedDrawerState(deviceNotMobile)
+    getInitialExpandedDrawerState(deviceNotMobile),
   );
 
   useEffect(() => {
@@ -61,19 +61,21 @@ function LeftCollapsibleMenuDrawer({
           width: drawerWidth,
           boxSizing: "border-box",
           transition: "width 0.3s ease-in-out",
-          marginTop: '64px',
-          height: { xs: 'calc(100vh - 64px)', sm: 'calc(100% - 64px)' },
-          position: 'fixed',
-          overflow: 'hidden'
+          marginTop: "64px",
+          height: { xs: "calc(100vh - 64px)", sm: "calc(100% - 64px)" },
+          position: "fixed",
+          overflow: "hidden",
         },
       }}
     >
-      <Box sx={{ 
-        display: "flex", 
-        flexDirection: "column", 
-        height: "100%",
-        overflow: 'hidden'
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          overflow: "hidden",
+        }}
+      >
         <Box
           sx={{
             overflow: "auto",
@@ -81,9 +83,9 @@ function LeftCollapsibleMenuDrawer({
             flexDirection: "column",
             flexGrow: 1,
             pb: 8,
-            '&::-webkit-scrollbar': {
-              display: 'none'
-            }
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
           }}
         >
           <List>

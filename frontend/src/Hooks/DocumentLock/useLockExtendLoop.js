@@ -40,7 +40,10 @@ export function useLockExtendLoop({
         await syncLockFromServer();
         return;
       }
-      if (data.holding === true || (res.ok && typeof data.expiresAtUnix === "number")) {
+      if (
+        data.holding === true ||
+        (res.ok && typeof data.expiresAtUnix === "number")
+      ) {
         patch({
           lockExpiresAtUnix: numberOrNull(data, "expiresAtUnix"),
           lockTtlSeconds: numberOrNull(data, "ttlSeconds"),
@@ -48,7 +51,7 @@ export function useLockExtendLoop({
         });
       }
     },
-    [patch, syncLockFromServer, dispatchHeld]
+    [patch, syncLockFromServer, dispatchHeld],
   );
 
   const flushExtendLease = useCallback(() => {
@@ -82,7 +85,7 @@ export function useLockExtendLoop({
     return () =>
       window.removeEventListener(
         DOCUMENT_LOCK_RENEW_REQUEST_EVENT,
-        onRenewRequest
+        onRenewRequest,
       );
   }, [enabled, lockHeld, readOnly, leasePressure, flushExtendLease, keyRef]);
 

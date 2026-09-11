@@ -50,7 +50,7 @@ function classify(err, label) {
   return new EsiCredentialError(
     `${label}: ${err?.message ?? String(err)}`,
     classification,
-    { cause: err }
+    { cause: err },
   );
 }
 
@@ -63,7 +63,7 @@ function toAccessToken(response) {
   if (typeof accessToken !== "string" || accessToken.trim().length === 0) {
     throw new EsiCredentialError(
       "ESI access refresh returned no access token",
-      ESI_CREDENTIAL_REAUTH_REQUIRED
+      ESI_CREDENTIAL_REAUTH_REQUIRED,
     );
   }
   return { accessToken, exp: Number(decodeJwt(accessToken).exp) || 0 };
@@ -111,7 +111,7 @@ export function createServerStoredCredentials(deps = {}) {
           : new EsiCredentialError(
               `server-stored ESI access batch failed: ${err?.message ?? String(err)}`,
               ESI_CREDENTIAL_RECOVERABLE,
-              { cause: err }
+              { cause: err },
             );
       for (const waiters of chunk.values()) {
         waiters.forEach(({ reject }) => reject(failure));
@@ -120,7 +120,7 @@ export function createServerStoredCredentials(deps = {}) {
     }
 
     const byHash = new Map(
-      (response?.tokens ?? []).map((row) => [row.character_hash, row])
+      (response?.tokens ?? []).map((row) => [row.character_hash, row]),
     );
     for (const [characterHash, waiters] of chunk) {
       const row = byHash.get(characterHash);
@@ -130,7 +130,7 @@ export function createServerStoredCredentials(deps = {}) {
             `server-stored ESI access refresh failed for ${characterHash}: ${
               row?.error ?? "no result returned"
             }`,
-            ESI_CREDENTIAL_REAUTH_REQUIRED
+            ESI_CREDENTIAL_REAUTH_REQUIRED,
           );
         }
         const token = toAccessToken({ access_token: row.access_token });
@@ -187,7 +187,7 @@ export function createClientHeldCredentials({ readSecret, writeSecret }) {
       if (typeof secret !== "string" || secret.trim().length === 0) {
         throw new EsiCredentialError(
           `no client-held ESI refresh secret for ${characterHash}`,
-          ESI_CREDENTIAL_REAUTH_REQUIRED
+          ESI_CREDENTIAL_REAUTH_REQUIRED,
         );
       }
       let response;
@@ -197,7 +197,10 @@ export function createClientHeldCredentials({ readSecret, writeSecret }) {
         throw classify(err, "client-held ESI access refresh failed");
       }
       const token = toAccessToken(response);
-      if (typeof response.refresh_token === "string" && response.refresh_token.trim()) {
+      if (
+        typeof response.refresh_token === "string" &&
+        response.refresh_token.trim()
+      ) {
         writeSecret(characterHash, response.refresh_token);
       }
       return token;

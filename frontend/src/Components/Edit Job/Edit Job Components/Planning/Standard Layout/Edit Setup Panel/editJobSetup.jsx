@@ -45,7 +45,7 @@ export function EditJobSetup(props) {
                   selectedSetup,
                   state,
                   actions,
-                  queryClient
+                  queryClient,
                 );
               }}
             />
@@ -59,7 +59,7 @@ export function EditJobSetup(props) {
                   selectedSetup,
                   state,
                   actions,
-                  queryClient
+                  queryClient,
                 );
               }}
             />
@@ -75,7 +75,7 @@ export function EditJobSetup(props) {
                       selectedSetup,
                       state,
                       actions,
-                      queryClient
+                      queryClient,
                     );
                   }}
                 />
@@ -89,7 +89,7 @@ export function EditJobSetup(props) {
                       selectedSetup,
                       state,
                       actions,
-                      queryClient
+                      queryClient,
                     );
                   }}
                 />
@@ -106,7 +106,7 @@ export function EditJobSetup(props) {
             <Grid size={6}>
               <UseAlternativeCheckbox
                 initialState={Boolean(
-                  selectedSetup.useAlternativeSystemIndexValue
+                  selectedSetup.useAlternativeSystemIndexValue,
                 )}
                 onChange={async (value) => {
                   selectedSetup.updateUseAlternativeSystemIndexValue(value);
@@ -117,7 +117,7 @@ export function EditJobSetup(props) {
                     selectedSetup,
                     state,
                     actions,
-                    queryClient
+                    queryClient,
                   );
                 }}
               />
@@ -138,7 +138,7 @@ export function EditJobSetup(props) {
                     selectedSetup,
                     state,
                     actions,
-                    queryClient
+                    queryClient,
                   );
                 }}
               />
@@ -154,14 +154,14 @@ export function EditJobSetup(props) {
                   onChange={async (value) => {
                     selectedSetup.updateCustomStructureID(
                       value,
-                      getCustomStructureWithID
+                      getCustomStructureWithID,
                     );
 
                     await recalculateJobFromSetup(
                       selectedSetup,
                       state,
                       actions,
-                      queryClient
+                      queryClient,
                     );
                   }}
                 />
@@ -180,7 +180,7 @@ export function EditJobSetup(props) {
                       selectedSetup,
                       state,
                       actions,
-                      queryClient
+                      queryClient,
                     );
                   }}
                 />
@@ -207,10 +207,7 @@ function ManualStructureSelection({
       .getCustomStructureWithID;
 
   if (
-    !setupShowsManualStructureFields(
-      selectedSetup,
-      getCustomStructureWithID
-    )
+    !setupShowsManualStructureFields(selectedSetup, getCustomStructureWithID)
   ) {
     return null;
   }
@@ -227,7 +224,7 @@ function ManualStructureSelection({
               selectedSetup,
               state,
               actions,
-              queryClient
+              queryClient,
             );
           }}
         />
@@ -242,7 +239,7 @@ function ManualStructureSelection({
               selectedSetup,
               state,
               actions,
-              queryClient
+              queryClient,
             );
           }}
         />
@@ -257,7 +254,7 @@ function ManualStructureSelection({
               selectedSetup,
               state,
               actions,
-              queryClient
+              queryClient,
             );
           }}
         />
@@ -274,7 +271,7 @@ function ManualStructureSelection({
                 selectedSetup,
                 state,
                 actions,
-                queryClient
+                queryClient,
               );
               updateFetchSystemDataTrigger((prev) => !prev);
             }}
@@ -292,7 +289,7 @@ function ManualStructureSelection({
               selectedSetup,
               state,
               actions,
-              queryClient
+              queryClient,
             );
           }}
         />

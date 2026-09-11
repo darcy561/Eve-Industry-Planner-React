@@ -24,7 +24,9 @@ function metaResponse(version) {
   return {
     ok: true,
     json: async () => ({
-      file_keys: { [FILE]: { versioned_url: `/static/${FILE}-${version}.json` } },
+      file_keys: {
+        [FILE]: { versioned_url: `/static/${FILE}-${version}.json` },
+      },
     }),
   };
 }

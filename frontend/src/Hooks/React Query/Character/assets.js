@@ -40,17 +40,25 @@ function characterAssetsQuery(characterHash) {
     queryKey: [characterAssetsQueryKey, characterHash],
     queryFn: async () => {
       const userObject = findCharacterByHash(characterHash);
-      
+
       // Check if assets group is rate limited for this specific character
       // Use config.group as hint, will be updated from headers if different
-      const assetsStatus = getESIRateLimitStatus('assets', characterHash);
+      const assetsStatus = getESIRateLimitStatus("assets", characterHash);
 
-      if (assetsStatus && assetsStatus.availableTokens <= 0 && assetsStatus.maxTokens && assetsStatus.windowSize) {
+      if (
+        assetsStatus &&
+        assetsStatus.availableTokens <= 0 &&
+        assetsStatus.maxTokens &&
+        assetsStatus.windowSize
+      ) {
         const tokensPerMs = assetsStatus.maxTokens / assetsStatus.windowSize;
-        const tokensToRecover = assetsStatus.maxTokens - assetsStatus.availableTokens;
+        const tokensToRecover =
+          assetsStatus.maxTokens - assetsStatus.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Assets group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Assets group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
+        );
       }
       try {
         return await fetchPaginatedDataParallel(async (page) => {
@@ -60,12 +68,11 @@ function characterAssetsQuery(characterHash) {
             config: {
               characterHash,
               group: characterAssetsQueryGroup,
-              priority: 'normal',
-              batchable: true
-            }
+              priority: "normal",
+              batchable: true,
+            },
           });
         });
-
       } catch (error) {
         console.error("Error fetching character assets:", error);
         throw new Error(`Failed to fetch character assets: ${error.message}`);
@@ -76,12 +83,13 @@ function characterAssetsQuery(characterHash) {
     gcTime: 30 * 60 * 1000, // 30 minutes
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
+      if (error?.message?.includes("rate limited")) {
         // Get status for this specific character's assets bucket
-        const assetsStatus = getESIRateLimitStatus('assets', characterHash);
+        const assetsStatus = getESIRateLimitStatus("assets", characterHash);
         if (assetsStatus && assetsStatus.maxTokens && assetsStatus.windowSize) {
           const tokensPerMs = assetsStatus.maxTokens / assetsStatus.windowSize;
-          const tokensToRecover = assetsStatus.maxTokens - assetsStatus.availableTokens;
+          const tokensToRecover =
+            assetsStatus.maxTokens - assetsStatus.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -93,4 +101,8 @@ function characterAssetsQuery(characterHash) {
   };
 }
 
-export { characterAssetsQuery, characterAssetsQueryKey, characterAssetsQueryGroup };
+export {
+  characterAssetsQuery,
+  characterAssetsQueryKey,
+  characterAssetsQueryGroup,
+};

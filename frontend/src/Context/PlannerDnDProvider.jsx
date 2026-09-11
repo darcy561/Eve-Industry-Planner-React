@@ -59,12 +59,12 @@ export function useActivePlannerDragPayload() {
 
 export function PlannerDnDProvider({ children }) {
   const [payload, setPayload] = useState(
-    /** @type {PlannerDragPayload | null} */ (null)
+    /** @type {PlannerDragPayload | null} */ (null),
   );
 
   /** Last planner stage droppable hovered during the current drag (survives `over: null` on drag end). */
   const lastPlannerStageRef = useRef(
-    /** @type {{ stageId: number } | null} */ (null)
+    /** @type {{ stageId: number } | null} */ (null),
   );
 
   const { receiveJobCardToStage, canDropCard } = useDnD();
@@ -73,7 +73,7 @@ export function PlannerDnDProvider({ children }) {
     useSensor(PointerSensor, {
       /** Lower than default tutorials (8px): single fluid press-and-drag without an extra “wake up” motion. */
       activationConstraint: { distance: 5 },
-    })
+    }),
   );
 
   const resolveTargetStageId = (event) => {
@@ -95,12 +95,12 @@ export function PlannerDnDProvider({ children }) {
 
   const handleDragEnd = useCallback(
     async (event) => {
-      const dragItem =
-        /** @type {PlannerDragPayload | undefined} */ (event.active.data.current);
+      const dragItem = /** @type {PlannerDragPayload | undefined} */ (
+        event.active.data.current
+      );
 
       const resolved = resolveTargetStageId(event);
-      const stageId =
-        resolved.stageId != null ? resolved.stageId : null;
+      const stageId = resolved.stageId != null ? resolved.stageId : null;
 
       dbg("onDragEnd", {
         activeId: event.active?.id,
@@ -139,7 +139,7 @@ export function PlannerDnDProvider({ children }) {
         console.error(DBG, "receiveJobCardToStage threw", err);
       }
     },
-    [canDropCard, receiveJobCardToStage]
+    [canDropCard, receiveJobCardToStage],
   );
 
   const contextValue = useMemo(() => ({ payload }), [payload]);
@@ -152,7 +152,7 @@ export function PlannerDnDProvider({ children }) {
         onDragStart={(e) => {
           lastPlannerStageRef.current = null;
           setPayload(
-            /** @type {PlannerDragPayload | null} */ (e.active.data.current)
+            /** @type {PlannerDragPayload | null} */ (e.active.data.current),
           );
           dbg("onDragStart", {
             activeId: e.active?.id,

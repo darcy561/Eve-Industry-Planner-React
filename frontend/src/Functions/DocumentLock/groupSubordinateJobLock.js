@@ -43,11 +43,7 @@ export function isJobLockSubordinateToGroup(state, groupID) {
  */
 export function selectEffectiveJobDocumentLock(state, jobID, groupID) {
   if (isJobLockSubordinateToGroup(state, groupID)) {
-    return selectScopedDocumentLock(
-      state,
-      USER_JOB_GROUPS_COLLECTION,
-      groupID
-    );
+    return selectScopedDocumentLock(state, USER_JOB_GROUPS_COLLECTION, groupID);
   }
   if (!jobID) {
     return selectScopedDocumentLock(state, USER_JOBS_COLLECTION, "");

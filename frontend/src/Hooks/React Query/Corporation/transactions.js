@@ -32,7 +32,7 @@ function corporationTransactionsQuery(corporationId, division) {
     queryFn: async () => {
       const status = getESIRateLimitStatus(
         corporationTransactionsQueryGroup,
-        budgetHash
+        budgetHash,
       );
 
       if (
@@ -46,7 +46,7 @@ function corporationTransactionsQuery(corporationId, division) {
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
         throw new Error(
-          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`
+          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
         );
       }
 
@@ -63,8 +63,11 @@ function corporationTransactionsQuery(corporationId, division) {
               batchable: true,
             },
           });
-          return { rows: result?.data ?? [], forbidden: Boolean(result?.forbidden) };
-        }
+          return {
+            rows: result?.data ?? [],
+            forbidden: Boolean(result?.forbidden),
+          };
+        },
       );
 
       return { data, corporation_id: Number(corporationId), division };
@@ -77,7 +80,7 @@ function corporationTransactionsQuery(corporationId, division) {
       if (error?.message?.includes("rate limited")) {
         const status = getESIRateLimitStatus(
           corporationTransactionsQueryGroup,
-          budgetHash
+          budgetHash,
         );
         if (status && status.maxTokens && status.windowSize) {
           const tokensPerMs = status.maxTokens / status.windowSize;

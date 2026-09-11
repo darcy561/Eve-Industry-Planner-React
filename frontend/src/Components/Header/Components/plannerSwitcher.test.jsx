@@ -23,21 +23,32 @@ vi.mock("../../../Realtime/realtimeClient.js", () => ({
 
 const planners = [
   { owner: "account:acct-1", kind: "account", name: "", named: true },
-  { owner: "corporation:98000001", kind: "corporation", name: "Karkur", named: true },
+  {
+    owner: "corporation:98000001",
+    kind: "corporation",
+    name: "Karkur",
+    named: true,
+  },
 ];
 vi.mock("../../../Hooks/React Query/planners.js", () => ({
-  usePlannersQuery: () => ({ data: planners, isLoading: false, isError: false }),
+  usePlannersQuery: () => ({
+    data: planners,
+    isLoading: false,
+    isError: false,
+  }),
   plannerDisplayName: (planner) => planner.name || "My planner",
 }));
 
 const { PlannerSwitcher } = await import("./plannerSwitcher.jsx");
 
 function renderSwitcher() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return render(
     <QueryClientProvider client={client}>
       <PlannerSwitcher />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -72,10 +83,12 @@ describe("the planner switcher", () => {
     fireEvent.mouseDown(screen.getByRole("combobox"));
     fireEvent.click(screen.getByRole("option", { name: "Karkur" }));
 
-    await waitFor(() => expect(sendActivePlanner).toHaveBeenCalledWith("corporation:98000001"));
+    await waitFor(() =>
+      expect(sendActivePlanner).toHaveBeenCalledWith("corporation:98000001"),
+    );
     expect(ensurePlannerViaApi).toHaveBeenCalledWith("corporation:98000001");
     expect(ensurePlannerViaApi.mock.invocationCallOrder[0]).toBeLessThan(
-      sendActivePlanner.mock.invocationCallOrder[0]
+      sendActivePlanner.mock.invocationCallOrder[0],
     );
   });
 

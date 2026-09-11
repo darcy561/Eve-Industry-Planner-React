@@ -13,7 +13,10 @@ export class EsiCredentialError extends Error {
    * @param {unknown} [options.cause]
    */
   constructor(message, classification, options = {}) {
-    super(message, options.cause !== undefined ? { cause: options.cause } : undefined);
+    super(
+      message,
+      options.cause !== undefined ? { cause: options.cause } : undefined,
+    );
     this.name = "EsiCredentialError";
     this.classification = classification;
   }
@@ -21,6 +24,8 @@ export class EsiCredentialError extends Error {
 
 /** @param {unknown} err */
 export function isReauthRequired(err) {
-  return err instanceof EsiCredentialError &&
-    err.classification === ESI_CREDENTIAL_REAUTH_REQUIRED;
+  return (
+    err instanceof EsiCredentialError &&
+    err.classification === ESI_CREDENTIAL_REAUTH_REQUIRED
+  );
 }

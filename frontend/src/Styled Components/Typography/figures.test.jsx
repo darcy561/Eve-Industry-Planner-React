@@ -113,7 +113,9 @@ describe("PanelFooterMeta", () => {
   });
 
   it("omits the total side when there is none", () => {
-    const { container } = render(<PanelFooterMeta>16 materials</PanelFooterMeta>);
+    const { container } = render(
+      <PanelFooterMeta>16 materials</PanelFooterMeta>,
+    );
 
     expect(container.querySelectorAll("span, p")).toHaveLength(1);
   });
@@ -141,7 +143,7 @@ describe("FigureRow, the shapes a breakdown is made of", () => {
 
   it("carries a marker before the label", () => {
     render(
-      <FigureRow label="Materials" value="1" marker={<span>swatch</span>} />
+      <FigureRow label="Materials" value="1" marker={<span>swatch</span>} />,
     );
 
     expect(screen.getByText("swatch")).toBeInTheDocument();
@@ -176,7 +178,7 @@ describe("HeadlineStat", () => {
     render(
       <HeadlineStat caption="Net return" value="1">
         <span>per unit</span>
-      </HeadlineStat>
+      </HeadlineStat>,
     );
 
     expect(screen.getByText("per unit")).toBeInTheDocument();
@@ -191,7 +193,7 @@ describe("StatTile", () => {
         value="1,160.00"
         change="+12.4%"
         comparison="Last month: 1,080.00"
-      />
+      />,
     );
 
     expect(screen.getByText("Amount Spent")).toBeInTheDocument();
@@ -203,7 +205,7 @@ describe("StatTile", () => {
   it("shows its shape rather than zeroes while the figures load", () => {
     // A tile of zeroes reads as a real month with no activity.
     const { container } = render(
-      <StatTile label="Amount Spent" value="0.00" isLoading />
+      <StatTile label="Amount Spent" value="0.00" isLoading />,
     );
 
     expect(screen.queryByText("0.00")).toBeNull();
@@ -259,7 +261,7 @@ describe("PanelHeadline", () => {
     render(
       <PanelHeadline aside={<span>beside</span>}>
         <HeadlineStat caption="Net return" value="143,400,000" />
-      </PanelHeadline>
+      </PanelHeadline>,
     );
 
     expect(screen.getByText("Net return")).toBeInTheDocument();
@@ -270,7 +272,7 @@ describe("PanelHeadline", () => {
     render(
       <PanelHeadline>
         <HeadlineStat caption="Cost per unit" value="1" />
-      </PanelHeadline>
+      </PanelHeadline>,
     );
 
     expect(screen.getByText("Cost per unit")).toBeInTheDocument();
@@ -289,10 +291,12 @@ describe("PanelHeadline", () => {
         }
       >
         <HeadlineStat caption="Net return" value="4" />
-      </PanelHeadline>
+      </PanelHeadline>,
     );
 
-    expect(screen.getAllByText(/Per unit|Margin|Return|Net return/)).toHaveLength(4);
+    expect(
+      screen.getAllByText(/Per unit|Margin|Return|Net return/),
+    ).toHaveLength(4);
   });
 });
 
@@ -317,7 +321,7 @@ describe("Disclosure", () => {
     render(
       <Disclosure label="Calculation">
         <span>the working</span>
-      </Disclosure>
+      </Disclosure>,
     );
 
     expect(screen.queryByText("the working")).toBeNull();
@@ -332,7 +336,7 @@ describe("Disclosure", () => {
     render(
       <Disclosure label="Calculation">
         <span>the working</span>
-      </Disclosure>
+      </Disclosure>,
     );
     const toggle = screen.getByRole("button", { name: "Calculation" });
 
@@ -345,7 +349,7 @@ describe("Disclosure", () => {
     render(
       <Disclosure label="Calculation" defaultOpen>
         <span>the working</span>
-      </Disclosure>
+      </Disclosure>,
     );
 
     expect(screen.getByText("the working")).toBeInTheDocument();

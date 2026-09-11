@@ -29,12 +29,16 @@ describe("the shortfall tag on a material row", () => {
     );
 
     expect(
-      screen.getByLabelText(/Tritanium job, Spare job makes 40 of the 100 needed/),
+      screen.getByLabelText(
+        /Tritanium job, Spare job makes 40 of the 100 needed/,
+      ),
     ).toBeInTheDocument();
   });
 
   it("says the missing units are bought when nothing will resize the job", () => {
-    render(<ShortfallChip coverage={coverage({ mode: COVERAGE_MODE.SPLIT })} />);
+    render(
+      <ShortfallChip coverage={coverage({ mode: COVERAGE_MODE.SPLIT })} />,
+    );
 
     expect(
       screen.getByLabelText(/costed at the market price/),
@@ -44,7 +48,9 @@ describe("the shortfall tag on a material row", () => {
   it("says the missing units assume a resize when one is coming", () => {
     render(<ShortfallChip coverage={coverage()} />);
 
-    expect(screen.getByLabelText(/on the assumption it is resized/)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/on the assumption it is resized/),
+    ).toBeInTheDocument();
   });
 
   it("shows nothing for a row its jobs still cover", () => {

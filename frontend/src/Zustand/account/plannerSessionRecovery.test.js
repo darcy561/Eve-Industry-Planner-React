@@ -27,7 +27,10 @@ const ROTATE_URL = "/api/v1/auth/sessions/rotate";
 function seedLoggedInAccount() {
   const nowSec = Math.floor(Date.now() / 1000);
   esiCredentials.reset();
-  esiCredentials.adoptEsiAccessToken("owner-hash", esiAccessToken({ exp: nowSec + 3600 }));
+  esiCredentials.adoptEsiAccessToken(
+    "owner-hash",
+    esiAccessToken({ exp: nowSec + 3600 }),
+  );
   useUsersStore.setState((s) => ({
     ...s,
     applicationSettings: {
@@ -80,7 +83,7 @@ describe("planner session recovery", () => {
   // The server answer produced by the rotate handler when a refresh token has been rotated away.
   it("starts a full EVE login when rotate reports the session revoked", async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse(401, { code: "session_revoked", message: "Unauthorized" })
+      jsonResponse(401, { code: "session_revoked", message: "Unauthorized" }),
     );
 
     await useUsersStore.getState().account.actions.ensurePlannerSession();
@@ -96,20 +99,22 @@ describe("planner session recovery", () => {
   // what it costs if one ever is.
   it("cannot recover from an uncoded rejection", async () => {
     fetchMock.mockResolvedValue(
-      new Response("Invalid token\n", { status: 401 })
+      new Response("Invalid token\n", { status: 401 }),
     );
 
     await useUsersStore.getState().account.actions.ensurePlannerSession();
 
     expect(mockRedirectToEveSSO).not.toHaveBeenCalled();
-    expect(sessionStorage.getItem(TAB_REFRESH_TOKEN_KEY)).toBe("dead-refresh-token");
+    expect(sessionStorage.getItem(TAB_REFRESH_TOKEN_KEY)).toBe(
+      "dead-refresh-token",
+    );
   });
 
   // Only success writes lastPlannerSessionValidatedAt, so without a recorded failure the cooldown
   // stays elapsed and every private request retries the rotate.
   it("does not retry a failed rotate on the next call", async () => {
     fetchMock.mockResolvedValue(
-      new Response("Invalid token\n", { status: 401 })
+      new Response("Invalid token\n", { status: 401 }),
     );
     const actions = useUsersStore.getState().account.actions;
 
@@ -124,7 +129,7 @@ describe("planner session recovery", () => {
 
   it("rotates again once the backoff has elapsed", async () => {
     fetchMock.mockResolvedValue(
-      new Response("Invalid token\n", { status: 401 })
+      new Response("Invalid token\n", { status: 401 }),
     );
     const actions = useUsersStore.getState().account.actions;
 
@@ -139,7 +144,9 @@ describe("planner session recovery", () => {
 
   it("clears the recorded failure after a successful rotate", async () => {
     const actions = useUsersStore.getState().account.actions;
-    fetchMock.mockResolvedValue(new Response("Invalid token\n", { status: 401 }));
+    fetchMock.mockResolvedValue(
+      new Response("Invalid token\n", { status: 401 }),
+    );
     await actions.ensurePlannerSession();
 
     vi.spyOn(Date, "now").mockReturnValue(Date.now() + 31 * 1000);
@@ -148,7 +155,7 @@ describe("planner session recovery", () => {
         session_id: "session-2",
         refresh_token: "fresh-refresh-token",
         refresh_token_exp: Math.floor(Date.now() / 1000) + 3600,
-      })
+      }),
     );
     await actions.ensurePlannerSession();
     const afterSuccess = fetchMock.mock.calls.length;
@@ -156,6 +163,8 @@ describe("planner session recovery", () => {
     await actions.ensurePlannerSession({ force: true });
 
     expect(fetchMock.mock.calls.length).toBeGreaterThan(afterSuccess);
-    expect(sessionStorage.getItem(TAB_REFRESH_TOKEN_KEY)).toBe("fresh-refresh-token");
+    expect(sessionStorage.getItem(TAB_REFRESH_TOKEN_KEY)).toBe(
+      "fresh-refresh-token",
+    );
   });
 });

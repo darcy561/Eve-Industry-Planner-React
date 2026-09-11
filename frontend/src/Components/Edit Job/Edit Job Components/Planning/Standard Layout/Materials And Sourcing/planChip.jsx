@@ -8,7 +8,10 @@ import {
   useActiveGroupReadOnly,
   useSiblingLinkLock,
 } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
-import { LockGatedTooltip, lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
+import {
+  LockGatedTooltip,
+  lockReasonText,
+} from "../../../../../DocumentLock/LockGatedTooltip";
 import { trackNewJobsCreated } from "../../../../../../analytics/trackNewJobsCreated";
 
 /**
@@ -130,7 +133,10 @@ export default function PlanChip({ state, actions, material, rowJob }) {
   return (
     <Stack direction="row" spacing={1} alignItems="center">
       <Chip label="Buy" size="small" variant="outlined" />
-      <LockGatedTooltip readOnly={promoteLock.readOnly} reason={promoteLock.reason}>
+      <LockGatedTooltip
+        readOnly={promoteLock.readOnly}
+        reason={promoteLock.reason}
+      >
         <Tooltip
           title={
             nothingToPromote

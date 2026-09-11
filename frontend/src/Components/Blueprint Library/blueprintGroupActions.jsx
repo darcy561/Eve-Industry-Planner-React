@@ -35,7 +35,7 @@ export default function BlueprintGroupActions({ bpData }) {
                 try {
                   await addNewJobsToPlanner(
                     [{ itemID: bpData.itemID }],
-                    queryClient
+                    queryClient,
                   );
                 } catch (error) {
                   showSnackbarError(`${bpData.name} could not be added`, 3);

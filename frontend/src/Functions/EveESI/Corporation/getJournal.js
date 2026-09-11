@@ -16,7 +16,7 @@ async function getCorpJournal({
 
     const { corporation_id } = character;
     const { accessToken } = await getEsiAccessToken(character.CharacterHash);
-        const endpointURL = `https://esi.evetech.net/corporations/${corporation_id}/wallets/${division}/journal/?datasource=tranquility&page=${page}`;
+    const endpointURL = `https://esi.evetech.net/corporations/${corporation_id}/wallets/${division}/journal/?datasource=tranquility&page=${page}`;
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
@@ -37,7 +37,7 @@ async function getCorpJournal({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -66,7 +66,7 @@ async function getCorpJournal({
       // Permission errors - return existing data gracefully
       if (response.status === 403) {
         console.warn(
-          `Access forbidden for corporation journal: ${corporation_id}`
+          `Access forbidden for corporation journal: ${corporation_id}`,
         );
         // Reported rather than folded into empty rows: role access is granted per wallet division,
         // so a refusal here means try another member for this division.
@@ -74,14 +74,14 @@ async function getCorpJournal({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -106,7 +106,7 @@ async function getCorpJournal({
         (item) =>
           currentDate - Date.parse(item.date) <=
             GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 &&
-          refTypes.has(item.ref_type)
+          refTypes.has(item.ref_type),
       )
       .map((entry) => ({
         ...entry,

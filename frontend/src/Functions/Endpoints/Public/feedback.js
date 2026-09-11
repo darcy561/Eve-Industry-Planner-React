@@ -97,7 +97,7 @@ async function submitFeedback(input) {
       "Feedback content too long:",
       feedbackContent.length,
       "max",
-      MAX_FEEDBACK_LENGTH
+      MAX_FEEDBACK_LENGTH,
     );
     return false;
   }
@@ -109,8 +109,7 @@ async function submitFeedback(input) {
     ? options.screenshotFiles
     : [];
   const legacySingle =
-    options.screenshotFile instanceof File &&
-    options.screenshotFile.size > 0
+    options.screenshotFile instanceof File && options.screenshotFile.size > 0
       ? [options.screenshotFile]
       : [];
   const screenshotFiles = (
@@ -144,9 +143,7 @@ async function submitFeedback(input) {
   }
 
   const screenshotSentToSentry = Boolean(
-    screenshotFiles.length > 0 &&
-      sentryEventId &&
-      import.meta.env.SENTRY_DSN
+    screenshotFiles.length > 0 && sentryEventId && import.meta.env.SENTRY_DSN,
   );
 
   const metadata = shrinkMetadataIfNeeded({
@@ -186,7 +183,7 @@ async function submitFeedback(input) {
       console.error(
         "Failed to submit feedback:",
         response.status,
-        response.statusText
+        response.statusText,
       );
       return false;
     }

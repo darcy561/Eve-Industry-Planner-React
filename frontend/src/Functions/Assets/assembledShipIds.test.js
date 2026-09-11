@@ -35,7 +35,9 @@ describe("the assembled ships in a collection", () => {
   // it owns, so rigs alone must not read as a ship.
   it("leaves a rigged structure alone", () => {
     expect(shipIds().has(7010)).toBe(false);
-    expect(shipIds(buildAssetNodes(corporationOwnedStructureRows)).size).toBe(0);
+    expect(shipIds(buildAssetNodes(corporationOwnedStructureRows)).size).toBe(
+      0,
+    );
   });
 
   it("answers nothing without a collection", () => {

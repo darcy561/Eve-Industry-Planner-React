@@ -62,7 +62,7 @@ export function applyPublicHeaders(options = {}, config = {}) {
   };
   return {
     ...options,
-    headers
+    headers,
   };
 }
 
@@ -84,7 +84,7 @@ function throwIfAnySettledFailed(settled, label) {
   const err = /** @type {PromiseRejectedResult} */ (failed[0]).reason;
   const msg = err instanceof Error ? err.message : String(err);
   throw new Error(
-    `${label}: ${failed.length}/${settled.length} batch(es) failed — ${msg}`
+    `${label}: ${failed.length}/${settled.length} batch(es) failed — ${msg}`,
   );
 }
 
@@ -122,12 +122,14 @@ async function executeBatchedPublicRequest(URL, options, innerConfig, batch) {
 
   if (mergeResponseJsonArrays && mergeResponseJsonObjects) {
     throw new Error(
-      "fetchWithPublicHeaders batch: use only one of mergeResponseJsonArrays or mergeResponseJsonObjects"
+      "fetchWithPublicHeaders batch: use only one of mergeResponseJsonArrays or mergeResponseJsonObjects",
     );
   }
 
   if (typeof options.body !== "string") {
-    throw new Error("Batched public request requires options.body as a JSON string");
+    throw new Error(
+      "Batched public request requires options.body as a JSON string",
+    );
   }
 
   let bodyObj;
@@ -137,9 +139,13 @@ async function executeBatchedPublicRequest(URL, options, innerConfig, batch) {
     throw new Error("Batched public request body must be valid JSON");
   }
 
-  if (!bodyObj || typeof bodyObj !== "object" || !Array.isArray(bodyObj[arrayKey])) {
+  if (
+    !bodyObj ||
+    typeof bodyObj !== "object" ||
+    !Array.isArray(bodyObj[arrayKey])
+  ) {
     throw new Error(
-      `Batched public request body must contain an array property "${arrayKey}"`
+      `Batched public request body must contain an array property "${arrayKey}"`,
     );
   }
 
@@ -171,7 +177,7 @@ async function executeBatchedPublicRequest(URL, options, innerConfig, batch) {
         const res = await executePublicFetchSingle(
           URL,
           { ...options, body: JSON.stringify(nextBody) },
-          innerConfig
+          innerConfig,
         );
         if (!res.ok) return {};
         const data = await res.json().catch(() => ({}));
@@ -179,7 +185,7 @@ async function executeBatchedPublicRequest(URL, options, innerConfig, batch) {
           return /** @type {Record<string, unknown>} */ (data);
         }
         return {};
-      })
+      }),
     );
     const merged = {};
     for (const obj of partialObjects) {
@@ -197,14 +203,14 @@ async function executeBatchedPublicRequest(URL, options, innerConfig, batch) {
       const res = await executePublicFetchSingle(
         URL,
         { ...options, body: JSON.stringify(nextBody) },
-        innerConfig
+        innerConfig,
       );
 
       if (mergeResponseJsonArrays) {
         if (!res.ok) {
           const text = await res.text().catch(() => "");
           throw new Error(
-            `${methodLabel} ${URL} failed: ${res.status} ${text || res.statusText}`
+            `${methodLabel} ${URL} failed: ${res.status} ${text || res.statusText}`,
           );
         }
         const data = await res.json();
@@ -214,11 +220,11 @@ async function executeBatchedPublicRequest(URL, options, innerConfig, batch) {
       if (!res.ok) {
         const text = await res.text().catch(() => "");
         throw new Error(
-          `${methodLabel} ${URL} failed: ${res.status} ${text || res.statusText}`
+          `${methodLabel} ${URL} failed: ${res.status} ${text || res.statusText}`,
         );
       }
       return res;
-    })
+    }),
   );
 
   if (failure === "first") {
@@ -277,7 +283,7 @@ export async function fetchWithPublicHeaders(URL, options = {}, config = {}) {
 
   if (batch && !useBatch) {
     throw new Error(
-      "fetchWithPublicHeaders: config.batch needs size >= 1 and a non-empty arrayKey (or omit batch for a single request)"
+      "fetchWithPublicHeaders: config.batch needs size >= 1 and a non-empty arrayKey (or omit batch for a single request)",
     );
   }
 

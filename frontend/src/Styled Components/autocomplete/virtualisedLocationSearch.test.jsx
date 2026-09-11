@@ -31,7 +31,7 @@ function renderSearch(props = {}) {
         onChange={onChange}
         {...props}
       />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
   return onChange;
 }
@@ -99,8 +99,6 @@ describe("picking one of the places an account holds things", () => {
   it("says why there is nothing to choose from", () => {
     renderSearch({ places: [], isError: true });
 
-    expect(
-      screen.getByPlaceholderText("Locations unavailable")
-    ).toBeTruthy();
+    expect(screen.getByPlaceholderText("Locations unavailable")).toBeTruthy();
   });
 });

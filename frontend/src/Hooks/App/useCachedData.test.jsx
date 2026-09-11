@@ -19,7 +19,9 @@ const { useCachedData } = await import("./useCachedData.js");
 
 function withClient(client = new QueryClient()) {
   return function Wrapper({ children }) {
-    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+    return (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
   };
 }
 

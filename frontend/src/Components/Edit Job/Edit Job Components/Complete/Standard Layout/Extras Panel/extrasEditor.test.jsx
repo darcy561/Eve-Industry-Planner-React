@@ -62,7 +62,9 @@ describe("the extras editor", () => {
   it("says what the section is for when the job carries nothing", () => {
     renderEditor(job());
 
-    expect(screen.getByText(/Hauling, copies and loyalty point costs/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Hauling, copies and loyalty point costs/),
+    ).toBeInTheDocument();
   });
 
   // A cost of nothing is a mistyped row, not an extra worth recording.
@@ -70,8 +72,13 @@ describe("the extras editor", () => {
     const activeJob = job();
     renderEditor(activeJob);
 
-    await userEvent.type(screen.getByPlaceholderText("Enter description…"), "Hauling");
-    await userEvent.click(screen.getByRole("button", { name: "Add extra cost" }));
+    await userEvent.type(
+      screen.getByPlaceholderText("Enter description…"),
+      "Hauling",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add extra cost" }),
+    );
 
     expect(activeJob.addExtrasCost).not.toHaveBeenCalled();
     expect(showSnackbarError).toHaveBeenCalled();
@@ -83,7 +90,9 @@ describe("the extras editor", () => {
 
     await userEvent.clear(screen.getByPlaceholderText("0.00"));
     await userEvent.type(screen.getByPlaceholderText("0.00"), "500");
-    await userEvent.click(screen.getByRole("button", { name: "Add extra cost" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add extra cost" }),
+    );
 
     expect(activeJob.addExtrasCost).not.toHaveBeenCalled();
   });
@@ -92,10 +101,15 @@ describe("the extras editor", () => {
     const activeJob = job();
     const actions = renderEditor(activeJob);
 
-    await userEvent.type(screen.getByPlaceholderText("Enter description…"), "Hauling");
+    await userEvent.type(
+      screen.getByPlaceholderText("Enter description…"),
+      "Hauling",
+    );
     await userEvent.clear(screen.getByPlaceholderText("0.00"));
     await userEvent.type(screen.getByPlaceholderText("0.00"), "500");
-    await userEvent.click(screen.getByRole("button", { name: "Add extra cost" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add extra cost" }),
+    );
 
     expect(activeJob.addExtrasCost).toHaveBeenCalledWith(
       expect.objectContaining({ extraText: "Hauling", extraValue: 500 }),
@@ -114,7 +128,9 @@ describe("the extras editor", () => {
     );
     await userEvent.clear(screen.getByPlaceholderText("0.00"));
     await userEvent.type(screen.getByPlaceholderText("0.00"), "500");
-    await userEvent.click(screen.getByRole("button", { name: "Add extra cost" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add extra cost" }),
+    );
 
     const added = activeJob.addExtrasCost.mock.calls[0][0];
     expect(added.extraText).not.toContain("<img");

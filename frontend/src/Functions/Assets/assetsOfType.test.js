@@ -23,8 +23,8 @@ describe("where a type is held", () => {
 
     expect([...byLocation.keys()].sort((a, b) => a - b)).toEqual(
       [ASSET_SAFETY_ID, JITA_STATION_ID, RAITARU_STRUCTURE_ID].sort(
-        (a, b) => a - b
-      )
+        (a, b) => a - b,
+      ),
     );
   });
 
@@ -33,7 +33,9 @@ describe("where a type is held", () => {
   it("keeps the containers above a stack", () => {
     const byLocation = assetsOfType(characters, 36);
 
-    expect(flatten(byLocation.get(JITA_STATION_ID))).toEqual([1002, 1004, 1005]);
+    expect(flatten(byLocation.get(JITA_STATION_ID))).toEqual([
+      1002, 1004, 1005,
+    ]);
   });
 
   it("leaves out what is not on a path to it", () => {

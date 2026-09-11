@@ -80,7 +80,7 @@ export function getAllCachedCorporationBlueprints(queryClient) {
   });
 
   const isLoading = queryStates.some(({ queryState }) =>
-    isQueryStateLoading(queryState)
+    isQueryStateLoading(queryState),
   );
 
   if (isLoading) {
@@ -95,7 +95,7 @@ export function getAllCachedCorporationBlueprints(queryClient) {
   }
 
   return createSuccessObject(
-    keyBlueprintsByCorporation(queryStates.map(({ cachedData }) => cachedData))
+    keyBlueprintsByCorporation(queryStates.map(({ cachedData }) => cachedData)),
   );
 }
 
@@ -120,13 +120,13 @@ export function useGetAllCorporationBlueprints() {
     }
 
     return createSuccessObject(
-      keyBlueprintsByCorporation(results.map((result) => result.data))
+      keyBlueprintsByCorporation(results.map((result) => result.data)),
     );
   }, []);
 
   return useQueries({
     queries: (corporations ?? []).map(({ corporation_id }) =>
-      corporationBlueprintsQuery(corporation_id)
+      corporationBlueprintsQuery(corporation_id),
     ),
     combine: combineFunction,
   });

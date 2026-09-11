@@ -129,7 +129,7 @@ export function editJobReducer(state, action) {
           parentJobs: {
             ...state.parentChildToEdit.parentJobs,
             add: (state.parentChildToEdit.parentJobs.add || []).filter(
-              (id) => id !== action.payload
+              (id) => id !== action.payload,
             ),
             remove: [
               ...new Set([
@@ -155,7 +155,7 @@ export function editJobReducer(state, action) {
               ]),
             ],
             remove: (state.parentChildToEdit.parentJobs.remove || []).filter(
-              (id) => id !== action.payload
+              (id) => id !== action.payload,
             ),
           },
         },
@@ -182,7 +182,7 @@ export function editJobReducer(state, action) {
           }
           if (childLocation.remove.includes(newJob.jobID)) {
             childLocation.remove = childLocation.remove.filter(
-              (id) => id !== newJob.jobID
+              (id) => id !== newJob.jobID,
             );
           }
         }
@@ -214,7 +214,7 @@ export function editJobReducer(state, action) {
           // Remove from add array if present
           if (childLocation.add.includes(jobToRemove.jobID)) {
             childLocation.add = childLocation.add.filter(
-              (id) => id !== jobToRemove.jobID
+              (id) => id !== jobToRemove.jobID,
             );
           }
 
@@ -261,8 +261,8 @@ export function editJobReducer(state, action) {
             remove: [
               ...new Set(
                 (state.esiDataToLink.industryJobs.remove || []).filter(
-                  (id) => !jobsToAdd.includes(id)
-                )
+                  (id) => !jobsToAdd.includes(id),
+                ),
               ),
             ],
           },
@@ -282,8 +282,8 @@ export function editJobReducer(state, action) {
             add: [
               ...new Set(
                 (state.esiDataToLink.industryJobs.add || []).filter(
-                  (id) => !jobsToRemove.includes(id)
-                )
+                  (id) => !jobsToRemove.includes(id),
+                ),
               ),
             ],
             remove: [
@@ -315,8 +315,8 @@ export function editJobReducer(state, action) {
             remove: [
               ...new Set(
                 (state.esiDataToLink.marketOrders.remove || []).filter(
-                  (id) => !marketOrdersToAdd.includes(id)
-                )
+                  (id) => !marketOrdersToAdd.includes(id),
+                ),
               ),
             ],
           },
@@ -341,8 +341,8 @@ export function editJobReducer(state, action) {
             add: [
               ...new Set(
                 (state.esiDataToLink.marketOrders.add || []).filter(
-                  (id) => !marketOrdersToRemove.includes(id)
-                )
+                  (id) => !marketOrdersToRemove.includes(id),
+                ),
               ),
             ],
             remove: [
@@ -357,8 +357,8 @@ export function editJobReducer(state, action) {
             add: [
               ...new Set(
                 (state.esiDataToLink.transactions.add || []).filter(
-                  (id) => !transactionsToRemove.includes(id)
-                )
+                  (id) => !transactionsToRemove.includes(id),
+                ),
               ),
             ],
             remove: [
@@ -391,8 +391,8 @@ export function editJobReducer(state, action) {
             remove: [
               ...new Set(
                 (state.esiDataToLink.transactions.remove || []).filter(
-                  (id) => !transactionsToAdd.includes(id)
-                )
+                  (id) => !transactionsToAdd.includes(id),
+                ),
               ),
             ],
           },
@@ -414,8 +414,8 @@ export function editJobReducer(state, action) {
             add: [
               ...new Set(
                 (state.esiDataToLink.transactions.add || []).filter(
-                  (id) => !transactionsToRemove2.includes(id)
-                )
+                  (id) => !transactionsToRemove2.includes(id),
+                ),
               ),
             ],
             remove: [

@@ -33,7 +33,7 @@ export function calculateActiveSlotsSingleFromData(
   character,
   userSkills = {},
   characterIndustryJobs = [],
-  corporationIndustryJobs = []
+  corporationIndustryJobs = [],
 ) {
   if (!character) return null;
 
@@ -46,7 +46,10 @@ export function calculateActiveSlotsSingleFromData(
   };
   let corpJobsPresent = false;
 
-  const allJobs = [...(characterIndustryJobs || []), ...(corporationIndustryJobs || [])];
+  const allJobs = [
+    ...(characterIndustryJobs || []),
+    ...(corporationIndustryJobs || []),
+  ];
 
   for (let job of allJobs) {
     if (!job || job.status !== "active") continue;
@@ -97,7 +100,7 @@ export function calculateActiveSlotsMultipleFromData(
   characters = [],
   skillsByCharacterHash = {},
   charJobsByCharacterHash = {},
-  corpJobsByCharacterHash = {}
+  corpJobsByCharacterHash = {},
 ) {
   if (!Array.isArray(characters) || characters.length === 0) return [];
 
@@ -111,8 +114,7 @@ export function calculateActiveSlotsMultipleFromData(
       character,
       userSkills,
       charJobs,
-      corpJobs
+      corpJobs,
     );
   });
 }
-

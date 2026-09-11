@@ -60,16 +60,16 @@ export async function instantiateGroupTemplate({
         throwError: false,
         skipJobCreateAnalytics: true,
       },
-      { queryClient }
+      { queryClient },
     );
     if (!job?.jobID) {
       throw new Error(
-        `Could not build job for item ${node.itemID} (${node.name || node.templateJobId}). The blueprint may be unavailable.`
+        `Could not build job for item ${node.itemID} (${node.name || node.templateJobId}). The blueprint may be unavailable.`,
       );
     }
     if (job.totalQuantityProduced !== desired) {
       throw new Error(
-        `Could not match target quantity for "${job.name}" (wanted ${desired}, got ${job.totalQuantityProduced}).`
+        `Could not match target quantity for "${job.name}" (wanted ${desired}, got ${job.totalQuantityProduced}).`,
       );
     }
     templateToJob.set(node.templateJobId, job);
@@ -113,7 +113,7 @@ export async function instantiateGroupTemplate({
     const active = activeGroupOverride || getActiveGroupObject();
     if (!active?.groupID) {
       throw new Error(
-        'No active group: open a group first, or choose "New group" when applying.'
+        'No active group: open a group first, or choose "New group" when applying.',
       );
     }
     for (const j of built) {
@@ -143,7 +143,7 @@ export async function instantiateGroupTemplate({
   recalculateInstallCostsWithNewData(
     built,
     requestedMarketData,
-    requestedSystemIndexes
+    requestedSystemIndexes,
   );
   useUsersStore.getState().worldData.actions.addMarketData(requestedMarketData);
   useUsersStore

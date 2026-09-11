@@ -1,16 +1,13 @@
 import { useState } from "react";
-import {
-  Avatar,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { AddCustomTransactionDialogue } from "./addCustomTransaction";
 import { showSnackbarError } from "../../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../../Zustand/usersStore";
-import { formatDateForLocale, formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
+import {
+  formatDateForLocale,
+  formatNumberForLocale,
+} from "../../../../../../Functions/Helper/numberParser";
 import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel";
 import { STANDARD_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
@@ -42,9 +39,12 @@ export function LinkedTransactionPanel(props) {
         },
       ]}
     >
-      <Grid container sx={{
-        width: "100%"
-      }}>
+      <Grid
+        container
+        sx={{
+          width: "100%",
+        }}
+      >
         <Grid
           container
           sx={{
@@ -76,7 +76,7 @@ export function LinkedTransactionPanel(props) {
                     container
                     size={12}
                     sx={{
-                      alignItems: "center"
+                      alignItems: "center",
                     }}
                   >
                     <Grid size={1}>
@@ -111,11 +111,10 @@ export function LinkedTransactionPanel(props) {
                       align="center"
                       size={{
                         xs: 11,
-                        md: 1
-                      }}>
-                      <Typography
-                        sx={{ typography: STANDARD_TEXT_FORMAT }}
-                      >
+                        md: 1,
+                      }}
+                    >
+                      <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {formatDateForLocale(tData.date)}
                       </Typography>
                     </Grid>
@@ -123,11 +122,10 @@ export function LinkedTransactionPanel(props) {
                       align="center"
                       size={{
                         xs: 12,
-                        md: 2
-                      }}>
-                      <Typography
-                        sx={{ typography: STANDARD_TEXT_FORMAT }}
-                      >
+                        md: 2,
+                      }}
+                    >
+                      <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {tData.description}
                       </Typography>
                     </Grid>
@@ -135,11 +133,10 @@ export function LinkedTransactionPanel(props) {
                       align="center"
                       size={{
                         xs: 12,
-                        md: 2
-                      }}>
-                      <Typography
-                        sx={{ typography: STANDARD_TEXT_FORMAT }}
-                      >
+                        md: 2,
+                      }}
+                    >
+                      <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {formatNumberForLocale(tData.quantity, { max: 0 })} @{" "}
                         {formatNumberForLocale(tData.unit_price)}
                       </Typography>
@@ -149,11 +146,10 @@ export function LinkedTransactionPanel(props) {
                       size={{
                         xs: 12,
                         sm: 6,
-                        md: 3
-                      }}>
-                      <Typography
-                        sx={{ typography: STANDARD_TEXT_FORMAT }}
-                      >
+                        md: 3,
+                      }}
+                    >
+                      <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {formatNumberForLocale(tData.amount)}
                       </Typography>
                     </Grid>
@@ -162,11 +158,10 @@ export function LinkedTransactionPanel(props) {
                       sx={{ display: { xs: "none", sm: "block" } }}
                       size={{
                         sm: 6,
-                        md: 2
-                      }}>
-                      <Typography
-                        sx={{ typography: STANDARD_TEXT_FORMAT }}
-                      >
+                        md: 2,
+                      }}
+                    >
+                      <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         -{formatNumberForLocale(tData.tax)}
                       </Typography>
                     </Grid>
@@ -174,8 +169,9 @@ export function LinkedTransactionPanel(props) {
                       align="center"
                       size={{
                         xs: 12,
-                        md: 1
-                      }}>
+                        md: 1,
+                      }}
+                    >
                       <Tooltip
                         title={
                           jobLockReadOnly
@@ -196,7 +192,7 @@ export function LinkedTransactionPanel(props) {
                               if (jobLockReadOnly) return;
                               state.activeJob.removeTransaction(tData);
                               actions.addTransactionsForRemoval(
-                                tData.transaction_id
+                                tData.transaction_id,
                               );
                               actions.updateActiveJob(state.activeJob);
                               showSnackbarError("Unlinked");
@@ -214,8 +210,7 @@ export function LinkedTransactionPanel(props) {
           ) : (
             <Grid align="center" size={12}>
               <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
-                There are currently no transactions linked to this market
-                order.
+                There are currently no transactions linked to this market order.
               </Typography>
             </Grid>
           )}

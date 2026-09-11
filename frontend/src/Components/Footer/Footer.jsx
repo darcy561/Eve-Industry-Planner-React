@@ -33,16 +33,14 @@ export function Footer() {
   const sdeVersion = useStaticDataBuildVersion();
 
   return (
-    <ContentPanel 
-      componentName="Footer"
-      paperSx={{ height: "auto" }}
-    >
+    <ContentPanel componentName="Footer" paperSx={{ height: "auto" }}>
       <Stack
         spacing={2}
         sx={{
           alignItems: "center",
-          width: "100%"
-        }}>
+          width: "100%",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -75,9 +73,12 @@ export function Footer() {
           })}
         </Box>
 
-        <Stack spacing={0.5} sx={{
-          alignItems: "center"
-        }}>
+        <Stack
+          spacing={0.5}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <Typography variant="caption" align="center">
             All EVE related materials are property of Fenris Creations.
           </Typography>

@@ -28,7 +28,7 @@ export async function buildCorporationObjectFromUserObject(userObject) {
       const corporation = new Corporation(
         userObject,
         publicData,
-        corporationDivisions
+        corporationDivisions,
       );
       addCorporation(corporation);
     } else {

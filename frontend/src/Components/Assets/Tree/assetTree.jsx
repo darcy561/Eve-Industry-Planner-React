@@ -58,7 +58,7 @@ export default function AssetTree({
       excludeItemIds,
       containerNames,
       search,
-    ]
+    ],
   );
 
   const virtualizer = useWindowVirtualizer({
@@ -72,7 +72,11 @@ export default function AssetTree({
   if (rows.length === 0) {
     return (
       <Grid container align="center" size={12} sx={{ paddingY: 4 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ width: "100%" }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ width: "100%" }}
+        >
           {search?.trim()
             ? "Nothing here matches that"
             : "Nothing held in this view"}

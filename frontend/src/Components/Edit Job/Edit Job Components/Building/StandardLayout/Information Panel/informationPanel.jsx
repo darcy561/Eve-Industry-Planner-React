@@ -12,8 +12,9 @@ export function InformationPanel({ state }) {
           sx={{ marginTop: { xs: 0.5, sm: 0 } }}
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
             Total Material Cost:{" "}
             {formatNumberForLocale(state.activeJob.totalMaterialCost)}
@@ -24,8 +25,9 @@ export function InformationPanel({ state }) {
           sx={{ marginTop: { xs: 0.5, lg: 0 } }}
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
             Total Install Costs:{" "}
             {formatNumberForLocale(state.activeJob.totalInstallCost)}
@@ -36,8 +38,9 @@ export function InformationPanel({ state }) {
           sx={{ marginTop: { xs: 0.5, lg: 0 } }}
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
             Estimated Cost Per Item:{" "}
             {formatNumberForLocale(state.activeJob.buildCostPerItem())}

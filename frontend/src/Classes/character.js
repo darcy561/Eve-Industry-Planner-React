@@ -86,18 +86,18 @@ class Character {
 
     if (cloudAccounts) {
       this.accountRefreshTokens = this.accountRefreshTokens.filter(
-        (i) => i.CharacterHash !== tokenToRemove
+        (i) => i.CharacterHash !== tokenToRemove,
       );
     } else {
       try {
         const storedAccounts =
           JSON.parse(localStorage.getItem("AdditionalAccounts")) || [];
         const updatedAccounts = storedAccounts.filter(
-          (i) => i.CharacterHash !== tokenToRemove
+          (i) => i.CharacterHash !== tokenToRemove,
         );
         localStorage.setItem(
           "AdditionalAccounts",
-          JSON.stringify(updatedAccounts)
+          JSON.stringify(updatedAccounts),
         );
       } catch (err) {
         console.error("Failed to remove access token.", err);

@@ -8,7 +8,9 @@
  */
 export function mergeEditJobNavigationSearch(payloadSearch, routeSearch) {
   const p =
-    payloadSearch && typeof payloadSearch === "object" ? { ...payloadSearch } : {};
+    payloadSearch && typeof payloadSearch === "object"
+      ? { ...payloadSearch }
+      : {};
   const ag = routeSearch?.activeGroup;
   const pv = routeSearch?.pageView;
   if (

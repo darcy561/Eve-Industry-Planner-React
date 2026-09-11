@@ -176,7 +176,10 @@ class Setup {
     additionalMaterialPrices = {},
     additionalSystemIndexValues = {},
   ) {
-    this.materialCount = materialQuantitiesForSetup(this, rawMaterialQuantities);
+    this.materialCount = materialQuantitiesForSetup(
+      this,
+      rawMaterialQuantities,
+    );
     this.caclulateEstimatedTime(jobSkillRequirements, queryClient);
     this.caclulateEstimatedInstallCost(
       additionalMaterialPrices,

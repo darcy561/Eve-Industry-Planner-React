@@ -1,10 +1,10 @@
 /**
  * Builds parent-child relationships between jobs based on material dependencies.
  * Establishes connections between jobs where one job's output is another job's input.
- * 
+ *
  * @param {Array} inputJobArray - Array of job objects to establish relationships for
  * @returns {void}
- * 
+ *
  * @example
  * const jobs = [job1, job2, job3];
  * buildParentChildRelationships(jobs);
@@ -39,4 +39,4 @@ function buildParentChildRelationships(inputJobArray) {
   });
 }
 
-export default buildParentChildRelationships
+export default buildParentChildRelationships;

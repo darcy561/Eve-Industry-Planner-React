@@ -160,7 +160,7 @@ describe("buildAssetNodes", () => {
     const hangarThree = nodes
       .filter(
         (node) =>
-          node.locationId === JITA_STATION_ID && node.rootFlag === "CorpSAG3"
+          node.locationId === JITA_STATION_ID && node.rootFlag === "CorpSAG3",
       )
       .map((node) => node.itemId);
 
@@ -176,8 +176,7 @@ describe("buildAssetNodes", () => {
     expect(nodes).toHaveLength(corporationAssetRows.length);
     expect(nodes.filter((node) => node.itemId === 2002)).toHaveLength(1);
     expect(nodes.find((node) => node.itemId === 2001).childIds).toEqual([
-      2004,
-      2002,
+      2004, 2002,
     ]);
   });
 
@@ -236,7 +235,11 @@ describe("buildAssetNodes", () => {
   });
 
   it("ignores rows without an item id", () => {
-    const { nodes } = buildAssetNodes([null, { type_id: 34 }, ...characterAssetRows]);
+    const { nodes } = buildAssetNodes([
+      null,
+      { type_id: 34 },
+      ...characterAssetRows,
+    ]);
 
     expect(nodes).toHaveLength(characterAssetRows.length);
   });

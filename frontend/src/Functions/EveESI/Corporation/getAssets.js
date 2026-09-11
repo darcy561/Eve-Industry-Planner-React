@@ -4,14 +4,14 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 /**
  * Fetches corporation assets from EVE ESI API with pagination and caching support.
  * Requires character to have corporation access permissions.
- * 
+ *
  * @param {Object} params - Parameters object
  * @param {Object} params.character - Character object with CharacterHash and corporation_id
  * @param {number} [params.page=1] - Page number for pagination
  * @param {Object} [params.existingEtags={}] - Existing ETags for caching
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to assets data with etag and totalPages
- * 
+ *
  * @example
  * const assets = await getCorpAssets({
  *   character: { CharacterHash: "hash", corporation_id: 123456 },
@@ -19,7 +19,12 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
  *   config: { characterHash: "hash" }
  * });
  */
-async function getCorpAssets({ character, page = 1, existingEtags = {}, config = {} }) {
+async function getCorpAssets({
+  character,
+  page = 1,
+  existingEtags = {},
+  config = {},
+}) {
   try {
     if (!character || !character.CharacterHash || !character.corporation_id) {
       throw new Error("Character information is incomplete.");
@@ -30,13 +35,13 @@ async function getCorpAssets({ character, page = 1, existingEtags = {}, config =
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'assets',
+      group: "assets",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -47,7 +52,7 @@ async function getCorpAssets({ character, page = 1, existingEtags = {}, config =
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -76,7 +81,7 @@ async function getCorpAssets({ character, page = 1, existingEtags = {}, config =
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
         console.warn(
-          `Access forbidden for corporation assets: ${corporation_id}`
+          `Access forbidden for corporation assets: ${corporation_id}`,
         );
         return {
           data: [],
@@ -86,14 +91,14 @@ async function getCorpAssets({ character, page = 1, existingEtags = {}, config =
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

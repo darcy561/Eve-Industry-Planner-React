@@ -1,10 +1,10 @@
 /**
  * Parent-Child Job Changes Application for EVE Industry Planner.
- * 
+ *
  * Applies parent-child job relationship changes to job objects, handling
  * the complex logic of updating both parent and child job relationships
  * while maintaining data integrity and tracking modified jobs.
- * 
+ *
  * @fileoverview Function for applying parent-child job relationship changes
  * @author EVE Industry Planner Team
  */
@@ -13,11 +13,11 @@ import useUsersStore from "../../../Zustand/usersStore";
 
 /**
  * Applies parent-child job relationship changes to job objects.
- * 
+ *
  * Processes both parent job additions/removals and child job additions/removals,
  * updating the relevant job objects and maintaining relationship integrity.
  * Returns a set of all job IDs that were modified during the process.
- * 
+ *
  * @param {Object} parentChildObject - Object containing parent-child changes
  * @param {Object} parentChildObject.parentJobs - Parent job changes
  * @param {Array} parentChildObject.parentJobs.add - Parent job IDs to add
@@ -26,7 +26,7 @@ import useUsersStore from "../../../Zustand/usersStore";
  * @param {Object} inputJob - The job being edited
  * @param {Array} tempJobs - In-flight job objects created/updated in this flow
  * @returns {Set} Set of modified job IDs
- * 
+ *
  * @example
  * const changes = {
  *   parentJobs: {
@@ -37,15 +37,11 @@ import useUsersStore from "../../../Zustand/usersStore";
  *     34: { add: ['child-job-1'], remove: ['child-job-2'] }
  *   }
  * };
- * 
+ *
  * const modifiedJobs = applyParentChildChanges(changes, inputJob, tempJobs);
  * console.log('Modified jobs:', Array.from(modifiedJobs));
  */
-function applyParentChildChanges(
-  parentChildObject,
-  inputJob,
-  tempJobs
-) {
+function applyParentChildChanges(parentChildObject, inputJob, tempJobs) {
   try {
     if (!parentChildObject || !tempJobs) {
       throw new Error("Missing input items");
@@ -55,18 +51,8 @@ function applyParentChildChanges(
 
     const jobLookup = buildJobLookup(inputJob, tempJobs);
 
-    processParentJobs(
-      parentChildObject,
-      inputJob,
-      jobLookup,
-      modifiedJobIDs
-    );
-    processChildJobs(
-      parentChildObject,
-      inputJob,
-      jobLookup,
-      modifiedJobIDs
-    );
+    processParentJobs(parentChildObject, inputJob, jobLookup, modifiedJobIDs);
+    processChildJobs(parentChildObject, inputJob, jobLookup, modifiedJobIDs);
 
     return modifiedJobIDs;
   } catch (err) {
@@ -78,17 +64,17 @@ export default applyParentChildChanges;
 
 /**
  * Processes parent job relationship changes.
- * 
+ *
  * Handles the removal and addition of parent jobs to the input job,
  * updating both the input job and the parent job objects. Tracks
  * all modified job IDs for later processing.
- * 
+ *
  * @param {Object} parentChildObject - Object containing parent job changes
  * @param {Object} inputJob - The job being edited
  * @param {Map<string, Object>} jobLookup - Map of jobs keyed by jobID
  * @param {Set} modifiedJobIDs - Set to track modified job IDs
  * @returns {void}
- * 
+ *
  * @example
  * processParentJobs(parentChildObject, inputJob, jobLookup, modifiedJobIDs);
  */
@@ -96,7 +82,7 @@ function processParentJobs(
   parentChildObject,
   inputJob,
   jobLookup,
-  modifiedJobIDs
+  modifiedJobIDs,
 ) {
   try {
     for (let parentID of parentChildObject.parentJobs.remove) {
@@ -124,8 +110,8 @@ function processParentJobs(
 
     inputJob.addParentJob(
       parentChildObject.parentJobs.add.filter(
-        (id) => !unmatchedParentIDS.has(id)
-      )
+        (id) => !unmatchedParentIDS.has(id),
+      ),
     );
   } catch (err) {
     throw new Error(`Error updating parent jobs: ${err.message}`);
@@ -134,17 +120,17 @@ function processParentJobs(
 
 /**
  * Processes child job relationship changes.
- * 
+ *
  * Handles the addition and removal of child jobs for each material type
  * in the input job, updating both the input job and the child job objects.
  * Tracks all modified job IDs for later processing.
- * 
+ *
  * @param {Object} parentChildObject - Object containing child job changes
  * @param {Object} inputJob - The job being edited
  * @param {Map<string, Object>} jobLookup - Map of jobs keyed by jobID
  * @param {Set} modifiedJobIDs - Set to track modified job IDs
  * @returns {void}
- * 
+ *
  * @example
  * processChildJobs(parentChildObject, inputJob, jobLookup, modifiedJobIDs);
  */
@@ -152,7 +138,7 @@ function processChildJobs(
   parentChildObject,
   inputJob,
   jobLookup,
-  modifiedJobIDs
+  modifiedJobIDs,
 ) {
   try {
     for (let material of inputJob.build.materials) {
@@ -186,7 +172,7 @@ function processChildJobs(
       }
       inputJob.addChildJob(
         material.typeID,
-        matchedMaterial.add.filter((id) => !unMatchedChildIDs.has(id))
+        matchedMaterial.add.filter((id) => !unMatchedChildIDs.has(id)),
       );
       inputJob.removeChildJob(material.typeID, unMatchedChildIDs);
     }

@@ -23,7 +23,7 @@ export function useJobPlannerAccordionJobs(status) {
 
   const filteredGroups = useMemo(
     () => filterGroupsForJobPlannerStage(groupArray, status.id),
-    [groupArray, status.id]
+    [groupArray, status.id],
   );
 
   return { filteredGroups, filteredAndSortedJobs };

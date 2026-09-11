@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { MenuItem, Select, Stack, useMediaQuery, useTheme } from "@mui/material";
+import {
+  MenuItem,
+  Select,
+  Stack,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
 import AppShellPanel from "../../../../../../Styled Components/Paper/AppShellPanel";
 import PricingBasisSelect from "../../../../../../Styled Components/Select/pricingBasis";
@@ -125,7 +131,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
     setOpenTypeIDs((open) =>
       open.includes(typeID)
         ? open.filter((id) => id !== typeID)
-        : [...open, typeID]
+        : [...open, typeID],
     );
 
   return (
@@ -255,7 +261,8 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
 const formatQuantity = (value) => formatNumberForLocale(value, { max: 0 });
 
 /** Volume, as Raw Resources stated it. */
-const formatVolume = (value) => `${formatNumberForLocale(value, { max: 0 })} m3`;
+const formatVolume = (value) =>
+  `${formatNumberForLocale(value, { max: 0 })} m3`;
 
 /**
  * What a material's own pricing override holds, if it has one.

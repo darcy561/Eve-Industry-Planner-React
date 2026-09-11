@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, useMediaQuery, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import {
+  Box,
+  useMediaQuery,
+  ToggleButtonGroup,
+  ToggleButton,
+} from "@mui/material";
 import useWarnBeforeUnload from "../../Hooks/GeneralHooks/useWarnBeforeUnload";
 import { SearchBar } from "../Job Planner/Planner Components/searchbar";
 import { ShoppingListDialogue } from "../Dialogues/Shopping List/ShoppingList";
@@ -22,7 +27,10 @@ import GroupPageViewSelector from "./pageViewSelector";
 import { useDocumentLock } from "../../Hooks/DocumentLock/useDocumentLock.js";
 import { USER_JOB_GROUPS_COLLECTION } from "../../Functions/DocumentLock/documentLockCollections.js";
 import { useRegisterHeaderDocumentLockUI } from "../../Hooks/DocumentLock/useRegisterHeaderDocumentLockUI.js";
-import { useGroupLockReadOnly, useGroupCanEdit } from "../../Hooks/DocumentLock/useDocumentLockState.js";
+import {
+  useGroupLockReadOnly,
+  useGroupCanEdit,
+} from "../../Hooks/DocumentLock/useDocumentLockState.js";
 import { useJobPlannerJobLockSync } from "../../Hooks/DocumentLock/useJobPlannerJobLockSync.js";
 import { parseGroupPageViewSearchParam } from "../../Functions/Groups/groupPageViewSearch";
 import { trackAppEvent } from "../../analytics/trackAppEvent";
@@ -33,13 +41,10 @@ import ApplyGroupTemplateDialogue from "../Dialogues/Group Templates/ApplyGroupT
 function GroupPageFrame() {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
   const { activeGroupID, groupArray, jobArray } = useUsersStore(
-    (state) => state.jobData
+    (state) => state.jobData,
   );
-  const {
-    setActiveGroupID,
-    getGroupObject,
-    clearMultiSelect,
-  } = useUsersStore.getState().jobData.actions;
+  const { setActiveGroupID, getGroupObject, clearMultiSelect } =
+    useUsersStore.getState().jobData.actions;
   const params = useParams({ from: "/group/$groupID" });
   const { groupID } = params;
   const search = useSearch({ from: "/group/$groupID" });
@@ -76,14 +81,19 @@ function GroupPageFrame() {
   }, [jobArray, activeGroupObject]);
 
   useEffect(() => {
-    function onRemoteGroupDeleted(/** @type {CustomEvent<{ groupID?: string }>} */ ev) {
+    function onRemoteGroupDeleted(
+      /** @type {CustomEvent<{ groupID?: string }>} */ ev,
+    ) {
       if (ev?.detail?.groupID === groupID) {
         navigate({ to: "/jobplanner" });
       }
     }
     window.addEventListener("eip-group-deleted-remotely", onRemoteGroupDeleted);
     return () => {
-      window.removeEventListener("eip-group-deleted-remotely", onRemoteGroupDeleted);
+      window.removeEventListener(
+        "eip-group-deleted-remotely",
+        onRemoteGroupDeleted,
+      );
     };
   }, [groupID, navigate]);
 
@@ -99,7 +109,9 @@ function GroupPageFrame() {
         // Get fresh groupArray from store to check if group still exists
         // This prevents the effect from running when closing a group
         const currentGroupArray = useUsersStore.getState().jobData.groupArray;
-        const groupStillExists = currentGroupArray.some(g => g.groupID === groupID);
+        const groupStillExists = currentGroupArray.some(
+          (g) => g.groupID === groupID,
+        );
         if (!groupStillExists) {
           // Group was deleted/closed, navigate away
           navigate({ to: "/jobplanner" });
@@ -115,7 +127,9 @@ function GroupPageFrame() {
         // Archived members have no job document to load until they are restored.
         const liveMemberIDs = [
           ...currentActiveGroupObject.includedJobIDs,
-        ].filter((jobID) => !currentActiveGroupObject.archivedJobIDs.has(jobID));
+        ].filter(
+          (jobID) => !currentActiveGroupObject.archivedJobIDs.has(jobID),
+        );
 
         hint("Loading jobs…");
         await getMissingJobObjects(liveMemberIDs);
@@ -132,7 +146,7 @@ function GroupPageFrame() {
         recalculateInstallCostsWithNewData(
           allJobObjects,
           requestedMarketData,
-          requestedSystemIndexes
+          requestedSystemIndexes,
         );
         useUsersStore
           .getState()
@@ -143,7 +157,8 @@ function GroupPageFrame() {
 
         // Only set activeGroupID if it's not already set to this group
         // This prevents unnecessary updates and race conditions
-        const currentActiveGroupID = useUsersStore.getState().jobData.activeGroupID;
+        const currentActiveGroupID =
+          useUsersStore.getState().jobData.activeGroupID;
         if (currentActiveGroupID !== currentActiveGroupObject.groupID) {
           setActiveGroupID(currentActiveGroupObject.groupID);
         }
@@ -169,12 +184,12 @@ function GroupPageFrame() {
     actions,
     groupJobs,
     pageRequiresRightDrawerOpen,
-    groupCanEdit
+    groupCanEdit,
   );
 
   const isGroupReady = activeGroupID === groupID;
   const groupLockEnabled = Boolean(
-    isLoggedIn && groupID && activeGroupObject && isGroupReady
+    isLoggedIn && groupID && activeGroupObject && isGroupReady,
   );
 
   useEffect(() => {
@@ -226,10 +241,7 @@ function GroupPageFrame() {
   return (
     <>
       {!isGroupReady ? (
-        <LoadingPage
-          variant="simple"
-          helperText={loadHelperText}
-        />
+        <LoadingPage variant="simple" helperText={loadHelperText} />
       ) : (
         <>
           <LeftCollapsibleMenuDrawer inputDrawerButtons={buttonOptions} />

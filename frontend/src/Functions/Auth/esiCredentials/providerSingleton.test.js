@@ -15,7 +15,11 @@ import { esiAccessToken } from "../../../tests/utils.js";
 
 const HASH = "owner-hash";
 
-function seed({ userCloudAccounts, esiRefreshToken = "secret-1", isMainCharacter = true }) {
+function seed({
+  userCloudAccounts,
+  esiRefreshToken = "secret-1",
+  isMainCharacter = true,
+}) {
   useUsersStore.setState((s) => ({
     ...s,
     applicationSettings: {
@@ -26,7 +30,12 @@ function seed({ userCloudAccounts, esiRefreshToken = "secret-1", isMainCharacter
     account: {
       ...s.account,
       characters: [
-        { CharacterHash: HASH, isPlaceholder: false, isMainCharacter, esiRefreshToken },
+        {
+          CharacterHash: HASH,
+          isPlaceholder: false,
+          isMainCharacter,
+          esiRefreshToken,
+        },
       ],
       actions: s.account.actions,
     },
@@ -34,7 +43,8 @@ function seed({ userCloudAccounts, esiRefreshToken = "secret-1", isMainCharacter
 }
 
 describe("the wired provider", () => {
-  const fresh = () => esiAccessToken({ exp: Math.floor(Date.now() / 1000) + 3600 });
+  const fresh = () =>
+    esiAccessToken({ exp: Math.floor(Date.now() / 1000) + 3600 });
 
   beforeEach(() => {
     esiCredentials.reset();
@@ -106,7 +116,9 @@ describe("the wired provider", () => {
 
     await getEsiAccessToken(HASH);
 
-    expect(useUsersStore.getState().account.characters[0].esiRefreshToken).toBe("secret-2");
+    expect(useUsersStore.getState().account.characters[0].esiRefreshToken).toBe(
+      "secret-2",
+    );
     expect(localStorage.getItem("Auth")).toBeNull();
   });
 
@@ -127,7 +139,9 @@ describe("the wired provider", () => {
     await expect(getEsiAccessToken(HASH)).resolves.toMatchObject({
       accessToken: expect.any(String),
     });
-    expect(useUsersStore.getState().account.characters[0].esiRefreshToken).toBe("secret-2");
+    expect(useUsersStore.getState().account.characters[0].esiRefreshToken).toBe(
+      "secret-2",
+    );
 
     setItem.mockRestore();
   });

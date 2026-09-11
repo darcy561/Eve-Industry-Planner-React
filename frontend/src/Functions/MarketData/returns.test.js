@@ -71,7 +71,9 @@ describe("the three normalisations of the net return", () => {
   });
 
   it("has no return on outlay to state without an outlay", () => {
-    expect(route(returns({ buildCost: 0 }), "listed").returnOnOutlay).toBeNull();
+    expect(
+      route(returns({ buildCost: 0 }), "listed").returnOnOutlay,
+    ).toBeNull();
   });
 });
 

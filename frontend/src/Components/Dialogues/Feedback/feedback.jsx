@@ -156,7 +156,11 @@ export function FeedbackIcon() {
           </>
         }
       >
-        <Typography component="div" color="text.primary" sx={{ mb: 2, textAlign: "center" }}>
+        <Typography
+          component="div"
+          color="text.primary"
+          sx={{ mb: 2, textAlign: "center" }}
+        >
           As development continues, I would love to hear back from you with
           ideas or thoughts regarding this application.
           <br />
@@ -219,12 +223,12 @@ export function FeedbackIcon() {
                     return;
                   }
                   setScreenshots((prev) => {
-                    const { entries, errorMessage } =
-                      buildScreenshotAdditions(picked, prev.length);
+                    const { entries, errorMessage } = buildScreenshotAdditions(
+                      picked,
+                      prev.length,
+                    );
                     if (errorMessage) {
-                      queueMicrotask(() =>
-                        showSnackbarError(errorMessage),
-                      );
+                      queueMicrotask(() => showSnackbarError(errorMessage));
                     }
                     if (entries.length === 0) {
                       return prev;

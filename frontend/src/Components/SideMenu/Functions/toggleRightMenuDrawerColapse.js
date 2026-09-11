@@ -16,7 +16,7 @@ export default function toggleRightDrawerColapse(
   newContentID,
   existingContentID,
   updaterFunction,
-  pageRequiresDrawerToBeOpen = false
+  pageRequiresDrawerToBeOpen = false,
 ) {
   // If clicking the same content ID, toggle the drawer
   if (newContentID === existingContentID) {

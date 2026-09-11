@@ -33,9 +33,7 @@ export function normalizeSetIsLoadingPayload(payload) {
     const isLoading = Boolean(payload.isLoading);
     const raw = payload.loadingMessage;
     const loadingMessage =
-      isLoading &&
-      raw != null &&
-      String(raw).trim() !== ""
+      isLoading && raw != null && String(raw).trim() !== ""
         ? String(raw)
         : undefined;
     return { isLoading, loadingMessage };

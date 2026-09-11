@@ -43,7 +43,7 @@ export function keyRowsByCorporation(payloads) {
     const held = byCorporation[payload.corporation_id];
     byCorporation[payload.corporation_id] = held
       ? held.concat(payload.data ?? [])
-      : payload.data ?? [];
+      : (payload.data ?? []);
   }
 
   return byCorporation;
@@ -66,11 +66,15 @@ function trackedCorporations() {
  * @param {number[]} [divisions] - when the collection is keyed per wallet division
  * @returns {CorporationCollection}
  */
-export function readCorporationCollection(queryClient, queryKeyRoot, divisions) {
+export function readCorporationCollection(
+  queryClient,
+  queryKeyRoot,
+  divisions,
+) {
   const keys = trackedCorporations().flatMap(({ corporation_id }) =>
     divisions
       ? divisions.map((division) => [queryKeyRoot, corporation_id, division])
-      : [[queryKeyRoot, corporation_id]]
+      : [[queryKeyRoot, corporation_id]],
   );
 
   const queryStates = keys.map((key) => ({
@@ -92,7 +96,7 @@ export function readCorporationCollection(queryClient, queryKeyRoot, divisions) 
   return state(
     keyRowsByCorporation(queryStates.map(({ cachedData }) => cachedData)),
     false,
-    null
+    null,
   );
 }
 
@@ -120,7 +124,7 @@ export function useCorporationCollection(queryFactory, divisions) {
     return state(
       keyRowsByCorporation(results.map((result) => result.data)),
       false,
-      null
+      null,
     );
   }, []);
 
@@ -128,7 +132,7 @@ export function useCorporationCollection(queryFactory, divisions) {
     queries: (corporations ?? []).flatMap(({ corporation_id }) =>
       divisions
         ? divisions.map((division) => queryFactory(corporation_id, division))
-        : [queryFactory(corporation_id)]
+        : [queryFactory(corporation_id)],
     ),
     combine,
   });

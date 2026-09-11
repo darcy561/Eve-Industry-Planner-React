@@ -7,7 +7,7 @@ import getSystemIndexes from "../System Indexes/findSystemIndex";
  *
  * @param {Object|Array<Object>} inputJobs - Job object(s) to get missing data for
  * @returns {Promise<Object>} Promise that resolves to object with market data and system indexes
- * 
+ *
  * @throws {Error} Throws error if inputJobs is missing
  */
 async function getMissingESIData(inputJobs) {
@@ -21,10 +21,7 @@ async function getMissingESIData(inputJobs) {
   let requiredSystemIndexes = new Set();
 
   for (let job of jobsAsArray) {
-    requiredMarketData = new Set([
-      ...requiredMarketData,
-      ...job.materialIDs,
-    ]);
+    requiredMarketData = new Set([...requiredMarketData, ...job.materialIDs]);
     requiredSystemIndexes = new Set([
       ...requiredSystemIndexes,
       ...job.setupSystemIDs,

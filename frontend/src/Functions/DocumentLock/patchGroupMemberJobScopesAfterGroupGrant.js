@@ -21,7 +21,9 @@ export function groupMemberJobScopeAfterGroupGrantPartial() {
  */
 export function patchGroupMemberJobScopesAfterGroupGrant(groupID) {
   if (!groupID) return;
-  const group = useUsersStore.getState().jobData.actions.getGroupObject(groupID);
+  const group = useUsersStore
+    .getState()
+    .jobData.actions.getGroupObject(groupID);
   if (!group?.includedJobIDs?.size) return;
 
   const partial = groupMemberJobScopeAfterGroupGrantPartial();

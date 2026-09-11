@@ -31,9 +31,7 @@ export function MaterialQuantityInfoDoubleRow({
   const remainingWithChildJobs = Math.max(0, material.quantityRemaining - min);
   const remainingWithoutChildJobs = Math.max(
     0,
-    material.quantity -
-      material.quantityPurchased -
-      remainingTotalToBeImported
+    material.quantity - material.quantityPurchased - remainingTotalToBeImported,
   );
 
   return (
@@ -90,4 +88,3 @@ export function MaterialQuantityInfoDoubleRow({
     </Box>
   );
 }
-

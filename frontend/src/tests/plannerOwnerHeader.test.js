@@ -14,9 +14,8 @@ vi.mock("../Functions/Auth/tabSessionStorage.js", () => ({
   tabPlannerSessionRequestHeaders: () => ({ "X-Session-ID": "session-1" }),
 }));
 
-const { applyPrivateHeaders } = await import(
-  "../Functions/Endpoints/Private/applyPrivateHeaders.js"
-);
+const { applyPrivateHeaders } =
+  await import("../Functions/Endpoints/Private/applyPrivateHeaders.js");
 
 const CORP_OWNER = "corporation:98000001";
 
@@ -59,9 +58,8 @@ describe("the planner a scoped request works in", () => {
   // A signed-out user works on defaults and reads no planner document, so a
   // scoped key names no owner and nothing it gates fires.
   it("leaves a scoped query key without an owner when signed out", async () => {
-    const { plannerQueryScope } = await import(
-      "../Hooks/React Query/Backend/plannerQueryScope.js"
-    );
+    const { plannerQueryScope } =
+      await import("../Hooks/React Query/Backend/plannerQueryScope.js");
     expect(plannerQueryScope("archive")[2]).toBe("account:acct-1");
 
     storeState.account.accountID = "";

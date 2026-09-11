@@ -19,23 +19,27 @@ function oreSelector(
   mineralRequirements,
   ores,
   oreIDsToBeIgnored = [],
-  reprocessingCalculationSettings
+  reprocessingCalculationSettings,
 ) {
   const rs = useUsersStore.getState().applicationSettings.reprocessingSettings;
-  const resolved =
-    reprocessingCalculationSettings ?? {
-      preferCompressed: rs.preferCompressed,
-      compressionBonusMultiplier: rs.compressionBonusMultiplier,
-      valueMultiplier: rs.valueMultiplier,
-      wastePenaltyMultiplier: rs.wastePenaltyMultiplier,
-      sellExcessMineralTypes: rs.sellExcessMineralTypes,
-    };
-  const { preferCompressed, compressionBonusMultiplier, valueMultiplier, wastePenaltyMultiplier } = resolved;
+  const resolved = reprocessingCalculationSettings ?? {
+    preferCompressed: rs.preferCompressed,
+    compressionBonusMultiplier: rs.compressionBonusMultiplier,
+    valueMultiplier: rs.valueMultiplier,
+    wastePenaltyMultiplier: rs.wastePenaltyMultiplier,
+    sellExcessMineralTypes: rs.sellExcessMineralTypes,
+  };
+  const {
+    preferCompressed,
+    compressionBonusMultiplier,
+    valueMultiplier,
+    wastePenaltyMultiplier,
+  } = resolved;
   const plan = [];
 
   function areMineralsRemaining() {
     return Object.values(mineralRequirements).some(
-      ({ remaining }) => remaining > 0
+      ({ remaining }) => remaining > 0,
     );
   }
 
@@ -55,7 +59,7 @@ function oreSelector(
     let surplusMinerals = 0; // Minerals we don't need (waste)
 
     for (const [mineralId, amountPerBatch] of Object.entries(
-      ore.reprocessedMaterials
+      ore.reprocessedMaterials,
     )) {
       const stillNeeded = mineralRequirements[mineralId]?.remaining ?? 0;
 
@@ -106,7 +110,7 @@ function oreSelector(
       scoringOres.map(({ ore, score }) => ({
         name: ore.name,
         score: score,
-      }))
+      })),
     );
 
     const bestScore = scoringOres[0]?.ore;
@@ -116,7 +120,7 @@ function oreSelector(
     let maxBatches = Infinity;
 
     for (const [id, perBatchQty] of Object.entries(
-      bestScore.reprocessedMaterials
+      bestScore.reprocessedMaterials,
     )) {
       const stillNeeded = mineralRequirements[id]?.remaining ?? 0;
 
@@ -132,14 +136,14 @@ function oreSelector(
     const totalUnits = maxBatches * bestScore.batchSize;
 
     for (const [id, perBatchQty] of Object.entries(
-      bestScore.reprocessedMaterials
+      bestScore.reprocessedMaterials,
     )) {
       if (!mineralRequirements[id]) continue;
       const totalAmount = perBatchQty * maxBatches;
       mineralsProvided[id] = totalAmount;
       mineralRequirements[id].remaining = Math.max(
         0,
-        (mineralRequirements[id]?.remaining ?? 0) - totalAmount
+        (mineralRequirements[id]?.remaining ?? 0) - totalAmount,
       );
     }
 

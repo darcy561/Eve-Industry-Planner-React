@@ -16,7 +16,7 @@ import useUsersStore from "../../Zustand/usersStore";
 function Dashboard() {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
   const displayHelpCards = useUsersStore(
-    (state) => state.applicationSettings.displayHelpCards
+    (state) => state.applicationSettings.displayHelpCards,
   );
   const shouldShowTutorial = !isLoggedIn || displayHelpCards;
   const [showTutorialGrid, setShowTutorialGrid] = useState(shouldShowTutorial);

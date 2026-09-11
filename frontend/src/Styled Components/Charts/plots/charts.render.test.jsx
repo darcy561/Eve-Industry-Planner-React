@@ -210,7 +210,11 @@ describe("a sparse line series", () => {
 
   function draw(series) {
     return sized(
-      <TimeSeriesChart rows={sparseMonths} categoryKey="month" series={[series]} />,
+      <TimeSeriesChart
+        rows={sparseMonths}
+        categoryKey="month"
+        series={[series]}
+      />,
     ).container;
   }
 

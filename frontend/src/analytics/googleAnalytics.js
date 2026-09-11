@@ -102,10 +102,16 @@ export function subscribeGa4ToTanStackRouter(router) {
  */
 function reportGa4WebVital(metric) {
   const id = measurementId();
-  if (!id || typeof window === "undefined" || typeof window.gtag !== "function") {
+  if (
+    !id ||
+    typeof window === "undefined" ||
+    typeof window.gtag !== "function"
+  ) {
     return;
   }
-  const value = Math.round(metric.name === "CLS" ? metric.value * 1000 : metric.value);
+  const value = Math.round(
+    metric.name === "CLS" ? metric.value * 1000 : metric.value,
+  );
   window.gtag("event", "web_vital", {
     event_category: "Web Vitals",
     event_label: metric.id,

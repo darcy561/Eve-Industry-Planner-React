@@ -8,18 +8,18 @@ async function getCorpPublicInfo(character, config = {}) {
     const { corporation_id } = character;
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'universe',
-      ...config
+      group: "universe",
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
       `https://esi.evetech.net/corporations/${corporation_id}/?datasource=tranquility`,
       {},
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Handle no content responses (204)
@@ -30,14 +30,14 @@ async function getCorpPublicInfo(character, config = {}) {
     // Handle client errors (4xx)
     if (response.status >= 400 && response.status < 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

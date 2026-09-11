@@ -52,7 +52,7 @@ export function archiveStoreState(overrides = {}) {
     ...state.activePlanner,
     actions: activePlannerActions(
       () => {},
-      () => state
+      () => state,
     ),
   };
   return state;
@@ -114,9 +114,9 @@ export function lastChart(kind) {
 
 /** Distinct row counts across every chart's latest render. */
 export function drawnRowCounts() {
-  return [...new Set([...chartCapture.values()].map((rows) => rows.length))].sort(
-    (a, b) => a - b,
-  );
+  return [
+    ...new Set([...chartCapture.values()].map((rows) => rows.length)),
+  ].sort((a, b) => a - b);
 }
 
 /** Waits until every chart has drawn the same, expected, number of rows. */
@@ -140,7 +140,9 @@ export function renderWithTheme(ui) {
  */
 function withPickers(ui) {
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>{ui}</LocalizationProvider>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      {ui}
+    </LocalizationProvider>
   );
 }
 
@@ -225,7 +227,10 @@ export function cachedDataMock(overrides = {}) {
 /** Endpoint stubs shared by the archive views. */
 export function emptyArchiveListMock() {
   return {
-    getArchivedJobs: vi.fn(async () => ({ jobs: [], paging: { totalJobs: 0 } })),
+    getArchivedJobs: vi.fn(async () => ({
+      jobs: [],
+      paging: { totalJobs: 0 },
+    })),
     getArchivedJob: vi.fn(async () => null),
     restoreArchivedJobs: vi.fn(async () => null),
     fileArchivedJobMonths: vi.fn(async () => ({ jobIDs: [] })),

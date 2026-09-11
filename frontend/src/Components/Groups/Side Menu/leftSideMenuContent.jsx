@@ -11,7 +11,7 @@ function SideMenuContent_GroupPage({
   const buttonOptions = useGroupPageSideMenuFunctions(
     updateExpandRightContentMenu,
     rightContentMenuContentID,
-    updateRightContentMenuContentID
+    updateRightContentMenuContentID,
   );
 
   return (

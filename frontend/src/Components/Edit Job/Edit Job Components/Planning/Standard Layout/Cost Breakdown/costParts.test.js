@@ -4,7 +4,6 @@ import { createTheme } from "@mui/material/styles";
 import { costPartColour } from "./costParts";
 import { chartSeriesColours } from "../../../../../../Styled Components/Charts/chartTheme";
 
-
 // The bands have to stay tellable apart: the rotation alone would eventually
 // hand a selling charge the same colour as a material.
 describe("which colour each part is drawn in", () => {
@@ -51,7 +50,9 @@ describe("which colour each part is drawn in", () => {
   });
 
   it("takes its colours from the shared chart palette", () => {
-    expect(chartSeriesColours(theme)).toContain(costPartColour(theme, "bought"));
+    expect(chartSeriesColours(theme)).toContain(
+      costPartColour(theme, "bought"),
+    );
   });
 });
 
@@ -78,8 +79,8 @@ describe("splitting the extras by category", () => {
   it("keeps every shade clear of the other components", () => {
     const many = ids(8);
     const shades = many.map((id) => costPartColour(theme, id, many));
-    const others = ["bought", "built", "paid", "install", "invention"].map((id) =>
-      costPartColour(theme, id),
+    const others = ["bought", "built", "paid", "install", "invention"].map(
+      (id) => costPartColour(theme, id),
     );
 
     for (const other of others) {

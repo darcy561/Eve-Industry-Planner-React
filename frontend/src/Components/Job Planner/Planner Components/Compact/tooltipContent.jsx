@@ -30,14 +30,14 @@ function getTooltipContent(job) {
             ESI Jobs Linked:{" "}
             {formatNumberForLocale(job.esiJobIDs.size, { max: 0 })}
           </p>
-
         </span>
       );
     case 3:
       return (
         <span>
           <p>
-            Items Built: {formatNumberForLocale(job.totalQuantityProduced, { max: 0 })}
+            Items Built:{" "}
+            {formatNumberForLocale(job.totalQuantityProduced, { max: 0 })}
           </p>
         </span>
       );

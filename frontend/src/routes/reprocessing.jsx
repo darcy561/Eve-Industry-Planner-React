@@ -1,9 +1,11 @@
-import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
-import { allowPublicAccess } from '../utils/authGuard'
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
+import { allowPublicAccess } from "../utils/authGuard";
 
-const Reprocessing = lazyRouteComponent(() => import('../Components/Reprocessing/reprocessingPage'))
+const Reprocessing = lazyRouteComponent(
+  () => import("../Components/Reprocessing/reprocessingPage"),
+);
 
-export const Route = createFileRoute('/reprocessing')({
+export const Route = createFileRoute("/reprocessing")({
   beforeLoad: allowPublicAccess,
   component: Reprocessing,
-})
+});

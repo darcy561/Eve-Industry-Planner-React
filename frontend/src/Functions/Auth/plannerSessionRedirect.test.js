@@ -8,8 +8,8 @@ describe("plannerSessionRedirect", () => {
   it("parses reauth_required from JSON body", () => {
     expect(
       parsePlannerAuthCodeFromText(
-        JSON.stringify({ code: "reauth_required", message: "Unauthorized" })
-      )
+        JSON.stringify({ code: "reauth_required", message: "Unauthorized" }),
+      ),
     ).toBe("reauth_required");
   });
 

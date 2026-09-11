@@ -75,7 +75,7 @@ export function AddGroupDialogue({
             setUserWatchlistGroups(newUserWatchlistGroups);
             await putWatchlistDeprecatedToApi(
               newUserWatchlistGroups,
-              userWatchlist.items
+              userWatchlist.items,
             );
             trackAppEvent(AppEvent.NEW_WATCHLIST_GROUP);
             handleClose();

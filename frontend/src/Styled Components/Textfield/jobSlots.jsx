@@ -5,14 +5,14 @@ import { TextField } from "@mui/material";
  * A text field component for inputting job slot quantities.
  * Validates input to ensure only non-negative numbers are accepted.
  * Automatically sets minimum value to 1 on blur if invalid input is provided.
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} [props.initialState] - Initial value for the text field
  * @param {Function} props.onChange - Callback function called on blur. Receives the validated number value.
  * @returns {JSX.Element} Job slots text field component
- * 
+ *
  * @example
- * <JobSlotsTextField 
+ * <JobSlotsTextField
  *   initialState={1}
  *   onChange={(slots) => setJobSlots(slots)}
  * />

@@ -3,7 +3,6 @@ import { formatTimeRemaining } from "../../../../../Functions/Helper/numberParse
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export function IndustryESICardActive({ job }) {
-
   const timeRemaining = formatTimeRemaining(Date.parse(job.end_date));
 
   return (

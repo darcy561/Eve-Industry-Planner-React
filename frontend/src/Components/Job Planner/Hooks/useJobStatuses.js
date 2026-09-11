@@ -9,11 +9,11 @@ import {
 export function useJobStatuses() {
   const accountId = useUsersStore((state) => state.account.accountID);
   const namesMap = useUsersStore(
-    (state) => state.applicationSettings.jobStatuses
+    (state) => state.applicationSettings.jobStatuses,
   );
 
   const [expandedMap, setExpandedMap] = useState(() =>
-    readJobStatusExpandedMap(accountId)
+    readJobStatusExpandedMap(accountId),
   );
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function useJobStatuses() {
 
   const jobStatuses = useMemo(
     () => buildJobStatusesDisplayList(namesMap, expandedMap),
-    [namesMap, expandedMap]
+    [namesMap, expandedMap],
   );
 
   const toggleExpanded = useCallback(
@@ -35,7 +35,7 @@ export function useJobStatuses() {
         return next;
       });
     },
-    [accountId]
+    [accountId],
   );
 
   return { jobStatuses, toggleExpanded };

@@ -11,9 +11,8 @@ vi.mock("../Zustand/usersStore.js", () => ({
   },
 }));
 
-const { MaterialExcessBox_Purchasing } = await import(
-  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialExcessBox.jsx"
-);
+const { MaterialExcessBox_Purchasing } =
+  await import("../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialExcessBox.jsx");
 const { default: Material } = await import("./jobMaterial.js");
 
 function materialNeeding(quantity, purchases) {
@@ -34,7 +33,10 @@ describe("the extra bought marker", () => {
   });
 
   it("says nothing when the purchases match what is needed", () => {
-    const material = materialNeeding(100, [[60, 5], [40, 5]]);
+    const material = materialNeeding(100, [
+      [60, 5],
+      [40, 5],
+    ]);
 
     render(<MaterialExcessBox_Purchasing material={material} />);
 

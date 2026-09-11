@@ -51,9 +51,7 @@ export default function ArchiveDialogueBody({
     return (
       <Grid container>
         <Grid size={12} sx={{ textAlign: "center" }}>
-          <Typography>
-            Sign in to view archived job statistics.
-          </Typography>
+          <Typography>Sign in to view archived job statistics.</Typography>
         </Grid>
       </Grid>
     );

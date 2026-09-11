@@ -92,7 +92,7 @@ export function useLockVacancySnackbar({
       } else {
         showSnackbarSuccess(
           "Another editing session ended — you now have edit access.",
-          4
+          4,
         );
       }
     } else if (becameHolderFromVacant && shouldNotifyOwnershipGained) {

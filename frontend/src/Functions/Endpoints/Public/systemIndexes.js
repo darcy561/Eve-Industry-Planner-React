@@ -18,7 +18,11 @@ import { MAX_BATCH_SYSTEM_OR_TYPE_IDS } from "./apiLimits.js";
 async function fetchSystemIndexes(inputArray) {
   const returnObject = {};
 
-  if (!inputArray || (Array.isArray(inputArray) && inputArray.length === 0) || (inputArray instanceof Set && inputArray.size === 0)) {
+  if (
+    !inputArray ||
+    (Array.isArray(inputArray) && inputArray.length === 0) ||
+    (inputArray instanceof Set && inputArray.size === 0)
+  ) {
     return returnObject;
   }
 
@@ -47,7 +51,7 @@ async function fetchSystemIndexes(inputArray) {
           arrayKey: "system_ids",
           mergeResponseJsonObjects: true,
         },
-      }
+      },
     );
 
     if (!response.ok) {

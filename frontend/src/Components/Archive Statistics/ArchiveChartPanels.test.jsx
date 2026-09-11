@@ -25,15 +25,16 @@ const useAccountTotalsSummaryQuery = vi.fn();
 
 vi.mock("../../Hooks/React Query/Backend/statisticsTimeline", () => ({
   useAccountTimelineQuery: (...args) => useAccountTimelineQuery(...args),
-  useAccountTimelineItemsQuery: (...args) => useAccountTimelineItemsQuery(...args),
+  useAccountTimelineItemsQuery: (...args) =>
+    useAccountTimelineItemsQuery(...args),
 }));
 vi.mock("../../Hooks/React Query/Backend/statisticsTotals", () => ({
-  useAccountTotalsSummaryQuery: (...args) => useAccountTotalsSummaryQuery(...args),
+  useAccountTotalsSummaryQuery: (...args) =>
+    useAccountTotalsSummaryQuery(...args),
 }));
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock, archiveStoreState } = await import(
-    "../../tests/archiveHarness.jsx"
-  );
+  const { usersStoreMock, archiveStoreState } =
+    await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(archiveStoreState());
 });
 vi.mock("../../Styled Components/Charts", async () => {
@@ -44,7 +45,9 @@ vi.mock("../../Styled Components/Charts", async () => {
 // of the app reads it.
 vi.mock("../../Functions/Helper/getCachedData", async () => {
   const { cachedDataMock } = await import("../../tests/archiveHarness.jsx");
-  return cachedDataMock({ getFullItemList: vi.fn(async () => ({ 34: { name: "Tritanium" } })) });
+  return cachedDataMock({
+    getFullItemList: vi.fn(async () => ({ 34: { name: "Tritanium" } })),
+  });
 });
 
 const panels = await import("./ArchiveChartPanels.jsx");
@@ -60,10 +63,22 @@ beforeEach(() => {
   chartRenders.length = 0;
   useAccountTimelineQuery.mockReturnValue(settled({ months: MONTHS }));
   useAccountTimelineItemsQuery.mockReturnValue(
-    settled({ items: [{ typeID: 34, profitLoss: 100, jobCostTotal: 40, salesTotal: 140 }] }),
+    settled({
+      items: [
+        { typeID: 34, profitLoss: 100, jobCostTotal: 40, salesTotal: 140 },
+      ],
+    }),
   );
   useAccountTotalsSummaryQuery.mockReturnValue(
-    settled({ breakdown: { standaloneRecordedSale: { jobCostTotal: 10, salesTotal: 20, totalJobs: 1 } } }),
+    settled({
+      breakdown: {
+        standaloneRecordedSale: {
+          jobCostTotal: 10,
+          salesTotal: 20,
+          totalJobs: 1,
+        },
+      },
+    }),
   );
 });
 
@@ -111,9 +126,14 @@ describe("what each month panel plots", () => {
   }
 
   it("draws one row per month of the window it was given", () => {
-    renderWithProviders(<panels.ArchiveTimelinePanel from="2026-07" to="2026-08" />);
+    renderWithProviders(
+      <panels.ArchiveTimelinePanel from="2026-07" to="2026-08" />,
+    );
 
-    expect(lastChart("time").rows.map((r) => r.month)).toEqual(["2026-07", "2026-08"]);
+    expect(lastChart("time").rows.map((r) => r.month)).toEqual([
+      "2026-07",
+      "2026-08",
+    ]);
   });
 });
 
@@ -121,7 +141,9 @@ describe("kept as stock", () => {
   // The figure is a subtraction the server does not send, so the panel is the
   // only place it can be wrong.
   it("plots what a month produced and did not sell", () => {
-    renderWithProviders(<panels.ArchiveStockPanel from="2026-07" to="2026-08" />);
+    renderWithProviders(
+      <panels.ArchiveStockPanel from="2026-07" to="2026-08" />,
+    );
 
     expect(lastChart("time").rows.map((r) => r.quantityKept)).toEqual([5, 5]);
   });
@@ -130,21 +152,29 @@ describe("kept as stock", () => {
   // would read as owing stock rather than holding none.
   it("never reports less than nothing kept", () => {
     useAccountTimelineQuery.mockReturnValue(
-      settled({ months: [monthRow(2026, 7, { quantityProduced: 2, quantitySold: 9 })] }),
+      settled({
+        months: [monthRow(2026, 7, { quantityProduced: 2, quantitySold: 9 })],
+      }),
     );
     renderWithProviders(<panels.ArchiveStockPanel />);
 
-    expect(screen.getByText("Everything built in this period sold.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Everything built in this period sold."),
+    ).toBeInTheDocument();
   });
 
   // Drawing a flat zero line invites the reader to look for a trend in it.
   it("says everything sold rather than drawing an empty series", () => {
     useAccountTimelineQuery.mockReturnValue(
-      settled({ months: [monthRow(2026, 7, { quantityProduced: 4, quantitySold: 4 })] }),
+      settled({
+        months: [monthRow(2026, 7, { quantityProduced: 4, quantitySold: 4 })],
+      }),
     );
     renderWithProviders(<panels.ArchiveStockPanel />);
 
-    expect(screen.getByText("Everything built in this period sold.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Everything built in this period sold."),
+    ).toBeInTheDocument();
     expect(chartRenders).toHaveLength(0);
   });
 
@@ -152,7 +182,9 @@ describe("kept as stock", () => {
     useAccountTimelineQuery.mockReturnValue(settled({ months: [] }));
     renderWithProviders(<panels.ArchiveStockPanel />);
 
-    expect(screen.getByText("No archived jobs in this period.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No archived jobs in this period."),
+    ).toBeInTheDocument();
   });
 });
 
@@ -161,19 +193,29 @@ describe("what a panel shows with nothing to draw", () => {
     useAccountTimelineQuery.mockReturnValue(settled({ months: [] }));
     renderWithProviders(<panels.ArchiveTimelinePanel />);
 
-    expect(screen.getByText("No archived jobs in this period.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No archived jobs in this period."),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("chart")).not.toBeInTheDocument();
   });
 
   it("draws nothing while the read is in flight", () => {
-    useAccountTimelineQuery.mockReturnValue({ data: undefined, isLoading: true, isError: false });
+    useAccountTimelineQuery.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    });
     renderWithProviders(<panels.ArchiveCumulativePanel />);
 
     expect(screen.queryByTestId("chart")).not.toBeInTheDocument();
   });
 
   it("draws nothing when the read failed", () => {
-    useAccountTimelineQuery.mockReturnValue({ data: undefined, isLoading: false, isError: true });
+    useAccountTimelineQuery.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    });
     renderWithProviders(<panels.ArchiveCostBreakdownPanel />);
 
     expect(screen.queryByTestId("chart")).not.toBeInTheDocument();
@@ -182,12 +224,16 @@ describe("what a panel shows with nothing to draw", () => {
 
 describe("the pie panels", () => {
   it("splits the period's items by the measure chosen", async () => {
-    renderWithProviders(<panels.ArchiveItemChartPanel from="2026-07" to="2026-08" />);
+    renderWithProviders(
+      <panels.ArchiveItemChartPanel from="2026-07" to="2026-08" />,
+    );
 
     expect(lastChart("pie").categoryKey).toBe("name");
     expect(lastChart("pie").valueKey).toBe("value");
     // The name arrives with the static list, a tick after the figures.
-    await vi.waitFor(() => expect(lastChart("pie").rows[0].name).toBe("Tritanium"));
+    await vi.waitFor(() =>
+      expect(lastChart("pie").rows[0].name).toBe("Tritanium"),
+    );
   });
 
   it("asks the server to rank by the measure the reader picked", () => {
@@ -210,13 +256,17 @@ describe("the pie panels", () => {
     );
     renderWithProviders(<panels.ArchiveItemChartPanel />);
 
-    expect(screen.getByText(/No item returned a positive profit/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/No item returned a positive profit/i),
+    ).toBeInTheDocument();
   });
 
   // Lifetime rather than the window: which segment a job belongs to is a
   // property of the job, so the split describes the archive as a whole.
   it("reads the segment split from lifetime totals, not the window", () => {
-    renderWithProviders(<panels.ArchiveSegmentPanel from="2026-07" to="2026-08" />);
+    renderWithProviders(
+      <panels.ArchiveSegmentPanel from="2026-07" to="2026-08" />,
+    );
 
     expect(useAccountTotalsSummaryQuery).toHaveBeenCalled();
     expect(lastChart("pie").categoryKey).toBe("segment");
@@ -237,7 +287,9 @@ describe("the extras panels", () => {
         months: [monthRow(2026, 8, { extraCategoryTotals: { 0: 5, 7: 3 } })],
       }),
     );
-    renderWithProviders(<panels.ArchiveExtrasPanel from="2026-08" to="2026-08" />);
+    renderWithProviders(
+      <panels.ArchiveExtrasPanel from="2026-08" to="2026-08" />,
+    );
 
     expect(lastChart("time").series.length).toBe(2);
   });

@@ -8,15 +8,33 @@ const formatIsk = (value) => value.toLocaleString("en-GB");
 const cost = (overrides = {}) => ({
   toBuild: {
     lines: [
-      { id: "bought", label: "Materials bought at market", detail: "13 of 16", value: 398_600_000, perUnit: 39_860_000 },
-      { id: "install", label: "Install cost", detail: "this job only", value: 12_400_000, perUnit: 1_240_000 },
+      {
+        id: "bought",
+        label: "Materials bought at market",
+        detail: "13 of 16",
+        value: 398_600_000,
+        perUnit: 39_860_000,
+      },
+      {
+        id: "install",
+        label: "Install cost",
+        detail: "this job only",
+        value: 12_400_000,
+        perUnit: 1_240_000,
+      },
     ],
     total: 411_000_000,
     perUnit: 41_100_000,
   },
   toSell: {
     lines: [
-      { id: "brokerFee", label: "Broker fee to list", detail: "1.5% at Jita", value: 9_360_000, perUnit: 936_000 },
+      {
+        id: "brokerFee",
+        label: "Broker fee to list",
+        detail: "1.5% at Jita",
+        value: 9_360_000,
+        perUnit: 936_000,
+      },
     ],
     total: 9_360_000,
     perUnit: 936_000,
@@ -36,13 +54,15 @@ describe("the cost table", () => {
     renderTable();
 
     expect(
-      screen.getAllByRole("columnheader").map((c) => c.textContent)
+      screen.getAllByRole("columnheader").map((c) => c.textContent),
     ).toEqual(["Component", "Total", "Per unit"]);
   });
 
   it("states each part with what it is made of", () => {
     renderTable();
-    const cells = within(rowFor("Materials bought at market")).getAllByRole("cell");
+    const cells = within(rowFor("Materials bought at market")).getAllByRole(
+      "cell",
+    );
 
     expect(screen.getByText("13 of 16")).toBeInTheDocument();
     expect(cells[1]).toHaveTextContent("398,600,000");
@@ -61,14 +81,19 @@ describe("the cost table", () => {
         cost={cost({
           toBuild: {
             lines: [
-              { id: "install", label: "Install cost", value: 12_400_000, perUnit: null },
+              {
+                id: "install",
+                label: "Install cost",
+                value: 12_400_000,
+                perUnit: null,
+              },
             ],
             total: 12_400_000,
             perUnit: null,
           },
         })}
         formatIsk={formatIsk}
-      />
+      />,
     );
     const cells = within(rowFor("Install cost")).getAllByRole("cell");
 
@@ -80,18 +105,18 @@ describe("the cost table", () => {
     renderTable();
 
     expect(
-      within(rowFor("Cost to build and sell")).getAllByRole("cell")[2]
+      within(rowFor("Cost to build and sell")).getAllByRole("cell")[2],
     ).toHaveTextContent("42,036,000");
   });
 
   it("subtotals the build separately from the whole", () => {
     renderTable();
 
-    expect(within(rowFor("Cost to build")).getAllByRole("cell")[1]).toHaveTextContent(
-      "411,000,000"
-    );
     expect(
-      within(rowFor("Cost to build and sell")).getAllByRole("cell")[1]
+      within(rowFor("Cost to build")).getAllByRole("cell")[1],
+    ).toHaveTextContent("411,000,000");
+    expect(
+      within(rowFor("Cost to build and sell")).getAllByRole("cell")[1],
     ).toHaveTextContent("420,360,000");
   });
 

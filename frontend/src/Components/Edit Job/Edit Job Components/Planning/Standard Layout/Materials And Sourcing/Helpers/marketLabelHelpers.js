@@ -2,11 +2,11 @@ import { listingType } from "../../../../../../../Context/defaultValues.jsx";
 import GLOBAL_CONFIG from "../../../../../../../global-config-app";
 
 const marketLabelById = Object.fromEntries(
-  GLOBAL_CONFIG.MARKET_OPTIONS.map((entry) => [entry.id, entry.name])
+  GLOBAL_CONFIG.MARKET_OPTIONS.map((entry) => [entry.id, entry.name]),
 );
 
 const listingLabelById = Object.fromEntries(
-  listingType.map((entry) => [entry.id, entry.name])
+  listingType.map((entry) => [entry.id, entry.name]),
 );
 
 const listingModeLabelById = {
@@ -30,6 +30,6 @@ export function getMarketLocationLabel(marketSelect) {
 
 export function buildRowSourceText(marketSelect, listingSelect) {
   return `${getMarketLocationLabel(marketSelect)} | ${getListingOrdersLabel(
-    listingSelect
+    listingSelect,
   )}`;
 }

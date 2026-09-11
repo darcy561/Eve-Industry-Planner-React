@@ -39,7 +39,9 @@ export function openJobDependencyTreeDialogue(payload = {}) {
   eventEmitter.emit(JOB_DEPENDENCY_TREE_DIALOGUE_EVENT, {
     isOpen: true,
     openSession:
-      p.interactionResetKey != null ? Number(p.interactionResetKey) : Date.now(),
+      p.interactionResetKey != null
+        ? Number(p.interactionResetKey)
+        : Date.now(),
     fromEditContext: false,
     editContextJobId: null,
     editSearchActiveGroup: null,
@@ -54,8 +56,10 @@ export function openJobDependencyTreeDialogue(payload = {}) {
         ? p.title.trim()
         : "Job dependency tree",
     showHelpText: p.showHelpText !== false,
-    editReturnPageView: p.editReturnPageView != null ? p.editReturnPageView : "jobTree",
-    activeGroupForEdit: p.activeGroupForEdit != null ? String(p.activeGroupForEdit) : null,
+    editReturnPageView:
+      p.editReturnPageView != null ? p.editReturnPageView : "jobTree",
+    activeGroupForEdit:
+      p.activeGroupForEdit != null ? String(p.activeGroupForEdit) : null,
   });
 }
 

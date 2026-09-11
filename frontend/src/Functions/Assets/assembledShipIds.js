@@ -35,7 +35,7 @@ function isShipFitting(flag = "") {
 
 function holdsShipFittings(node, byItemId) {
   return node.childIds.some((childId) =>
-    isShipFitting(byItemId.get(childId)?.flag)
+    isShipFitting(byItemId.get(childId)?.flag),
   );
 }
 
@@ -63,7 +63,10 @@ export default function assembledShipIds(collection, fullItemList = {}) {
 
     // A named type that is not a ship is settled; only an unnamed one falls through to what it
     // holds, so a container is never mistaken for a hull.
-    if (category === undefined && holdsShipFittings(node, collection.byItemId)) {
+    if (
+      category === undefined &&
+      holdsShipFittings(node, collection.byItemId)
+    ) {
       ships.add(node.itemId);
     }
   }

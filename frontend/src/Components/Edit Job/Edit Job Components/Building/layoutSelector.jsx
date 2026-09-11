@@ -7,7 +7,12 @@ import { useGatherJobMatchesAndUpdateExistingLinkedJobs } from "../../Hooks/useJ
 export function LayoutSelector_EditJob_Building(props) {
   const { state } = props;
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
-  const { data: allIndustryJobs, isLoading, isError, error: totalErrorObject } = useGetAllIndustryJobs();
+  const {
+    data: allIndustryJobs,
+    isLoading,
+    isError,
+    error: totalErrorObject,
+  } = useGetAllIndustryJobs();
   const linkedJobs = useUsersStore((state) => state.account.linkedJobs);
 
   const {
@@ -18,7 +23,7 @@ export function LayoutSelector_EditJob_Building(props) {
     allIndustryJobs,
     state.activeJob,
     linkedJobs,
-    state.esiDataToLink
+    state.esiDataToLink,
   );
 
   const totalIsLoading = isLoading || isWorldDataLoading;

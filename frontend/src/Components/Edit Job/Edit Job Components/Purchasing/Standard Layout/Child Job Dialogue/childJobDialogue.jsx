@@ -29,7 +29,7 @@ export function ChildJobDialogue(props) {
     material.typeID,
     state.activeJob,
     state.temporaryChildJobs,
-    state.parentChildToEdit
+    state.parentChildToEdit,
   );
 
   function handleClose() {
@@ -42,7 +42,7 @@ export function ChildJobDialogue(props) {
         job.itemID === material.typeID &&
         !existingChildJobs.includes(job.jobID) &&
         (!state.activeJob.includedInGroup ||
-          job.groupID === state.activeJob.groupID)
+          job.groupID === state.activeJob.groupID),
     );
     return filteredJobs;
   }, [state.activeJob, jobArray, material]);

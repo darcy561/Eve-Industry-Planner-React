@@ -30,9 +30,7 @@ describe("what the job makes", () => {
     show();
 
     expect(screen.getByText("Tritanium")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Making 2 · 200\.00 each/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Making 2 · 200\.00 each/)).toBeInTheDocument();
   });
 
   // The name sits inside the market links' wrapper, which is inline-flex, and a
@@ -59,8 +57,8 @@ describe("what the job makes", () => {
   it("leaves naming the price's hub to the sale location block", () => {
     show();
 
-    expect(
-      screen.getByText(/Making 2 · 200\.00 each/).textContent,
-    ).not.toMatch(/priced from/);
+    expect(screen.getByText(/Making 2 · 200\.00 each/).textContent).not.toMatch(
+      /priced from/,
+    );
   });
 });

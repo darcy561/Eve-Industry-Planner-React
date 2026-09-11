@@ -25,14 +25,14 @@ function PlannerStageAccordionRow(props) {
       onSelectAll={() => {
         const stageJobIDs = filterJobsForJobPlannerStage(
           jobArray,
-          status.id
+          status.id,
         ).map((job) => job.jobID);
         addToMultiSelect(
           filterUnlockedDocumentIDs(
             useUsersStore.getState(),
             USER_JOBS_COLLECTION,
-            stageJobIDs
-          )
+            stageJobIDs,
+          ),
         );
       }}
       classicContents={ClassicAccordionContents}

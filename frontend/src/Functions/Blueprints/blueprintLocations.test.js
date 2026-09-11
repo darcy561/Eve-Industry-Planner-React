@@ -21,7 +21,7 @@ const blueprints = buildBlueprintRows(
       runs: -1,
     },
   ],
-  blueprintSearchIndex
+  blueprintSearchIndex,
 );
 
 // The blueprint is in a container at the station, so its own location_id names the container.
@@ -49,7 +49,7 @@ describe("where a blueprint sits", () => {
     const byItemId = blueprintLocations(blueprints, assets);
 
     expect(blueprints.byItemId.get(BLUEPRINT_ITEM_ID).locationId).toBe(
-      CONTAINER_ITEM_ID
+      CONTAINER_ITEM_ID,
     );
     expect(byItemId.get(BLUEPRINT_ITEM_ID)).toBe(JITA_STATION_ID);
   });

@@ -17,7 +17,10 @@ export function useItemNames(items) {
   return useMemo(() => {
     if (!list) return {};
     return Object.fromEntries(
-      items.map(({ typeID }) => [typeID, list[typeID]?.name ?? `Type ${typeID}`]),
+      items.map(({ typeID }) => [
+        typeID,
+        list[typeID]?.name ?? `Type ${typeID}`,
+      ]),
     );
   }, [items, list]);
 }

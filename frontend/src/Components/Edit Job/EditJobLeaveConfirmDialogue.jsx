@@ -43,8 +43,8 @@ export default function EditJobLeaveConfirmDialogue({
       <Typography variant="body2" color="text.secondary" component="div">
         Another session has requested edit access to{" "}
         <strong>{currentJobName}</strong>. Save or discard your changes to hand
-        over editing. Closing this dialogue keeps your edit access and treats the
-        request as denied.
+        over editing. Closing this dialogue keeps your edit access and treats
+        the request as denied.
       </Typography>
     </Box>
   ) : (

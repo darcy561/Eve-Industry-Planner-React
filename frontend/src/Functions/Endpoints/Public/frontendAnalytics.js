@@ -43,10 +43,7 @@ function sanitizeByTypeMap(byType) {
     }
     const key = String(typeId);
     const add = Math.min(MAX_JOBS_PER_TYPE_IN_PAYLOAD, n);
-    out[key] = Math.min(
-      MAX_JOBS_PER_TYPE_IN_PAYLOAD,
-      (out[key] || 0) + add
-    );
+    out[key] = Math.min(MAX_JOBS_PER_TYPE_IN_PAYLOAD, (out[key] || 0) + add);
   }
   return Object.keys(out).length > 0 ? out : null;
 }
@@ -93,7 +90,7 @@ async function postAnalyticsBatchRequest(body, opts) {
         size: MAX_FRONTEND_ANALYTICS_BATCH_EVENTS,
         arrayKey: "events",
       },
-    }
+    },
   );
   return response.ok;
 }
@@ -120,7 +117,7 @@ function postAnalyticsBatchRequestSync(body) {
           size: MAX_FRONTEND_ANALYTICS_BATCH_EVENTS,
           arrayKey: "events",
         },
-      }
+      },
     );
   } catch {
     /* ignore */
@@ -130,7 +127,11 @@ function postAnalyticsBatchRequestSync(body) {
 /** @typedef {{ simple: Map<string, number>, newJobByType: Record<string, number> | null, itemTreeViewByType: Record<string, number> | null }} PendingState */
 
 /** @type {PendingState} */
-let pending = { simple: new Map(), newJobByType: null, itemTreeViewByType: null };
+let pending = {
+  simple: new Map(),
+  newJobByType: null,
+  itemTreeViewByType: null,
+};
 
 /** @type {ReturnType<typeof setTimeout> | null} */
 let flushTimer = null;
@@ -172,7 +173,7 @@ function mergeIntoPending(eventKey, count, options) {
     for (const [k, v] of Object.entries(byType)) {
       acc[k] = Math.min(
         MAX_JOBS_PER_TYPE_IN_PAYLOAD,
-        (acc[k] || 0) + Math.floor(v)
+        (acc[k] || 0) + Math.floor(v),
       );
     }
     return true;
@@ -180,14 +181,14 @@ function mergeIntoPending(eventKey, count, options) {
 
   const n = Math.min(
     MAX_FRONTEND_ANALYTICS_EVENT_COUNT,
-    Math.max(1, Math.floor(Number(count)) || 1)
+    Math.max(1, Math.floor(Number(count)) || 1),
   );
   pending.simple.set(
     trimmed,
     Math.min(
       MAX_FRONTEND_ANALYTICS_EVENT_COUNT,
-      (pending.simple.get(trimmed) || 0) + n
-    )
+      (pending.simple.get(trimmed) || 0) + n,
+    ),
   );
   return true;
 }
@@ -219,7 +220,7 @@ function buildAnalyticsRequestBody(merged) {
   if (merged.newJobByType && Object.keys(merged.newJobByType).length > 0) {
     const chunks = chunkByTypeObject(
       merged.newJobByType,
-      MAX_FRONTEND_ANALYTICS_BY_TYPE_KEYS
+      MAX_FRONTEND_ANALYTICS_BY_TYPE_KEYS,
     );
     for (const chunk of chunks) {
       events.push({ event: NEW_JOB_EVENT, by_type: chunk });
@@ -231,7 +232,7 @@ function buildAnalyticsRequestBody(merged) {
   ) {
     const chunks = chunkByTypeObject(
       merged.itemTreeViewByType,
-      MAX_FRONTEND_ANALYTICS_BY_TYPE_KEYS
+      MAX_FRONTEND_ANALYTICS_BY_TYPE_KEYS,
     );
     for (const chunk of chunks) {
       events.push({ event: ITEM_TREE_VIEW_ITEM_EVENT, by_type: chunk });
@@ -328,7 +329,7 @@ if (typeof window !== "undefined") {
 export async function submitFrontendAnalyticsEvent(
   eventKey,
   count = 1,
-  options = {}
+  options = {},
 ) {
   if (typeof eventKey !== "string" || !eventKey.trim()) {
     return false;

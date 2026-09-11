@@ -1,4 +1,10 @@
-import { IconButton, TextField, Tooltip, Box, CircularProgress } from "@mui/material";
+import {
+  IconButton,
+  TextField,
+  Tooltip,
+  Box,
+  CircularProgress,
+} from "@mui/material";
 import { useFormStatus } from "react-dom";
 import AddIcon from "@mui/icons-material/Add";
 import { showSnackbarSuccess } from "../../../../../../Events/snackbarEvents";
@@ -14,7 +20,7 @@ export function AddMaterialCost_Purchasing({
   childJobs,
 }) {
   const { marketDisplay, orderDisplay } = useEffectiveMarketHubFromLayout(
-    state.activeJob.layout
+    state.activeJob.layout,
   );
 
   const materialPrice = useUsersStore
@@ -25,8 +31,7 @@ export function AddMaterialCost_Purchasing({
   // imported, so the form offers what the children cannot be counted on for.
   const stillToBuy = Math.max(
     0,
-    material.quantityRemaining -
-      (childJobs.length === 0 ? 0 : childSupply.min),
+    material.quantityRemaining - (childJobs.length === 0 ? 0 : childSupply.min),
   );
 
   const getInitialQuantity = () => stillToBuy;
@@ -46,14 +51,14 @@ export function AddMaterialCost_Purchasing({
     const { leftOver } = state.activeJob.importPurchaseToMaterial(
       material.typeID,
       { itemCount: itemCountInput, itemCost: itemCostInput },
-      { recordExcess: true }
+      { recordExcess: true },
     );
 
     actions.updateActiveJob(state.activeJob);
     showSnackbarSuccess(
       leftOver > 0
         ? `Success. ${formatNumberForLocale(leftOver, { max: 0 })} more than this job needs, not charged to it.`
-        : "Success"
+        : "Success",
     );
   }
 

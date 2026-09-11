@@ -8,10 +8,10 @@ import { calculateInstallCostfromSetup } from "../../../../Functions/Installatio
 
 export function ExpandedWatchlistRow({ mat }) {
   const defaultMarket = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation
+    (state) => state.applicationSettings.defaultMarketLocation,
   );
   const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType
+    (state) => state.applicationSettings.defaultOrderType,
   );
   const { findMarketData } = useUsersStore.getState().worldData.actions;
   const marketData = useUsersStore((state) => state.worldData.marketData);
@@ -35,8 +35,9 @@ export function ExpandedWatchlistRow({ mat }) {
       container
       size={{
         xs: 6,
-        lg: 2
-      }}>
+        lg: 2,
+      }}
+    >
       <Grid align="center" size={12}>
         <img
           src={`https://images.evetech.net/types/${mat.typeID}/icon?size=32`}
@@ -53,8 +54,9 @@ export function ExpandedWatchlistRow({ mat }) {
       <Grid
         size={{
           xs: 12,
-          lg: 4
-        }}>
+          lg: 4,
+        }}
+      >
         <Typography
           align="center"
           sx={{
@@ -75,9 +77,13 @@ export function ExpandedWatchlistRow({ mat }) {
         }}
         size={{
           xs: 12,
-          lg: 8
-        }}>
-        <Typography sx={{ typography: { xs: "caption", sm: "body2" } }} align="center">
+          lg: 8,
+        }}
+      >
+        <Typography
+          sx={{ typography: { xs: "caption", sm: "body2" } }}
+          align="center"
+        >
           {formatNumberForLocale(matPrice[defaultMarket].sell)}
         </Typography>
       </Grid>
@@ -87,8 +93,9 @@ export function ExpandedWatchlistRow({ mat }) {
             <Grid
               size={{
                 xs: 12,
-                lg: 4
-              }}>
+                lg: 4,
+              }}
+            >
               <Typography
                 align="center"
                 sx={{
@@ -107,8 +114,9 @@ export function ExpandedWatchlistRow({ mat }) {
               }}
               size={{
                 xs: 12,
-                lg: 8
-              }}>
+                lg: 8,
+              }}
+            >
               <Typography
                 align="center"
                 sx={{

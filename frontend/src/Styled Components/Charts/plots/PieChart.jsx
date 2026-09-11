@@ -50,7 +50,10 @@ export function PieChart({
   // Matched on name: the legend sorts its own keys, so the index it reports is
   // not the sector's.
   const [hoveredName, setHoveredName] = useState(null);
-  const highlight = useCallback((payload) => setHoveredName(payload?.value ?? null), []);
+  const highlight = useCallback(
+    (payload) => setHoveredName(payload?.value ?? null),
+    [],
+  );
   const clearHighlight = useCallback(() => setHoveredName(null), []);
 
   const renderSector = useCallback(

@@ -18,14 +18,13 @@ export async function releaseJobsAfterGroupRemoved(groupLike) {
     groupLike.groupID != null && String(groupLike.groupID).trim() !== ""
       ? String(groupLike.groupID)
       : null;
-  const { jobData, jobData: { actions } } = useUsersStore.getState();
-  const fromDoc = groupLike.includedJobIDs
-    ? [...groupLike.includedJobIDs]
-    : [];
+  const {
+    jobData,
+    jobData: { actions },
+  } = useUsersStore.getState();
+  const fromDoc = groupLike.includedJobIDs ? [...groupLike.includedJobIDs] : [];
   const fromJobs = groupID
-    ? jobData.jobArray
-        .filter((j) => j.groupID === groupID)
-        .map((j) => j.jobID)
+    ? jobData.jobArray.filter((j) => j.groupID === groupID).map((j) => j.jobID)
     : [];
   const idSet = new Set([...fromDoc, ...fromJobs]);
   if (idSet.size === 0) return;
@@ -38,7 +37,10 @@ export async function releaseJobsAfterGroupRemoved(groupLike) {
       const fetched = await requestJobDocumentsByIdsFromApi(missing);
       actions.updateOrAddJobsToJobArray(fetched);
     } catch (err) {
-      console.error("releaseJobsAfterGroupRemoved: could not load job documents", err);
+      console.error(
+        "releaseJobsAfterGroupRemoved: could not load job documents",
+        err,
+      );
     }
   }
 

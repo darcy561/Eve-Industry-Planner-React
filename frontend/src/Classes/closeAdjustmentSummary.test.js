@@ -10,9 +10,8 @@ vi.mock("../Zustand/usersStore.js", () => ({
   },
 }));
 
-const { closeAdjustmentSummary } = await import(
-  "../Functions/JobPlanner/closeAdjustmentSummary.js"
-);
+const { closeAdjustmentSummary } =
+  await import("../Functions/JobPlanner/closeAdjustmentSummary.js");
 const { default: Job } = await import("./job.js");
 
 function job({ parents = [], children = [] } = {}) {
@@ -39,7 +38,7 @@ describe("what closing a job reports", () => {
     ]);
 
     expect(summary).toBe(
-      "Oxygen Fuel Block updated — now making 3,440 to cover its parent jobs"
+      "Oxygen Fuel Block updated — now making 3,440 to cover its parent jobs",
     );
   });
 
@@ -59,11 +58,11 @@ describe("what closing a job reports", () => {
         { jobID: "parent-1", name: "Parent", before: 10, after: 20 },
         { jobID: "child-1", name: "Child A", before: 1, after: 2 },
         { jobID: "child-2", name: "Child B", before: 1, after: 2 },
-      ]
+      ],
     );
 
     expect(summary).toBe(
-      "Oxygen Fuel Block updated — now making 3,440 to cover its parent jobs, 1 parent job adjusted and 2 child jobs adjusted"
+      "Oxygen Fuel Block updated — now making 3,440 to cover its parent jobs, 1 parent job adjusted and 2 child jobs adjusted",
     );
   });
 

@@ -3,12 +3,16 @@ import { Avatar, Typography, Grid, Checkbox, Tooltip } from "@mui/material";
 import { LARGE_TEXT_FORMAT } from "../../../Context/defaultValues";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
 
-export function ShoppingListItem_ShoppingListDialogue({ item, actions, isEven = false }) {
+export function ShoppingListItem_ShoppingListDialogue({
+  item,
+  actions,
+  isEven = false,
+}) {
   const { typeID, name } = item;
 
   const assetQuantityText = Math.max(
     item.quantityToPurchase - item.assetQuantity,
-    0
+    0,
   );
 
   const handleToggle = () => {
@@ -23,18 +27,24 @@ export function ShoppingListItem_ShoppingListDialogue({ item, actions, isEven = 
         justifyContent: "center",
         alignItems: "center",
         marginBottom: { xs: "1px", sm: "0px" },
-        backgroundColor: isEven ? "rgba(0, 0, 0, 0.06)" : "transparent"
-      }}>
+        backgroundColor: isEven ? "rgba(0, 0, 0, 0.06)" : "transparent",
+      }}
+    >
       <Grid
         align="center"
         size={{
           xs: 2,
-          sm: 1
+          sm: 1,
         }}
         sx={{
-          paddingRight: { xs: "5px", sm: 0 }
-        }}>
-        <Tooltip title="Include when copying to clipboard" arrow placement="bottom">
+          paddingRight: { xs: "5px", sm: 0 },
+        }}
+      >
+        <Tooltip
+          title="Include when copying to clipboard"
+          arrow
+          placement="bottom"
+        >
           <Checkbox
             checked={item.includeWhenCopying !== false}
             onChange={handleToggle}
@@ -49,8 +59,9 @@ export function ShoppingListItem_ShoppingListDialogue({ item, actions, isEven = 
         }}
         align="center"
         size={{
-          sm: 1
-        }}>
+          sm: 1,
+        }}
+      >
         <Avatar
           src={`https://images.evetech.net/types/${typeID}/icon?size=32`}
           alt={name}
@@ -61,8 +72,9 @@ export function ShoppingListItem_ShoppingListDialogue({ item, actions, isEven = 
       <Grid
         size={{
           xs: 6,
-          sm: 6
-        }}>
+          sm: 6,
+        }}
+      >
         <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>{name}</Typography>
       </Grid>
       <Grid size={4}>

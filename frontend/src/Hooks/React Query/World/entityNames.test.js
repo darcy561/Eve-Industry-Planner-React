@@ -27,7 +27,9 @@ describe("the names behind a set of ids", () => {
       { id: 1000035, name: "Caldari Navy", category: "corporation" },
     ]);
 
-    const named = await client().fetchQuery(entityNamesQuery([500001, 1000035]));
+    const named = await client().fetchQuery(
+      entityNamesQuery([500001, 1000035]),
+    );
 
     expect(named[500001].name).toBe("Caldari State");
     expect(named[1000035].name).toBe("Caldari Navy");
@@ -52,7 +54,9 @@ describe("the names behind a set of ids", () => {
   // `fetchQuery` fetches whatever it is given and never consults `enabled`, so
   // the empty case has to be refused inside the query itself.
   it("asks ESI for nothing when there is nothing to name", async () => {
-    const named = await client().fetchQuery(entityNamesQuery([null, undefined]));
+    const named = await client().fetchQuery(
+      entityNamesQuery([null, undefined]),
+    );
 
     expect(getUniverseNames).not.toHaveBeenCalled();
     expect(named).toEqual({});
@@ -76,7 +80,9 @@ describe("the names behind a set of ids", () => {
 // into an empty result, or every caller caches the failure for the session.
 describe("a lookup that fails", () => {
   it("fails the query rather than resolving to no names", async () => {
-    getUniverseNames.mockRejectedValue(new Error("universe names: request failed"));
+    getUniverseNames.mockRejectedValue(
+      new Error("universe names: request failed"),
+    );
 
     await expect(
       client().fetchQuery({ ...entityNamesQuery([500001]), retry: false }),
@@ -88,8 +94,8 @@ describe("a lookup that fails", () => {
   it("never asks it for nothing", async () => {
     getUniverseNames.mockRejectedValue(new Error("nothing requested"));
 
-    await expect(
-      client().fetchQuery(entityNamesQuery([])),
-    ).resolves.toEqual({});
+    await expect(client().fetchQuery(entityNamesQuery([]))).resolves.toEqual(
+      {},
+    );
   });
 });

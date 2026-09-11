@@ -90,7 +90,9 @@ describe("filing a job's months", () => {
     open({ ...HAND_ENTERED, salesFromMarket: true });
 
     // Nothing to open and nothing to clear: the month is not the user's.
-    expect(screen.getAllByRole("button", { name: /choose date/i })[1]).toBeDisabled();
+    expect(
+      screen.getAllByRole("button", { name: /choose date/i })[1],
+    ).toBeDisabled();
     expect(screen.getAllByRole("button", { name: "Clear" })[1]).toBeDisabled();
     expect(screen.getByText(/came from the market/i)).toBeInTheDocument();
   });
@@ -148,13 +150,17 @@ describe("filing a job's months", () => {
   // The server has the last word on the market rule, and what it says is shown
   // rather than swallowed.
   it("shows what the server refused", async () => {
-    fileArchivedJobMonths.mockResolvedValue({ error: "sales came from the market" });
+    fileArchivedJobMonths.mockResolvedValue({
+      error: "sales came from the market",
+    });
     const onFiled = vi.fn();
     open(HAND_ENTERED, { onFiled });
 
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    expect(await screen.findByText("sales came from the market")).toBeInTheDocument();
+    expect(
+      await screen.findByText("sales came from the market"),
+    ).toBeInTheDocument();
     expect(onFiled).not.toHaveBeenCalled();
   });
 });
@@ -181,6 +187,8 @@ describe("filing a whole set", () => {
   it("leaves the income field open for a mixed set", () => {
     open(GROUP);
 
-    expect(screen.getAllByRole("button", { name: /choose date/i })[1]).toBeEnabled();
+    expect(
+      screen.getAllByRole("button", { name: /choose date/i })[1],
+    ).toBeEnabled();
   });
 });

@@ -9,8 +9,7 @@ export function SalesStats({ state }) {
   // Orders that have not sold yet carry the estimate made when they were linked.
   // Stated separately because it is a forecast, and mixing it into the charged
   // total would read as money already taken.
-  const estimatedTaxOutstanding =
-    state.activeJob.estimatedSalesTaxOutstanding;
+  const estimatedTaxOutstanding = state.activeJob.estimatedSalesTaxOutstanding;
   const totalSale = state.activeJob.totalSales;
 
   return (
@@ -24,10 +23,9 @@ export function SalesStats({ state }) {
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">
-              {formatNumberForLocale(
-                state.activeJob.totalQuantityProduced,
-                { max: 0 },
-              )}
+              {formatNumberForLocale(state.activeJob.totalQuantityProduced, {
+                max: 0,
+              })}
             </Typography>
           </Grid>
         </Grid>
@@ -224,9 +222,7 @@ export function SalesStats({ state }) {
               sx={{ typography: STANDARD_TEXT_FORMAT }}
               align="right"
               color={
-                totalSale - state.activeJob.totalCost < 0
-                  ? "error"
-                  : "primary"
+                totalSale - state.activeJob.totalCost < 0 ? "error" : "primary"
               }
             >
               {formatNumberForLocale(totalSale - state.activeJob.totalCost)}

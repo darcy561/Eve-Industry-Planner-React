@@ -15,12 +15,10 @@ vi.mock("./findTransactionsForMarketOrders", () => ({
 
 let availableTransactions = [];
 
-const { default: findJournalEntriesFromTransaction } = await import(
-  "./findJournalEntriesFromTransaction.js"
-);
-const { default: findBrokersFeeEntry } = await import(
-  "./findBrokersFeeEntry.js"
-);
+const { default: findJournalEntriesFromTransaction } =
+  await import("./findJournalEntriesFromTransaction.js");
+const { default: findBrokersFeeEntry } =
+  await import("./findBrokersFeeEntry.js");
 
 function withJournal(entries) {
   characterJournal.data = { 2117000001: entries };
@@ -155,7 +153,11 @@ describe("the broker fee charged for an order", () => {
     withJournal([{ id: 11, ref_type: "brokers_fee", date: SOLD_AT }]);
 
     const first = findBrokersFeeEntry(order, { brokerFee: 1200 }, null);
-    const second = findBrokersFeeEntry({ ...order, order_id: 2 }, { brokerFee: 800 }, null);
+    const second = findBrokersFeeEntry(
+      { ...order, order_id: 2 },
+      { brokerFee: 800 },
+      null,
+    );
 
     expect(first.id).toBe(11);
     expect(second.id).toBe(11);
@@ -178,16 +180,20 @@ describe("which sales are offered for linking", () => {
   // it renders — so an incomplete row would be linked with figures the account
   // never supplied.
   it("offers nothing until the journal has both entries", async () => {
-    const { default: findOrderTransactions } = await import(
-      "./findOrderTransactions.js"
-    );
+    const { default: findOrderTransactions } =
+      await import("./findOrderTransactions.js");
 
     const job = {
       esiTransactionIDs: new Set(),
       build: {
         sale: {
           marketOrders: [
-            { order_id: 900, type_id: 34, location_id: 60003760, CharacterHash: "hash-1" },
+            {
+              order_id: 900,
+              type_id: 34,
+              location_id: 60003760,
+              CharacterHash: "hash-1",
+            },
           ],
         },
       },

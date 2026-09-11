@@ -14,7 +14,7 @@ export function displayNotificationDialogue(
   title = "",
   body = "",
   buttonText = "Close",
-  id = crypto.randomUUID()
+  id = crypto.randomUUID(),
 ) {
   eventEmitter.emit("notificationDialogue", {
     isOpen: true,
@@ -34,7 +34,6 @@ export function displayNotificationDialogue(
 export function displayOutdatedAppVersionDialogue() {
   displayNotificationDialogue(
     "Outdated App Version",
-    "A newer version of the application is available, refresh the page to begin using this."
+    "A newer version of the application is available, refresh the page to begin using this.",
   );
 }
-

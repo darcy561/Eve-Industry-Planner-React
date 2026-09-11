@@ -68,7 +68,9 @@ export default function ContributionPanel({
         <Stack>
           <ContextRow
             note={
-              share === null ? null : `${formatPercentage(Math.abs(share))} of it`
+              share === null
+                ? null
+                : `${formatPercentage(Math.abs(share))} of it`
             }
           >
             {saving >= 0
@@ -92,7 +94,6 @@ export default function ContributionPanel({
           Committed output is never listed, so it carries no broker fee and no
           sales tax.
         </Typography>
-
       </Stack>
     </AppShellPanel>
   );

@@ -14,7 +14,9 @@ export async function buildJob(buildRequest, options = {}) {
   const { queryClient } = options;
 
   try {
-    const requests = Array.isArray(buildRequest) ? buildRequest : [buildRequest];
+    const requests = Array.isArray(buildRequest)
+      ? buildRequest
+      : [buildRequest];
 
     if (requests.length === 0) {
       return Array.isArray(buildRequest) ? [] : undefined;
@@ -86,7 +88,9 @@ async function buildJobObject(itemJson, buildRequest, queryClient) {
     outputObject.buildJobObject(itemJson, buildRequest);
     try {
       await buildSetupOptions(outputObject, buildRequest, queryClient);
-      outputObject.layout.setupToEdit = Object.keys(outputObject.build.setup)[0];
+      outputObject.layout.setupToEdit = Object.keys(
+        outputObject.build.setup,
+      )[0];
       return outputObject;
     } catch (err) {
       console.log(err);
@@ -100,7 +104,11 @@ async function buildJobObject(itemJson, buildRequest, queryClient) {
   }
 }
 
-async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient) {
+async function buildSetupOptions(
+  inputJobObject,
+  buildRequestObject,
+  queryClient,
+) {
   const requiredQuantity =
     buildRequestObject?.requiredQuantity ??
     buildRequestObject?.itemQty ??
@@ -116,7 +124,7 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
         { runCount: row.runCount, jobCount: row.jobCount },
         queryClient,
         presetContext,
-        { overrides: row }
+        { overrides: row },
       );
       inputJobObject.build.setup[newSetup.id] = newSetup;
     }
@@ -127,10 +135,7 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
       typeof requiredQuantity === "number" && requiredQuantity > 0
         ? requiredQuantity
         : null;
-    if (
-      target != null &&
-      inputJobObject.totalQuantityProduced !== target
-    ) {
+    if (target != null && inputJobObject.totalQuantityProduced !== target) {
       recalculateJobForNewTotal(inputJobObject, target, queryClient);
     }
     return;
@@ -140,7 +145,7 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
   const setupQuantities = setupQuantitiesForTotal(
     inputJobObject,
     requiredQuantity,
-    queryClient
+    queryClient,
   );
 
   for (const setupQuantity of setupQuantities) {
@@ -154,7 +159,7 @@ async function buildSetupOptions(inputJobObject, buildRequestObject, queryClient
           systemID: buildRequestObject?.systemID,
           characterToUse: buildRequestObject?.characterToUse,
         },
-      }
+      },
     );
     inputJobObject.attachNewSetupToJob(newSetup);
   }

@@ -18,7 +18,7 @@ describe("installCosts", () => {
       sumSetupEstimatedInstallCosts({
         a: { estimatedInstallCost: 100, jobCount: 2 },
         b: { estimatedInstallCost: 50, jobCount: 1 },
-      })
+      }),
     ).toBe(250);
   });
 

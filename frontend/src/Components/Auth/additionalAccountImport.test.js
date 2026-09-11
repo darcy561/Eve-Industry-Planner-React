@@ -15,9 +15,9 @@ function flush(ms = 0) {
 
 describe("parseAdditionalAccountState", () => {
   it("round-trips a nonce", () => {
-    expect(parseAdditionalAccountState(buildAdditionalAccountState(NONCE))).toBe(
-      NONCE
-    );
+    expect(
+      parseAdditionalAccountState(buildAdditionalAccountState(NONCE)),
+    ).toBe(NONCE);
   });
 
   it("returns null for main login states", () => {
@@ -51,7 +51,7 @@ describe("additional account import handshake", () => {
 
     const handled = await tryCompleteAdditionalAccountImportWindow(
       buildAdditionalAccountState(NONCE),
-      "auth-code-value"
+      "auth-code-value",
     );
 
     expect(handled).toBe(true);
@@ -68,7 +68,7 @@ describe("additional account import handshake", () => {
 
     await tryCompleteAdditionalAccountImportWindow(
       buildAdditionalAccountState("a-different-nonce"),
-      "auth-code-value"
+      "auth-code-value",
     );
 
     expect(onAuthCode).not.toHaveBeenCalled();
@@ -78,7 +78,7 @@ describe("additional account import handshake", () => {
   it("closes the callback window when nobody acks", async () => {
     const handled = await tryCompleteAdditionalAccountImportWindow(
       buildAdditionalAccountState(NONCE),
-      "auth-code-value"
+      "auth-code-value",
     );
 
     expect(handled).toBe(true);
@@ -87,7 +87,7 @@ describe("additional account import handshake", () => {
 
   it("leaves a main-login callback alone", async () => {
     expect(
-      await tryCompleteAdditionalAccountImportWindow("main", "auth-code-value")
+      await tryCompleteAdditionalAccountImportWindow("main", "auth-code-value"),
     ).toBe(false);
     expect(closeWindow).not.toHaveBeenCalled();
   });
@@ -107,7 +107,7 @@ describe("additional account import handshake", () => {
 
     await tryCompleteAdditionalAccountImportWindow(
       buildAdditionalAccountState(NONCE),
-      "auth-code-value"
+      "auth-code-value",
     );
     expect(onAuthCode).not.toHaveBeenCalled();
   });

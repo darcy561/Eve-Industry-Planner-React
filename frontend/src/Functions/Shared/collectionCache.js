@@ -28,7 +28,7 @@ export default function createCollectionCache(build, whenEmpty) {
       (entry) =>
         entry.extra === extra &&
         entry.sources.length === sources.length &&
-        entry.sources.every((source, index) => source === sources[index])
+        entry.sources.every((source, index) => source === sources[index]),
     );
     if (match) return match.value;
 

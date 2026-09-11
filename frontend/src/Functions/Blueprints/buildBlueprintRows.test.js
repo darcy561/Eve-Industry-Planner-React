@@ -137,15 +137,15 @@ describe("buildBlueprintRows", () => {
   it("groups by type with originals first, most researched leading", () => {
     const { byTypeId } = build();
 
-    expect(byTypeId.get(RIFTER_BLUEPRINT_TYPE_ID).map((row) => row.itemId)).toEqual(
-      [7002, 7001, 7003]
-    );
+    expect(
+      byTypeId.get(RIFTER_BLUEPRINT_TYPE_ID).map((row) => row.itemId),
+    ).toEqual([7002, 7001, 7003]);
   });
 
   it("answers a library filter as an equality check", () => {
     const { rows } = buildBlueprintRows(
       [...characterBlueprintRows, ...corporationBlueprintRows],
-      blueprintSearchIndex
+      blueprintSearchIndex,
     );
 
     const reactions = rows
@@ -160,7 +160,7 @@ describe("buildBlueprintRows", () => {
 
     const owned = new Set(rows.map((row) => row.typeId));
     const producible = new Set(
-      rows.map((row) => row.productTypeId).filter((id) => id !== null)
+      rows.map((row) => row.productTypeId).filter((id) => id !== null),
     );
 
     expect(owned.has(RIFTER_BLUEPRINT_TYPE_ID)).toBe(true);
@@ -171,7 +171,7 @@ describe("buildBlueprintRows", () => {
   it("does not hide a corporation list fetched more than once", () => {
     const { rows } = buildBlueprintRows(
       [...corporationBlueprintRows, ...corporationBlueprintRows],
-      blueprintSearchIndex
+      blueprintSearchIndex,
     );
 
     // Deduplicating here would leave the duplicate fetches in place and unnoticed.
@@ -181,7 +181,7 @@ describe("buildBlueprintRows", () => {
   it("ignores rows without an item id", () => {
     const { rows } = buildBlueprintRows(
       [null, { type_id: RIFTER_BLUEPRINT_TYPE_ID }, ...characterBlueprintRows],
-      blueprintSearchIndex
+      blueprintSearchIndex,
     );
 
     expect(rows).toHaveLength(characterBlueprintRows.length);

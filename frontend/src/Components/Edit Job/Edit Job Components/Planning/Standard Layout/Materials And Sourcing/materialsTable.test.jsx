@@ -18,7 +18,13 @@ const row = (overrides) => ({
   plan: MATERIAL_PLAN.BUILD,
   isBuildable: true,
   isLinked: true,
-  mark: { kind: "linked", label: "Manufacturing Job Linked", jobType: 1, isUnsettled: false, isExempt: false },
+  mark: {
+    kind: "linked",
+    label: "Manufacturing Job Linked",
+    jobType: 1,
+    isUnsettled: false,
+    isExempt: false,
+  },
   volume: 100,
   ...overrides,
 });
@@ -30,7 +36,7 @@ function renderTable(rows, props = {}) {
       formatIsk={formatIsk}
       formatQuantity={formatQuantity}
       {...props}
-    />
+    />,
   );
 }
 
@@ -45,7 +51,15 @@ describe("the materials table", () => {
       .getAllByRole("columnheader")
       .map((cell) => cell.textContent);
 
-    expect(headers).toEqual(["Material", "Qty", "Buy", "Build", "Δ", "Source", "Plan"]);
+    expect(headers).toEqual([
+      "Material",
+      "Qty",
+      "Buy",
+      "Build",
+      "Δ",
+      "Source",
+      "Plan",
+    ]);
   });
 
   it("says so rather than rendering an empty table when there are no materials", () => {
@@ -67,7 +81,14 @@ describe("the materials table", () => {
 
   it("shows a dash where a material cannot be built", () => {
     renderTable([
-      row({ typeID: 38, name: "Nocxium", buildPrice: null, delta: null, isBuildable: false, plan: MATERIAL_PLAN.BASE }),
+      row({
+        typeID: 38,
+        name: "Nocxium",
+        buildPrice: null,
+        delta: null,
+        isBuildable: false,
+        plan: MATERIAL_PLAN.BASE,
+      }),
     ]);
     const cells = within(rowFor("Nocxium")).getAllByRole("cell");
 
@@ -80,11 +101,15 @@ describe("the materials table", () => {
     it("says Build for a row being built", () => {
       renderTable([row({ plan: MATERIAL_PLAN.BUILD })]);
 
-      expect(within(rowFor("Tritanium")).getByText("Build")).toBeInTheDocument();
+      expect(
+        within(rowFor("Tritanium")).getByText("Build"),
+      ).toBeInTheDocument();
     });
 
     it("says Buy for a row being bought", () => {
-      renderTable([row({ plan: MATERIAL_PLAN.BUY, delta: 0.104, isLinked: false })]);
+      renderTable([
+        row({ plan: MATERIAL_PLAN.BUY, delta: 0.104, isLinked: false }),
+      ]);
 
       expect(within(rowFor("Tritanium")).getByText("Buy")).toBeInTheDocument();
     });
@@ -104,7 +129,9 @@ describe("the materials table", () => {
       row({ plan: MATERIAL_PLAN.BUY, delta: -0.077, isLinked: false }),
     ]);
 
-    const chip = within(rowFor("Tritanium")).getByText("Buy").closest(".MuiChip-root");
+    const chip = within(rowFor("Tritanium"))
+      .getByText("Buy")
+      .closest(".MuiChip-root");
     expect(chip.className).toMatch(/colorWarning/);
   });
 
@@ -113,7 +140,9 @@ describe("the materials table", () => {
       row({ plan: MATERIAL_PLAN.BUY, delta: 0.104, isLinked: false }),
     ]);
 
-    const chip = within(rowFor("Tritanium")).getByText("Buy").closest(".MuiChip-root");
+    const chip = within(rowFor("Tritanium"))
+      .getByText("Buy")
+      .closest(".MuiChip-root");
     expect(chip.className).not.toMatch(/colorWarning/);
   });
 
@@ -142,7 +171,7 @@ describe("the materials table", () => {
             plan: MATERIAL_PLAN.BASE,
           }),
         ],
-        { onToggleRow }
+        { onToggleRow },
       );
 
       await user.click(rowFor("Nocxium"));
@@ -156,8 +185,15 @@ describe("the materials table", () => {
       const onToggleRow = vi.fn();
       const user = userEvent.setup();
       renderTable(
-        [row({ isLinked: false, buildPrice: null, delta: null, plan: MATERIAL_PLAN.BUY })],
-        { onToggleRow }
+        [
+          row({
+            isLinked: false,
+            buildPrice: null,
+            delta: null,
+            plan: MATERIAL_PLAN.BUY,
+          }),
+        ],
+        { onToggleRow },
       );
 
       await user.click(rowFor("Tritanium"));
@@ -226,7 +262,9 @@ describe("the mark at the head of a row", () => {
   it("says what the material is and whether anything builds it", () => {
     renderTable([row()]);
 
-    expect(screen.getByLabelText("Manufacturing Job Linked")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Manufacturing Job Linked"),
+    ).toBeInTheDocument();
   });
 
   it("marks a material the account excludes from builds", () => {
@@ -244,13 +282,15 @@ describe("the mark at the head of a row", () => {
       }),
     ]);
 
-    const glyph = screen.getByLabelText("Manufacturing Job — exempt from builds");
+    const glyph = screen.getByLabelText(
+      "Manufacturing Job — exempt from builds",
+    );
     expect(glyph).toBeInTheDocument();
     // Legible without hovering: a long list is scanned rather than hovered row
     // by row.
     expect(glyph.querySelector("svg")).toHaveAttribute(
       "data-testid",
-      "BlockIcon"
+      "BlockIcon",
     );
   });
 
@@ -264,14 +304,18 @@ describe("the mark at the head of a row", () => {
       isUnsettled: true,
       isExempt: false,
     };
-    const exemptAndPending = { ...pending, isExempt: true, label: "exempt too" };
+    const exemptAndPending = {
+      ...pending,
+      isExempt: true,
+      label: "exempt too",
+    };
 
     const first = render(
       <MaterialsTable
         rows={[row({ mark: pending })]}
         formatIsk={formatIsk}
         formatQuantity={formatQuantity}
-      />
+      />,
     );
     const pendingGlyph = screen
       .getByLabelText("Manufacturing Job Pending")
@@ -284,7 +328,7 @@ describe("the mark at the head of a row", () => {
         rows={[row({ mark: exemptAndPending })]}
         formatIsk={formatIsk}
         formatQuantity={formatQuantity}
-      />
+      />,
     );
     const exemptGlyph = screen
       .getByLabelText("exempt too")
@@ -305,9 +349,7 @@ describe("the mark at the head of a row", () => {
 // the row says which, two rows priced differently look like the same figure.
 describe("the source column", () => {
   it("names the hub and the price mode behind the buy figure", () => {
-    renderTable([
-      row({ marketSelect: "jita", listingSelect: "buyP95" }),
-    ]);
+    renderTable([row({ marketSelect: "jita", listingSelect: "buyP95" })]);
 
     expect(
       within(rowFor("Tritanium")).getByText("Jita · Buy 95%"),
@@ -339,7 +381,9 @@ describe("the item artwork", () => {
   it("asks for a size the image server will actually serve", () => {
     renderTable([row({ typeID: 34 })]);
 
-    const src = document.querySelector('img[src*="/types/34/icon"]').getAttribute("src");
+    const src = document
+      .querySelector('img[src*="/types/34/icon"]')
+      .getAttribute("src");
     const size = Number(new URL(src).searchParams.get("size"));
     expect(Number.isInteger(Math.log2(size))).toBe(true);
   });

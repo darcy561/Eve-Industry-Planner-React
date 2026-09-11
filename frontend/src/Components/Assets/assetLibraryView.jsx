@@ -53,27 +53,29 @@ export default function AssetLibraryView({
   const character = useUsersStore((state) =>
     isCorporation
       ? state.account.characters.find(
-          (c) => Number(c.corporation_id) === Number(id)
+          (c) => Number(c.corporation_id) === Number(id),
         )
-      : state.account.characters.find((c) => c.CharacterHash === id)
+      : state.account.characters.find((c) => c.CharacterHash === id),
   );
   const corporation = useUsersStore((state) =>
     state.account.corporations.find(
-      (c) => Number(c.corporation_id) === Number(id)
-    )
+      (c) => Number(c.corporation_id) === Number(id),
+    ),
   );
 
   const hangars = corporation?.hangars;
   const hangarFlags = useMemo(
     () => (hangars ?? []).map(({ assetLocationRef }) => assetLocationRef),
-    [hangars]
+    [hangars],
   );
 
   const narrow = useMemo(() => {
     if (view === "assetSafety") return { rootFlags: ASSET_SAFETY };
     if (view === "deliveries") {
       return {
-        rootFlags: isCorporation ? CORPORATION_DELIVERIES : CHARACTER_DELIVERIES,
+        rootFlags: isCorporation
+          ? CORPORATION_DELIVERIES
+          : CHARACTER_DELIVERIES,
       };
     }
     return isCorporation

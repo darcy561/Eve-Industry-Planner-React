@@ -95,14 +95,23 @@ export function UserLogInUI() {
             display: "flex",
             flexDirection: "column",
             width: "100%",
-            height: "100%"
-          }}>
+            height: "100%",
+          }}
+        >
           {userData.userArray.length > 0 && (
-            <Grid container spacing={2} size={12} sx={{
-              justifyContent: "center"
-            }}>
+            <Grid
+              container
+              spacing={2}
+              size={12}
+              sx={{
+                justifyContent: "center",
+              }}
+            >
               {userData.userArray.slice(0, 5).map((user, index) => (
-                <Zoom key={`login-avatar-${user.CharacterID}-${index}`} in={true}>
+                <Zoom
+                  key={`login-avatar-${user.CharacterID}-${index}`}
+                  in={true}
+                >
                   <Grid
                     container
                     sx={{ marginBottom: "10px" }}
@@ -171,8 +180,9 @@ export function UserLogInUI() {
             size={12}
             sx={{
               justifyContent: "center",
-              paddingTop: { xs: "2vh", sm: "5vh" }
-            }}>
+              paddingTop: { xs: "2vh", sm: "5vh" },
+            }}
+          >
             <LoadingStep
               title="Retrieving Character Data"
               step={LOGIN_STEPS.CHARACTER_DATA}

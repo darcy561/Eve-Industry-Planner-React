@@ -21,7 +21,9 @@ function NewGroupPage() {
       const jobsToSave = new Set();
       const group = new Group();
       for (let id of jobIDsToInclude) {
-        const matchedGroupJob = useUsersStore.getState().jobData.actions.findJobInJobArray(id);
+        const matchedGroupJob = useUsersStore
+          .getState()
+          .jobData.actions.findJobInJobArray(id);
         if (!matchedGroupJob) continue;
         groupJobs.push(matchedGroupJob);
         matchedGroupJob.assignToGroup(group.groupID);
@@ -29,7 +31,9 @@ function NewGroupPage() {
         for (let parentID of matchedGroupJob.parentJobs) {
           if (jobIDsToInclude.includes(parentID)) continue;
 
-          const matchedParentJob = useUsersStore.getState().jobData.actions.findJobInJobArray(parentID);
+          const matchedParentJob = useUsersStore
+            .getState()
+            .jobData.actions.findJobInJobArray(parentID);
           if (!matchedParentJob) continue;
 
           let material =
@@ -41,7 +45,7 @@ function NewGroupPage() {
         }
 
         matchedGroupJob.parentJobs = matchedGroupJob.parentJobs.filter((i) =>
-          jobIDsToInclude.includes(i)
+          jobIDsToInclude.includes(i),
         );
 
         for (let material of matchedGroupJob.build.materials) {
@@ -49,16 +53,18 @@ function NewGroupPage() {
           for (let id of childJobArray) {
             if (jobIDsToInclude.includes(id)) continue;
 
-            const matchedChildJob = useUsersStore.getState().jobData.actions.findJobInJobArray(id);
+            const matchedChildJob = useUsersStore
+              .getState()
+              .jobData.actions.findJobInJobArray(id);
 
             if (!matchedChildJob) continue;
 
             matchedChildJob.parentJobs = matchedChildJob.parentJobs.filter(
-              (i) => !matchedGroupJob.jobID
+              (i) => !matchedGroupJob.jobID,
             );
           }
           childJobArray = childJobArray.filter((i) =>
-            jobIDsToInclude.includes(i)
+            jobIDsToInclude.includes(i),
           );
           jobsToSave.add(matchedGroupJob.jobID);
         }
@@ -73,13 +79,9 @@ function NewGroupPage() {
 
       addGroupToGroupArray(group);
 
-
-
-
       if (isLoggedIn) {
         await flushPendingGroupSave();
-        await saveJobsViaApi(jobArray.filter((i) => jobsToSave.has(i.jobID))
-        );
+        await saveJobsViaApi(jobArray.filter((i) => jobsToSave.has(i.jobID)));
       }
 
       await Promise.race([checkJobsPresent(), timeout()]);
@@ -93,7 +95,7 @@ function NewGroupPage() {
       return new Promise((res, _) => {
         const intervalID = setInterval(() => {
           const allJobsFound = jobIDsToInclude.every((id) =>
-            jobArray.some((i) => i.jobID === id)
+            jobArray.some((i) => i.jobID === id),
           );
           if (allJobsFound) {
             clearInterval(intervalID);

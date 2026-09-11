@@ -26,9 +26,7 @@ export function DeleteJobIcon({ state }) {
 
   return (
     <Tooltip
-      title={
-        deleteBlockedReason || "Deletes the job from the job planner."
-      }
+      title={deleteBlockedReason || "Deletes the job from the job planner."}
       arrow
       placement="bottom"
     >
@@ -51,7 +49,7 @@ export function DeleteJobIcon({ state }) {
                 params: { groupID: groupIDFromParams },
                 search: buildGroupSearchAfterEditClose(
                   search,
-                  state.activeJob?.jobID
+                  state.activeJob?.jobID,
                 ),
               });
             } else {

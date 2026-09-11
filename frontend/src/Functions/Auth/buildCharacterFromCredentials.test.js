@@ -32,7 +32,9 @@ describe("building a character from credentials", () => {
     it("reads identity from the JWT and adopts the token", () => {
       const token = esiAccessToken({ owner: HASH });
 
-      const character = buildCharacterFromAccessToken(token, { isMainCharacter: true });
+      const character = buildCharacterFromAccessToken(token, {
+        isMainCharacter: true,
+      });
 
       expect(character.CharacterHash).toBe(HASH);
       expect(character.CharacterName).toBe("Test Pilot");
@@ -41,7 +43,10 @@ describe("building a character from credentials", () => {
     });
 
     it("defaults to a non-main character", () => {
-      expect(buildCharacterFromAccessToken(esiAccessToken({ owner: HASH })).isMainCharacter).toBe(false);
+      expect(
+        buildCharacterFromAccessToken(esiAccessToken({ owner: HASH }))
+          .isMainCharacter,
+      ).toBe(false);
     });
   });
 

@@ -178,7 +178,11 @@ export const BUILD_COST_COMPONENTS = COST_COMPONENTS.filter(({ key }) =>
  * the rows [toBuildCostPerUnitRows] produces.
  */
 export const COST_SERIES = [
-  ...BUILD_COST_COMPONENTS.map(({ key, label }) => ({ key, label, type: "bar" })),
+  ...BUILD_COST_COMPONENTS.map(({ key, label }) => ({
+    key,
+    label,
+    type: "bar",
+  })),
   {
     key: "averageSalePrice",
     label: "Avg sale price",
@@ -227,7 +231,8 @@ export function toBuildCostPerUnitRows(data) {
 export function sumTimelineMeasures(months = []) {
   return months.reduce(
     (total, row) => ({
-      quantityProduced: total.quantityProduced + Number(row?.quantityProduced ?? 0),
+      quantityProduced:
+        total.quantityProduced + Number(row?.quantityProduced ?? 0),
       quantitySold: total.quantitySold + Number(row?.quantitySold ?? 0),
       salesTotal: total.salesTotal + Number(row?.salesTotal ?? 0),
       jobCostTotal: total.jobCostTotal + Number(row?.jobCostTotal ?? 0),

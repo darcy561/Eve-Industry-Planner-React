@@ -110,7 +110,9 @@ class LinkedESIJob {
    * @returns {boolean}
    */
   get isReadyToDeliver() {
-    return this.isActive && this.finishesAt !== null && this.finishesAt <= Date.now();
+    return (
+      this.isActive && this.finishesAt !== null && this.finishesAt <= Date.now()
+    );
   }
 
   /**

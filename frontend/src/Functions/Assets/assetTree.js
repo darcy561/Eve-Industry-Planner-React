@@ -34,7 +34,7 @@ function isTopRow(node, byItemId) {
  */
 export function assetRowsByLocation(
   collection,
-  { rootFlags, excludeRootFlags, includeLocations, excludeItemIds } = {}
+  { rootFlags, excludeRootFlags, includeLocations, excludeItemIds } = {},
 ) {
   const byLocation = new Map();
 

@@ -2,7 +2,10 @@ import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import checkJobTypeIsBuildable from "../../../../../../../Functions/Helper/checkJobTypeIsBuildable";
 import { findMaterialJobInGroup } from "../../../../../../../Functions/Groups/findMaterialJobInGroup.js";
-import { buildChildJobs, hydrateChildJobsWithMissingData } from "../Helpers/childJobBuildPipeline";
+import {
+  buildChildJobs,
+  hydrateChildJobsWithMissingData,
+} from "../Helpers/childJobBuildPipeline";
 import { finaliseCreatedChildJobs } from "../Helpers/finaliseCreatedChildJobs";
 
 export function useChildJobBuildActions({ state, actions }) {
@@ -32,7 +35,7 @@ export function useChildJobBuildActions({ state, actions }) {
         if (!state.activeJob.includedInGroup) return false;
         const matchedGroupJob = findMaterialJobInGroup(
           requestedTypeID,
-          requestedGroupID
+          requestedGroupID,
         );
         if (!matchedGroupJob || childJobLocation.length > 0 || tempChildJob)
           return false;
@@ -64,7 +67,7 @@ export function useChildJobBuildActions({ state, actions }) {
           systemID: state.activeJob.selectedSetup.systemID,
           skipJobCreateAnalytics: true,
         },
-        { queryClient }
+        { queryClient },
       );
 
       const newJob = builtJobs[0];
@@ -80,7 +83,7 @@ export function useChildJobBuildActions({ state, actions }) {
 
       return newJob;
     },
-    [actions, queryClient, state.activeJob]
+    [actions, queryClient, state.activeJob],
   );
 
   /**
@@ -99,7 +102,8 @@ export function useChildJobBuildActions({ state, actions }) {
         if (!checkJobTypeIsBuildable(jobType)) return false;
         // A row with something already linked or marked has a real build cost
         // and does not need a guess beside it.
-        if ((state.activeJob.build.childJobs[typeID] ?? []).length > 0) return false;
+        if ((state.activeJob.build.childJobs[typeID] ?? []).length > 0)
+          return false;
         if (state.temporaryChildJobs[typeID]) return false;
         return !state.speculativeChildJobs?.[typeID];
       },

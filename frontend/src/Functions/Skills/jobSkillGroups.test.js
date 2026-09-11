@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { SKILL_GROUP, groupJobSkills } from "./jobSkillGroups";
-import { industrySkillIDs, jobTypes, marketSkillIDs } from "../../Context/defaultValues";
+import {
+  industrySkillIDs,
+  jobTypes,
+  marketSkillIDs,
+} from "../../Context/defaultValues";
 import { SALE_LOCATION_KIND } from "../MarketOrders/saleLocations";
 
 const jobSkills = [
@@ -45,8 +49,12 @@ describe("groupJobSkills", () => {
   it("lists a skill in more than one group where it belongs to both", () => {
     const groups = build();
 
-    const inRequired = group(groups, SKILL_GROUP.REQUIRED).rows.map((r) => r.typeID);
-    const inTime = group(groups, SKILL_GROUP.BUILD_TIME).rows.map((r) => r.typeID);
+    const inRequired = group(groups, SKILL_GROUP.REQUIRED).rows.map(
+      (r) => r.typeID,
+    );
+    const inTime = group(groups, SKILL_GROUP.BUILD_TIME).rows.map(
+      (r) => r.typeID,
+    );
 
     expect(inRequired).toContain(industrySkillIDs.industry);
     expect(inTime).toContain(industrySkillIDs.industry);
@@ -71,7 +79,9 @@ describe("groupJobSkills", () => {
     ).rows;
 
     expect(rows.map((r) => r.typeID)).toContain(industrySkillIDs.reaction);
-    expect(rows.map((r) => r.typeID)).not.toContain(industrySkillIDs.advancedIndustry);
+    expect(rows.map((r) => r.typeID)).not.toContain(
+      industrySkillIDs.advancedIndustry,
+    );
   });
 
   it("names both selling skills at a station", () => {
@@ -87,7 +97,10 @@ describe("groupJobSkills", () => {
   // A skill vanishing from a panel reads as a defect. It stays, marked as not
   // applying, because that is the answer to the question being asked.
   it("keeps Broker Relations at a citadel, marked as not applying", () => {
-    const rows = group(build({ saleLocation: citadel }), SKILL_GROUP.SELLING).rows;
+    const rows = group(
+      build({ saleLocation: citadel }),
+      SKILL_GROUP.SELLING,
+    ).rows;
     const brokerRelations = rows.find(
       (r) => r.typeID === marketSkillIDs.brokerRelations,
     );
@@ -98,7 +111,10 @@ describe("groupJobSkills", () => {
   });
 
   it("keeps Accounting applying at a citadel", () => {
-    const rows = group(build({ saleLocation: citadel }), SKILL_GROUP.SELLING).rows;
+    const rows = group(
+      build({ saleLocation: citadel }),
+      SKILL_GROUP.SELLING,
+    ).rows;
     const accounting = rows.find((r) => r.typeID === marketSkillIDs.accounting);
 
     expect(accounting.applies).toBe(true);

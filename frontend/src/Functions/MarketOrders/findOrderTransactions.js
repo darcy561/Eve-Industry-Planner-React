@@ -6,7 +6,7 @@ export default function findOrderTransactions(
   inputJob,
   queryClient,
   temporaryTransactionsToAdd = [],
-  temporaryTransactionsToRemove = []
+  temporaryTransactionsToRemove = [],
 ) {
   const transactionData = [];
   const matchedTransactionIDs = inputJob.esiTransactionIDs;
@@ -17,7 +17,7 @@ export default function findOrderTransactions(
       queryClient,
       matchedTransactionIDs,
       temporaryTransactionsToAdd,
-      temporaryTransactionsToRemove
+      temporaryTransactionsToRemove,
     );
 
     itemTransactions.forEach((itemTrans) => {
@@ -39,7 +39,7 @@ export default function findOrderTransactions(
           taxEntry: transactionTax,
           description: descriptionTrim[0],
           owner: { CharacterHash: order.CharacterHash },
-        })
+        }),
       );
       matchedTransactionIDs.add(itemTrans.transaction_id);
     });

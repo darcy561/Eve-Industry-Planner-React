@@ -105,13 +105,15 @@ export const DOCUMENT_LOCK_CUSTOM_EVENT = "eip-document-lock";
  * (see `useLockExtendLoop`).
  * `detail`: `{ collection: string, docID: string }`.
  */
-export const DOCUMENT_LOCK_RENEW_REQUEST_EVENT = "eip-document-lock-renew-request";
+export const DOCUMENT_LOCK_RENEW_REQUEST_EVENT =
+  "eip-document-lock-renew-request";
 
 /**
  * Private HTTP 409 body `{ error, collection, rejected }` when another session holds the lock.
  * Matches Go `documentlock.ErrCodeLockHeldElsewhere`.
  */
-export const DOCUMENT_LOCK_API_ERROR_LOCK_HELD_ELSEWHERE = "lock_held_elsewhere";
+export const DOCUMENT_LOCK_API_ERROR_LOCK_HELD_ELSEWHERE =
+  "lock_held_elsewhere";
 
 /**
  * `Error.code` after a structured 409 is parsed and Zustand scopes are patched

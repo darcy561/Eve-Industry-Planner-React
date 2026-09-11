@@ -23,7 +23,9 @@ export function handleApplicationSettingsDocumentDelete(ctx) {
   if (docID !== accountId) return false;
 
   rs.setCursorMs(docKey, Date.now());
-  useUsersStore.getState().applicationSettings.actions.resetApplicationSettingsStore();
+  useUsersStore
+    .getState()
+    .applicationSettings.actions.resetApplicationSettingsStore();
   return true;
 }
 
@@ -44,7 +46,8 @@ export function handleApplicationSettingsDocumentUpsert(ctx) {
     ctx;
   if (docID !== accountId) return false;
 
-  const prevCloudAccounts = !!useUsersStore.getState().applicationSettings.userCloudAccounts;
+  const prevCloudAccounts =
+    !!useUsersStore.getState().applicationSettings.userCloudAccounts;
 
   const mainHash =
     useUsersStore.getState().account.mainCharacterHash ?? undefined;
@@ -55,11 +58,11 @@ export function handleApplicationSettingsDocumentUpsert(ctx) {
         state.applicationSettings,
         document,
         mainHash,
-        { authoritativeFullDocument: true }
+        { authoritativeFullDocument: true },
       ),
     }),
     false,
-    "realtime/applyApplicationSettings"
+    "realtime/applyApplicationSettings",
   );
   rs.setCursorMs(docKey, remoteMs);
 

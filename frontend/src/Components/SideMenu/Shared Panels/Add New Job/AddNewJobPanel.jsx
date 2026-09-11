@@ -27,7 +27,7 @@ function AddNewJobSharedContentPanel({ state, actions }) {
   const [addNewGroupOnBuild, updateAddNewGroupOnBuild] = useState(false);
   const queryClient = useQueryClient();
   const { data: fullItemList } = useCachedData(
-    CACHED_DATA_FILES.FULL_ITEM_LIST
+    CACHED_DATA_FILES.FULL_ITEM_LIST,
   );
 
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
@@ -36,7 +36,7 @@ function AddNewJobSharedContentPanel({ state, actions }) {
 
   async function addJobs() {
     actions.setSkeletonElementsToDisplay(
-      addNewGroupOnBuild ? 1 : itemIDsToAdd.length
+      addNewGroupOnBuild ? 1 : itemIDsToAdd.length,
     );
     await addNewJobsToPlanner(itemIDsToAdd, queryClient, {
       onBeforeCommit: () => actions.setSkeletonElementsToDisplay(0),
@@ -46,7 +46,7 @@ function AddNewJobSharedContentPanel({ state, actions }) {
       1,
       state.rightDrawerContentID,
       (value) => actions.setExpandRightDrawer(value),
-      state?.pageRequiresDrawerToBeOpen ?? false
+      state?.pageRequiresDrawerToBeOpen ?? false,
     );
     actions.setRightDrawerContentID(null);
     actions.setSkeletonElementsToDisplay(0);
@@ -74,7 +74,7 @@ function AddNewJobSharedContentPanel({ state, actions }) {
 
   function toggleAddNewGroup() {
     updateItemIDsToAdd((prev) =>
-      prev.map((obj) => ({ ...obj, addNewGroup: !addNewGroupOnBuild }))
+      prev.map((obj) => ({ ...obj, addNewGroup: !addNewGroupOnBuild })),
     );
     updateAddNewGroupOnBuild((prev) => !prev);
   }
@@ -116,7 +116,8 @@ function AddNewJobSharedContentPanel({ state, actions }) {
                   justifyContent: "space-evenly",
                   paddingY: 2,
                 }}
-                size={12}>
+                size={12}
+              >
                 <Button
                   size="small"
                   variant="contained"
@@ -170,7 +171,7 @@ function AddNewJobSharedContentPanel({ state, actions }) {
                       deleteIcon={<ClearIcon sx={{ color: "error.main" }} />}
                       onDelete={() => {
                         updateItemIDsToAdd((prev) =>
-                          prev.filter((i) => i.itemID !== itemObj.itemID)
+                          prev.filter((i) => i.itemID !== itemObj.itemID),
                         );
                       }}
                       avatar={

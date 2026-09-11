@@ -39,8 +39,7 @@ export async function archiveGroupJobs(selectedJobs) {
   let newLinkedJobs = new Set();
 
   const filteredJobs = selectedJobs.filter(
-    (job) =>
-      !jobArray.find((j) => j.jobID === job.jobID && j.displayOnPlanner)
+    (job) => !jobArray.find((j) => j.jobID === job.jobID && j.displayOnPlanner),
   );
 
   for (let selectedJob of filteredJobs) {
@@ -89,14 +88,14 @@ export async function archiveGroupJobs(selectedJobs) {
     if (status === 409) {
       showSnackbarError(
         "Cannot archive: another session holds the edit lock for this group.",
-        5
+        5,
       );
       return false;
     }
     console.error(err);
     showSnackbarError(
       "Could not remove the group on the server after archiving jobs.",
-      5
+      5,
     );
     return false;
   }

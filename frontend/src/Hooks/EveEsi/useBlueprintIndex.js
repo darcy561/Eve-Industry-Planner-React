@@ -28,7 +28,7 @@ const EMPTY_COLLECTION = buildBlueprintRows([], []);
 
 const deriveRows = createCollectionCache(
   (sources, searchIndex) => buildBlueprintRows(sources.flat(), searchIndex),
-  EMPTY_COLLECTION
+  EMPTY_COLLECTION,
 );
 
 /**
@@ -45,10 +45,12 @@ const deriveRows = createCollectionCache(
  */
 function queriesForScope(scope, id, characters, corporations) {
   const everyCharacter = () =>
-    characters.map(({ CharacterHash }) => characterBlueprintsQuery(CharacterHash));
+    characters.map(({ CharacterHash }) =>
+      characterBlueprintsQuery(CharacterHash),
+    );
   const everyCorporation = () =>
     corporations.map(({ corporation_id }) =>
-      corporationBlueprintsQuery(corporation_id)
+      corporationBlueprintsQuery(corporation_id),
     );
 
   switch (scope) {
@@ -90,7 +92,7 @@ export function getCachedBlueprintIndex(queryClient, { scope, id } = {}) {
     scope,
     id,
     characters ?? [],
-    corporations ?? []
+    corporations ?? [],
   ).map((query) => query.queryKey);
 
   const sources = [];

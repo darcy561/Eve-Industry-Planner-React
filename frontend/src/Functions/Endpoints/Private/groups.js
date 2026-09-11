@@ -25,12 +25,12 @@ export async function fetchJobGroupsFromApi() {
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "GET" },
-    { requestName: "getJobGroups" }
+    { requestName: "getJobGroups" },
   );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET /api/v1/groups failed: ${res.status} ${text || res.statusText}`
+      `GET /api/v1/groups failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const data = await res.json();
@@ -97,7 +97,7 @@ export async function deleteJobGroupsFromApi(groupIDs) {
         arrayKey: "groupIDs",
         failure: "first",
       },
-    }
+    },
   );
 }
 
@@ -124,6 +124,6 @@ export async function putJobGroupsBatch(groupsPayload) {
         arrayKey: "groups",
         errorLabel: "PUT /api/v1/groups",
       },
-    }
+    },
   );
 }

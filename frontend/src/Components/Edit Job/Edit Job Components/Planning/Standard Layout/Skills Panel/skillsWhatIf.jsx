@@ -110,8 +110,12 @@ export default function SkillsWhatIf({
           }
           value={
             <Superseded
-              was={formatNumberForLocale(now.brokerFee.amount + now.salesTax.amount)}
-              is={formatNumberForLocale(then.brokerFee.amount + then.salesTax.amount)}
+              was={formatNumberForLocale(
+                now.brokerFee.amount + now.salesTax.amount,
+              )}
+              is={formatNumberForLocale(
+                then.brokerFee.amount + then.salesTax.amount,
+              )}
               changed={changed && then.saved !== 0}
             />
           }

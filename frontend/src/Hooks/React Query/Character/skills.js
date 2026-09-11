@@ -32,31 +32,41 @@ const characterSkillsQueryGroup = "character";
  * @returns {boolean} returns.refetchOnMount - Whether to refetch on component mount (false)
  */
 function characterSkillsQuery(characterHash) {
-  const findCharacterByHash = useUsersStore.getState().account.actions.findCharacterByHash;
+  const findCharacterByHash =
+    useUsersStore.getState().account.actions.findCharacterByHash;
   return {
     queryKey: [characterSkillsQueryKey, characterHash],
     queryFn: async () => {
       const userObject = findCharacterByHash(characterHash);
-      
+
       // Check if character group is rate limited for this specific character
       // Use config.group as hint, will be updated from headers if different
-      const characterStatus = getESIRateLimitStatus('character', characterHash);
+      const characterStatus = getESIRateLimitStatus("character", characterHash);
 
-      if (characterStatus && characterStatus.availableTokens <= 0 && characterStatus.maxTokens && characterStatus.windowSize) {
-        const tokensPerMs = characterStatus.maxTokens / characterStatus.windowSize;
-        const tokensToRecover = characterStatus.maxTokens - characterStatus.availableTokens;
+      if (
+        characterStatus &&
+        characterStatus.availableTokens <= 0 &&
+        characterStatus.maxTokens &&
+        characterStatus.windowSize
+      ) {
+        const tokensPerMs =
+          characterStatus.maxTokens / characterStatus.windowSize;
+        const tokensToRecover =
+          characterStatus.maxTokens - characterStatus.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Character group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Character group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
+        );
       }
       const result = await getCharacterSkills({
         character: userObject,
         config: {
           characterHash,
           group: characterSkillsQueryGroup,
-          priority: 'normal',
-          batchable: true
-        }
+          priority: "normal",
+          batchable: true,
+        },
       });
       return result.data;
     },
@@ -67,12 +77,21 @@ function characterSkillsQuery(characterHash) {
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
+      if (error?.message?.includes("rate limited")) {
         // Get status for this specific character's character bucket
-        const characterStatus = getESIRateLimitStatus('character', characterHash);
-        if (characterStatus && characterStatus.maxTokens && characterStatus.windowSize) {
-          const tokensPerMs = characterStatus.maxTokens / characterStatus.windowSize;
-          const tokensToRecover = characterStatus.maxTokens - characterStatus.availableTokens;
+        const characterStatus = getESIRateLimitStatus(
+          "character",
+          characterHash,
+        );
+        if (
+          characterStatus &&
+          characterStatus.maxTokens &&
+          characterStatus.windowSize
+        ) {
+          const tokensPerMs =
+            characterStatus.maxTokens / characterStatus.windowSize;
+          const tokensToRecover =
+            characterStatus.maxTokens - characterStatus.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -83,5 +102,9 @@ function characterSkillsQuery(characterHash) {
     refetchOnMount: false,
   };
 }
-  
-export { characterSkillsQuery, characterSkillsQueryKey, characterSkillsQueryGroup };
+
+export {
+  characterSkillsQuery,
+  characterSkillsQueryKey,
+  characterSkillsQueryGroup,
+};

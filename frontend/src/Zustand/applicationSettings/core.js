@@ -48,7 +48,8 @@ function normalizeServerApplicationSettingsPayload(incoming) {
   const base = /** @type {Record<string, unknown>} */ ({ ...incoming });
   if (!("esiJobTab" in base)) base.esiJobTab = null;
   if (!("exemptTypeIDs" in base)) base.exemptTypeIDs = [];
-  if (!("extrasCategories" in base)) base.extrasCategories = [...extrasCategoriesDefault];
+  if (!("extrasCategories" in base))
+    base.extrasCategories = [...extrasCategoriesDefault];
   if (!("predefinedSystemIndexes" in base)) base.predefinedSystemIndexes = {};
   if (!("jobStatuses" in base)) base.jobStatuses = {};
   return base;
@@ -85,7 +86,6 @@ export const stateDefault = () => ({
   extrasCategories: extrasCategoriesDefault,
   predefinedSystemIndexes: {},
   jobStatuses: {},
-
 });
 
 /**
@@ -101,7 +101,7 @@ export function mergeApplicationSettingsState(
   prev,
   incoming,
   mainCharacterHashFallback,
-  options = {}
+  options = {},
 ) {
   const { authoritativeFullDocument = false } = options;
 
@@ -151,7 +151,9 @@ export function mergeApplicationSettingsState(
   mergedRs = {
     ...mergedRs,
     defaultReprocessingCharacter:
-      mergedRs.defaultReprocessingCharacter ?? mainCharacterHashFallback ?? null,
+      mergedRs.defaultReprocessingCharacter ??
+      mainCharacterHashFallback ??
+      null,
   };
 
   // Same values as layout.localMarketDisplay/localOrderDisplay on legacy API; merged into defaults.
@@ -200,8 +202,7 @@ export function mergeApplicationSettingsState(
         ? new Set(incoming.exemptTypeIDs)
         : prev.exemptTypeIDs,
     ...(incoming.enableAutomaticJobRecalculation !== undefined && {
-      enableAutomaticJobRecalculation:
-        incoming.enableAutomaticJobRecalculation,
+      enableAutomaticJobRecalculation: incoming.enableAutomaticJobRecalculation,
     }),
     ...(incoming.enableSkipMissingBlueprints !== undefined && {
       enableSkipMissingBlueprints: incoming.enableSkipMissingBlueprints,
@@ -237,11 +238,11 @@ export const coreActions = (set, get) => ({
           state.applicationSettings,
           incoming,
           mainCharacterHashFallback,
-          { authoritativeFullDocument: true }
+          { authoritativeFullDocument: true },
         ),
       }),
       false,
-      "mergeApplicationSettingsFromServer"
+      "mergeApplicationSettingsFromServer",
     );
   },
 
@@ -255,7 +256,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "resetApplicationSettingsStore"
+      "resetApplicationSettingsStore",
     );
   },
 
@@ -285,16 +286,16 @@ export const coreActions = (set, get) => ({
       defaultMaterialEfficiencyValue: state.defaultMaterialEfficiencyValue,
       customStructures: {
         manufacturing: cs.manufacturing.map((structure) =>
-          customStructureRowToDocument(structure, CustomStructure)
+          customStructureRowToDocument(structure, CustomStructure),
         ),
         reaction: cs.reaction.map((structure) =>
-          customStructureRowToDocument(structure, CustomStructure)
+          customStructureRowToDocument(structure, CustomStructure),
         ),
         reprocessing: cs.reprocessing.map((structure) =>
-          customStructureRowToDocument(structure, ReprocessingStructure)
+          customStructureRowToDocument(structure, ReprocessingStructure),
         ),
         invention: cs.invention.map((structure) =>
-          customStructureRowToDocument(structure, InventionStructure)
+          customStructureRowToDocument(structure, InventionStructure),
         ),
       },
       exemptTypeIDs: [...(state.exemptTypeIDs || [])],
@@ -339,13 +340,13 @@ export const coreActions = (set, get) => ({
       },
       structures: {
         manufacturing: cs.manufacturing.map((structure) =>
-          customStructureRowToDocument(structure, CustomStructure)
+          customStructureRowToDocument(structure, CustomStructure),
         ),
         reaction: cs.reaction.map((structure) =>
-          customStructureRowToDocument(structure, CustomStructure)
+          customStructureRowToDocument(structure, CustomStructure),
         ),
         reprocessing: cs.reprocessing.map((structure) =>
-          customStructureRowToDocument(structure, ReprocessingStructure)
+          customStructureRowToDocument(structure, ReprocessingStructure),
         ),
       },
       exemptTypeIDs: [...(state.exemptTypeIDs || [])],
@@ -360,8 +361,10 @@ export const coreActions = (set, get) => ({
         compressionBonusMultiplier:
           state.reprocessingSettings.compressionBonusMultiplier,
         valueMultiplier: state.reprocessingSettings.valueMultiplier,
-        wastePenaltyMultiplier: state.reprocessingSettings.wastePenaltyMultiplier,
-        sellExcessMineralTypes: state.reprocessingSettings.sellExcessMineralTypes,
+        wastePenaltyMultiplier:
+          state.reprocessingSettings.wastePenaltyMultiplier,
+        sellExcessMineralTypes:
+          state.reprocessingSettings.sellExcessMineralTypes,
       },
       extrasCategories: state.extrasCategories,
       predefinedSystemIndexes: state.predefinedSystemIndexes,
@@ -385,7 +388,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "mergeJobStatusesFromServer"
+      "mergeJobStatusesFromServer",
     );
   },
 });

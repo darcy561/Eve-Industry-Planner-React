@@ -111,17 +111,27 @@ export default function DocumentLockHeaderControl() {
   const active = useUsersStore(selectHeaderDocumentLockActive);
   const readOnly = useUsersStore(selectActiveDlReadOnly);
   const lockHeld = useUsersStore(selectActiveDlLockHeld);
-  const handoffPendingHolder = useUsersStore(selectActiveDlHandoffPendingHolder);
+  const handoffPendingHolder = useUsersStore(
+    selectActiveDlHandoffPendingHolder,
+  );
   const lockExpiresAtUnix = useUsersStore(selectActiveDlLockExpiresAtUnix);
   const lockTtlSeconds = useUsersStore(selectActiveDlLockTtlSeconds);
   const extendSegmentCount = useUsersStore(selectActiveDlExtendSegmentCount);
-  const pendingAccessRequest = useUsersStore(selectActiveDlPendingAccessRequest);
+  const pendingAccessRequest = useUsersStore(
+    selectActiveDlPendingAccessRequest,
+  );
   const waitlistLen = useUsersStore(selectActiveDlWaitlistLen);
-  const waitingInHandoffQueue = useUsersStore(selectActiveDlWaitingInHandoffQueue);
+  const waitingInHandoffQueue = useUsersStore(
+    selectActiveDlWaitingInHandoffQueue,
+  );
   const handoffOfferForMe = useUsersStore(selectActiveDlHandoffOfferForMe);
-  const lockScopeBootstrapped = useUsersStore(selectActiveDlLockScopeBootstrapped);
+  const lockScopeBootstrapped = useUsersStore(
+    selectActiveDlLockScopeBootstrapped,
+  );
   const viewerCount = useUsersStore(selectActiveDlViewerCount);
-  const secondaryContended = useUsersStore(selectSecondaryDocumentLockContended);
+  const secondaryContended = useUsersStore(
+    selectSecondaryDocumentLockContended,
+  );
 
   useEffect(() => {
     if (!active) return undefined;
@@ -180,7 +190,7 @@ export default function DocumentLockHeaderControl() {
       prevPassiveViewerTrackRef.current = { scopeKey, count };
       const t = window.setTimeout(
         () => setPassiveViewerFlash(false),
-        LOCK_PASSIVE_VIEWER_FLASH_MS
+        LOCK_PASSIVE_VIEWER_FLASH_MS,
       );
       return () => window.clearTimeout(t);
     }
@@ -190,13 +200,7 @@ export default function DocumentLockHeaderControl() {
       setPassiveViewerFlash(false);
     }
     return undefined;
-  }, [
-    active,
-    lockHeld,
-    readOnly,
-    viewerCount,
-    lockScopeBootstrapped,
-  ]);
+  }, [active, lockHeld, readOnly, viewerCount, lockScopeBootstrapped]);
 
   const remainingSec = useMemo(() => {
     if (lockExpiresAtUnix == null || typeof lockExpiresAtUnix !== "number")
@@ -228,8 +232,7 @@ export default function DocumentLockHeaderControl() {
     !handoffOfferForMe &&
     !(typeof waitlistLen === "number" && waitlistLen > 0);
   /** Avoid grey vacant flash while acquire is in flight on mount (solo open). */
-  const orphanedAvailable =
-    lockScopeBootstrapped && orphanedVacantOnServer;
+  const orphanedAvailable = lockScopeBootstrapped && orphanedVacantOnServer;
 
   /**
    * Holder with no contention sees nothing — quiet UI when they're uncontested editor.
@@ -269,8 +272,7 @@ export default function DocumentLockHeaderControl() {
 
   const showHeaderLockIcon =
     headerBootstrapReady &&
-    (secondaryContended ||
-      (hasPrimaryLockSignal && !primaryUncontestedHolder));
+    (secondaryContended || (hasPrimaryLockSignal && !primaryUncontestedHolder));
 
   const tooltipTitle = useMemo(() => {
     if (handoffPendingHolder) return HANDOFF_PENDING_HOLDER;
@@ -286,7 +288,8 @@ export default function DocumentLockHeaderControl() {
       return `Other sessions are waiting (${waitlistLen} in queue).`;
     }
     if (waitingInHandoffQueue) return "Waiting for edit access.";
-    if (handoffOfferForMe) return "You have been offered edit access — respond to continue.";
+    if (handoffOfferForMe)
+      return "You have been offered edit access — respond to continue.";
     if (orphanedAvailable) return "No active editor — click to take over.";
     if (secondaryContended) {
       return "Another scope tied to this page has contention — see details.";
@@ -335,8 +338,7 @@ export default function DocumentLockHeaderControl() {
     setAnchorEl(null);
   }
 
-  const anchorValid =
-    anchorEl != null && anchorEl.isConnected;
+  const anchorValid = anchorEl != null && anchorEl.isConnected;
 
   const lowTimeRemaining =
     remainingSec != null &&
@@ -344,10 +346,7 @@ export default function DocumentLockHeaderControl() {
     remainingSec <= LOCK_LOW_REMAINING_NUDGE_SEC;
 
   const shouldFlashLowTime =
-    active &&
-    lowTimeRemaining &&
-    !extendAck &&
-    (lockHeld || viewerReadOnly);
+    active && lowTimeRemaining && !extendAck && (lockHeld || viewerReadOnly);
 
   const shouldPulseIcon =
     active && !extendAck && (shouldFlashLowTime || passiveViewerFlash);
@@ -445,7 +444,8 @@ export default function DocumentLockHeaderControl() {
               ) : (
                 <>You hold the exclusive edit lock.</>
               )}
-              {typeof extendSegmentCount === "number" && extendSegmentCount > 0 ? (
+              {typeof extendSegmentCount === "number" &&
+              extendSegmentCount > 0 ? (
                 <>
                   {" "}
                   Renewals used: <strong>{extendSegmentCount}</strong> /{" "}
@@ -456,8 +456,10 @@ export default function DocumentLockHeaderControl() {
               {remainingLabel ? (
                 <>
                   {" "}
-                  Session segment ends in ~<strong>{remainingLabel}</strong> unless
-                  extended again.
+                  Session segment ends in ~<strong>
+                    {remainingLabel}
+                  </strong>{" "}
+                  unless extended again.
                 </>
               ) : null}
             </Typography>
@@ -487,25 +489,28 @@ export default function DocumentLockHeaderControl() {
                 disabled={requestAccessPending}
                 aria-busy={requestAccessPending}
                 onClick={() => {
-                  const p = primaryHeaderRegistration(
-                    useUsersStore.getState()
-                  );
+                  const p = primaryHeaderRegistration(useUsersStore.getState());
                   if (!p?.collection || !p?.docID) return;
                   startRequestAccess(async () => {
                     await useUsersStore
                       .getState()
                       .documentLock.actions.requestAccess(
                         p.collection,
-                        p.docID
+                        p.docID,
                       );
                   });
                 }}
               >
                 {requestAccessPending ? "Requesting…" : "Request access"}
               </Button>
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                If another tab on your account crashed and you cannot get the lock, you can clear it
-                (confirms first — may disrupt an active editor).
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: "block", mt: 0.5 }}
+              >
+                If another tab on your account crashed and you cannot get the
+                lock, you can clear it (confirms first — may disrupt an active
+                editor).
               </Typography>
               <Button
                 variant="outlined"
@@ -514,16 +519,14 @@ export default function DocumentLockHeaderControl() {
                 disabled={requestAccessPending}
                 aria-busy={requestAccessPending}
                 onClick={() => {
-                  const p = primaryHeaderRegistration(
-                    useUsersStore.getState()
-                  );
+                  const p = primaryHeaderRegistration(useUsersStore.getState());
                   if (!p?.collection || !p?.docID) return;
                   startRequestAccess(async () => {
                     await useUsersStore
                       .getState()
                       .documentLock.actions.forceReleaseSameAccountEditLock(
                         p.collection,
-                        p.docID
+                        p.docID,
                       );
                     setAnchorEl(null);
                   });
@@ -546,16 +549,14 @@ export default function DocumentLockHeaderControl() {
                 disabled={requestAccessPending}
                 aria-busy={requestAccessPending}
                 onClick={() => {
-                  const p = primaryHeaderRegistration(
-                    useUsersStore.getState()
-                  );
+                  const p = primaryHeaderRegistration(useUsersStore.getState());
                   if (!p?.collection || !p?.docID) return;
                   startRequestAccess(async () => {
                     await useUsersStore
                       .getState()
                       .documentLock.actions.requestAccess(
                         p.collection,
-                        p.docID
+                        p.docID,
                       );
                     setAnchorEl(null);
                   });
@@ -572,7 +573,7 @@ export default function DocumentLockHeaderControl() {
               const st = mergeScopedDocumentLockState(
                 scopes,
                 reg.collection,
-                reg.docID
+                reg.docID,
               );
               return (
                 <Typography
@@ -585,7 +586,6 @@ export default function DocumentLockHeaderControl() {
                 </Typography>
               );
             })}
-
         </Stack>
       </Popover>
     </>

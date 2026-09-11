@@ -14,7 +14,7 @@
 export function normalizedOverrideWhenMatchesDefault(
   chosenId,
   canonicalApplicationDefault,
-  configFallback
+  configFallback,
 ) {
   const canon = canonicalApplicationDefault ?? configFallback;
   return chosenId === canon ? undefined : chosenId;

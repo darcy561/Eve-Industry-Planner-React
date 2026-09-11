@@ -80,7 +80,7 @@ describe("linking a job from ESI", () => {
     });
     const corporate = LinkedESIJob.fromESI(
       esiJob({ is_corporation: true, corporation_id: 98699553 }),
-      { CharacterHash: "ABC123", CharacterID: 94800326 }
+      { CharacterHash: "ABC123", CharacterID: 94800326 },
     );
 
     expect(personal.corporation_id).toBeNull();
@@ -140,7 +140,7 @@ describe("taking the latest from ESI", () => {
         status: "delivered",
         completed_date: "2026-09-02T00:00:00Z",
         end_date: "2026-09-02T00:00:00Z",
-      })
+      }),
     ).toBe(true);
     expect(linked.status).toBe("delivered");
     expect(linked.completed_date).toBe("2026-09-02T00:00:00Z");
@@ -177,7 +177,7 @@ describe("a job's linked runs", () => {
     const job = jobWithLinkedRuns(
       esiJob({ job_id: 1, end_date: "2026-09-05T00:00:00Z" }),
       esiJob({ job_id: 2, end_date: "2026-09-03T00:00:00Z" }),
-      esiJob({ job_id: 3, end_date: "2026-09-09T00:00:00Z" })
+      esiJob({ job_id: 3, end_date: "2026-09-09T00:00:00Z" }),
     );
 
     expect(job.nextRunToFinish.job_id).toBe(2);

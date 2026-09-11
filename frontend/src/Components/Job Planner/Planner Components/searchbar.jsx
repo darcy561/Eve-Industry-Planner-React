@@ -24,14 +24,16 @@ export function SearchBar({ actions }) {
   const [itemIDsToAdd, updateItemIDsToAdd] = useState([]);
   const [addNewGroupOnBuild, updateAddNewGroupOnBuild] = useState(false);
   const queryClient = useQueryClient();
-  const { data: fullItemList, isLoading, isError } = useCachedData(
-    CACHED_DATA_FILES.FULL_ITEM_LIST
-  );
+  const {
+    data: fullItemList,
+    isLoading,
+    isError,
+  } = useCachedData(CACHED_DATA_FILES.FULL_ITEM_LIST);
 
   async function addJobs() {
     if (!fullItemList) return;
     actions.setSkeletonElementsToDisplay(
-      addNewGroupOnBuild ? 1 : itemIDsToAdd.length
+      addNewGroupOnBuild ? 1 : itemIDsToAdd.length,
     );
     await addNewJobsToPlanner(itemIDsToAdd, queryClient, {
       onBeforeCommit: () => actions.setSkeletonElementsToDisplay(0),
@@ -75,10 +77,13 @@ export function SearchBar({ actions }) {
       isLoading={isLoading || !fullItemList}
       isError={isError}
     >
-      <Grid container sx={{
-        alignItems: "center",
-        flexDirection: "row",
-      }}>
+      <Grid
+        container
+        sx={{
+          alignItems: "center",
+          flexDirection: "row",
+        }}
+      >
         <Grid container size={12}>
           <Grid sx={{ marginBottom: 1 }} size={12}>
             <VirtualisedRecipeSearch
@@ -88,7 +93,10 @@ export function SearchBar({ actions }) {
               }}
             />
           </Grid>
-          <Grid sx={{ display: "flex", justifyContent: "space-evenly" }} size={12}>
+          <Grid
+            sx={{ display: "flex", justifyContent: "space-evenly" }}
+            size={12}
+          >
             <Button
               size="small"
               variant="contained"
@@ -131,7 +139,7 @@ export function SearchBar({ actions }) {
                     deleteIcon={<ClearIcon />}
                     onDelete={() => {
                       updateItemIDsToAdd((prev) =>
-                        prev.filter((i) => i.itemID !== itemObj.itemID)
+                        prev.filter((i) => i.itemID !== itemObj.itemID),
                       );
                     }}
                     avatar={

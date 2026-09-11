@@ -6,14 +6,18 @@ const getFullItemList = vi.fn();
 
 vi.mock("../Functions/Helper/getCachedData", async () => {
   const { cachedDataMock } = await import("../tests/archiveHarness.jsx");
-  return cachedDataMock({ getFullItemList: (...args) => getFullItemList(...args) });
+  return cachedDataMock({
+    getFullItemList: (...args) => getFullItemList(...args),
+  });
 });
 
 const { useItemNames } = await import("./useItemNames.js");
 
 function wrapper(client) {
   return function Wrapper({ children }) {
-    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+    return (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
   };
 }
 
@@ -57,9 +61,12 @@ describe("useItemNames", () => {
     const { result: first } = renderHook(() => useItemNames([{ typeID: 34 }]), {
       wrapper: wrapper(client),
     });
-    const { result: second } = renderHook(() => useItemNames([{ typeID: 34 }]), {
-      wrapper: wrapper(client),
-    });
+    const { result: second } = renderHook(
+      () => useItemNames([{ typeID: 34 }]),
+      {
+        wrapper: wrapper(client),
+      },
+    );
 
     await waitFor(() => expect(first.current[34]).toBe("Tritanium"));
     expect(second.current[34]).toBe("Tritanium");

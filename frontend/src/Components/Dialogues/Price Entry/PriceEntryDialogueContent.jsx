@@ -1,10 +1,5 @@
 import { useEffect, useCallback } from "react";
-import {
-  Box,
-  Button,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import { ItemPriceRow, itemPriceEntryFactory } from "./itemRow";
 import { saveJobsViaApi } from "../../../Functions/JobDocuments/saveJobsViaApi.js";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
@@ -26,8 +21,11 @@ import ContentDialogue from "../../../Styled Components/Dialogue/ContentDialogue
 import { hidePriceEntryDialogue } from "../../../Events/priceEntryEvents";
 
 export function PriceEntryDialogueContent({ state, actions }) {
-  const { updateOrAddJobsToJobArray, jobsFromIdsOrObjects, resolveJobObjectsForMixedSelection } =
-    useUsersStore.getState().jobData.actions;
+  const {
+    updateOrAddJobsToJobArray,
+    jobsFromIdsOrObjects,
+    resolveJobObjectsForMixedSelection,
+  } = useUsersStore.getState().jobData.actions;
   const isLoggedIn = useUsersStore((s) => s.account.isLoggedIn);
   const displayHelpCards = useUsersStore(
     (s) => s.applicationSettings.displayHelpCards,
@@ -49,7 +47,8 @@ export function PriceEntryDialogueContent({ state, actions }) {
           return;
         }
 
-        const remainingQuantity = material.quantity - material.quantityPurchased;
+        const remainingQuantity =
+          material.quantity - material.quantityPurchased;
         if (remainingQuantity <= 0) {
           return;
         }
@@ -58,8 +57,10 @@ export function PriceEntryDialogueContent({ state, actions }) {
           (i) => i.typeID === material.typeID,
         );
         if (existingEntryIndex !== -1) {
-          finalPriceEntry[existingEntryIndex].totalQuantity += material.quantity;
-          finalPriceEntry[existingEntryIndex].remainingQuantity += remainingQuantity;
+          finalPriceEntry[existingEntryIndex].totalQuantity +=
+            material.quantity;
+          finalPriceEntry[existingEntryIndex].remainingQuantity +=
+            remainingQuantity;
           finalPriceEntry[existingEntryIndex].jobRef.push(inputJob.jobID);
         } else {
           finalPriceEntry.push({
@@ -220,7 +221,8 @@ export function PriceEntryDialogueContent({ state, actions }) {
       fullWidth
       asyncState={{
         isLoading: state.isLoading,
-        loadingMessage: state.loadingMessage ?? "Loading jobs and price entries…",
+        loadingMessage:
+          state.loadingMessage ?? "Loading jobs and price entries…",
       }}
       helperArea={helperArea}
       helperAreaSx={{ textAlign: "center", pb: 2 }}
@@ -443,7 +445,8 @@ export function PriceEntryDialogueContent({ state, actions }) {
                       (sum, e) => sum + (e.itemCount || 0),
                       0,
                     );
-                    const remainingQty = listItem.remainingQuantity - confirmedQty;
+                    const remainingQty =
+                      listItem.remainingQuantity - confirmedQty;
 
                     if (remainingQty <= 0) continue;
 
@@ -487,10 +490,7 @@ export function PriceEntryDialogueContent({ state, actions }) {
                     );
                     return;
                   }
-                  console.error(
-                    "Failed to import from clipboard:",
-                    error,
-                  );
+                  console.error("Failed to import from clipboard:", error);
                   showSnackbarError(
                     error.message || "Failed to import from clipboard",
                   );

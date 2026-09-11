@@ -4,8 +4,12 @@ const { mockPrivateRequest, mockPublicFetch } = vi.hoisted(() => ({
   mockPrivateRequest: vi.fn(),
   mockPublicFetch: vi.fn(),
 }));
-vi.mock("./Private/applyPrivateHeaders.js", () => ({ default: mockPrivateRequest }));
-vi.mock("./Public/applyPublicHeaders.js", () => ({ fetchWithPublicHeaders: mockPublicFetch }));
+vi.mock("./Private/applyPrivateHeaders.js", () => ({
+  default: mockPrivateRequest,
+}));
+vi.mock("./Public/applyPublicHeaders.js", () => ({
+  fetchWithPublicHeaders: mockPublicFetch,
+}));
 
 import {
   requestEsiAccessFromClientRefreshSecret,
@@ -33,7 +37,9 @@ describe("server-stored ESI access, one character", () => {
   it("posts the character hash", async () => {
     mockPrivateRequest.mockResolvedValue(ok({ access_token: "token" }));
 
-    await expect(requestEsiAccessFromServerStorage("owner-hash")).resolves.toEqual({
+    await expect(
+      requestEsiAccessFromServerStorage("owner-hash"),
+    ).resolves.toEqual({
       access_token: "token",
     });
 
@@ -46,7 +52,9 @@ describe("server-stored ESI access, one character", () => {
   it("throws with the status on a rejection", async () => {
     mockPrivateRequest.mockResolvedValue(notOk(403, "Forbidden", "not cloud"));
 
-    await expect(requestEsiAccessFromServerStorage("owner-hash")).rejects.toThrow(/403/);
+    await expect(
+      requestEsiAccessFromServerStorage("owner-hash"),
+    ).rejects.toThrow(/403/);
   });
 });
 
@@ -70,15 +78,21 @@ describe("server-stored ESI access, several characters", () => {
     ];
     mockPrivateRequest.mockResolvedValue(ok({ tokens }));
 
-    await expect(requestEsiAccessFromServerStorageBatch(["a", "b"])).resolves.toEqual({ tokens });
+    await expect(
+      requestEsiAccessFromServerStorageBatch(["a", "b"]),
+    ).resolves.toEqual({ tokens });
   });
 
   // The strategy classifies on this, and without it a refused batch reads as an unclassifiable
   // failure rather than the status the server actually sent.
   it("attaches the HTTP status to the error it throws", async () => {
-    mockPrivateRequest.mockResolvedValue(notOk(400, "Bad Request", "too many character_hashes"));
+    mockPrivateRequest.mockResolvedValue(
+      notOk(400, "Bad Request", "too many character_hashes"),
+    );
 
-    await expect(requestEsiAccessFromServerStorageBatch(["a"])).rejects.toMatchObject({
+    await expect(
+      requestEsiAccessFromServerStorageBatch(["a"]),
+    ).rejects.toMatchObject({
       status: 400,
     });
   });
@@ -98,7 +112,9 @@ describe("client-held ESI access", () => {
   });
 
   it("refuses an empty secret without calling out", async () => {
-    await expect(requestEsiAccessFromClientRefreshSecret("  ")).rejects.toThrow(/required/);
+    await expect(requestEsiAccessFromClientRefreshSecret("  ")).rejects.toThrow(
+      /required/,
+    );
     expect(mockPublicFetch).not.toHaveBeenCalled();
   });
 
@@ -110,6 +126,8 @@ describe("client-held ESI access", () => {
       json: async () => ({ error: "invalid_grant" }),
     });
 
-    await expect(requestEsiAccessFromClientRefreshSecret("secret")).rejects.toThrow("invalid_grant");
+    await expect(
+      requestEsiAccessFromClientRefreshSecret("secret"),
+    ).rejects.toThrow("invalid_grant");
   });
 });

@@ -47,7 +47,10 @@ export async function parsePlannerAuthCodeFromResponse(response) {
   if (!response) {
     return null;
   }
-  const text = await response.clone().text().catch(() => "");
+  const text = await response
+    .clone()
+    .text()
+    .catch(() => "");
   return parsePlannerAuthCodeFromText(text);
 }
 
@@ -97,7 +100,10 @@ export function redirectToFullEveLoginIfTerminal(errOrCode) {
       : typeof errOrCode?.code === "string"
         ? errOrCode.code
         : null;
-  if (isTerminalPlannerAuthCode(code) || errorIndicatesTerminalPlannerAuth(errOrCode)) {
+  if (
+    isTerminalPlannerAuthCode(code) ||
+    errorIndicatesTerminalPlannerAuth(errOrCode)
+  ) {
     redirectToFullEveLogin();
     return true;
   }

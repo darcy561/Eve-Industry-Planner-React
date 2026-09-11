@@ -61,7 +61,9 @@ describe("resolveParentRequirements", () => {
 
 describe("parentCommitment", () => {
   it("leaves a job with no parents free to sell everything", () => {
-    expect(parentCommitment({ produced: 100, jobID: "self", hasParents: false })).toEqual({
+    expect(
+      parentCommitment({ produced: 100, jobID: "self", hasParents: false }),
+    ).toEqual({
       hasParents: false,
       outstanding: 0,
       committed: 0,

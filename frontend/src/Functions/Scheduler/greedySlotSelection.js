@@ -45,115 +45,116 @@
  * } | null} Best slot assignment, or null if no valid slot found
  */
 export function selectSlotGreedyStrategy({
-    task,
-    activityType,
-    depsEndTime,
-    earliestParentStart = null, // Not used in greedy, but kept for interface consistency
-    scheduledTasks = [], // Not used in greedy, but kept for interface consistency
-    parentSetKey = '', // Not used in greedy, but kept for interface consistency
-    nextFreeTimes,
-    characterUsedForActivity,
-    charOrder,
-    getDuration,
-    characterJobsByJobID = {},
-    characterMaterialsByItemID = {}, // Not used in greedy, but kept for interface consistency
-    characterTasksByParentSet = {}, // Not used in greedy, but kept for interface consistency
+  task,
+  activityType,
+  depsEndTime,
+  earliestParentStart = null, // Not used in greedy, but kept for interface consistency
+  scheduledTasks = [], // Not used in greedy, but kept for interface consistency
+  parentSetKey = "", // Not used in greedy, but kept for interface consistency
+  nextFreeTimes,
+  characterUsedForActivity,
+  charOrder,
+  getDuration,
+  characterJobsByJobID = {},
+  characterMaterialsByItemID = {}, // Not used in greedy, but kept for interface consistency
+  characterTasksByParentSet = {}, // Not used in greedy, but kept for interface consistency
 }) {
-    let best = null;
+  let best = null;
 
-    // Helper to evaluate a particular character.
-    function evaluateCharacter(characterHash) {
-        const activitySlots =
-            nextFreeTimes[characterHash] &&
-            nextFreeTimes[characterHash][activityType];
-        if (!activitySlots || activitySlots.length === 0) return;
+  // Helper to evaluate a particular character.
+  function evaluateCharacter(characterHash) {
+    const activitySlots =
+      nextFreeTimes[characterHash] &&
+      nextFreeTimes[characterHash][activityType];
+    if (!activitySlots || activitySlots.length === 0) return;
 
-        const baseDuration =
-            typeof getDuration === "function"
-                ? getDuration(task, characterHash)
-                : task.durationByCharacter &&
-                    task.durationByCharacter[characterHash] != null
-                    ? task.durationByCharacter[characterHash]
-                    : null;
+    const baseDuration =
+      typeof getDuration === "function"
+        ? getDuration(task, characterHash)
+        : task.durationByCharacter &&
+            task.durationByCharacter[characterHash] != null
+          ? task.durationByCharacter[characterHash]
+          : null;
 
-        if (baseDuration == null || baseDuration <= 0) return;
+    if (baseDuration == null || baseDuration <= 0) return;
 
-        for (let slotIndex = 0; slotIndex < activitySlots.length; slotIndex++) {
-            const slotFreeTime = activitySlots[slotIndex];
-            const startTime = Math.max(depsEndTime, slotFreeTime);
-            const endTime = startTime + baseDuration;
-            const usedKey = `${characterHash}:${activityType}`;
-            const alreadyUsed = !!characterUsedForActivity[usedKey];
-            const charPos = charOrder.indexOf(characterHash);
+    for (let slotIndex = 0; slotIndex < activitySlots.length; slotIndex++) {
+      const slotFreeTime = activitySlots[slotIndex];
+      const startTime = Math.max(depsEndTime, slotFreeTime);
+      const endTime = startTime + baseDuration;
+      const usedKey = `${characterHash}:${activityType}`;
+      const alreadyUsed = !!characterUsedForActivity[usedKey];
+      const charPos = charOrder.indexOf(characterHash);
 
-            // Check if this character is already running tasks from the same job
-            // Only prefer same-job grouping if the character has multiple free slots available
-            const sameJobCharacters = characterJobsByJobID[task.jobID] || new Set();
-            const runningSameJob = sameJobCharacters.has(characterHash);
-            const availableSlots = activitySlots.filter(slot => slot <= startTime).length;
-            const hasMultipleFreeSlots = availableSlots > 1;
+      // Check if this character is already running tasks from the same job
+      // Only prefer same-job grouping if the character has multiple free slots available
+      const sameJobCharacters = characterJobsByJobID[task.jobID] || new Set();
+      const runningSameJob = sameJobCharacters.has(characterHash);
+      const availableSlots = activitySlots.filter(
+        (slot) => slot <= startTime,
+      ).length;
+      const hasMultipleFreeSlots = availableSlots > 1;
 
-            // Free time past the global start means earlier tasks have used the
-            // slot. Packing into a used slot is preferred, because it keeps the
-            // total number of slots down.
-            const slotInUse = slotFreeTime > 0;
+      // Free time past the global start means earlier tasks have used the
+      // slot. Packing into a used slot is preferred, because it keeps the
+      // total number of slots down.
+      const slotInUse = slotFreeTime > 0;
 
-            const candidate = {
-                characterHash,
-                slotIndex,
-                startTime,
-                endTime,
-                alreadyUsed,
-                runningSameJob: runningSameJob && hasMultipleFreeSlots, // Only prefer if multiple slots available
-                slotInUse, // Track if we're reusing a slot that already has tasks
-                charPos: charPos === -1 ? Number.MAX_SAFE_INTEGER : charPos,
-            };
+      const candidate = {
+        characterHash,
+        slotIndex,
+        startTime,
+        endTime,
+        alreadyUsed,
+        runningSameJob: runningSameJob && hasMultipleFreeSlots, // Only prefer if multiple slots available
+        slotInUse, // Track if we're reusing a slot that already has tasks
+        charPos: charPos === -1 ? Number.MAX_SAFE_INTEGER : charPos,
+      };
 
-            if (!best) {
+      if (!best) {
+        best = candidate;
+        continue;
+      }
+
+      if (candidate.endTime < best.endTime) {
+        best = candidate;
+      } else if (candidate.endTime === best.endTime) {
+        // First, prefer slots that are already in use (packing preference)
+        // This minimizes the number of slots used by reusing slots with existing tasks
+        if (candidate.slotInUse && !best.slotInUse) {
+          best = candidate;
+        } else if (candidate.slotInUse === best.slotInUse) {
+          // Then, prefer characters already used for this activity (minimise character count)
+          if (candidate.alreadyUsed && !best.alreadyUsed) {
+            best = candidate;
+          } else if (candidate.alreadyUsed === best.alreadyUsed) {
+            // Then, prefer characters already running tasks from the same job (grouping preference)
+            // This helps group tasks from the same material/job together
+            if (candidate.runningSameJob && !best.runningSameJob) {
+              best = candidate;
+            } else if (candidate.runningSameJob === best.runningSameJob) {
+              // Finally, prefer earlier characters in the order (stable tie-breaker)
+              if (candidate.charPos < best.charPos) {
                 best = candidate;
-                continue;
+              }
             }
-
-            if (candidate.endTime < best.endTime) {
-                best = candidate;
-            } else if (candidate.endTime === best.endTime) {
-                // First, prefer slots that are already in use (packing preference)
-                // This minimizes the number of slots used by reusing slots with existing tasks
-                if (candidate.slotInUse && !best.slotInUse) {
-                    best = candidate;
-                } else if (candidate.slotInUse === best.slotInUse) {
-                    // Then, prefer characters already used for this activity (minimise character count)
-                    if (candidate.alreadyUsed && !best.alreadyUsed) {
-                        best = candidate;
-                    } else if (candidate.alreadyUsed === best.alreadyUsed) {
-                        // Then, prefer characters already running tasks from the same job (grouping preference)
-                        // This helps group tasks from the same material/job together
-                        if (candidate.runningSameJob && !best.runningSameJob) {
-                            best = candidate;
-                        } else if (candidate.runningSameJob === best.runningSameJob) {
-                            // Finally, prefer earlier characters in the order (stable tie-breaker)
-                            if (candidate.charPos < best.charPos) {
-                                best = candidate;
-                            }
-                        }
-                    }
-                }
-            }
+          }
         }
+      }
     }
+  }
 
-    // Evaluate all characters in stable order.
-    for (const characterHash of charOrder) {
-        evaluateCharacter(characterHash);
-    }
+  // Evaluate all characters in stable order.
+  for (const characterHash of charOrder) {
+    evaluateCharacter(characterHash);
+  }
 
-    if (!best) return null;
+  if (!best) return null;
 
-    return {
-        characterHash: best.characterHash,
-        slotIndex: best.slotIndex,
-        startTime: best.startTime,
-        endTime: best.endTime,
-    };
+  return {
+    characterHash: best.characterHash,
+    slotIndex: best.slotIndex,
+    startTime: best.startTime,
+    endTime: best.endTime,
+  };
 }
-

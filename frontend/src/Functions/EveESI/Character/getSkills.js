@@ -5,13 +5,13 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 /**
  * Fetches character skills from EVE ESI API and maps them to skill reference data.
  * Returns a skills map with both active and trained skill levels for all blueprint skills.
- * 
+ *
  * @param {Object} params - Parameters object
  * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {Object} [params.existingData={}] - Existing data for caching
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to skills map with etag
- * 
+ *
  * @example
  * const skills = await getCharacterSkills({
  *   character: { CharacterHash: "hash", CharacterID: 123456 },
@@ -22,7 +22,7 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 async function getCharacterSkills({
   character,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
@@ -35,13 +35,13 @@ async function getCharacterSkills({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'character',
+      group: "character",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -52,7 +52,7 @@ async function getCharacterSkills({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -84,14 +84,14 @@ async function getCharacterSkills({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -114,7 +114,6 @@ async function getCharacterSkills({
       data: skillsMap,
       etag,
     };
-
   } catch (err) {
     // Thrown rather than swallowed into an empty map, so a caller can tell a
     // failed read from a character who has trained nothing.

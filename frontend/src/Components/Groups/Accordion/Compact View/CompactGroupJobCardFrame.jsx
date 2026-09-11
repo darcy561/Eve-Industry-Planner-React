@@ -157,9 +157,13 @@ export function CompactGroupJobCardFrame({
             }}
           />
         </Grid>
-        <Grid container size={isMobile ? 7 : 8} sx={{
-          alignItems: "center"
-        }}>
+        <Grid
+          container
+          size={isMobile ? 7 : 8}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
             {job.name}
           </Typography>
@@ -171,8 +175,9 @@ export function CompactGroupJobCardFrame({
               alignItems: "center",
               justifyContent: "center",
               display: "flex",
-              minHeight: "100%"
-            }}>
+              minHeight: "100%",
+            }}
+          >
             <Tooltip title={tooltipContent} arrow placement="left">
               <Box
                 sx={{
@@ -194,8 +199,9 @@ export function CompactGroupJobCardFrame({
           size={isMobile ? 3 : 1}
           sx={{
             alignItems: "center",
-            justifyContent: "center"
-          }}>
+            justifyContent: "center",
+          }}
+        >
           <Tooltip
             title={cardLockReason}
             arrow
@@ -210,9 +216,14 @@ export function CompactGroupJobCardFrame({
           </Tooltip>
         </Grid>
         {!isMobile && (
-          <Grid container align="center" size={1} sx={{
-            alignItems: "center"
-          }}>
+          <Grid
+            container
+            align="center"
+            size={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <IconButton
               disabled={cardLocked}
               sx={{

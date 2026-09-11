@@ -141,7 +141,7 @@ describe("useBlueprintIndex", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(
-      result.current.data.rows.map((row) => row.itemId).sort((a, b) => a - b)
+      result.current.data.rows.map((row) => row.itemId).sort((a, b) => a - b),
     ).toEqual([1, 2, 10]);
     expect(corporationFetches).toEqual([98000001]);
   });
@@ -182,7 +182,9 @@ describe("useBlueprintIndex", () => {
   // hook does, or the two shapes of one value that defect B1 describes come straight back.
   describe("read from the cache without subscribing", () => {
     function cacheOf(entries) {
-      const byKey = new Map(entries.map(([key, value]) => [key.join("|"), value]));
+      const byKey = new Map(
+        entries.map(([key, value]) => [key.join("|"), value]),
+      );
       return {
         getQueryState: (key) => byKey.get(key.join("|"))?.state,
         getQueryData: (key) => byKey.get(key.join("|"))?.data,
@@ -230,7 +232,10 @@ describe("useBlueprintIndex", () => {
       const queryClient = cacheOf([
         [
           ["characterBlueprints", "hash-a"],
-          { state: { status: "pending", fetchStatus: "fetching" }, data: undefined },
+          {
+            state: { status: "pending", fetchStatus: "fetching" },
+            data: undefined,
+          },
         ],
       ]);
 

@@ -45,10 +45,10 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
     useEffectiveMarketHubFromLayout(layout);
 
   const checkTypeIDisExempt = useUsersStore(
-    (store) => store.applicationSettings.actions.checkTypeIDisExempt
+    (store) => store.applicationSettings.actions.checkTypeIDisExempt,
   );
   const automaticRecalculation = useUsersStore(
-    (store) => store.applicationSettings.enableAutomaticJobRecalculation
+    (store) => store.applicationSettings.enableAutomaticJobRecalculation,
   );
 
   return useMemo(() => {
@@ -61,7 +61,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
         layout,
         material.typeID,
         marketSelect,
-        listingSelect
+        listingSelect,
       );
       const { childJobsById, childJobIDs, hasChildJobs } =
         resolveMaterialChildJobs({
@@ -70,13 +70,12 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
           materialTypeID: material.typeID,
         });
       const matchedChildJobs = Array.from(childJobsById.values());
-      const { hasLinked, hasTemp, hasPendingAdd } = resolveMaterialChildJobStatus(
-        {
+      const { hasLinked, hasTemp, hasPendingAdd } =
+        resolveMaterialChildJobStatus({
           state,
           materialTypeID: material.typeID,
           childJobsLocation: activeJob.build.childJobs[material.typeID] || [],
-        }
-      );
+        });
 
       const quantity = quantityFor(activeJob, material, displayType);
 
@@ -90,7 +89,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
       const buyPrice = getMarketPriceForType(
         material.typeID,
         resolved.marketSelect,
-        resolved.listingSelect
+        resolved.listingSelect,
       );
 
       const coverage = coverageFor({
@@ -186,7 +185,7 @@ function coverageFor({
       job,
       state.temporaryChildJobs,
       resolved.marketSelect,
-      resolved.listingSelect
+      resolved.listingSelect,
     );
 
     return {

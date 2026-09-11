@@ -18,8 +18,9 @@ export function ChildJobMaterialTotalCosts({
         <Grid
           size={{
             xs: 12,
-            sm: 8
-          }}>
+            sm: 8,
+          }}
+        >
           <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
             Total Materials
           </Typography>
@@ -28,8 +29,9 @@ export function ChildJobMaterialTotalCosts({
           align="right"
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <Typography
             sx={{ typography: SMALL_TEXT_FORMAT }}
             align="right"
@@ -41,8 +43,9 @@ export function ChildJobMaterialTotalCosts({
         <Grid
           size={{
             xs: 12,
-            sm: 8
-          }}>
+            sm: 8,
+          }}
+        >
           <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
             Total Install Cost
           </Typography>
@@ -51,8 +54,9 @@ export function ChildJobMaterialTotalCosts({
           align="right"
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <Typography
             sx={{ typography: SMALL_TEXT_FORMAT }}
             align="right"
@@ -64,8 +68,9 @@ export function ChildJobMaterialTotalCosts({
         <Grid
           size={{
             xs: 12,
-            sm: 8
-          }}>
+            sm: 8,
+          }}
+        >
           <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
             Total Estimated Cost
           </Typography>
@@ -74,8 +79,9 @@ export function ChildJobMaterialTotalCosts({
           align="right"
           size={{
             xs: 12,
-            sm: 4
-          }}>
+            sm: 4,
+          }}
+        >
           <Typography
             sx={{ typography: SMALL_TEXT_FORMAT }}
             align="right"
@@ -88,8 +94,9 @@ export function ChildJobMaterialTotalCosts({
           <Grid
             size={{
               xs: 12,
-              sm: 8
-            }}>
+              sm: 8,
+            }}
+          >
             <Typography sx={{ typography: SMALL_TEXT_FORMAT }}>
               {`Total Price Per Item`}
             </Typography>
@@ -99,8 +106,9 @@ export function ChildJobMaterialTotalCosts({
             align="right"
             size={{
               xs: 12,
-              sm: 4
-            }}>
+              sm: 4,
+            }}
+          >
             <Typography
               sx={{ typography: SMALL_TEXT_FORMAT }}
               align="right"

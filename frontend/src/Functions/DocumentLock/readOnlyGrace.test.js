@@ -25,28 +25,28 @@ describe("shouldEndReadOnlyGrace", () => {
         readOnly: true,
         lockHeld: false,
         lockExpiresAtUnix: null,
-      })
+      }),
     ).toBe(true);
     expect(
       shouldEndReadOnlyGrace({
         readOnly: true,
         lockHeld: true,
         lockExpiresAtUnix: null,
-      })
+      }),
     ).toBe(false);
     expect(
       shouldEndReadOnlyGrace({
         readOnly: false,
         lockHeld: false,
         lockExpiresAtUnix: null,
-      })
+      }),
     ).toBe(false);
     expect(
       shouldEndReadOnlyGrace({
         readOnly: true,
         lockHeld: false,
         lockExpiresAtUnix: 123,
-      })
+      }),
     ).toBe(false);
     expect(
       shouldEndReadOnlyGrace({
@@ -54,7 +54,7 @@ describe("shouldEndReadOnlyGrace", () => {
         lockHeld: false,
         lockExpiresAtUnix: null,
         waitingInHandoffQueue: true,
-      })
+      }),
     ).toBe(false);
   });
 });
@@ -78,7 +78,7 @@ describe("endReadOnlyGraceIfApplicable", () => {
     expect(endReadOnlyGraceIfApplicable("job_documents", "j1")).toBe(true);
     const k = docLockScopeKey("job_documents", "j1");
     expect(storeHolder.current.getState().documentLock.scopes[k].readOnly).toBe(
-      false
+      false,
     );
   });
 

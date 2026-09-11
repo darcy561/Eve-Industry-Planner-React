@@ -20,7 +20,7 @@ export function ArchiveJobButton({ state }) {
   const { activeGroupID } = useUsersStore((state) => state.jobData);
   const { removeJobsFromJobArray } = useUsersStore.getState().jobData.actions;
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
-  const navigate = useNavigate({ from: '/editjob/$jobID' });
+  const navigate = useNavigate({ from: "/editjob/$jobID" });
   const { jobID } = useParams({ from: "/editjob/$jobID" });
   const queryClient = useQueryClient();
   const jobLockReadOnly = useActiveJobReadOnly(state);
@@ -38,7 +38,9 @@ export function ArchiveJobButton({ state }) {
 
     const archivedOk = await saveArchivedJobs([state.activeJob]);
     if (!archivedOk) {
-      showSnackbarError("Could not archive job on the server. Please try again.");
+      showSnackbarError(
+        "Could not archive job on the server. Please try again.",
+      );
       return;
     }
 
@@ -53,7 +55,7 @@ export function ArchiveJobButton({ state }) {
       console.error(err);
       showSnackbarError(
         "Job was archived but removing it from the server failed. Try refreshing or deleting from the planner.",
-        5
+        5,
       );
       return;
     }

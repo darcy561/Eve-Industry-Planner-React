@@ -51,7 +51,7 @@ export function endReadOnlyGraceIfApplicable(collection, docID) {
   const cur = selectScopedDocumentLock(
     useUsersStore.getState(),
     collection,
-    docID
+    docID,
   );
   if (!shouldEndReadOnlyGrace(cur)) return false;
   useUsersStore

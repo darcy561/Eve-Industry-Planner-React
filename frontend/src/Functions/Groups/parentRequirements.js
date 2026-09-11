@@ -98,7 +98,12 @@ export function parentCommitment({
   hasParents,
 }) {
   if (!hasParents) {
-    return { hasParents: false, outstanding: 0, committed: 0, surplus: produced };
+    return {
+      hasParents: false,
+      outstanding: 0,
+      committed: 0,
+      surplus: produced,
+    };
   }
 
   const contributors = [

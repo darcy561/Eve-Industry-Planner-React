@@ -21,7 +21,13 @@ export default function GroupStep1JobCard({ job }) {
             Quantity
           </Typography>
         </Box>
-        <Box sx={{ flex: "0 0 33.333%", textAlign: "right", paddingRight: { xs: 2, md: 3 } }}>
+        <Box
+          sx={{
+            flex: "0 0 33.333%",
+            textAlign: "right",
+            paddingRight: { xs: 2, md: 3 },
+          }}
+        >
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             {formatNumberForLocale(job.totalQuantityProduced, { max: 0 })}
           </Typography>
@@ -33,7 +39,13 @@ export default function GroupStep1JobCard({ job }) {
             Setup Count:
           </Typography>
         </Box>
-        <Box sx={{ flex: "0 0 16.666%", textAlign: "right", paddingRight: { xs: 2, md: 3 } }}>
+        <Box
+          sx={{
+            flex: "0 0 16.666%",
+            textAlign: "right",
+            paddingRight: { xs: 2, md: 3 },
+          }}
+        >
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             {formatNumberForLocale(totalSetupCount, { max: 0 })}
           </Typography>

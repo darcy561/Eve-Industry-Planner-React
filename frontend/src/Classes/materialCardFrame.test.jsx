@@ -30,9 +30,8 @@ vi.mock("../Zustand/usersStore.js", () => {
   return { default: useUsersStore };
 });
 
-const { MaterialCardFrame_Purchasing } = await import(
-  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCardFrame.jsx"
-);
+const { MaterialCardFrame_Purchasing } =
+  await import("../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCardFrame.jsx");
 const { default: Job } = await import("./job.js");
 
 const TRITANIUM = 34;
@@ -85,7 +84,7 @@ describe("a material card", () => {
     job.importPurchaseToMaterial(
       TRITANIUM,
       { itemCount: 120, itemCost: 5 },
-      { recordExcess: true }
+      { recordExcess: true },
     );
 
     renderCard(job);

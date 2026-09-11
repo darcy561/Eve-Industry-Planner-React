@@ -31,7 +31,8 @@ export function DisplayMismatchedChildTotals({ coverage }) {
         The child job is {short} short
       </AlertTitle>
       <Typography variant="caption" display="block">
-        It makes {quantity(produced)} of the {quantity(required)} this job needs.
+        It makes {quantity(produced)} of the {quantity(required)} this job
+        needs.
       </Typography>
       <Typography variant="caption" display="block">
         {shortfallWording(coverage, quantity, formatIsk)}

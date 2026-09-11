@@ -189,7 +189,10 @@ describe("what the figures are, against how they compare", () => {
   }
 
   it("shows a profit as a profit even when it trails last month", () => {
-    render2Months({ profitLoss: 416_426_124.5 }, { profitLoss: 1_172_577_352.98 });
+    render2Months(
+      { profitLoss: 416_426_124.5 },
+      { profitLoss: 1_172_577_352.98 },
+    );
 
     // Down on the month, so the comparison is unfavourable...
     expect(figure("-64.5%")).toBeInTheDocument();

@@ -24,9 +24,17 @@ describe("isMaintenanceResponse", () => {
   });
 
   test("ignores other 503s and other statuses", async () => {
-    expect(await isMaintenanceResponse(jsonResponse(503, { error: "draining" }))).toBe(false);
-    expect(await isMaintenanceResponse(new Response("down", { status: 503 }))).toBe(false);
-    expect(await isMaintenanceResponse(jsonResponse(500, { error: "maintenance_mode" }))).toBe(false);
+    expect(
+      await isMaintenanceResponse(jsonResponse(503, { error: "draining" })),
+    ).toBe(false);
+    expect(
+      await isMaintenanceResponse(new Response("down", { status: 503 })),
+    ).toBe(false);
+    expect(
+      await isMaintenanceResponse(
+        jsonResponse(500, { error: "maintenance_mode" }),
+      ),
+    ).toBe(false);
     expect(await isMaintenanceResponse(undefined)).toBe(false);
   });
 
@@ -48,7 +56,10 @@ describe("withRequestRetries during maintenance", () => {
   test("a maintenance refusal is returned on the first attempt and signalled", async () => {
     const requestFn = vi.fn(async () => maintenanceRefusal());
 
-    const res = await withRequestRetries(requestFn, mergeApiRetryOptions(undefined));
+    const res = await withRequestRetries(
+      requestFn,
+      mergeApiRetryOptions(undefined),
+    );
 
     expect(res.status).toBe(503);
     expect(requestFn).toHaveBeenCalledTimes(1);
@@ -56,7 +67,9 @@ describe("withRequestRetries during maintenance", () => {
   });
 
   test("an ordinary 503 still retries and signals nothing", async () => {
-    const requestFn = vi.fn(async () => jsonResponse(503, { error: "upstream" }));
+    const requestFn = vi.fn(async () =>
+      jsonResponse(503, { error: "upstream" }),
+    );
 
     const res = await withRequestRetries(requestFn, {
       ...mergeApiRetryOptions(undefined),
@@ -81,10 +94,15 @@ describe("withRequestRetries during maintenance", () => {
   });
 
   test("a per-call terminal check overrides the default", async () => {
-    const requestFn = vi.fn(async () => jsonResponse(503, { error: "upstream" }));
+    const requestFn = vi.fn(async () =>
+      jsonResponse(503, { error: "upstream" }),
+    );
     const isTerminalResponse = vi.fn(async () => true);
 
-    await withRequestRetries(requestFn, mergeApiRetryOptions({ isTerminalResponse }));
+    await withRequestRetries(
+      requestFn,
+      mergeApiRetryOptions({ isTerminalResponse }),
+    );
 
     expect(requestFn).toHaveBeenCalledTimes(1);
     expect(isTerminalResponse).toHaveBeenCalledTimes(1);

@@ -7,7 +7,12 @@ import CostBreakdownPanel from "./costBreakdownPanel";
 const cost = (overrides = {}) => ({
   toBuild: {
     lines: [
-      { id: "bought", label: "Materials bought at market", value: 400, perUnit: 40 },
+      {
+        id: "bought",
+        label: "Materials bought at market",
+        value: 400,
+        perUnit: 40,
+      },
     ],
     total: 400,
     perUnit: 40,
@@ -40,9 +45,7 @@ describe("the Cost Breakdown panel", () => {
   });
 
   it("holds whatever a caller puts beside the headline", () => {
-    render(
-      <CostBreakdownPanel cost={cost()} aside={<span>range bar</span>} />
-    );
+    render(<CostBreakdownPanel cost={cost()} aside={<span>range bar</span>} />);
 
     expect(screen.getByText("range bar")).toBeInTheDocument();
   });
@@ -94,9 +97,9 @@ describe("looking at a segment of the bar", () => {
 
     await userEvent.hover(screen.getByTestId("proportion-bought"));
 
-    expect(
-      container.querySelector("tr[data-active='true']"),
-    ).toHaveTextContent("Materials bought at market");
+    expect(container.querySelector("tr[data-active='true']")).toHaveTextContent(
+      "Materials bought at market",
+    );
   });
 
   it("lets the rest of the bar recede so the eye can carry it", async () => {
@@ -127,9 +130,7 @@ describe("looking at a segment of the bar", () => {
   it("marks the segment when the row is hovered instead", async () => {
     const { container } = renderPanel();
 
-    await userEvent.hover(
-      container.querySelector("tr td")?.closest("tr"),
-    );
+    await userEvent.hover(container.querySelector("tr td")?.closest("tr"));
 
     expect(screen.getByTestId("proportion-bought")).toHaveAttribute(
       "data-active",
@@ -156,8 +157,8 @@ describe("looking at a segment of the bar", () => {
     await userEvent.tab();
     await userEvent.tab();
 
-    expect(
-      container.querySelector("tr[data-active='true']"),
-    ).toHaveTextContent("Install cost");
+    expect(container.querySelector("tr[data-active='true']")).toHaveTextContent(
+      "Install cost",
+    );
   });
 });

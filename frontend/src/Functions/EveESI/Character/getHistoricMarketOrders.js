@@ -6,7 +6,7 @@ async function getCharacterHistoricMarketOrders({
   character,
   page = 1,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
@@ -19,13 +19,13 @@ async function getCharacterHistoricMarketOrders({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'character',
+      group: "character",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -36,7 +36,7 @@ async function getCharacterHistoricMarketOrders({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -64,7 +64,9 @@ async function getCharacterHistoricMarketOrders({
     if (response.status >= 400 && response.status < 500) {
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
-        console.warn(`Access forbidden for character historic market orders: ${CharacterID}`);
+        console.warn(
+          `Access forbidden for character historic market orders: ${CharacterID}`,
+        );
         return {
           data: [],
           etag: "",
@@ -73,14 +75,14 @@ async function getCharacterHistoricMarketOrders({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -95,7 +97,7 @@ async function getCharacterHistoricMarketOrders({
         (item) =>
           !item.is_buy_order &&
           currentDate - Date.parse(item.issued) <=
-            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000,
       )
       .map((order) => ({
         ...order,
@@ -109,7 +111,6 @@ async function getCharacterHistoricMarketOrders({
       etag,
       totalPages,
     };
-
   } catch (err) {
     console.error(`Error fetching character historic market orders: ${err}`);
     return {

@@ -17,7 +17,9 @@ describe("skill level pips", () => {
     renderPips({ onPropose: vi.fn() });
 
     for (const level of [1, 2, 3, 4, 5]) {
-      expect(screen.getByLabelText(`Industry at level ${level}`)).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(`Industry at level ${level}`),
+      ).toBeInTheDocument();
     }
   });
 

@@ -12,9 +12,7 @@ import {
   groupRefreshTokensByCharacterHash,
   updateLocalRefreshTokensIfAccountHasAdditionalCharacters,
 } from "../../Functions/Auth/buildAccountData.js";
-import {
-  getCloudStoredEsiRefreshTokens,
-} from "../../Functions/Endpoints/Private/cloudStoredEsiRefreshTokens.js";
+import { getCloudStoredEsiRefreshTokens } from "../../Functions/Endpoints/Private/cloudStoredEsiRefreshTokens.js";
 import { isCombinedUserAccountSaveDebouncePending } from "../../Functions/Debounce/userDocumentsPersistSchedule.js";
 
 /**
@@ -64,7 +62,7 @@ export function enqueueReconcile(task) {
   reconcileQueue = reconcileQueue
     .then(task)
     .catch((error) =>
-      console.error("[realtime] account reconcile failed", error)
+      console.error("[realtime] account reconcile failed", error),
     );
 }
 
@@ -82,15 +80,15 @@ async function refreshSystemIndexesFromSettings() {
   }
 }
 
-  export function scheduleSystemIndexRefresh() {
-    if (systemIndexRefreshTimer != null) {
-      clearTimeout(systemIndexRefreshTimer);
-    }
-    systemIndexRefreshTimer = window.setTimeout(() => {
-      systemIndexRefreshTimer = null;
-      enqueueReconcile(refreshSystemIndexesFromSettings);
-    }, 250);
+export function scheduleSystemIndexRefresh() {
+  if (systemIndexRefreshTimer != null) {
+    clearTimeout(systemIndexRefreshTimer);
   }
+  systemIndexRefreshTimer = window.setTimeout(() => {
+    systemIndexRefreshTimer = null;
+    enqueueReconcile(refreshSystemIndexesFromSettings);
+  }, 250);
+}
 
 /**
  * @param {Map<string, { rTokens: string[], representativeCharacterHash: string }>} tokenByHash
@@ -142,12 +140,12 @@ async function reconcileCloudCharactersFromTokenMap(tokenCandidatesByHash) {
 
   const account = useUsersStore.getState().account;
   const targetHashes = new Set(tokenCandidatesByHash.keys());
-  const additionalCharacters = account.characters.filter((ch) => !ch.isMainCharacter);
+  const additionalCharacters = account.characters.filter(
+    (ch) => !ch.isMainCharacter,
+  );
 
   for (const character of additionalCharacters) {
-    if (
-      targetHashes.has(canonicalCharacterHashKey(character.CharacterHash))
-    ) {
+    if (targetHashes.has(canonicalCharacterHashKey(character.CharacterHash))) {
       continue;
     }
     account.actions.removeCharacter(character);
@@ -158,8 +156,8 @@ async function reconcileCloudCharactersFromTokenMap(tokenCandidatesByHash) {
     useUsersStore
       .getState()
       .account.characters.map((ch) =>
-        canonicalCharacterHashKey(ch.CharacterHash)
-      )
+        canonicalCharacterHashKey(ch.CharacterHash),
+      ),
   );
   for (const [canonicalHash, group] of tokenCandidatesByHash.entries()) {
     if (existingHashes.has(canonicalHash)) continue;
@@ -168,7 +166,7 @@ async function reconcileCloudCharactersFromTokenMap(tokenCandidatesByHash) {
       built = await buildAccountDataFromRefreshTokenCandidates(group.rTokens);
     } else if (group.representativeCharacterHash) {
       built = await buildCharacterFromCloudStoredAccess(
-        group.representativeCharacterHash
+        group.representativeCharacterHash,
       );
     }
     if (accountSessionBecameStale(accountIdAtStart)) {
@@ -281,7 +279,9 @@ export async function reconcileAfterRemoteUserDoc(snap, incomingUserDoc) {
 /**
  * @param {boolean} prevCloudAccounts
  */
-export async function reconcileAfterRemoteApplicationSettings(prevCloudAccounts) {
+export async function reconcileAfterRemoteApplicationSettings(
+  prevCloudAccounts,
+) {
   void prevCloudAccounts;
   scheduleSystemIndexRefresh();
 }

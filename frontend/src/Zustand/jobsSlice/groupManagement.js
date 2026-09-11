@@ -48,7 +48,7 @@ export const groupManagementActions = (set, get) => ({
         },
       }),
       false,
-      "replaceGroupArray"
+      "replaceGroupArray",
     );
   },
 
@@ -66,12 +66,12 @@ export const groupManagementActions = (set, get) => ({
           ...state.jobData,
           pendingJobGroupWrites: mergePendingJobGroupWrites(
             state.jobData.pendingJobGroupWrites,
-            ids
+            ids,
           ),
         },
       }),
       false,
-      "queueJobGroupWrites"
+      "queueJobGroupWrites",
     );
   },
 
@@ -100,9 +100,7 @@ export const groupManagementActions = (set, get) => ({
             jobData: { ...state.jobData, pendingJobGroupWrites: [] },
           };
         }
-        const remove = new Set(
-          Array.isArray(groupIDs) ? groupIDs : [groupIDs]
-        );
+        const remove = new Set(Array.isArray(groupIDs) ? groupIDs : [groupIDs]);
         return {
           ...state,
           jobData: {
@@ -112,7 +110,7 @@ export const groupManagementActions = (set, get) => ({
         };
       },
       false,
-      "clearPendingJobGroupWrites"
+      "clearPendingJobGroupWrites",
     );
   },
 
@@ -139,7 +137,7 @@ export const groupManagementActions = (set, get) => ({
         },
       }),
       false,
-      "addGroupToGroupArray"
+      "addGroupToGroupArray",
     );
   },
 
@@ -158,7 +156,7 @@ export const groupManagementActions = (set, get) => ({
         jobData: {
           ...state.jobData,
           groupArray: state.jobData.groupArray.filter(
-            (group) => group.groupID !== groupID
+            (group) => group.groupID !== groupID,
           ),
           pendingJobGroupWrites: (
             state.jobData.pendingJobGroupWrites ?? []
@@ -166,7 +164,7 @@ export const groupManagementActions = (set, get) => ({
         },
       }),
       false,
-      "removeGroupFromGroupArray"
+      "removeGroupFromGroupArray",
     );
   },
 
@@ -183,7 +181,7 @@ export const groupManagementActions = (set, get) => ({
     const state = get().jobData;
     return (
       state.groupArray?.find(
-        (group) => group.groupID === state.activeGroupID
+        (group) => group.groupID === state.activeGroupID,
       ) || null
     );
   },
@@ -201,7 +199,7 @@ export const groupManagementActions = (set, get) => ({
   getGroupObject: (groupID) => {
     const state = get().jobData;
     const foundGroup = state.groupArray?.find(
-      (group) => group.groupID === groupID
+      (group) => group.groupID === groupID,
     );
     return foundGroup || null;
   },
@@ -227,7 +225,7 @@ export const groupManagementActions = (set, get) => ({
       (state) => {
         const updatedGroupArray = state.jobData.groupArray.map((group) => {
           const modifiedGroup = modifiedGroups.find(
-            (mg) => mg.groupID === group.groupID
+            (mg) => mg.groupID === group.groupID,
           );
           return modifiedGroup || group;
         });
@@ -240,14 +238,14 @@ export const groupManagementActions = (set, get) => ({
             pendingJobGroupWrites: queuePersist
               ? mergePendingJobGroupWrites(
                   state.jobData.pendingJobGroupWrites,
-                  queuedIds
+                  queuedIds,
                 )
               : state.jobData.pendingJobGroupWrites,
           },
         };
       },
       false,
-      "updateModifiedGroups"
+      "updateModifiedGroups",
     );
     if (queuePersist) {
       scheduleDebouncedGroupSave();

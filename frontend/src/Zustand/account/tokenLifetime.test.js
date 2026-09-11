@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockClientRefresh } = vi.hoisted(() => ({ mockClientRefresh: vi.fn() }));
+const { mockClientRefresh } = vi.hoisted(() => ({
+  mockClientRefresh: vi.fn(),
+}));
 vi.mock("../../Functions/Endpoints/esiAccessClient.js", () => ({
   requestEsiAccessFromClientRefreshSecret: mockClientRefresh,
   requestEsiAccessFromServerStorage: vi.fn(),
@@ -18,14 +20,18 @@ describe("held tokens do not outlive their character", () => {
     esiCredentials.reset();
     esiCredentials.adoptEsiAccessToken(
       "owner-hash",
-      esiAccessToken({ exp: Math.floor(Date.now() / 1000) + 3600 })
+      esiAccessToken({ exp: Math.floor(Date.now() / 1000) + 3600 }),
     );
     useUsersStore.setState((s) => ({
       ...s,
       account: {
         ...s.account,
         characters: [
-          { isMainCharacter: true, isPlaceholder: false, CharacterHash: "owner-hash" },
+          {
+            isMainCharacter: true,
+            isPlaceholder: false,
+            CharacterHash: "owner-hash",
+          },
         ],
         actions: s.account.actions,
       },

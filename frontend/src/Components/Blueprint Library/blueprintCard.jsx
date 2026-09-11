@@ -92,7 +92,7 @@ export default function BlueprintCard({
             esiJob,
             blueprint.isCopy,
             blueprint.runs,
-            bpData?.jobType
+            bpData?.jobType,
           ),
         },
       ]}
@@ -106,7 +106,10 @@ export default function BlueprintCard({
           overlap="circular"
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           badgeContent={
-            <OwnerAvatar owner={blueprintOwner(blueprint)} size={density.owner} />
+            <OwnerAvatar
+              owner={blueprintOwner(blueprint)}
+              size={density.owner}
+            />
           }
         >
           <Box
@@ -138,8 +141,16 @@ export default function BlueprintCard({
       >
         {isManufacturing && (
           <>
-            <LabelledFigure label="M.E" value={blueprint.me} density={density} />
-            <LabelledFigure label="T.E" value={blueprint.te} density={density} />
+            <LabelledFigure
+              label="M.E"
+              value={blueprint.me}
+              density={density}
+            />
+            <LabelledFigure
+              label="T.E"
+              value={blueprint.te}
+              density={density}
+            />
           </>
         )}
         {blueprint.runs !== -1 && (

@@ -46,7 +46,10 @@ function useInboundSkeletonCountForGroupPlanner(stageId, activeGroupID) {
  * @param {number} skeletonElementsToDisplay - From `useJobPlannerReducer` / group page state
  * @returns {{ skeletonCount: number, localSkeletonCount: number, inboundSkeletonCount: number }}
  */
-export function useJobPlannerStageSkeletonCount(status, skeletonElementsToDisplay) {
+export function useJobPlannerStageSkeletonCount(
+  status,
+  skeletonElementsToDisplay,
+) {
   const inboundSkeletonCount = useInboundSkeletonCountForJobPlanner(status.id);
   const localSkeletonCount = status.id === 0 ? skeletonElementsToDisplay : 0;
   return {
@@ -63,11 +66,14 @@ export function useJobPlannerStageSkeletonCount(status, skeletonElementsToDispla
  * @param {number} skeletonElementsToDisplay
  * @returns {{ skeletonCount: number, localSkeletonCount: number, inboundSkeletonCount: number }}
  */
-export function useGroupPlannerStageSkeletonCount(status, skeletonElementsToDisplay) {
+export function useGroupPlannerStageSkeletonCount(
+  status,
+  skeletonElementsToDisplay,
+) {
   const activeGroupID = useUsersStore((s) => s.jobData.activeGroupID);
   const inboundSkeletonCount = useInboundSkeletonCountForGroupPlanner(
     status.id,
-    activeGroupID
+    activeGroupID,
   );
   const localSkeletonCount = status.id === 0 ? skeletonElementsToDisplay : 0;
   return {

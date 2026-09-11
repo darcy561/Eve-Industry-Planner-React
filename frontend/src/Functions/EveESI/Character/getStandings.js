@@ -1,10 +1,7 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
-async function getCharacterStandings({
-  character,
-  existingData = {},
-}) {
+async function getCharacterStandings({ character, existingData = {} }) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
@@ -50,14 +47,14 @@ async function getCharacterStandings({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -69,7 +66,6 @@ async function getCharacterStandings({
       data,
       etag,
     };
-
   } catch (err) {
     // Thrown rather than swallowed into an empty list: every fee quoted from
     // standings that failed to load is wrong, and a caller that cannot tell the

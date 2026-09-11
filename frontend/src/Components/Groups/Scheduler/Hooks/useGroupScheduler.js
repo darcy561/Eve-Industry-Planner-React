@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { scheduleGroup, SchedulingStrategy } from "../../../../Functions/Scheduler/groupSchedulerCore";
+import {
+  scheduleGroup,
+  SchedulingStrategy,
+} from "../../../../Functions/Scheduler/groupSchedulerCore";
 import { calculateActiveSlotsSingleFromData } from "../../../../Functions/Helper/activeSlotTotalsCore";
 import useGetAllCharacterIndustryJobs from "../../../../Hooks/EveEsi/Character/useGetAllCharacterIndustryJobs";
 import { useGetAllCorporationIndustryJobs } from "../../../../Hooks/EveEsi/Corporation/useGetAllCorporationIndustryJobs";
@@ -27,7 +30,7 @@ import { jobTypes } from "../../../../Context/defaultValues";
 export function useGroupScheduler(
   groupJobs = [],
   schedulingStrategy = SchedulingStrategy.GREEDY,
-  selectedCharacterRows = null
+  selectedCharacterRows = null,
 ) {
   const queryClient = useQueryClient();
 
@@ -37,13 +40,15 @@ export function useGroupScheduler(
   const allCharacterSkills = useGetAllCharacterSkills();
 
   // Combine loading and error states from all hooks
-  const queriesLoading = allCharacterIndustryJobs.isLoading || 
-                         allCorporationIndustryJobs.isLoading || 
-                         allCharacterSkills.isLoading;
-  
-  const queriesError = allCharacterIndustryJobs.error ||
-                       allCorporationIndustryJobs.error ||
-                       allCharacterSkills.error;
+  const queriesLoading =
+    allCharacterIndustryJobs.isLoading ||
+    allCorporationIndustryJobs.isLoading ||
+    allCharacterSkills.isLoading;
+
+  const queriesError =
+    allCharacterIndustryJobs.error ||
+    allCorporationIndustryJobs.error ||
+    allCharacterSkills.error;
 
   const scheduleResult = useMemo(() => {
     if (!groupJobs || groupJobs.length === 0) {
@@ -102,7 +107,9 @@ export function useGroupScheduler(
       const userCorpIndJobs = [];
       for (const [corpId, jobs] of Object.entries(allCorpJobsByCorp)) {
         if (Array.isArray(jobs)) {
-          userCorpIndJobs.push(...jobs.filter((job) => job.installer_id === CharacterID));
+          userCorpIndJobs.push(
+            ...jobs.filter((job) => job.installer_id === CharacterID),
+          );
         }
       }
 
@@ -113,7 +120,7 @@ export function useGroupScheduler(
         characterRow,
         userSkills,
         userIndJobs,
-        userCorpIndJobs
+        userCorpIndJobs,
       );
 
       if (slotSummary) {
@@ -266,7 +273,7 @@ export function useGroupScheduler(
         const duration = calculateTimeForSetup(
           tempSetup,
           job.skills || [],
-          queryClient
+          queryClient,
         );
 
         if (duration && duration > 0) {
@@ -302,9 +309,11 @@ export function useGroupScheduler(
     const enhancedReasons = { ...schedule.unscheduledTaskReasons };
     for (const taskId of schedule.unscheduledTaskIds) {
       if (tasksWithNoEligibleCharacters.has(taskId)) {
-        enhancedReasons[taskId] = "No characters have the required skills for this job";
+        enhancedReasons[taskId] =
+          "No characters have the required skills for this job";
       } else if (!enhancedReasons[taskId]) {
-        enhancedReasons[taskId] = "No available slots or scheduling constraints";
+        enhancedReasons[taskId] =
+          "No available slots or scheduling constraints";
       }
     }
 
@@ -316,7 +325,17 @@ export function useGroupScheduler(
       isLoading: false,
       isError: false,
     };
-  }, [groupJobs, queryClient, selectedCharacterRows, schedulingStrategy, queriesLoading, queriesError, allCharacterIndustryJobs, allCorporationIndustryJobs, allCharacterSkills]);
+  }, [
+    groupJobs,
+    queryClient,
+    selectedCharacterRows,
+    schedulingStrategy,
+    queriesLoading,
+    queriesError,
+    allCharacterIndustryJobs,
+    allCorporationIndustryJobs,
+    allCharacterSkills,
+  ]);
 
   // Combine loading and error states
   // Loading: queries are loading OR schedule is being calculated (scheduleResult.isLoading)
@@ -350,4 +369,3 @@ function checkSkillEligibility(requiredSkills, userSkills) {
 
   return true;
 }
-

@@ -35,7 +35,9 @@ describe("the Returns panel", () => {
   it("leads with the other route when told to", () => {
     renderPanel({ headlineRouteID: "immediate" });
 
-    expect(screen.getByText("Net return — into buy orders")).toBeInTheDocument();
+    expect(
+      screen.getByText("Net return — into buy orders"),
+    ).toBeInTheDocument();
   });
 
   // Neither route is the answer: which one a player wants is not something the
@@ -61,7 +63,9 @@ describe("the Returns panel", () => {
     });
 
     expect(
-      screen.getByText("Nothing produced, so there is nothing to break even on"),
+      screen.getByText(
+        "Nothing produced, so there is nothing to break even on",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -98,9 +102,7 @@ describe("the Returns panel", () => {
     });
 
     expect(
-      screen.getByText(
-        "Your 3 previous builds cost 70.00 to 90.00 per unit",
-      ),
+      screen.getByText("Your 3 previous builds cost 70.00 to 90.00 per unit"),
     ).toBeInTheDocument();
     expect(screen.getByText("last built May 2026")).toBeInTheDocument();
   });
@@ -157,7 +159,9 @@ describe("what each route was priced from", () => {
   it("names each route's unit price and what is taken off it", () => {
     renderPanel();
 
-    expect(screen.getByText("at 120.00 · less fee and tax")).toBeInTheDocument();
+    expect(
+      screen.getByText("at 120.00 · less fee and tax"),
+    ).toBeInTheDocument();
     expect(screen.getByText("at 100.00 · less tax")).toBeInTheDocument();
   });
 
@@ -175,7 +179,9 @@ describe("headroom above break-even", () => {
     renderPanel();
 
     // 881 of cost over 10 units is 88.10; 120 today is 36.2% above it.
-    expect(screen.getByText(/current 120.00 · 36.2% above break-even/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/current 120.00 · 36.2% above break-even/),
+    ).toBeInTheDocument();
   });
 
   it("says below where the price does not cover the build", () => {

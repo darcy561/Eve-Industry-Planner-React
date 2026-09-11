@@ -39,36 +39,37 @@ export function useDocumentLock(collection, docID, enabled, options = {}) {
   const releaseOnUnmount = options.releaseOnUnmount !== false;
   const cascadeMemberJobScopesOnGrant =
     options.cascadeMemberJobScopesOnGrant === true;
-  const lockHeld = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).lockHeld
+  const lockHeld = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).lockHeld,
   );
-  const readOnly = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).readOnly
+  const readOnly = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).readOnly,
   );
-  const waitingInHandoffQueue = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).waitingInHandoffQueue
+  const waitingInHandoffQueue = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).waitingInHandoffQueue,
   );
-  const lockExpiresAtUnix = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).lockExpiresAtUnix
+  const lockExpiresAtUnix = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).lockExpiresAtUnix,
   );
-  const handoffPendingHolder = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).handoffPendingHolder
+  const handoffPendingHolder = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).handoffPendingHolder,
   );
-  const viewerCount = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).viewerCount
+  const viewerCount = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).viewerCount,
   );
-  const waitlistLen = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).waitlistLen
+  const waitlistLen = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).waitlistLen,
   );
-  const pendingAccessRequest = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).pendingAccessRequest
+  const pendingAccessRequest = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).pendingAccessRequest,
   );
-  const handoffOfferForMe = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).handoffOfferForMe
+  const handoffOfferForMe = useUsersStore(
+    (s) => selectScopedDocumentLock(s, collection, docID).handoffOfferForMe,
   );
-  const lockScopeBootstrapped = useUsersStore((s) =>
-    selectScopedDocumentLock(s, collection, docID).lockScopeBootstrapped ===
-    true
+  const lockScopeBootstrapped = useUsersStore(
+    (s) =>
+      selectScopedDocumentLock(s, collection, docID).lockScopeBootstrapped ===
+      true,
   );
   const sessionID = useUsersStore((s) => s.account.sessionID);
 
@@ -106,10 +107,10 @@ export function useDocumentLock(collection, docID, enabled, options = {}) {
         .documentLock.actions.patchDocumentLockForScope(
           collection,
           docID,
-          partial
+          partial,
         );
     },
-    [collection, docID]
+    [collection, docID],
   );
 
   const resetScope = useCallback(() => {
@@ -122,7 +123,7 @@ export function useDocumentLock(collection, docID, enabled, options = {}) {
   const { cancelReadOnlyGrace, startReadOnlyGrace } = useLockReadOnlyGrace(
     readOnlyGraceRef,
     collection,
-    docID
+    docID,
   );
 
   const { tryAcquire } = useLockAcquireRelease({

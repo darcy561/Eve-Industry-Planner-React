@@ -4,9 +4,7 @@ import { render, screen } from "@testing-library/react";
 const { collection, industryJobs, characters } = vi.hoisted(() => ({
   collection: { current: null },
   industryJobs: { current: [] },
-  characters: [
-    { CharacterHash: "character-hash-a", CharacterID: 2114000001 },
-  ],
+  characters: [{ CharacterHash: "character-hash-a", CharacterID: 2114000001 }],
 }));
 
 vi.mock("../../../../../../Zustand/usersStore", () => {

@@ -5,16 +5,16 @@ import { getRigInfoFromID } from "../../Functions/Helper/getStructureInfo";
 /**
  * A select component for choosing rig types based on job type.
  * Displays available rig types for the specified job type with error handling.
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} [props.value=0] - Currently selected rig type ID
  * @param {number} [props.jobType=1] - Job type to determine which rigs to show
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the rig info object.
  * @param {Object} [props.error] - Error state object with isError boolean and errorText string
  * @returns {JSX.Element} Rig type select component
- * 
+ *
  * @example
- * <RigTypeSelect 
+ * <RigTypeSelect
  *   value={selectedRigId}
  *   jobType={1}
  *   onChange={(rig) => setRigType(rig)}

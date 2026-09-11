@@ -94,7 +94,7 @@ export function persistTabPlannerSession(partial) {
     ) {
       sessionStorage.setItem(
         TAB_REFRESH_TOKEN_EXP_KEY,
-        String(partial.refreshTokenEXP)
+        String(partial.refreshTokenEXP),
       );
     } else {
       sessionStorage.removeItem(TAB_REFRESH_TOKEN_EXP_KEY);
@@ -107,7 +107,7 @@ export function persistTabPlannerSession(partial) {
     ) {
       sessionStorage.setItem(
         TAB_REAUTH_REQUIRED_AT_KEY,
-        String(Math.trunc(Number(partial.reauthRequiredAt)))
+        String(Math.trunc(Number(partial.reauthRequiredAt))),
       );
     } else {
       sessionStorage.removeItem(TAB_REAUTH_REQUIRED_AT_KEY);
@@ -123,7 +123,8 @@ export function persistTabPlannerSessionFromAuthResponse(authResponse) {
     return;
   }
   const sessionID =
-    typeof authResponse.session_id === "string" && authResponse.session_id.trim()
+    typeof authResponse.session_id === "string" &&
+    authResponse.session_id.trim()
       ? authResponse.session_id.trim()
       : null;
   const refreshToken =

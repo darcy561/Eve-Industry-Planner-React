@@ -25,8 +25,7 @@ import { USER_WATCHLIST_DEPRECATED_COLLECTION } from "../../Functions/Endpoints/
  * @param {unknown} raw - parsed JSON from WebSocket
  */
 export async function applyDocumentMessage(msg) {
-  const collection =
-    typeof msg.collection === "string" ? msg.collection : null;
+  const collection = typeof msg.collection === "string" ? msg.collection : null;
   const operationType =
     typeof msg.operationType === "string"
       ? msg.operationType.toLowerCase()

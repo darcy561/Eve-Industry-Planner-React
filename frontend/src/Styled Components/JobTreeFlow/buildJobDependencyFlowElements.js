@@ -11,11 +11,7 @@ function positionNudge(jobId, indexInRow, level) {
   }
   const abs = Math.abs(h);
   const x = (abs % 80) - 40 + (indexInRow % 4) * 20 - 30;
-  const y =
-    (abs % 22) -
-    11 +
-    (indexInRow % 2) * 14 +
-    level * 40;
+  const y = (abs % 22) - 11 + (indexInRow % 2) * 14 + level * 40;
   return { x, y };
 }
 
@@ -218,12 +214,9 @@ export function buildJobDependencyFlowElements(jobs, completeJobIds) {
     changed = false;
     guard += 1;
     for (const job of jobs) {
-      const parents = job
-        .parentJobIDs
-        .filter((p) => ids.has(p));
+      const parents = job.parentJobIDs.filter((p) => ids.has(p));
       if (parents.length === 0) continue;
-      const next =
-        1 + Math.max(...parents.map((p) => level.get(p) ?? 0), 0);
+      const next = 1 + Math.max(...parents.map((p) => level.get(p) ?? 0), 0);
       const cur = level.get(job.jobID) ?? 0;
       if (next > cur) {
         level.set(job.jobID, next);
@@ -246,7 +239,7 @@ export function buildJobDependencyFlowElements(jobs, completeJobIds) {
   const nodes = [];
   for (let lv = 0; lv <= maxLevel; lv += 1) {
     const row = (byLevel.get(lv) ?? []).sort((a, b) =>
-      a.name.localeCompare(b.name)
+      a.name.localeCompare(b.name),
     );
     /** @type {import("@xyflow/react").Node[]} */
     const rowNodes = [];

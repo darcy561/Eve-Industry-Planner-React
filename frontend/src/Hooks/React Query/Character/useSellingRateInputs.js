@@ -23,8 +23,10 @@ import { isQueryObserverResultLoading } from "../../EveEsi/queryLoadingState";
 export function useSellingRateInputs(characterHashes) {
   const hashes = [
     ...new Set(
-      (Array.isArray(characterHashes) ? characterHashes : [characterHashes])
-        .filter(Boolean),
+      (Array.isArray(characterHashes)
+        ? characterHashes
+        : [characterHashes]
+      ).filter(Boolean),
     ),
   ];
 

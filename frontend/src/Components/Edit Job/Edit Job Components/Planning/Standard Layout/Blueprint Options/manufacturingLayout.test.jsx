@@ -31,7 +31,11 @@ vi.mock("../../../../../../Hooks/EveEsi/useBlueprintIndex", () => ({
 }));
 
 vi.mock("../../../../../../Hooks/EveEsi/useGetAllIndustryJobs", () => ({
-  default: () => ({ data: industryJobs.current, isLoading: false, error: null }),
+  default: () => ({
+    data: industryJobs.current,
+    isLoading: false,
+    error: null,
+  }),
 }));
 
 import { ManufacturingLayout_BlueprintPanel } from "./manufacturingLayout";
@@ -54,7 +58,7 @@ function renderPanel(withState = state) {
   return render(
     <QueryClientProvider client={client}>
       <ManufacturingLayout_BlueprintPanel state={withState} actions={{}} />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }
 
@@ -63,7 +67,7 @@ beforeEach(() => {
   industryJobs.current = [];
   collection.current = buildBlueprintRows(
     characterBlueprintRows,
-    blueprintSearchIndex
+    blueprintSearchIndex,
   );
 });
 
@@ -84,7 +88,7 @@ describe("the blueprints a manufacturing job can be built from", () => {
     renderPanel();
 
     const held = characterBlueprintRows.filter(
-      (row) => row.type_id === RIFTER_BLUEPRINT_TYPE_ID
+      (row) => row.type_id === RIFTER_BLUEPRINT_TYPE_ID,
     );
     expect(screen.getAllByText(/^ME:/)).toHaveLength(held.length);
   });

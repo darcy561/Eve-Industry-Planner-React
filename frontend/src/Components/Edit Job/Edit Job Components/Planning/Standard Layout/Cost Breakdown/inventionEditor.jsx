@@ -55,10 +55,13 @@ export function invitesInvention(activeJob) {
  */
 export default function InventionEditor({ state, actions }) {
   function handleAddAction(formData) {
-    const itemName = DOMPurify.sanitize(String(formData.get("itemName") ?? ""), {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-    }).trim();
+    const itemName = DOMPurify.sanitize(
+      String(formData.get("itemName") ?? ""),
+      {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+      },
+    ).trim();
     const itemCost = Number(formData.get("itemCost") ?? 0);
 
     if (!itemName) {
@@ -122,7 +125,8 @@ export default function InventionEditor({ state, actions }) {
         </Stack>
       ) : (
         <Typography variant="body2" color="text.secondary">
-          Nothing yet. Datacores, decryptors and the attempts that failed go here.
+          Nothing yet. Datacores, decryptors and the attempts that failed go
+          here.
         </Typography>
       )}
 

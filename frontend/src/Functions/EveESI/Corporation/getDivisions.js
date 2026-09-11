@@ -10,13 +10,13 @@ async function getCorpDivisions(character, config = {}) {
     const { accessToken } = await getEsiAccessToken(character.CharacterHash);
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'corporation',
+      group: "corporation",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -26,7 +26,7 @@ async function getCorpDivisions(character, config = {}) {
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Handle no content responses (204)
@@ -42,14 +42,14 @@ async function getCorpDivisions(character, config = {}) {
     // Handle other client errors (4xx)
     if (response.status >= 400 && response.status < 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

@@ -21,16 +21,16 @@ import ClearIcon from "@mui/icons-material/Clear";
 import useUsersStore from "../../../Zustand/usersStore";
 function BlueprintSettingsFrame() {
   const defaultMaterialEfficiencyValue = useUsersStore(
-    (state) => state.applicationSettings.defaultMaterialEfficiencyValue
+    (state) => state.applicationSettings.defaultMaterialEfficiencyValue,
   );
   const ignoreItemsWithoutBlueprints = useUsersStore(
-    (state) => state.applicationSettings.enableSkipMissingBlueprints
+    (state) => state.applicationSettings.enableSkipMissingBlueprints,
   );
   const automaticJobRecalculation = useUsersStore(
-    (state) => state.applicationSettings.enableAutomaticJobRecalculation
+    (state) => state.applicationSettings.enableAutomaticJobRecalculation,
   );
   const exemptTypeIDs = useUsersStore(
-    (state) => state.applicationSettings.exemptTypeIDs
+    (state) => state.applicationSettings.exemptTypeIDs,
   );
 
   const {
@@ -42,7 +42,7 @@ function BlueprintSettingsFrame() {
   } = useUsersStore.getState().applicationSettings.actions;
 
   const { data: fullItemList } = useCachedData(
-    CACHED_DATA_FILES.FULL_ITEM_LIST
+    CACHED_DATA_FILES.FULL_ITEM_LIST,
   );
 
   return (
@@ -53,8 +53,9 @@ function BlueprintSettingsFrame() {
           sx={{ paddingX: "20px" }}
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <FormControl fullWidth>
             <Select
               value={defaultMaterialEfficiencyValue}
@@ -81,8 +82,9 @@ function BlueprintSettingsFrame() {
           align="center"
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <FormControlLabel
             label={"Automatically Recalculate Jobs"}
             labelPlacement="start"
@@ -102,8 +104,9 @@ function BlueprintSettingsFrame() {
           align="center"
           size={{
             xs: 12,
-            sm: 6
-          }}>
+            sm: 6,
+          }}
+        >
           <FormControlLabel
             label={"Ignore Items Without Blueprints"}
             labelPlacement="start"
@@ -128,8 +131,9 @@ function BlueprintSettingsFrame() {
               sx={{ display: "flex", alignItems: "center" }}
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <Typography variant="h6" color="primary">
                 Materials To Ignore
               </Typography>
@@ -137,8 +141,9 @@ function BlueprintSettingsFrame() {
             <Grid
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <VirtualisedRecipeSearch
                 onSelect={async (value) => {
                   addExemptTypeID(value.itemID);
@@ -149,7 +154,10 @@ function BlueprintSettingsFrame() {
             </Grid>
             <Grid sx={{ marginTop: { xs: "0px", sm: "20px" } }} size={12}>
               <Typography>
-                Materials added to this list will be excluded when the application automatically builds jobs. Any child jobs they might generate will also be skipped. These items can still be added manually if needed.
+                Materials added to this list will be excluded when the
+                application automatically builds jobs. Any child jobs they might
+                generate will also be skipped. These items can still be added
+                manually if needed.
               </Typography>
             </Grid>
           </Grid>

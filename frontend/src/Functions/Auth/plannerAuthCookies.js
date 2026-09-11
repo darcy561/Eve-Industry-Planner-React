@@ -41,7 +41,10 @@ export function expireClientCookie(name, path) {
  * Call on sign-out after attempting server logout so cold-reload guards do not treat the user as cloud-resumable.
  */
 export function clearClientReadablePlannerAuthCookies() {
-  expireClientCookie(EIP_ESI_OAUTH_STORAGE_COOKIE, EIP_ESI_OAUTH_STORAGE_COOKIE_PATH);
+  expireClientCookie(
+    EIP_ESI_OAUTH_STORAGE_COOKIE,
+    EIP_ESI_OAUTH_STORAGE_COOKIE_PATH,
+  );
 }
 
 /**
@@ -70,7 +73,10 @@ export function hasCloudOAuthStorageServerHint() {
     }
     const name = trimmed.slice(0, eq).trim();
     const value = trimmed.slice(eq + 1).trim();
-    if (name === EIP_ESI_OAUTH_STORAGE_COOKIE && value === EIP_ESI_OAUTH_STORAGE_SERVER) {
+    if (
+      name === EIP_ESI_OAUTH_STORAGE_COOKIE &&
+      value === EIP_ESI_OAUTH_STORAGE_SERVER
+    ) {
       return true;
     }
   }

@@ -20,7 +20,11 @@ const STATIC_META_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function fetchStaticMeta(force = false, allowNetwork = true) {
   const now = Date.now();
-  if (!force && staticMetaCache && now - staticMetaFetchedAt < STATIC_META_TTL_MS) {
+  if (
+    !force &&
+    staticMetaCache &&
+    now - staticMetaFetchedAt < STATIC_META_TTL_MS
+  ) {
     return staticMetaCache;
   }
   if (!allowNetwork) {
@@ -39,10 +43,12 @@ async function fetchStaticMeta(force = false, allowNetwork = true) {
         method: "GET",
         headers: { Accept: "application/json" },
       },
-      { requestName: "staticDataMeta" }
+      { requestName: "staticDataMeta" },
     );
     if (!response.ok) {
-      throw new Error(`Failed to fetch static data metadata: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch static data metadata: ${response.status} ${response.statusText}`,
+      );
     }
 
     staticMetaCache = await response.json();
@@ -98,12 +104,11 @@ async function getCache() {
   } catch (error) {
     // Firefox Mobile (strict privacy / some contexts): `caches` exists but
     // `open()` throws SecurityError (DOMException 18) — fall back to network-only loads.
-    const isSecurity =
-      error?.name === "SecurityError" || error?.code === 18;
+    const isSecurity = error?.name === "SecurityError" || error?.code === 18;
     if (isSecurity) {
       console.warn(
         "[App] Cache API blocked (SecurityError); static data will load over the network.",
-        error
+        error,
       );
       return null;
     }
@@ -123,8 +128,12 @@ async function migrateAndCleanupStaticCaches() {
     // Remove old static-data cache versions.
     await Promise.all(
       cacheNames
-        .filter((name) => name.startsWith(LEGACY_STATIC_CACHE_PREFIX) && name !== STATIC_DATA_CACHE)
-        .map((name) => caches.delete(name))
+        .filter(
+          (name) =>
+            name.startsWith(LEGACY_STATIC_CACHE_PREFIX) &&
+            name !== STATIC_DATA_CACHE,
+        )
+        .map((name) => caches.delete(name)),
     );
   } catch (error) {
     console.warn("[App] static cache migration cleanup failed:", error);
@@ -143,10 +152,12 @@ async function fetchAndCacheByURL(cache, cacheURL) {
       method: "GET",
       headers: { Accept: "application/json" },
     },
-    { requestName: "staticDataFile" }
+    { requestName: "staticDataFile" },
   );
   if (!response.ok) {
-    throw new Error(`Failed to fetch ${cacheURL}: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch ${cacheURL}: ${response.status} ${response.statusText}`,
+    );
   }
 
   const cloned = response.clone();
@@ -172,7 +183,10 @@ function getCurrentStaticURLsFromMeta(meta) {
 function isStaticDataRequestURL(requestURL) {
   try {
     const parsed = new URL(requestURL, window.location.origin);
-    return parsed.pathname.startsWith("/api/static-data/") && parsed.pathname !== "/api/static-data/meta";
+    return (
+      parsed.pathname.startsWith("/api/static-data/") &&
+      parsed.pathname !== "/api/static-data/meta"
+    );
   } catch {
     return false;
   }
@@ -195,7 +209,7 @@ async function pruneStaleStaticCacheEntries(cache, meta) {
       if (!validURLs.has(normalized)) {
         await cache.delete(req);
       }
-    })
+    }),
   );
 }
 
@@ -225,7 +239,7 @@ export async function checkFileInCache(fileName) {
   } catch (error) {
     console.error(
       `[App] checkFileInCache: Error checking cache for ${fileName}:`,
-      error
+      error,
     );
     return null;
   }
@@ -256,7 +270,7 @@ export async function checkFileInCacheWithMetadata(fileName) {
   } catch (error) {
     console.error(
       `[App] checkFileInCacheWithMetadata: Error checking cache for ${fileName}:`,
-      error
+      error,
     );
     return null;
   }

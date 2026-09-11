@@ -3,7 +3,6 @@ import { formatTimeRemaining } from "../../../../../Functions/Helper/numberParse
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
 
 export function ReactionESICardActive({ job }) {
-
   const timeRemaining = formatTimeRemaining(Date.parse(job.end_date));
 
   return (
@@ -24,7 +23,7 @@ export function ReactionESICardActive({ job }) {
         <Grid size={4}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             Remaining:
-          </Typography> 
+          </Typography>
         </Grid>
         <Grid size={8}>
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }} align="right">

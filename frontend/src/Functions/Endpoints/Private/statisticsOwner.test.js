@@ -7,9 +7,8 @@ vi.mock("../../../Zustand/usersStore", () => ({
   default: { getState: () => state },
 }));
 
-const { currentOwnerHandle, statisticsPath } = await import(
-  "./statisticsOwner.js"
-);
+const { currentOwnerHandle, statisticsPath } =
+  await import("./statisticsOwner.js");
 
 describe("the owner a statistics request names", () => {
   it("is the kind and the id", () => {

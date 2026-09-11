@@ -14,7 +14,10 @@ import {
  * @returns {import("./corporationCollection").CorporationCollection}
  */
 export function getAllCachedCorporationIndustryJobs(queryClient) {
-  return readCorporationCollection(queryClient, corporationIndustryJobsQueryKey);
+  return readCorporationCollection(
+    queryClient,
+    corporationIndustryJobsQueryKey,
+  );
 }
 
 /**

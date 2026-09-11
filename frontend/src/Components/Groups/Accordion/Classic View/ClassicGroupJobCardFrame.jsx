@@ -13,7 +13,10 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
-import { jobTypes, STANDARD_TEXT_FORMAT } from "../../../../Context/defaultValues";
+import {
+  jobTypes,
+  STANDARD_TEXT_FORMAT,
+} from "../../../../Context/defaultValues";
 import GroupStep2JobCard from "./JobCards/groupStep2";
 import GroupStep3JobCard from "./JobCards/groupStep3";
 import GroupStep4JobCard from "./JobCards/groupStep4";
@@ -55,7 +58,9 @@ export function ClassicGroupJobCardFrame({
   groupReadOnly = false,
   editReturnPageView,
 }) {
-  const { multiSelect, activeGroupID } = useUsersStore((state) => state.jobData);
+  const { multiSelect, activeGroupID } = useUsersStore(
+    (state) => state.jobData,
+  );
   /**
    * `cardLocked` gates destructive affordances (multi-select, delete) that
    * require an exclusive lock. The Edit/View button stays enabled — the edit
@@ -142,7 +147,14 @@ export function ClassicGroupJobCardFrame({
         minHeight: 0,
       },
     };
-  }, [theme, jobCardChecked, isDragging, isHighlighted, PRIMARY_THEME, cardLocked]);
+  }, [
+    theme,
+    jobCardChecked,
+    isDragging,
+    isHighlighted,
+    PRIMARY_THEME,
+    cardLocked,
+  ]);
 
   return (
     <Grow in={true}>
@@ -156,14 +168,22 @@ export function ClassicGroupJobCardFrame({
           xs: 12,
           sm: 6,
           md: 4,
-          lg: 3
+          lg: 3,
         }}
       >
         <ContentPanel
           componentName="ClassicGroupJobCardFrame"
           paperSx={paperSxStyles}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", height: "100%", flex: 1, minHeight: 0 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              flex: 1,
+              minHeight: 0,
+            }}
+          >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
               <Box sx={{ flex: "0 0 auto" }}>
                 <Checkbox
@@ -241,8 +261,21 @@ export function ClassicGroupJobCardFrame({
                 <DisplaySwitch job={job} />
               </Box>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", marginTop: "auto", width: "100%" }}>
-              <Box sx={{ display: "flex", justifyContent: "center", marginTop: 0.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                marginTop: "auto",
+                width: "100%",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: 0.5,
+                }}
+              >
                 <Tooltip
                   title={cardLockReason}
                   arrow
@@ -266,7 +299,10 @@ export function ClassicGroupJobCardFrame({
                   width: "100%",
                 }}
               >
-                <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT, color: "black" }}>
+                <Typography
+                  align="center"
+                  sx={{ typography: STANDARD_TEXT_FORMAT, color: "black" }}
+                >
                   {jobMarkedAsComplete ? (
                     <b>Complete</b>
                   ) : job.jobType === jobTypes.manufacturing ? (

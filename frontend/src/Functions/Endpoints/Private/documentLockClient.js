@@ -15,7 +15,7 @@ export const MAX_STATUS_BATCH_DOC_IDS = 500;
 
 const LOCK_STATE_BATCH_HTTP_URL = new URL(
   `/api/v1/document-locks/lock-state-batch`,
-  window.location.origin
+  window.location.origin,
 ).toString();
 
 /**
@@ -53,7 +53,7 @@ async function mergeLockStateBatchOverHttp(jobsNorm, groupsNorm) {
           groupDocIDs: groupChunk,
         }),
       },
-      { requestName: "documentLockLockStateBatch", retry: false }
+      { requestName: "documentLockLockStateBatch", retry: false },
     );
     if (!res.ok) return res;
     const body = await res.json().catch(() => ({}));
@@ -71,7 +71,7 @@ async function mergeLockStateBatchOverHttp(jobsNorm, groupsNorm) {
       status: 200,
       statusText: "OK",
       headers: { "Content-Type": "application/json" },
-    }
+    },
   );
 }
 
@@ -102,7 +102,10 @@ async function mergeLockStateBatchOverWs(jobsNorm, groupsNorm) {
 }
 
 function lockUrl(action) {
-  return new URL(`/api/v1/document-locks/${action}`, window.location.origin).toString();
+  return new URL(
+    `/api/v1/document-locks/${action}`,
+    window.location.origin,
+  ).toString();
 }
 
 /**
@@ -118,7 +121,7 @@ export function acquireDocumentLock(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockAcquire", retry: false }
+    { requestName: "documentLockAcquire", retry: false },
   );
 }
 
@@ -135,7 +138,7 @@ export function extendDocumentLock(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockExtend", retry: false }
+    { requestName: "documentLockExtend", retry: false },
   );
 }
 
@@ -152,7 +155,7 @@ export function releaseDocumentLock(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockRelease", retry: false }
+    { requestName: "documentLockRelease", retry: false },
   );
 }
 
@@ -173,7 +176,7 @@ export function forceReleaseDocumentLockSameAccount(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockForceReleaseSameAccount", retry: false }
+    { requestName: "documentLockForceReleaseSameAccount", retry: false },
   );
 }
 
@@ -196,7 +199,7 @@ export function handOverDocumentLock(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockHandOver", retry: false }
+    { requestName: "documentLockHandOver", retry: false },
   );
 }
 
@@ -213,7 +216,7 @@ export function requestDocumentLockAccess(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockRequest", retry: false }
+    { requestName: "documentLockRequest", retry: false },
   );
 }
 
@@ -235,13 +238,16 @@ export async function getDocumentLockState(collection, docID) {
       groupDocIDs: [docID],
     }).then((res) => wrapBatchSinglePayload(res, "group", docID));
   }
-  const url = new URL(`/api/v1/document-locks/lock-state`, window.location.origin);
+  const url = new URL(
+    `/api/v1/document-locks/lock-state`,
+    window.location.origin,
+  );
   url.searchParams.set("collection", collection);
   url.searchParams.set("docID", docID);
   return requestWithPrivateHeaders(
     url.toString(),
     { method: "GET" },
-    { requestName: "documentLockLockState", retry: false }
+    { requestName: "documentLockLockState", retry: false },
   );
 }
 
@@ -261,7 +267,8 @@ async function wrapBatchSinglePayload(res, kind, docID) {
       : body.groupResults && typeof body.groupResults === "object"
         ? body.groupResults
         : {};
-  const payload = map[docID] && typeof map[docID] === "object" ? map[docID] : {};
+  const payload =
+    map[docID] && typeof map[docID] === "object" ? map[docID] : {};
   return new Response(JSON.stringify(payload), {
     status: res.status,
     statusText: res.statusText,
@@ -284,21 +291,18 @@ export async function getDocumentLockStateBatch({
   const groups = normalizeDocIdList(groupDocIDs);
 
   if (jobs.length === 0 && groups.length === 0) {
-    return new Response(
-      JSON.stringify({ jobResults: {}, groupResults: {} }),
-      {
-        status: 200,
-        statusText: "OK",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ jobResults: {}, groupResults: {} }), {
+      status: 200,
+      statusText: "OK",
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   if (isRealtimeSocketOpen()) {
     try {
       const { jobResults, groupResults } = await mergeLockStateBatchOverWs(
         jobs,
-        groups
+        groups,
       );
       return new Response(JSON.stringify({ jobResults, groupResults }), {
         status: 200,
@@ -327,7 +331,7 @@ export function claimDocumentLockHandoff(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockClaimHandoff", retry: false }
+    { requestName: "documentLockClaimHandoff", retry: false },
   );
 }
 
@@ -344,11 +348,11 @@ export function pulseDocumentLockWaitlist(collection, docID) {
     sendDocumentLockEphemeralCommand(
       DOCUMENT_LOCK_FRAME_TYPES.WAITLIST_PULSE,
       collection,
-      docID
+      docID,
     )
   ) {
     return Promise.resolve(
-      new Response(null, { status: 204, statusText: "No Content" })
+      new Response(null, { status: 204, statusText: "No Content" }),
     );
   }
   return requestWithPrivateHeaders(
@@ -358,7 +362,7 @@ export function pulseDocumentLockWaitlist(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockWaitlistPulse", retry: false }
+    { requestName: "documentLockWaitlistPulse", retry: false },
   );
 }
 
@@ -377,11 +381,11 @@ export function postDocumentLockViewerArrived(collection, docID) {
     sendDocumentLockEphemeralCommand(
       DOCUMENT_LOCK_FRAME_TYPES.VIEWER_ARRIVED,
       collection,
-      docID
+      docID,
     )
   ) {
     return Promise.resolve(
-      new Response(null, { status: 204, statusText: "No Content" })
+      new Response(null, { status: 204, statusText: "No Content" }),
     );
   }
   return requestWithPrivateHeaders(
@@ -391,7 +395,7 @@ export function postDocumentLockViewerArrived(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockViewerArrived", retry: false }
+    { requestName: "documentLockViewerArrived", retry: false },
   );
 }
 
@@ -410,11 +414,11 @@ export function postDocumentLockViewerDeparted(collection, docID) {
     sendDocumentLockEphemeralCommand(
       DOCUMENT_LOCK_FRAME_TYPES.VIEWER_DEPARTED,
       collection,
-      docID
+      docID,
     )
   ) {
     return Promise.resolve(
-      new Response(null, { status: 204, statusText: "No Content" })
+      new Response(null, { status: 204, statusText: "No Content" }),
     );
   }
   return requestWithPrivateHeaders(
@@ -424,7 +428,7 @@ export function postDocumentLockViewerDeparted(collection, docID) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ collection, docID }),
     },
-    { requestName: "documentLockViewerDeparted", retry: false }
+    { requestName: "documentLockViewerDeparted", retry: false },
   );
 }
 

@@ -1,12 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 
-vi.mock("../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js", () => ({
-  useEffectiveMarketHubFromLayout: () => ({
-    marketDisplay: "jita",
-    orderDisplay: "sell",
+vi.mock(
+  "../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js",
+  () => ({
+    useEffectiveMarketHubFromLayout: () => ({
+      marketDisplay: "jita",
+      orderDisplay: "sell",
+    }),
   }),
-}));
+);
 vi.mock("../../../../../../Functions/MarketData/marketPriceForType", () => ({
   getMarketPriceForType: (typeID, hub, basis) =>
     ({ sell: 10, buy: 8, buyP95: 9, sellP05: 11 })[basis] ?? 0,
@@ -45,9 +48,12 @@ vi.mock("../../../../../../Zustand/usersStore.js", () => {
   useUsersStore.getState = () => storeState;
   return { default: useUsersStore };
 });
-vi.mock("../../../../../../Functions/Helper/checkJobTypeIsBuildable.js", () => ({
-  default: (jobType) => jobType === 1,
-}));
+vi.mock(
+  "../../../../../../Functions/Helper/checkJobTypeIsBuildable.js",
+  () => ({
+    default: (jobType) => jobType === 1,
+  }),
+);
 // The child jobs behind a row are costed for what they actually make, so the
 // stub answers per job rather than per material.
 vi.mock("../../../../../../Functions/Groups/childJobTotals", () => ({
@@ -109,7 +115,7 @@ describe("useMaterialsSourcing", () => {
         "priceAge",
         "rows",
         "summary",
-      ].sort()
+      ].sort(),
     );
   });
 

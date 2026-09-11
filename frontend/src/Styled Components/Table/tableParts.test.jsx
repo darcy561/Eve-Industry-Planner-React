@@ -8,7 +8,7 @@ const renderHeader = (columns) =>
   render(
     <Table>
       <ColumnHeaderRow columns={columns} />
-    </Table>
+    </Table>,
   );
 
 describe("ColumnHeaderRow", () => {
@@ -19,7 +19,7 @@ describe("ColumnHeaderRow", () => {
     ]);
 
     expect(
-      screen.getAllByRole("columnheader").map((cell) => cell.textContent)
+      screen.getAllByRole("columnheader").map((cell) => cell.textContent),
     ).toEqual(["Component", "Total"]);
   });
 
@@ -34,6 +34,8 @@ describe("ColumnHeaderRow", () => {
   it("aligns a column the way it asks to be aligned", () => {
     renderHeader([{ id: "a", label: "Total", align: "right" }]);
 
-    expect(screen.getByRole("columnheader")).toHaveStyle({ textAlign: "right" });
+    expect(screen.getByRole("columnheader")).toHaveStyle({
+      textAlign: "right",
+    });
   });
 });

@@ -49,7 +49,10 @@ export const apiRateLimitRetryConfig = Object.freeze({
  */
 export async function isMaintenanceResponse(response) {
   if (!response || response.status !== 503) return false;
-  const body = await response.clone().json().catch(() => null);
+  const body = await response
+    .clone()
+    .json()
+    .catch(() => null);
   return Boolean(body) && body.error === "maintenance_mode";
 }
 
@@ -121,7 +124,10 @@ export function getRetryDelayMs(response, attempt, baseDelayMs) {
     if (Number.isFinite(resetSec) && resetSec > 0) {
       const waitSec = resetSec - Date.now() / 1000;
       if (waitSec > 0 && waitSec <= 120) {
-        return Math.min(Math.ceil(waitSec * 1000) + 100, MAX_RATE_LIMIT_RETRY_DELAY_MS);
+        return Math.min(
+          Math.ceil(waitSec * 1000) + 100,
+          MAX_RATE_LIMIT_RETRY_DELAY_MS,
+        );
       }
     }
   }

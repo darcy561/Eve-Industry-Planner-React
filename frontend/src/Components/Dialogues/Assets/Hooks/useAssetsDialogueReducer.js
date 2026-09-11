@@ -17,8 +17,7 @@ import {
  */
 export default function useAssetsDialogueReducer() {
   const createInitialState = () => {
-    const { characters, mainCharacterHash } =
-      useUsersStore.getState().account;
+    const { characters, mainCharacterHash } = useUsersStore.getState().account;
 
     return {
       isOpen: false,
@@ -39,7 +38,7 @@ export default function useAssetsDialogueReducer() {
     (current, action) =>
       assetsDialogueReducer(current, action, createInitialState),
     undefined,
-    createInitialState
+    createInitialState,
   );
 
   const actions = {

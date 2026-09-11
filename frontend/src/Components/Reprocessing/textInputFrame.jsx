@@ -3,10 +3,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useState } from "react";
 import { calculateReprocessing } from "../../Functions/Reprocessing/calculateReprocessing";
 
-function TextInputFrame({
-  pageState,
-  pageActions,
-}) {
+function TextInputFrame({ pageState, pageActions }) {
   const [expanded, setExpanded] = useState(false);
 
   const handleSubmit = async () => {
@@ -39,13 +36,13 @@ function TextInputFrame({
         onChange={handleInputChange}
         variant="outlined"
         sx={{
-          '& .MuiOutlinedInput-root': {
-            borderColor: pageState.inputModified ? 'warning.main' : undefined,
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: pageState.inputModified ? 'warning.main' : undefined,
+          "& .MuiOutlinedInput-root": {
+            borderColor: pageState.inputModified ? "warning.main" : undefined,
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: pageState.inputModified ? "warning.main" : undefined,
             },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: pageState.inputModified ? 'warning.main' : undefined,
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: pageState.inputModified ? "warning.main" : undefined,
             },
           },
         }}
@@ -61,15 +58,19 @@ function TextInputFrame({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          sx={{ 
+          sx={{
             width: "50%",
-            backgroundColor: pageState.inputModified ? 'warning.main' : 'primary.main',
-            '&:hover': {
-              backgroundColor: pageState.inputModified ? 'warning.dark' : 'primary.dark',
+            backgroundColor: pageState.inputModified
+              ? "warning.main"
+              : "primary.main",
+            "&:hover": {
+              backgroundColor: pageState.inputModified
+                ? "warning.dark"
+                : "primary.dark",
             },
           }}
         >
-          {pageState.inputModified ? 'Calculate Changes' : 'Reprocess'}
+          {pageState.inputModified ? "Calculate Changes" : "Reprocess"}
         </Button>
 
         <Tooltip title="Expand input text box" arrow placement="left">

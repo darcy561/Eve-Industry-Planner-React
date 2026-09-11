@@ -24,7 +24,7 @@ export function useMaterialOverrides({
         },
       });
     },
-    [activeJob, layout, updateActiveJob]
+    [activeJob, layout, updateActiveJob],
   );
 
   const updateMaterialLayoutPreference = useCallback(
@@ -35,7 +35,7 @@ export function useMaterialOverrides({
       });
       updateLayoutPreference("materialPriceOverrides", nextOverrides);
     },
-    [layout, updateLayoutPreference]
+    [layout, updateLayoutPreference],
   );
 
   const clearAllMaterialLayoutPreferences = useCallback(() => {
@@ -51,7 +51,7 @@ export function useMaterialOverrides({
       });
       updateLayoutPreference("materialPriceOverrides", nextOverrides);
     },
-    [layout, updateLayoutPreference]
+    [layout, updateLayoutPreference],
   );
 
   const applyAllMaterialLayoutPreferences = useCallback(
@@ -65,7 +65,7 @@ export function useMaterialOverrides({
       });
       updateLayoutPreference("materialPriceOverrides", nextOverrides);
     },
-    [layout, materials, updateLayoutPreference]
+    [layout, materials, updateLayoutPreference],
   );
 
   return {

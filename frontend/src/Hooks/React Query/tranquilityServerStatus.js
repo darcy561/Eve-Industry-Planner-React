@@ -2,7 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchTranquilityStatus } from "../../Functions/EveESI/fetchTranquilityStatus.js";
 import { queryClient } from "../../queryClient.js";
 
-export const TRANQUILITY_SERVER_STATUS_QUERY_KEY = ["esi", "tranquility-server-status"];
+export const TRANQUILITY_SERVER_STATUS_QUERY_KEY = [
+  "esi",
+  "tranquility-server-status",
+];
 
 /**
  * Sync read of the cached Tranquility `/status/` result (same entry as {@link useTranquilityServerStatusQuery}).

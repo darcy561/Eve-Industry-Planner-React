@@ -69,32 +69,32 @@ export default function ReturnsPanel({
         <InsetSurface>
           <PanelHeadline
             aside={
-            <Stack direction="row" spacing={3}>
-              <HeadlineStat
-                caption="Per unit"
-                size="beside"
-                tone={signTone(headline.perUnit)}
-                value={
-                  headline.perUnit === null
-                    ? null
-                    : formatNumberForLocale(headline.perUnit)
-                }
-              />
-              <HeadlineStat
-                caption="Margin"
-                size="beside"
-                tone={signTone(headline.margin)}
-                value={formatPercentage(headline.margin)}
-              />
-              <HeadlineStat
-                caption="Return on outlay"
-                size="beside"
-                tone={signTone(headline.returnOnOutlay)}
-                value={formatPercentage(headline.returnOnOutlay)}
-              />
-            </Stack>
-          }
-        >
+              <Stack direction="row" spacing={3}>
+                <HeadlineStat
+                  caption="Per unit"
+                  size="beside"
+                  tone={signTone(headline.perUnit)}
+                  value={
+                    headline.perUnit === null
+                      ? null
+                      : formatNumberForLocale(headline.perUnit)
+                  }
+                />
+                <HeadlineStat
+                  caption="Margin"
+                  size="beside"
+                  tone={signTone(headline.margin)}
+                  value={formatPercentage(headline.margin)}
+                />
+                <HeadlineStat
+                  caption="Return on outlay"
+                  size="beside"
+                  tone={signTone(headline.returnOnOutlay)}
+                  value={formatPercentage(headline.returnOnOutlay)}
+                />
+              </Stack>
+            }
+          >
             <HeadlineStat
               caption={`Net return — ${headline.label.toLowerCase()}`}
               tone={signTone(headline.net)}

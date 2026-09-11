@@ -21,7 +21,7 @@ async function fetchPaginatedDataParallel(fetchPage, startPage = 1) {
   // Fetch remaining pages in parallel
   const remainingPages = Array.from(
     { length: totalPages - 1 },
-    (_, i) => startPage + i + 1
+    (_, i) => startPage + i + 1,
   );
 
   const remainingPagePromises = remainingPages.map((page) => fetchPage(page));

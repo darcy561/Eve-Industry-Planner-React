@@ -14,8 +14,7 @@ export function UserIcon() {
   const mainCharacter = useUsersStore((state) =>
     state.account.characters?.find((ch) => ch?.isMainCharacter),
   );
-  const showPortrait =
-    mainCharacter && mainCharacter.isPlaceholder !== true;
+  const showPortrait = mainCharacter && mainCharacter.isPlaceholder !== true;
 
   return (
     <Box>

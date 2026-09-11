@@ -54,10 +54,10 @@ function state(data, isLoading, error) {
 function industryJobQueries(characters, corporations) {
   return [
     ...characters.map(({ CharacterHash }) =>
-      characterIndustryJobsQuery(CharacterHash)
+      characterIndustryJobsQuery(CharacterHash),
     ),
     ...corporations.map(({ corporation_id }) =>
-      corporationIndustryJobsQuery(corporation_id)
+      corporationIndustryJobsQuery(corporation_id),
     ),
   ];
 }
@@ -100,10 +100,10 @@ export function getCachedAllIndustryJobs(queryClient) {
 
   return state(
     uniqueByJobId(
-      queryStates.flatMap(({ cachedData }) => cachedData?.data ?? [])
+      queryStates.flatMap(({ cachedData }) => cachedData?.data ?? []),
     ),
     false,
-    null
+    null,
   );
 }
 
@@ -130,7 +130,7 @@ export default function useGetAllIndustryJobs() {
     return state(
       uniqueByJobId(results.flatMap((result) => result.data?.data ?? [])),
       false,
-      null
+      null,
     );
   }, []);
 

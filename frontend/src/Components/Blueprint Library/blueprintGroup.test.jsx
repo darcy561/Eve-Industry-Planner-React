@@ -10,7 +10,11 @@ const { industryJobs, searchIndex } = vi.hoisted(() => ({
 }));
 
 vi.mock("../../Hooks/EveEsi/useGetAllIndustryJobs", () => ({
-  default: () => ({ data: industryJobs.current, isLoading: false, error: null }),
+  default: () => ({
+    data: industryJobs.current,
+    isLoading: false,
+    error: null,
+  }),
 }));
 
 vi.mock("../../Hooks/App/useCachedData", () => ({
@@ -67,7 +71,7 @@ function renderGroup(rows, props = {}) {
           {...props}
         />
       </QueryClientProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 }
 
@@ -161,7 +165,7 @@ describe.each([
     });
 
     expect(
-      screen.getAllByLabelText(/Reginal Shardani — Jita IV-4/).length
+      screen.getAllByLabelText(/Reginal Shardani — Jita IV-4/).length,
     ).toBeGreaterThan(0);
   });
 });

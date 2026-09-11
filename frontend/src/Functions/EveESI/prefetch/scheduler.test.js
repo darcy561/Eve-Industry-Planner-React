@@ -118,10 +118,10 @@ describe("planPrefetch", () => {
 
     const items = planPrefetch(
       ["hash-a", "hash-b", "hash-c"],
-      PHASE.FIRST_PAINT
+      PHASE.FIRST_PAINT,
     );
     const corpBlueprints = items.filter(
-      (i) => i.name === "Corporation Blueprints"
+      (i) => i.name === "Corporation Blueprints",
     );
 
     // Three characters across two corporations: two fetches, not three.
@@ -135,11 +135,10 @@ describe("planPrefetch", () => {
       character("hash-c", 98000002),
     ]);
 
-    const items = planPrefetch(
-      ["hash-a", "hash-b", "hash-c"],
-      PHASE.DEFERRED
+    const items = planPrefetch(["hash-a", "hash-b", "hash-c"], PHASE.DEFERRED);
+    const journal = items.filter((i) =>
+      i.name.startsWith("Corporation Journal"),
     );
-    const journal = items.filter((i) => i.name.startsWith("Corporation Journal"));
 
     // Two corporations, seven divisions each. Before the re-key this was seven per character.
     expect(journal).toHaveLength(14);
@@ -165,7 +164,7 @@ describe("planPrefetch", () => {
     // collection per corporation-scoped row and one per wallet division.
     const characterItems = items.filter((i) => i.name.startsWith("Character"));
     const corporationItems = items.filter((i) =>
-      i.name.startsWith("Corporation")
+      i.name.startsWith("Corporation"),
     );
 
     expect(characterItems).toHaveLength(8 * 5);
@@ -176,7 +175,7 @@ describe("planPrefetch", () => {
     setAccount([character("hash-a", 98000001)]);
 
     const everyPhase = Object.values(PHASE).flatMap((phase) =>
-      planPrefetch(["hash-a"], phase)
+      planPrefetch(["hash-a"], phase),
     );
 
     expect(everyPhase.some((i) => i.name.endsWith("Assets"))).toBe(false);
@@ -220,10 +219,10 @@ describe("prefetchCollections", () => {
     await prefetchCollections(queryClient, ["hash-a"]);
 
     const firstPaintKeys = COLLECTIONS.filter(
-      (c) => c.phase === PHASE.FIRST_PAINT
+      (c) => c.phase === PHASE.FIRST_PAINT,
     ).length;
     const deferredStart = order.findIndex((key) =>
-      key.startsWith("characterStandings")
+      key.startsWith("characterStandings"),
     );
 
     expect(deferredStart).toBeGreaterThanOrEqual(firstPaintKeys - 1);
@@ -244,7 +243,9 @@ describe("prefetchCollections", () => {
 
   it("reports a failed collection without abandoning the rest", async () => {
     setAccount([character("hash-a", 98000001)]);
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     let calls = 0;
     const queryClient = {
       fetchQuery: vi.fn(async () => {
@@ -280,10 +281,7 @@ describe("prefetchCollections", () => {
   // the queue was shared, each call walked its own phases, so every one of the first call's
   // deferred collections ran before any of the second call's first-paint work.
   it("runs a later caller's first paint before an earlier caller's remaining deferred work", async () => {
-    setAccount([
-      character("hash-a", 98000001),
-      character("hash-b", 98000002),
-    ]);
+    setAccount([character("hash-a", 98000001), character("hash-b", 98000002)]);
     const order = [];
     const queryClient = {
       fetchQuery: vi.fn(async (query) => {
@@ -296,14 +294,14 @@ describe("prefetchCollections", () => {
     await Promise.all([first, second]);
 
     const firstPaintRoots = COLLECTIONS.filter(
-      (c) => c.phase === PHASE.FIRST_PAINT
+      (c) => c.phase === PHASE.FIRST_PAINT,
     ).map((c) => c.key);
 
     const lastOfBsFirstPaint = order.findLastIndex(
-      ([root, id]) => firstPaintRoots.includes(root) && id === "hash-b"
+      ([root, id]) => firstPaintRoots.includes(root) && id === "hash-b",
     );
     const lastDeferred = order.findLastIndex(
-      ([root]) => !firstPaintRoots.includes(root)
+      ([root]) => !firstPaintRoots.includes(root),
     );
 
     expect(lastOfBsFirstPaint).toBeGreaterThan(-1);
@@ -320,10 +318,7 @@ describe("prefetchCollections", () => {
 
   it("does not schedule the same fetch twice for two callers", async () => {
     // Both characters are in one corporation, so its collections are one piece of work.
-    setAccount([
-      character("hash-a", 98000001),
-      character("hash-b", 98000001),
-    ]);
+    setAccount([character("hash-a", 98000001), character("hash-b", 98000001)]);
     const queryClient = queryClientSpy();
 
     await Promise.all([
@@ -332,7 +327,7 @@ describe("prefetchCollections", () => {
     ]);
 
     const corporationBlueprints = queryClient.fetched.filter(
-      ([root]) => root === "corporationBlueprints"
+      ([root]) => root === "corporationBlueprints",
     );
     expect(corporationBlueprints).toHaveLength(1);
   });
@@ -352,10 +347,7 @@ describe("prefetchCollections", () => {
   });
 
   it("holds two callers together to one budget", async () => {
-    setAccount([
-      character("hash-a", 98000001),
-      character("hash-b", 98000002),
-    ]);
+    setAccount([character("hash-a", 98000001), character("hash-b", 98000002)]);
     let inFlight = 0;
     let peak = 0;
     const queryClient = {

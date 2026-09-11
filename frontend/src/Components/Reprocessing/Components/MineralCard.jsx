@@ -37,14 +37,14 @@ export default function MineralCard({
             ? (theme) =>
                 `linear-gradient(135deg, ${theme.palette.success.main}20 0%, ${theme.palette.success.light}10 100%)`
             : isExcessMineral
-            ? (theme) =>
-                `linear-gradient(135deg, ${theme.palette.warning.main}20 0%, ${theme.palette.warning.light}10 100%)`
-            : "transparent",
+              ? (theme) =>
+                  `linear-gradient(135deg, ${theme.palette.warning.main}20 0%, ${theme.palette.warning.light}10 100%)`
+              : "transparent",
           border: isRequestedMineral
             ? (theme) => `2px solid ${theme.palette.success.main}`
             : isExcessMineral
-            ? (theme) => `2px solid ${theme.palette.warning.main}`
-            : (theme) => `1px solid ${theme.palette.divider}`,
+              ? (theme) => `2px solid ${theme.palette.warning.main}`
+              : (theme) => `1px solid ${theme.palette.divider}`,
           borderRadius: 2,
           p: 1.5,
           mb: 1,
@@ -112,8 +112,8 @@ export default function MineralCard({
               color: isRequestedMineral
                 ? "success.dark"
                 : isExcessMineral
-                ? "warning.dark"
-                : "text.primary",
+                  ? "warning.dark"
+                  : "text.primary",
               mb: 0.5,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -139,8 +139,9 @@ export default function MineralCard({
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  lineHeight: 1.2
-                }}>
+                  lineHeight: 1.2,
+                }}
+              >
                 {formatNumberForLocale(item.materials[mineralKey], { max: 0 })}{" "}
                 | {formatNumberForLocale(quantity, { max: 0 })}
               </Typography>
@@ -161,8 +162,9 @@ export default function MineralCard({
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  lineHeight: 1.2
-                }}>
+                  lineHeight: 1.2,
+                }}
+              >
                 {formatNumberForLocale(unitPrice)} |{" "}
                 {formatNumberForLocale(reprocessingCostPerUnit)} ISK
               </Typography>
@@ -197,14 +199,14 @@ export default function MineralCard({
           ? (theme) =>
               `linear-gradient(135deg, ${theme.palette.success.main}20 0%, ${theme.palette.success.light}10 100%)`
           : isExcessMineral
-          ? (theme) =>
-              `linear-gradient(135deg, ${theme.palette.warning.main}20 0%, ${theme.palette.warning.light}10 100%)`
-          : "transparent",
+            ? (theme) =>
+                `linear-gradient(135deg, ${theme.palette.warning.main}20 0%, ${theme.palette.warning.light}10 100%)`
+            : "transparent",
         border: isRequestedMineral
           ? (theme) => `2px solid ${theme.palette.success.main}`
           : isExcessMineral
-          ? (theme) => `2px solid ${theme.palette.warning.main}`
-          : (theme) => `1px solid ${theme.palette.divider}`,
+            ? (theme) => `2px solid ${theme.palette.warning.main}`
+            : (theme) => `1px solid ${theme.palette.divider}`,
         borderRadius: 3,
         p: 2,
         position: "relative",
@@ -262,8 +264,8 @@ export default function MineralCard({
           color: isRequestedMineral
             ? "success.dark"
             : isExcessMineral
-            ? "warning.dark"
-            : "text.primary",
+              ? "warning.dark"
+              : "text.primary",
           mb: 0.5,
           overflow: "hidden",
           textOverflow: "ellipsis",
@@ -288,8 +290,9 @@ export default function MineralCard({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "100%"
-              }}>
+                maxWidth: "100%",
+              }}
+            >
               {formatNumberForLocale(item.materials[mineralKey], { max: 0 })} |{" "}
               {formatNumberForLocale(quantity, { max: 0 })}
             </Typography>
@@ -319,8 +322,9 @@ export default function MineralCard({
             variant="caption"
             sx={{
               color: "text.secondary",
-              textAlign: "center"
-            }}>
+              textAlign: "center",
+            }}
+          >
             {formatNumberForLocale(unitPrice)} |{" "}
             {formatNumberForLocale(reprocessingCostPerUnit)} ISK
           </Typography>

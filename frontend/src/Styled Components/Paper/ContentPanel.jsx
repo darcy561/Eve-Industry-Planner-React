@@ -1,4 +1,11 @@
-import { Paper, Typography, Grid, IconButton, Menu, MenuItem } from "@mui/material";
+import {
+  Paper,
+  Typography,
+  Grid,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { useState } from "react";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
@@ -135,9 +142,9 @@ export default function ContentPanel({
           </Menu>
         </>
       )}
-      <Grid 
-        container 
-        sx={{ 
+      <Grid
+        container
+        sx={{
           width: "100%",
           flex: 1,
           minHeight: 0,
@@ -156,9 +163,9 @@ export default function ContentPanel({
             </Typography>
           </Grid>
         )}
-        <Grid 
-          size={12} 
-          sx={{ 
+        <Grid
+          size={12}
+          sx={{
             flex: 1,
             minHeight: 0,
             display: "flex",

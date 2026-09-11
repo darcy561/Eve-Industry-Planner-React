@@ -8,7 +8,10 @@
  */
 
 import { useReducer, useMemo } from "react";
-import { SHOPPING_LIST_ACTION_TYPES, shoppingListReducer } from "./shoppingListReducer";
+import {
+  SHOPPING_LIST_ACTION_TYPES,
+  shoppingListReducer,
+} from "./shoppingListReducer";
 import useUsersStore from "../../../../Zustand/usersStore";
 import { buildSetIsLoadingActionPayload } from "../../../../Functions/Helper/setIsLoadingAction";
 
@@ -51,224 +54,274 @@ import { buildSetIsLoadingActionPayload } from "../../../../Functions/Helper/set
  * @returns {Function} returns.actions.resetState - Reset state to initial values
  */
 export default function useShoppingListReducer() {
-    /**
-     * Creates the initial state for the shopping list dialogue.
-     *
-     * @returns {Object} Initial state object
-     * @returns {boolean} returns.isOpen - Dialog closed by default
-     * @returns {boolean} returns.isLoading - Loading state starts as true
-     * @returns {boolean} returns.buildingShoppingList - Building mode enabled by default
-     * @returns {Array} returns.requestedJobIDs - Empty job IDs array
-     * @returns {Object|null} returns.shoppingList - No shopping list initially
-     * @returns {boolean} returns.displayChildJobMaterials - Child materials hidden by default
-     * @returns {boolean} returns.useAssets - Asset usage disabled by default
-     * @returns {boolean} returns.assetsImportedFromClipboard - No clipboard import initially
-     * @returns {boolean} returns.useCorporationAssets - Corporation assets disabled by default
-     * @returns {Array} returns.assetLocations - Empty asset locations array
-     * @returns {number|null} returns.selectedAssetLocation - Default asset location from settings
-     * @returns {string|null} returns.selectedCharacter - All characters if multiple, main character if single
-     * @returns {number|null} returns.selectedCorporation - Main character's corporation ID
-     */
-    const createInitialState = () => ({
-        isOpen: false,
-        isLoading: true,
-        buildingShoppingList: true,
-        requestedJobIDs: [],
-        shoppingList: null,
-        displayChildJobMaterials: false,
-        assetType: null, // null, "character", or "corporation"
-        assetsImportedFromClipboard: false,
-        assetLocations: [],
-        selectedAssetLocation:
-          useUsersStore.getState().applicationSettings
-            .defaultStationIDForAssets,
-        selectedCharacter: useUsersStore.getState().account.characters.length > 1
-            ? "allUsers"
-            : useUsersStore.getState().account.actions.getMainCharacterHash() ||
-              "allUsers",
-        selectedCorporation: useUsersStore.getState().account.actions.getMainCorporation()?.corporation_id || null,
-        selectedCorporationOffice: null,
-        selectedCorporationHangar: null,
-        appliedAssetsCount: 0,
-        appliedAssetsDetails: [], // Array of { name, quantity } objects
-    });
+  /**
+   * Creates the initial state for the shopping list dialogue.
+   *
+   * @returns {Object} Initial state object
+   * @returns {boolean} returns.isOpen - Dialog closed by default
+   * @returns {boolean} returns.isLoading - Loading state starts as true
+   * @returns {boolean} returns.buildingShoppingList - Building mode enabled by default
+   * @returns {Array} returns.requestedJobIDs - Empty job IDs array
+   * @returns {Object|null} returns.shoppingList - No shopping list initially
+   * @returns {boolean} returns.displayChildJobMaterials - Child materials hidden by default
+   * @returns {boolean} returns.useAssets - Asset usage disabled by default
+   * @returns {boolean} returns.assetsImportedFromClipboard - No clipboard import initially
+   * @returns {boolean} returns.useCorporationAssets - Corporation assets disabled by default
+   * @returns {Array} returns.assetLocations - Empty asset locations array
+   * @returns {number|null} returns.selectedAssetLocation - Default asset location from settings
+   * @returns {string|null} returns.selectedCharacter - All characters if multiple, main character if single
+   * @returns {number|null} returns.selectedCorporation - Main character's corporation ID
+   */
+  const createInitialState = () => ({
+    isOpen: false,
+    isLoading: true,
+    buildingShoppingList: true,
+    requestedJobIDs: [],
+    shoppingList: null,
+    displayChildJobMaterials: false,
+    assetType: null, // null, "character", or "corporation"
+    assetsImportedFromClipboard: false,
+    assetLocations: [],
+    selectedAssetLocation:
+      useUsersStore.getState().applicationSettings.defaultStationIDForAssets,
+    selectedCharacter:
+      useUsersStore.getState().account.characters.length > 1
+        ? "allUsers"
+        : useUsersStore.getState().account.actions.getMainCharacterHash() ||
+          "allUsers",
+    selectedCorporation:
+      useUsersStore.getState().account.actions.getMainCorporation()
+        ?.corporation_id || null,
+    selectedCorporationOffice: null,
+    selectedCorporationHangar: null,
+    appliedAssetsCount: 0,
+    appliedAssetsDetails: [], // Array of { name, quantity } objects
+  });
 
-    const initialState = createInitialState();
+  const initialState = createInitialState();
 
-    const [state, dispatch] = useReducer((state, action) => shoppingListReducer(state, action, createInitialState), initialState);
+  const [state, dispatch] = useReducer(
+    (state, action) => shoppingListReducer(state, action, createInitialState),
+    initialState,
+  );
 
-    /**
-     * Action dispatchers for the shopping list dialogue state.
-     *
-     * Memoized to prevent recreation on each render, which would cause
-     * effects that depend on these actions to re-run unnecessarily.
-     */
-    const actions = useMemo(() => ({
-        /**
-         * Toggles the dialogue open/closed state.
-         */
-        toggleIsOpen: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_IS_OPEN });
-        },
-        /**
-         * Toggles the loading state.
-         */
-        toggleIsLoading: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_IS_LOADING });
-        },
-        /**
-         * Sets the loading state to a specific value.
-         *
-         * @param {boolean} value - Loading state value
-         * @param {string} [loadingMessage] - Optional caption for the loading panel while `value` is true
-         */
-        setIsLoading: (value, loadingMessage) => {
-            dispatch({
-                type: SHOPPING_LIST_ACTION_TYPES.SET_IS_LOADING,
-                payload: buildSetIsLoadingActionPayload(value, loadingMessage),
-            });
-        },
-        /**
-         * Toggles the shopping list building mode.
-         */
-        toggleBuildingShoppingList: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_BUILDING_SHOPPING_LIST });
-        },
-        /**
-         * Sets the requested job IDs array.
-         *
-         * @param {Array} data - Array of job IDs to request
-         */
-        setRequestedJobIDs: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_REQUESTED_JOB_IDS, payload: data });
-        },
-        /**
-         * Toggles the display of child job materials.
-         */
-        toggleDisplayChildJobMaterials: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_DISPLAY_CHILD_JOB_MATERIALS });
-        },
-        /**
-         * Sets the asset type (null, "character", or "corporation").
-         * Automatically clears assets and resets to defaults when switching types or turning off.
-         *
-         * @param {string|null} assetType - Asset type: null (off), "character", or "corporation"
-         */
-        setAssetType: (assetType) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_ASSET_TYPE, payload: assetType });
-        },
-        /**
-         * Toggles the assets imported from clipboard status.
-         */
-        toggleAssetsImportedFromClipboard: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_ASSETS_IMPORTED_FROM_CLIPBOARD });
-        },
-        /**
-         * Sets the asset locations data.
-         *
-         * @param {Array} data - Asset locations array
-         */
-        setAssetLocations: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_ASSET_LOCATIONS, payload: data });
-        },
-        /**
-         * Sets the selected character.
-         *
-         * @param {string|null} data - Character hash to select
-         */
-        setSelectedCharacter: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CHARACTER, payload: data });
-        },
-        /**
-         * Sets the selected asset location.
-         *
-         * @param {number|null} data - Asset location ID to select
-         */
-        setSelectedAssetLocation: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_ASSET_LOCATION, payload: data });
-        },
-        /**
-         * Sets the selected corporation.
-         *
-         * @param {number|null} data - Corporation ID to select
-         */
-        setSelectedCorporation: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CORPORATION, payload: data });
-        },
+  /**
+   * Action dispatchers for the shopping list dialogue state.
+   *
+   * Memoized to prevent recreation on each render, which would cause
+   * effects that depend on these actions to re-run unnecessarily.
+   */
+  const actions = useMemo(
+    () => ({
+      /**
+       * Toggles the dialogue open/closed state.
+       */
+      toggleIsOpen: () => {
+        dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_IS_OPEN });
+      },
+      /**
+       * Toggles the loading state.
+       */
+      toggleIsLoading: () => {
+        dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_IS_LOADING });
+      },
+      /**
+       * Sets the loading state to a specific value.
+       *
+       * @param {boolean} value - Loading state value
+       * @param {string} [loadingMessage] - Optional caption for the loading panel while `value` is true
+       */
+      setIsLoading: (value, loadingMessage) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_IS_LOADING,
+          payload: buildSetIsLoadingActionPayload(value, loadingMessage),
+        });
+      },
+      /**
+       * Toggles the shopping list building mode.
+       */
+      toggleBuildingShoppingList: () => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_BUILDING_SHOPPING_LIST,
+        });
+      },
+      /**
+       * Sets the requested job IDs array.
+       *
+       * @param {Array} data - Array of job IDs to request
+       */
+      setRequestedJobIDs: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_REQUESTED_JOB_IDS,
+          payload: data,
+        });
+      },
+      /**
+       * Toggles the display of child job materials.
+       */
+      toggleDisplayChildJobMaterials: () => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_DISPLAY_CHILD_JOB_MATERIALS,
+        });
+      },
+      /**
+       * Sets the asset type (null, "character", or "corporation").
+       * Automatically clears assets and resets to defaults when switching types or turning off.
+       *
+       * @param {string|null} assetType - Asset type: null (off), "character", or "corporation"
+       */
+      setAssetType: (assetType) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_ASSET_TYPE,
+          payload: assetType,
+        });
+      },
+      /**
+       * Toggles the assets imported from clipboard status.
+       */
+      toggleAssetsImportedFromClipboard: () => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_ASSETS_IMPORTED_FROM_CLIPBOARD,
+        });
+      },
+      /**
+       * Sets the asset locations data.
+       *
+       * @param {Array} data - Asset locations array
+       */
+      setAssetLocations: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_ASSET_LOCATIONS,
+          payload: data,
+        });
+      },
+      /**
+       * Sets the selected character.
+       *
+       * @param {string|null} data - Character hash to select
+       */
+      setSelectedCharacter: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CHARACTER,
+          payload: data,
+        });
+      },
+      /**
+       * Sets the selected asset location.
+       *
+       * @param {number|null} data - Asset location ID to select
+       */
+      setSelectedAssetLocation: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_ASSET_LOCATION,
+          payload: data,
+        });
+      },
+      /**
+       * Sets the selected corporation.
+       *
+       * @param {number|null} data - Corporation ID to select
+       */
+      setSelectedCorporation: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CORPORATION,
+          payload: data,
+        });
+      },
 
-        /**
-         * Sets the selected corporation office.
-         *
-         * @param {number|null} data - Corporation office ID to select
-         */
-        setSelectedCorporationOffice: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CORPORATION_OFFICE, payload: data });
-        },
-        /**
-         * Sets the selected corporation hangar.
-         *
-         * @param {number|null} data - Corporation hangar ID to select
-         */
-        setSelectedCorporationHangar: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CORPORATION_HANGAR, payload: data });
-        },
-        /**
-         * Sets the shopping list object.
-         *
-         * @param {Object|null} data - Shopping list object to set
-         */
-        setShoppingList: (data) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.SET_SHOPPING_LIST, payload: data });
-        },
-        /**
-         * Imports assets from clipboard data.
-         *
-         * Triggers shopping list calculations after importing assets.
-         *
-         * @param {string} importedAssets - Clipboard data containing asset information
-         */
-        importAssetsFromClipboard: (importedAssets) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.IMPORT_ASSETS_FROM_CLIPBOARD, payload: importedAssets });
-        },
-        /**
-         * Clears imported assets from the shopping list.
-         *
-         * Triggers shopping list calculations after clearing assets.
-         */
-        clearImportedAssets: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.CLEAR_IMPORTED_ASSETS });
-        },
-        /**
-         * Applies assets from map data to the shopping list.
-         *
-         * Triggers shopping list calculations after applying assets.
-         *
-         * @param {Object} assetsByTypeID - Map of assets by type ID
-         * @param {boolean} countAssetQuantityFromMap - Whether to count quantities from map
-         */
-        applyAssetsFromMap: (assetsByTypeID, countAssetQuantityFromMap) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.APPLY_ASSETS_FROM_MAP, payload: { assetsByTypeID, countAssetQuantityFromMap } });
-        },
+      /**
+       * Sets the selected corporation office.
+       *
+       * @param {number|null} data - Corporation office ID to select
+       */
+      setSelectedCorporationOffice: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CORPORATION_OFFICE,
+          payload: data,
+        });
+      },
+      /**
+       * Sets the selected corporation hangar.
+       *
+       * @param {number|null} data - Corporation hangar ID to select
+       */
+      setSelectedCorporationHangar: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_SELECTED_CORPORATION_HANGAR,
+          payload: data,
+        });
+      },
+      /**
+       * Sets the shopping list object.
+       *
+       * @param {Object|null} data - Shopping list object to set
+       */
+      setShoppingList: (data) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.SET_SHOPPING_LIST,
+          payload: data,
+        });
+      },
+      /**
+       * Imports assets from clipboard data.
+       *
+       * Triggers shopping list calculations after importing assets.
+       *
+       * @param {string} importedAssets - Clipboard data containing asset information
+       */
+      importAssetsFromClipboard: (importedAssets) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.IMPORT_ASSETS_FROM_CLIPBOARD,
+          payload: importedAssets,
+        });
+      },
+      /**
+       * Clears imported assets from the shopping list.
+       *
+       * Triggers shopping list calculations after clearing assets.
+       */
+      clearImportedAssets: () => {
+        dispatch({ type: SHOPPING_LIST_ACTION_TYPES.CLEAR_IMPORTED_ASSETS });
+      },
+      /**
+       * Applies assets from map data to the shopping list.
+       *
+       * Triggers shopping list calculations after applying assets.
+       *
+       * @param {Object} assetsByTypeID - Map of assets by type ID
+       * @param {boolean} countAssetQuantityFromMap - Whether to count quantities from map
+       */
+      applyAssetsFromMap: (assetsByTypeID, countAssetQuantityFromMap) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.APPLY_ASSETS_FROM_MAP,
+          payload: { assetsByTypeID, countAssetQuantityFromMap },
+        });
+      },
 
-        /**
-         * Toggles the include when copying flag for a specific item by type ID.
-         *
-         * @param {number} typeID - Type ID of the item to toggle
-         */
-        toggleIncludeWhenCopying: (typeID) => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_INCLUDE_WHEN_COPYING, payload: typeID });
-        },
+      /**
+       * Toggles the include when copying flag for a specific item by type ID.
+       *
+       * @param {number} typeID - Type ID of the item to toggle
+       */
+      toggleIncludeWhenCopying: (typeID) => {
+        dispatch({
+          type: SHOPPING_LIST_ACTION_TYPES.TOGGLE_INCLUDE_WHEN_COPYING,
+          payload: typeID,
+        });
+      },
 
-        /**
-         * Resets the state to initial values.
-         */
-        resetState: () => {
-            dispatch({ type: SHOPPING_LIST_ACTION_TYPES.RESET_STATE });
-        },
-    }), [dispatch]);
+      /**
+       * Resets the state to initial values.
+       */
+      resetState: () => {
+        dispatch({ type: SHOPPING_LIST_ACTION_TYPES.RESET_STATE });
+      },
+    }),
+    [dispatch],
+  );
 
-    return {
-        state,
-        actions
-    }
+  return {
+    state,
+    actions,
+  };
 }

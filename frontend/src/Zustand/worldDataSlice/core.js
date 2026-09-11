@@ -35,13 +35,17 @@ export const coreActions = (set, get) => ({
    * while preserving the actions object.
    */
   resetWorldDataStore: () => {
-    set((state) => ({
-      ...state,
-      worldData: {
-        ...state.worldData,
-        ...stateDefault(),
-        actions: state.worldData.actions,
-      },
-    }), false, "resetWorldDataStore");
+    set(
+      (state) => ({
+        ...state,
+        worldData: {
+          ...state.worldData,
+          ...stateDefault(),
+          actions: state.worldData.actions,
+        },
+      }),
+      false,
+      "resetWorldDataStore",
+    );
   },
 });

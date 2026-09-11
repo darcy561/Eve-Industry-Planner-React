@@ -18,7 +18,7 @@
 export default function findIndustryJobsForItem(
   allIndustryJobs,
   activeJob,
-  { linkedAcrossAccount = new Set(), beingRemoved = [] } = {}
+  { linkedAcrossAccount = new Set(), beingRemoved = [] } = {},
 ) {
   if (!allIndustryJobs?.length || !activeJob) return [];
 

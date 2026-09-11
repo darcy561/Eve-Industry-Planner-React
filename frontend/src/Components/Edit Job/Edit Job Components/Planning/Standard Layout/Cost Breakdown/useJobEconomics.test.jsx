@@ -9,9 +9,12 @@ vi.mock("../../../../../../Functions/MarketData/marketPriceForType", () => ({
   getMarketPriceForType: (...args) => getMarketPriceForType(...args),
 }));
 
-vi.mock("../../../../../../Hooks/React Query/Character/useSellingRates", () => ({
-  useSellingRates: (...args) => useSellingRates(...args),
-}));
+vi.mock(
+  "../../../../../../Hooks/React Query/Character/useSellingRates",
+  () => ({
+    useSellingRates: (...args) => useSellingRates(...args),
+  }),
+);
 
 vi.mock("../../../../../../Hooks/React Query/Backend/statisticsTotals", () => ({
   useAccountTotalsQuery: (...args) => useAccountTotalsQuery(...args),
@@ -26,7 +29,9 @@ const findJobInJobArray = vi.fn(() => undefined);
 vi.mock("../../../../../../Zustand/usersStore", () => {
   const storeState = {
     applicationSettings: { actions: { getCurrentLocale: () => "en-GB" } },
-    jobData: { actions: { findJobInJobArray: (...a) => findJobInJobArray(...a) } },
+    jobData: {
+      actions: { findJobInJobArray: (...a) => findJobInJobArray(...a) },
+    },
   };
   const useUsersStore = (selector) => selector(storeState);
   useUsersStore.getState = () => storeState;
@@ -42,9 +47,8 @@ vi.mock("../../../../../../Functions/MarketOrders/sellerCharacter", () => ({
 }));
 
 const { useJobEconomics } = await import("./useJobEconomics");
-const { MATERIAL_PLAN } = await import(
-  "../../../../../../Functions/MarketData/materialSourcingRow"
-);
+const { MATERIAL_PLAN } =
+  await import("../../../../../../Functions/MarketData/materialSourcingRow");
 
 // `selectedSetup` is a getter on the real Job class returning the setup itself,
 // and a setup names its character in `selectedCharacter`. A fixture that flattens

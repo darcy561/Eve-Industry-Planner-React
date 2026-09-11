@@ -70,12 +70,16 @@ describe("account affiliation refresh", () => {
     unsubscribe();
     expect(result.corporationsChanged).toBe(1);
     expect(subscriber).toHaveBeenCalled();
-    expect(useUsersStore.getState().account.characters[0].corporation_id).toBe(99);
+    expect(useUsersStore.getState().account.characters[0].corporation_id).toBe(
+      99,
+    );
   });
 
   it("still submits grants when one character's public data fails", async () => {
     const failing = character("a", 1);
-    failing.getPublicCharacterData = vi.fn().mockRejectedValue(new Error("esi down"));
+    failing.getPublicCharacterData = vi
+      .fn()
+      .mockRejectedValue(new Error("esi down"));
     seed([failing, character("b", 2)]);
 
     await accountAffiliationQueryOptions().queryFn();

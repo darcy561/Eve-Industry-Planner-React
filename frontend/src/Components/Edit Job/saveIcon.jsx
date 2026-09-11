@@ -10,8 +10,8 @@ import { persistAffordanceBlockedReason } from "../DocumentLock/LockGatedTooltip
 
 export function SaveJobIcon({ state }) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate({ from: '/editjob/$jobID' });
-  const search = useSearch({ from: '/editjob/$jobID' });
+  const navigate = useNavigate({ from: "/editjob/$jobID" });
+  const search = useSearch({ from: "/editjob/$jobID" });
   const { jobID } = useParams({ from: "/editjob/$jobID" });
   const persist = useActiveJobPersistGate(state);
 
@@ -23,14 +23,14 @@ export function SaveJobIcon({ state }) {
       state.temporaryChildJobs,
       state.esiDataToLink,
       state.parentChildToEdit,
-      queryClient
+      queryClient,
     );
     const groupIDFromParams = search.activeGroup;
     await yieldEditJobDocumentLocksOnLeave({
       jobID,
       groupID: groupIDFromParams,
     });
-    
+
     if (groupIDFromParams) {
       navigate({
         to: "/group/$groupID",

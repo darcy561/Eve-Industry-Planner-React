@@ -18,7 +18,7 @@ function renderGroup(props = {}) {
       value="held"
       onChange={onChange}
       {...props}
-    />
+    />,
   );
   return onChange;
 }

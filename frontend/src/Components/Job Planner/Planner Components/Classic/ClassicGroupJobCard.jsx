@@ -5,7 +5,7 @@ import {
   Button,
   Checkbox,
   Grid,
-    IconButton,
+  IconButton,
   Tooltip,
   Typography,
   useTheme,
@@ -45,7 +45,7 @@ export function ClassicGroupJobCard({ group }) {
   let groupCardChecked = useMemo(() => {
     return multiSelect.some((i) => i == group.groupID);
   }, [multiSelect]);
-  const navigate = useNavigate({ from: '/jobplanner' });
+  const navigate = useNavigate({ from: "/jobplanner" });
 
   const paperSxStyles = useMemo(() => {
     const isDarkMode = theme.palette.mode === PRIMARY_THEME;
@@ -80,153 +80,184 @@ export function ClassicGroupJobCard({ group }) {
         xs: 12,
         sm: 6,
         md: 4,
-        lg: 3
+        lg: 3,
       }}
     >
-        <ContentPanel
-          componentName="ClassicGroupJobCard"
-          paperSx={{
-            ...paperSxStyles,
-            "& .MuiGrid-container": {
-              display: "flex",
-              flexDirection: "column",
-              height: "100%",
-              flex: 1,
-              minHeight: 0,
-            },
-            "& .MuiGrid-item": {
-              display: "flex",
-              flexDirection: "column",
-              minHeight: 0,
-            },
+      <ContentPanel
+        componentName="ClassicGroupJobCard"
+        paperSx={{
+          ...paperSxStyles,
+          "& .MuiGrid-container": {
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            flex: 1,
+            minHeight: 0,
+          },
+          "& .MuiGrid-item": {
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            flex: 1,
+            minHeight: 0,
           }}
         >
-          <Box sx={{ display: "flex", flexDirection: "column", height: "100%", flex: 1, minHeight: 0 }}>
-            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <Box sx={{ flex: "0 0 auto" }}>
-                <Checkbox
-                  sx={{
-                    color: (theme) =>
-                      theme.palette.mode === PRIMARY_THEME
-                        ? theme.palette.primary.main
-                        : theme.palette.secondary.main,
-                  }}
-                  checked={groupCardChecked}
-                  onChange={(event) => {
-                    if (event.target.checked) {
-                      addToMultiSelect(group.groupID);
-                    } else {
-                      removeFromMultiSelect(group.groupID);
-                    }
-                  }}
-                />
-              </Box>
-              <Box sx={{ flex: 1 }} />
-              <Box sx={{ flex: "0 0 auto" }}>
-                <Tooltip
-                  title={
-                    groupLockReadOnly
-                      ? lockReasonText({
-                          scope: "group",
-                          action: "delete is disabled",
-                        })
-                      : "Remove group from planner"
+          <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+            <Box sx={{ flex: "0 0 auto" }}>
+              <Checkbox
+                sx={{
+                  color: (theme) =>
+                    theme.palette.mode === PRIMARY_THEME
+                      ? theme.palette.primary.main
+                      : theme.palette.secondary.main,
+                }}
+                checked={groupCardChecked}
+                onChange={(event) => {
+                  if (event.target.checked) {
+                    addToMultiSelect(group.groupID);
+                  } else {
+                    removeFromMultiSelect(group.groupID);
                   }
+                }}
+              />
+            </Box>
+            <Box sx={{ flex: 1 }} />
+            <Box sx={{ flex: "0 0 auto" }}>
+              <Tooltip
+                title={
+                  groupLockReadOnly
+                    ? lockReasonText({
+                        scope: "group",
+                        action: "delete is disabled",
+                      })
+                    : "Remove group from planner"
+                }
+              >
+                <span>
+                  <IconButton
+                    disabled={groupLockReadOnly}
+                    sx={{
+                      color: (theme) =>
+                        theme.palette.mode === PRIMARY_THEME
+                          ? theme.palette.primary.main
+                          : theme.palette.secondary.main,
+                      "&:Hover": {
+                        color: "error.main",
+                      },
+                    }}
+                    onClick={() => {
+                      deleteGroupWithoutJobs(group.groupID);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              marginBottom: { xs: 0.5, sm: 1 },
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0.5,
+            }}
+          >
+            <Typography color="secondary" align="center" variant="body1">
+              {group.groupName}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              flex: 1,
+              minHeight: 0,
+              width: "100%",
+            }}
+          >
+            <AvatarGroup max={4}>
+              {[...group.includedTypeIDs].map((typeID) => {
+                return (
+                  <Avatar
+                    key={typeID}
+                    src={`https://images.evetech.net/types/${typeID}/icon?size=64`}
+                    style={{
+                      border: "none",
+                    }}
+                    sx={{
+                      height: { xs: 24, sm: 32 },
+                      width: { xs: 24, sm: 32 },
+                    }}
+                  />
+                );
+              })}
+            </AvatarGroup>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              marginTop: "auto",
+              width: "100%",
+            }}
+          >
+            <Box
+              sx={{ display: "flex", justifyContent: "center", marginTop: 0.5 }}
+            >
+              <Tooltip
+                title={
+                  groupLockReadOnly
+                    ? lockReasonText({
+                        scope: "group",
+                        action: "opens in read-only view",
+                      })
+                    : ""
+                }
+                arrow
+                disableHoverListener={!groupLockReadOnly}
+              >
+                <Button
+                  variant="outlined"
+                  color={groupLockReadOnly ? "warning" : "primary"}
+                  onClick={() =>
+                    navigate({
+                      to: "/group/$groupID",
+                      params: { groupID: group.groupID },
+                    })
+                  }
+                  sx={{ height: "25px", width: "100px" }}
                 >
-                  <span>
-                    <IconButton
-                      disabled={groupLockReadOnly}
-                      sx={{
-                        color: (theme) =>
-                          theme.palette.mode === PRIMARY_THEME
-                            ? theme.palette.primary.main
-                            : theme.palette.secondary.main,
-                        "&:Hover": {
-                          color: "error.main",
-                        },
-                      }}
-                      onClick={() => {
-                        deleteGroupWithoutJobs(group.groupID);
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </Box>
+                  View
+                </Button>
+              </Tooltip>
             </Box>
             <Box
               sx={{
-                marginBottom: { xs: 0.5, sm: 1 },
+                backgroundColor: "groupJob.main",
+                marginTop: 1,
                 width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 0.5,
               }}
             >
-              <Typography color="secondary" align="center" variant="body1">
-                {group.groupName}
+              <Typography
+                align="center"
+                sx={{ typography: STANDARD_TEXT_FORMAT, color: "black" }}
+              >
+                <b>Job Group</b>
               </Typography>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "center", flex: 1, minHeight: 0, width: "100%" }}>
-              <AvatarGroup max={4}>
-                {[...group.includedTypeIDs].map((typeID) => {
-                  return (
-                    <Avatar
-                      key={typeID}
-                      src={`https://images.evetech.net/types/${typeID}/icon?size=64`}
-                      style={{
-                        border: "none",
-                      }}
-                      sx={{
-                        height: { xs: 24, sm: 32 },
-                        width: { xs: 24, sm: 32 },
-                      }}
-                    />
-                  );
-                })}
-              </AvatarGroup>
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", marginTop: "auto", width: "100%" }}>
-              <Box sx={{ display: "flex", justifyContent: "center", marginTop: 0.5 }}>
-                <Tooltip
-                  title={
-                    groupLockReadOnly
-                      ? lockReasonText({
-                          scope: "group",
-                          action: "opens in read-only view",
-                        })
-                      : ""
-                  }
-                  arrow
-                  disableHoverListener={!groupLockReadOnly}
-                >
-                  <Button
-                    variant="outlined"
-                    color={groupLockReadOnly ? "warning" : "primary"}
-                    onClick={() => navigate({
-                      to: '/group/$groupID',
-                      params: { groupID: group.groupID }
-                    })}
-                    sx={{ height: "25px", width: "100px" }}
-                  >
-                    View
-                  </Button>
-                </Tooltip>
-              </Box>
-              <Box
-                sx={{
-                  backgroundColor: "groupJob.main",
-                  marginTop: 1,
-                  width: "100%",
-                }}>
-                <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT, color: "black" }}>
-                  <b>Job Group</b>
-                </Typography>
-              </Box>
-            </Box>
           </Box>
+        </Box>
       </ContentPanel>
     </Grid>
   );

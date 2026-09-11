@@ -20,7 +20,7 @@ export function checkForDefaultMaterialEfficiecyValue(inputJobType) {
 export function findHighestMaterialEfficiencyBlueprint(
   inputJobType,
   blueprintTypeID,
-  queryClient
+  queryClient,
 ) {
   const defaultReturn = {
     ME: checkForDefaultMaterialEfficiecyValue(inputJobType),
@@ -53,7 +53,7 @@ export function getDefaultStrutureForJobType(inputJobType) {
   const matchedStructure = useUsersStore
     .getState()
     .applicationSettings.actions.getDefaultCustomStructureWithJobType(
-      inputJobType
+      inputJobType,
     );
 
   if (!matchedStructure) return {};
@@ -71,7 +71,7 @@ export function getDefaultStrutureForJobType(inputJobType) {
 export function calculateSetupQuantitiesFromRequiredQuantity(
   maxProductionLimit,
   baseQuantity,
-  itemQuantityRequired
+  itemQuantityRequired,
 ) {
   const jobs = [];
   const totalPerMaxRuns = maxProductionLimit * baseQuantity;
@@ -104,7 +104,6 @@ export function calculateSetupQuantitiesFromRequiredQuantity(
 
   return jobs;
 }
-
 
 /**
  * Split a positive integer total across `parts` buckets as evenly as possible (largest remainders).
@@ -171,7 +170,7 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
   maxProductionLimit,
   requiredQuantity,
   baseQuantity,
-  queryClient
+  queryClient,
 ) {
   // No readiness guard of its own: the reader reports nothing for a collection still arriving or
   // one whose refetch failed, and no originals takes the same fallback below.
@@ -183,7 +182,7 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
     return calculateSetupQuantitiesFromRequiredQuantity(
       maxProductionLimit,
       baseQuantity,
-      requiredQuantity
+      requiredQuantity,
     );
   }
 
@@ -192,14 +191,14 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
   // holds. Reaction formulas restack after every use, so a stack is their ordinary condition.
   const originalCount = (byTypeId.get(blueprintTypeID) ?? []).reduce(
     (total, row) => total + row.originalCount,
-    0
+    0,
   );
 
   if (originalCount <= 1) {
     return calculateSetupQuantitiesFromRequiredQuantity(
       maxProductionLimit,
       baseQuantity,
-      requiredQuantity
+      requiredQuantity,
     );
   }
 
@@ -207,7 +206,7 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
   const totalRunsNeeded = Math.ceil(requiredQuantity / itemsPerRun);
   const runsPerSlot = splitIntegerEvenlyAcrossParts(
     totalRunsNeeded,
-    originalCount
+    originalCount,
   );
   const segments = groupIdenticalRunCountsIntoSegments(runsPerSlot);
 
@@ -216,6 +215,6 @@ export function calculateSetupQuantitiesAcrossOwnedBlueprintOriginals(
     : calculateSetupQuantitiesFromRequiredQuantity(
         maxProductionLimit,
         baseQuantity,
-        requiredQuantity
+        requiredQuantity,
       );
 }

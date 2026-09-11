@@ -10,7 +10,9 @@ vi.mock("../../Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
 }));
 vi.mock(
   "../../Hooks/EveEsi/Corporation/useGetAllCorporationTransactions",
-  () => ({ getAllCachedCorporationTransactions: () => corporationTransactions }),
+  () => ({
+    getAllCachedCorporationTransactions: () => corporationTransactions,
+  }),
 );
 vi.mock("../../Hooks/EveEsi/Character/useGetAllCharacterJournal", () => ({
   getAllCachedCharacterJournal: () => characterJournal,
@@ -22,9 +24,8 @@ vi.mock("../../Zustand/usersStore", () => ({
   default: { getState: () => ({ account: { linkedTrans } }) },
 }));
 
-const { default: findOrderTransactions } = await import(
-  "./findOrderTransactions.js"
-);
+const { default: findOrderTransactions } =
+  await import("./findOrderTransactions.js");
 
 const SOLD_AT = "2026-08-01T12:00:00Z";
 
@@ -74,14 +75,26 @@ describe("the sales a job can link", () => {
   // candidates — counting a sale once per order would double the job's income.
   it("offers each sale once across several orders at one station", () => {
     linkedTrans.clear();
-    characterTransactions.data = { "hash-1": [sale(1, 60003760), sale(2, 60003760)] };
+    characterTransactions.data = {
+      "hash-1": [sale(1, 60003760), sale(2, 60003760)],
+    };
     corporationTransactions.data = {};
     characterJournal.data = { 2117000001: journalFor([1, 2]) };
 
     const offered = findOrderTransactions(
       jobWithOrders([
-        { order_id: 900, location_id: 60003760, type_id: 34, CharacterHash: "hash-1" },
-        { order_id: 901, location_id: 60003760, type_id: 34, CharacterHash: "hash-1" },
+        {
+          order_id: 900,
+          location_id: 60003760,
+          type_id: 34,
+          CharacterHash: "hash-1",
+        },
+        {
+          order_id: 901,
+          location_id: 60003760,
+          type_id: 34,
+          CharacterHash: "hash-1",
+        },
       ]),
       null,
     );
@@ -92,12 +105,19 @@ describe("the sales a job can link", () => {
   // A sale this job already holds is not on offer again.
   it("skips what the job has already linked", () => {
     linkedTrans.clear();
-    characterTransactions.data = { "hash-1": [sale(1, 60003760), sale(2, 60003760)] };
+    characterTransactions.data = {
+      "hash-1": [sale(1, 60003760), sale(2, 60003760)],
+    };
     corporationTransactions.data = {};
     characterJournal.data = { 2117000001: journalFor([1, 2]) };
 
     const job = jobWithOrders([
-      { order_id: 900, location_id: 60003760, type_id: 34, CharacterHash: "hash-1" },
+      {
+        order_id: 900,
+        location_id: 60003760,
+        type_id: 34,
+        CharacterHash: "hash-1",
+      },
     ]);
     job.esiTransactionIDs = new Set([1]);
 
@@ -114,7 +134,12 @@ describe("the sales a job can link", () => {
 
     const [offered] = findOrderTransactions(
       jobWithOrders([
-        { order_id: 900, location_id: 60003760, type_id: 34, CharacterHash: "hash-1" },
+        {
+          order_id: 900,
+          location_id: 60003760,
+          type_id: 34,
+          CharacterHash: "hash-1",
+        },
       ]),
       null,
     );

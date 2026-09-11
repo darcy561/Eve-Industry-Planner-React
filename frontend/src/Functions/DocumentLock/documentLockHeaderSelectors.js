@@ -25,14 +25,15 @@ export function primaryHeaderRegistration(s) {
   const regs = s.headerDocumentLockUI.registrations;
   if (!Array.isArray(regs)) return null;
   const eligible = regs.filter(
-    (r) => r.enabled !== false && r.collection && r.docID
+    (r) => r.enabled !== false && r.collection && r.docID,
   );
   if (eligible.length === 0) return null;
   if (eligible.length === 1) return eligible[0];
 
   eligible.sort((a, b) => {
     const dr =
-      headerRegistrationRank(a.collection) - headerRegistrationRank(b.collection);
+      headerRegistrationRank(a.collection) -
+      headerRegistrationRank(b.collection);
     if (dr !== 0) return dr;
     return regs.indexOf(a) - regs.indexOf(b);
   });
@@ -73,7 +74,8 @@ export function selectActiveDlLockHeld(s) {
 export function selectActiveDlHandoffPendingHolder(s) {
   const p = primaryHeaderRegistration(s);
   if (!p?.collection || !p?.docID) return false;
-  return selectScopedDocumentLock(s, p.collection, p.docID).handoffPendingHolder;
+  return selectScopedDocumentLock(s, p.collection, p.docID)
+    .handoffPendingHolder;
 }
 
 /** @param {*} s */
@@ -101,7 +103,8 @@ export function selectActiveDlExtendSegmentCount(s) {
 export function selectActiveDlPendingAccessRequest(s) {
   const p = primaryHeaderRegistration(s);
   if (!p?.collection || !p?.docID) return false;
-  return selectScopedDocumentLock(s, p.collection, p.docID).pendingAccessRequest;
+  return selectScopedDocumentLock(s, p.collection, p.docID)
+    .pendingAccessRequest;
 }
 
 /** @param {*} s */
@@ -115,7 +118,8 @@ export function selectActiveDlWaitlistLen(s) {
 export function selectActiveDlWaitingInHandoffQueue(s) {
   const p = primaryHeaderRegistration(s);
   if (!p?.collection || !p?.docID) return false;
-  return selectScopedDocumentLock(s, p.collection, p.docID).waitingInHandoffQueue;
+  return selectScopedDocumentLock(s, p.collection, p.docID)
+    .waitingInHandoffQueue;
 }
 
 /** @param {*} s */

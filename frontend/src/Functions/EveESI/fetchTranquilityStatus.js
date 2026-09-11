@@ -31,7 +31,9 @@ export async function fetchTranquilityStatus() {
   const statusStatus = rateLimits.find((status) => status.group === "status");
 
   if (statusStatus && statusStatus.availableTokens <= 0) {
-    throw createTranquilityRateLimitError(computeStatusGroupWaitMs(statusStatus));
+    throw createTranquilityRateLimitError(
+      computeStatusGroupWaitMs(statusStatus),
+    );
   }
 
   try {
@@ -43,7 +45,7 @@ export async function fetchTranquilityStatus() {
         priority: "low",
         batchable: true,
         maxRetries: 1,
-      }
+      },
     );
 
     const statusJSON = await statusPromise.json();

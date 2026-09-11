@@ -42,7 +42,7 @@ describe("ArchiveStatsBreakdown", () => {
         breakdown={breakdownOf({
           market: { totalJobs: 4, itemBuildCount: 40, jobCostTotal: 400 },
         })}
-      />
+      />,
     );
 
     expect(screen.getByText(/^Market —/)).toBeInTheDocument();
@@ -66,14 +66,18 @@ describe("ArchiveStatsBreakdown", () => {
           stock: { totalJobs: 2, itemBuildCount: 20, jobCostTotal: 200 },
           chain: { totalJobs: 3, itemBuildCount: 30, jobCostTotal: 300 },
         })}
-      />
+      />,
     );
 
     // Combined and Market both carry the full metric set.
     expect(screen.getAllByText("Sales total")).toHaveLength(2);
     expect(screen.getAllByText("Job cost total")).toHaveLength(4);
-    expect(screen.getByText(/chain steps feed the next blueprint/)).toBeInTheDocument();
-    expect(screen.getByText(/recorded no sale or broker fee/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/chain steps feed the next blueprint/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/recorded no sale or broker fee/),
+    ).toBeInTheDocument();
   });
 
   // Nothing sold is not the same as everything selling for nothing.
@@ -83,7 +87,7 @@ describe("ArchiveStatsBreakdown", () => {
         breakdown={breakdownOf({
           market: { totalJobs: 1, itemBuildCount: 10, jobCostTotal: 100 },
         })}
-      />
+      />,
     );
 
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
@@ -95,7 +99,7 @@ describe("ArchiveStatsBreakdown", () => {
         breakdown={breakdownOf({
           chain: { totalJobs: 3, itemBuildCount: 30, jobCostTotal: 300 },
         })}
-      />
+      />,
     );
 
     expect(screen.getByText(/^Combined —/)).toBeInTheDocument();

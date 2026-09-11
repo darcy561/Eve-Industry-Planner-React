@@ -26,7 +26,7 @@ export function ChildJobMaterials({
       state.temporaryChildJobs?.[material.typeID],
       {},
       marketSelect,
-      listingSelect
+      listingSelect,
     );
 
     return (

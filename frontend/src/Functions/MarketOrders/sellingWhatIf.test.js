@@ -84,14 +84,22 @@ describe("sellingWhatIf", () => {
   });
 
   it("has no per-unit answer when nothing is being sold", () => {
-    expect(ask({ brokerRelations: 5, accounting: 0 }, { quantity: 0 }).breakEvenPerUnit).toBeNull();
+    expect(
+      ask({ brokerRelations: 5, accounting: 0 }, { quantity: 0 })
+        .breakEvenPerUnit,
+    ).toBeNull();
   });
 
   // A structure's fee is its owner's, so training the skill changes nothing
   // there — and the panel says so rather than quoting a saving that is not real.
   it("saves nothing on a structure's broker fee", () => {
     const got = sellingWhatIf({
-      brokerFee: { kind: SALE_LOCATION_KIND.STRUCTURE, base: null, rate: 1.5, terms: [] },
+      brokerFee: {
+        kind: SALE_LOCATION_KIND.STRUCTURE,
+        base: null,
+        rate: 1.5,
+        terms: [],
+      },
       salesTax,
       listedValue: 1_000_000,
       quantity: 100,

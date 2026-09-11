@@ -8,7 +8,7 @@ import {
   universeDataActions,
   marketDataActions,
   systemIndexesActions,
-} from './worldDataSlice/index.js';
+} from "./worldDataSlice/index.js";
 
 /**
  * World Data Slice for Zustand Store.
@@ -24,13 +24,13 @@ const worldDataSlice = (set, get) => ({
     actions: {
       // Core actions
       ...coreActions(set, get),
-      
+
       // Universe data actions
       ...universeDataActions(set, get),
-      
+
       // Market data actions
       ...marketDataActions(set, get),
-      
+
       // System indexes actions
       ...systemIndexesActions(set, get),
     },

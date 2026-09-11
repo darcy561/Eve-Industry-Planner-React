@@ -61,13 +61,17 @@ describe("a level being tried", () => {
     renderBlock(higher);
 
     // 2.4% to 1.5% of a million.
-    expect(screen.getByText(/Worth 9,000.00 on each build/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Worth 9,000.00 on each build/),
+    ).toBeInTheDocument();
   });
 
   it("states what it moves break-even by", () => {
     renderBlock(higher);
 
-    expect(screen.getByText(/moves break-even 90.00 a unit/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/moves break-even 90.00 a unit/),
+    ).toBeInTheDocument();
   });
 
   // Accounting takes a share of the base rather than subtracting from it.

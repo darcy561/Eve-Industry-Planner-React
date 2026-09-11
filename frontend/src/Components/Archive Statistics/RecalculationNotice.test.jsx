@@ -13,9 +13,8 @@ vi.mock("../../Functions/Endpoints/Private/statisticsTimeline.js", () => ({
   getAccountTimelineItems: vi.fn(),
 }));
 vi.mock("../../Zustand/usersStore", async () => {
-  const { usersStoreMock, archiveStoreState } = await import(
-    "../../tests/archiveHarness.jsx"
-  );
+  const { usersStoreMock, archiveStoreState } =
+    await import("../../tests/archiveHarness.jsx");
   return usersStoreMock(archiveStoreState());
 });
 
@@ -27,14 +26,15 @@ beforeEach(() => {
 
 describe("the recalculation notice", () => {
   it("says nothing for a state it does not recognise", async () => {
-    getAccountTimeline.mockResolvedValue({ months: [], recalculation: "queued" });
+    getAccountTimeline.mockResolvedValue({
+      months: [],
+      recalculation: "queued",
+    });
     renderWithProviders(<RecalculationNotice />);
 
     // A value this side has no wording for must render nothing rather than an
     // empty alert, which would read as a fault with no explanation.
-    await vi.waitFor(() =>
-      expect(getAccountTimeline).toHaveBeenCalled(),
-    );
+    await vi.waitFor(() => expect(getAccountTimeline).toHaveBeenCalled());
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 

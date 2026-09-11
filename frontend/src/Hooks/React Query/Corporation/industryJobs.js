@@ -2,7 +2,10 @@ import getCorpIndustryJobs from "../../../Functions/EveESI/Corporation/getIndust
 import { isQueryExecutionEnabled } from "../../../Functions/Shared/queryExecutionEnabled";
 import { getESIRateLimitStatus } from "../../../Functions/EveESI/fetchWithCustomHeaders";
 import fetchPaginatedDataParallel from "../../../Functions/Helper/fetchPaginatedDataParallel";
-import { corporationMembers, readAsAuthorisedMember } from "../../../Functions/EveESI/corporationAccess";
+import {
+  corporationMembers,
+  readAsAuthorisedMember,
+} from "../../../Functions/EveESI/corporationAccess";
 
 const corporationIndustryJobsQueryKey = "corporationIndustryJobs";
 /** ESI rate-limit bucket this collection spends from. */
@@ -27,34 +30,47 @@ function corporationIndustryJobsQuery(corporationId) {
   return {
     queryKey: [corporationIndustryJobsQueryKey, corporationId],
     queryFn: async () => {
-      const status = getESIRateLimitStatus(corporationIndustryJobsQueryGroup, budgetHash);
+      const status = getESIRateLimitStatus(
+        corporationIndustryJobsQueryGroup,
+        budgetHash,
+      );
 
-      if (status && status.availableTokens <= 0 && status.maxTokens && status.windowSize) {
+      if (
+        status &&
+        status.availableTokens <= 0 &&
+        status.maxTokens &&
+        status.windowSize
+      ) {
         const tokensPerMs = status.maxTokens / status.windowSize;
         const tokensToRecover = status.maxTokens - status.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Corporation group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
+        );
       }
 
-      const data = await readAsAuthorisedMember(memberHashes, async (member, memberHash) => {
-        let forbidden = false;
-        const rows = await fetchPaginatedDataParallel(async (page) => {
-          const result = await getCorpIndustryJobs({
-            character: member,
-            page,
-            config: {
-              characterHash: memberHash,
-              group: corporationIndustryJobsQueryGroup,
-              priority: 'normal',
-              batchable: true,
-            },
+      const data = await readAsAuthorisedMember(
+        memberHashes,
+        async (member, memberHash) => {
+          let forbidden = false;
+          const rows = await fetchPaginatedDataParallel(async (page) => {
+            const result = await getCorpIndustryJobs({
+              character: member,
+              page,
+              config: {
+                characterHash: memberHash,
+                group: corporationIndustryJobsQueryGroup,
+                priority: "normal",
+                batchable: true,
+              },
+            });
+            if (result?.forbidden) forbidden = true;
+            return result;
           });
-          if (result?.forbidden) forbidden = true;
-          return result;
-        });
-        return { rows, forbidden };
-      });
+          return { rows, forbidden };
+        },
+      );
 
       return { data, corporation_id: Number(corporationId) };
     },
@@ -63,8 +79,11 @@ function corporationIndustryJobsQuery(corporationId) {
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
-        const status = getESIRateLimitStatus(corporationIndustryJobsQueryGroup, budgetHash);
+      if (error?.message?.includes("rate limited")) {
+        const status = getESIRateLimitStatus(
+          corporationIndustryJobsQueryGroup,
+          budgetHash,
+        );
         if (status && status.maxTokens && status.windowSize) {
           const tokensPerMs = status.maxTokens / status.windowSize;
           const tokensToRecover = status.maxTokens - status.availableTokens;
@@ -79,4 +98,8 @@ function corporationIndustryJobsQuery(corporationId) {
   };
 }
 
-export { corporationIndustryJobsQueryKey, corporationIndustryJobsQuery, corporationIndustryJobsQueryGroup };
+export {
+  corporationIndustryJobsQueryKey,
+  corporationIndustryJobsQuery,
+  corporationIndustryJobsQueryGroup,
+};

@@ -128,41 +128,50 @@ describe("closeActiveJob", () => {
     }));
     storeHolder.current
       .getState()
-      .documentLock.actions.patchDocumentLockForScope(USER_JOBS_COLLECTION, "j1", {
-        readOnly: false,
-        lockHeld: true,
-      });
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "j1",
+        {
+          readOnly: false,
+          lockHeld: true,
+        },
+      );
 
     await closeActiveJob(job, true, {}, {}, {}, null);
 
     expect(showSnackbarInfo).toHaveBeenCalledWith(
       "Test Job updated — now making 3,440",
-      5
+      5,
     );
     shakerAdjustments.current = [];
   });
 
   it("skips API persist without the job lock", async () => {
-    storeHolder.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOBS_COLLECTION,
-      "j1",
-      { readOnly: true, lockHeld: false }
-    );
+    storeHolder.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "j1",
+        { readOnly: true, lockHeld: false },
+      );
 
     await closeActiveJob(makeJob(), true, {}, {}, {}, null);
 
     expect(saveJobsViaApi).not.toHaveBeenCalled();
     expect(
-      storeHolder.current.getState().jobData.actions.clearPendingJobDocumentWrites
+      storeHolder.current.getState().jobData.actions
+        .clearPendingJobDocumentWrites,
     ).toHaveBeenCalled();
   });
 
   it("persists when this tab holds the job lock", async () => {
-    storeHolder.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOBS_COLLECTION,
-      "j1",
-      { readOnly: false, lockHeld: true }
-    );
+    storeHolder.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "j1",
+        { readOnly: false, lockHeld: true },
+      );
 
     await closeActiveJob(makeJob(), true, {}, {}, {}, null);
 
@@ -176,24 +185,28 @@ describe("closeActiveJob", () => {
       addJobsToGroup: vi.fn(),
     };
     storeHolder.current.getState().jobData.actions.getGroupObject = vi.fn(
-      () => group
+      () => group,
     );
-    storeHolder.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOBS_COLLECTION,
-      "j1",
-      { readOnly: false, lockHeld: true }
-    );
-    storeHolder.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOB_GROUPS_COLLECTION,
-      "g1",
-      { readOnly: true, lockHeld: false }
-    );
+    storeHolder.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "j1",
+        { readOnly: false, lockHeld: true },
+      );
+    storeHolder.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOB_GROUPS_COLLECTION,
+        "g1",
+        { readOnly: true, lockHeld: false },
+      );
 
     await closeActiveJob(job, true, {}, {}, {}, null);
 
     expect(saveJobsViaApi).not.toHaveBeenCalled();
     expect(
-      storeHolder.current.getState().jobData.actions.updateModifiedGroups
+      storeHolder.current.getState().jobData.actions.updateModifiedGroups,
     ).toHaveBeenCalledWith(expect.anything(), { queuePersist: false });
   });
 });

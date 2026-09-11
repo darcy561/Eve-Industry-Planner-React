@@ -80,7 +80,7 @@ export function useActiveJobOrGroupReadOnly(state) {
   const jobReadOnly = useActiveJobReadOnly(state);
   const groupReadOnly = useActiveGroupReadOnly(state);
   const subordinate = useUsersStore((s) =>
-    isJobLockSubordinateToGroup(s, groupID)
+    isJobLockSubordinateToGroup(s, groupID),
   );
   return {
     readOnly: subordinate ? groupReadOnly : jobReadOnly || groupReadOnly,
@@ -116,7 +116,8 @@ export function useActiveGroupLockHeld(state) {
     const included = state?.activeJob?.includedInGroup;
     if (!gid || !included) return true;
     if (!s.jobData.actions.getGroupObject(gid)) return true;
-    return selectScopedDocumentLock(s, USER_JOB_GROUPS_COLLECTION, gid).lockHeld;
+    return selectScopedDocumentLock(s, USER_JOB_GROUPS_COLLECTION, gid)
+      .lockHeld;
   });
 }
 
@@ -138,7 +139,8 @@ export function useActiveGroupLockHeld(state) {
  * }}
  */
 export function useActiveJobPersistGate(state) {
-  const { readOnly, jobReadOnly, groupReadOnly } = useActiveJobOrGroupReadOnly(state);
+  const { readOnly, jobReadOnly, groupReadOnly } =
+    useActiveJobOrGroupReadOnly(state);
   const jobLockHeld = useActiveJobLockHeld(state);
   const groupLockHeld = useActiveGroupLockHeld(state);
   const jobID = state?.activeJob?.jobID;

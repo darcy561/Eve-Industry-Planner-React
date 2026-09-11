@@ -128,7 +128,7 @@ describe("useAssetIndex", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(
-      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b)
+      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b),
     ).toEqual([1, 2]);
   });
 
@@ -141,7 +141,7 @@ describe("useAssetIndex", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(
-      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b)
+      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b),
     ).toEqual([1, 10, 11]);
   });
 
@@ -157,7 +157,7 @@ describe("useAssetIndex", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(
-      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b)
+      result.current.data.nodes.map((n) => n.itemId).sort((a, b) => a - b),
     ).toEqual([10, 11]);
   });
 
@@ -192,9 +192,9 @@ describe("useAssetIndex", () => {
                 defaultOptions: { queries: { retry: false } },
               }),
             },
-            children
+            children,
           ),
-      }
+      },
     );
 
     characterRows.set("hash-a", null);

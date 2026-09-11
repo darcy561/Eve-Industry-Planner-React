@@ -14,7 +14,7 @@ export function CompactAccordionContents({
     useJobPlannerAccordionJobs(status);
   const { skeletonCount } = useJobPlannerStageSkeletonCount(
     status,
-    skeletonElementsToDisplay
+    skeletonElementsToDisplay,
   );
 
   return (

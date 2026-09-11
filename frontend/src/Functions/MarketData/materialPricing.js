@@ -24,7 +24,7 @@ export function getEffectiveMaterialPriceHub(
   layout,
   materialTypeID,
   defaultMarketSelect,
-  defaultListingSelect
+  defaultListingSelect,
 ) {
   const override = layout?.materialPriceOverrides?.[materialTypeID];
 
@@ -74,18 +74,18 @@ export function materialCostByBasis({
         layout,
         material.typeID,
         marketSelect,
-        basis
+        basis,
       );
       const price = getPrice(
         material.typeID,
         resolved.marketSelect,
-        resolved.listingSelect
+        resolved.listingSelect,
       );
       return total + price * material.quantity;
     }, 0);
 
   const totalsById = new Map(
-    listingType.map((entry) => [entry.id, totalOn(entry.id)])
+    listingType.map((entry) => [entry.id, totalOn(entry.id)]),
   );
   const current = totalsById.get(listingSelect) ?? 0;
 
@@ -123,7 +123,7 @@ export function summariseBasisUse(rows, marketSelect, listingSelect) {
     overridden: list.filter(
       (row) =>
         (row.marketSelect && row.marketSelect !== marketSelect) ||
-        (row.listingSelect && row.listingSelect !== listingSelect)
+        (row.listingSelect && row.listingSelect !== listingSelect),
     ).length,
     purchased: list.filter((row) => row.plan === MATERIAL_PLAN.PAID).length,
   };

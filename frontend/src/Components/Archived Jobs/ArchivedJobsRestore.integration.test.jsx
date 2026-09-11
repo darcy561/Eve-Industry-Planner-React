@@ -21,7 +21,8 @@ const showSnackbarSuccess = vi.fn();
 const showSnackbarError = vi.fn();
 
 vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
-  const { emptyArchiveListMock } = await import("../../tests/archiveHarness.jsx");
+  const { emptyArchiveListMock } =
+    await import("../../tests/archiveHarness.jsx");
   return {
     ...emptyArchiveListMock(),
     getArchivedJobs: (...args) => getArchivedJobs(...args),
@@ -29,8 +30,13 @@ vi.mock("../../Functions/Endpoints/Private/archivedJobsList", async () => {
   };
 });
 vi.mock("../../Hooks/React Query/Backend/archivedJobsList", async () => {
-  const actual = await vi.importActual("../../Hooks/React Query/Backend/archivedJobsList");
-  return { ...actual, invalidateArchiveQueries: (...a) => invalidateArchiveQueries(...a) };
+  const actual = await vi.importActual(
+    "../../Hooks/React Query/Backend/archivedJobsList",
+  );
+  return {
+    ...actual,
+    invalidateArchiveQueries: (...a) => invalidateArchiveQueries(...a),
+  };
 });
 vi.mock("../../Events/snackbarEvents", () => ({
   showSnackbarSuccess: (...args) => showSnackbarSuccess(...args),
@@ -49,7 +55,11 @@ const JOB = {
   jobID: "job-1",
   name: "Rifter",
   archivedAt: "2026-08-21T00:00:00Z",
-  measures: { jobCostTotal: 1000, profitLoss: 250, segment: "standaloneRecordedSale" },
+  measures: {
+    jobCostTotal: 1000,
+    profitLoss: 250,
+    segment: "standaloneRecordedSale",
+  },
 };
 const GROUPED = {
   ...JOB,
@@ -70,7 +80,11 @@ function actions() {
 beforeEach(() => {
   vi.clearAllMocks();
   getArchivedJobs.mockResolvedValue(page([JOB]));
-  restoreArchivedJobs.mockResolvedValue({ restoredJobIDs: ["job-1"], jobs: [], groups: [] });
+  restoreArchivedJobs.mockResolvedValue({
+    restoredJobIDs: ["job-1"],
+    jobs: [],
+    groups: [],
+  });
   setViewportWide(true);
 });
 
@@ -79,7 +93,9 @@ describe("restoring from the archive, end to end", () => {
     renderWithProviders(<ArchivedJobsList enabled />);
     fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
 
-    await waitFor(() => expect(restoreArchivedJobs).toHaveBeenCalledWith("job", "job-1"));
+    await waitFor(() =>
+      expect(restoreArchivedJobs).toHaveBeenCalledWith("job", "job-1"),
+    );
     // The list and the statistics both move, and one function knows which.
     await waitFor(() => expect(invalidateArchiveQueries).toHaveBeenCalled());
     expect(showSnackbarSuccess).toHaveBeenCalledWith("1 job restored");
@@ -89,7 +105,9 @@ describe("restoring from the archive, end to end", () => {
     getArchivedJobs.mockResolvedValue(page([GROUPED]));
     renderWithProviders(<ArchivedJobsList enabled />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Restore group" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Restore group" }),
+    );
 
     await waitFor(() =>
       expect(restoreArchivedJobs).toHaveBeenCalledWith("group", "group-1"),
@@ -102,12 +120,20 @@ describe("restoring from the archive, end to end", () => {
     restoreArchivedJobs.mockResolvedValue({
       restoredJobIDs: ["job-1"],
       jobs: [{ jobID: "job-1", name: "Rifter", itemID: 587 }],
-      groups: [{ groupID: "group-1", groupName: "Drone run", includedJobIDs: ["job-1"] }],
+      groups: [
+        {
+          groupID: "group-1",
+          groupName: "Drone run",
+          includedJobIDs: ["job-1"],
+        },
+      ],
     });
     renderWithProviders(<ArchivedJobsList enabled />);
     fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
 
-    await waitFor(() => expect(actions().updateOrAddJobsToJobArray).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(actions().updateOrAddJobsToJobArray).toHaveBeenCalled(),
+    );
     // Not held here, so it is added rather than merged into a group this tab
     // does not have.
     expect(actions().addGroupToGroupArray).toHaveBeenCalled();
@@ -119,12 +145,20 @@ describe("restoring from the archive, end to end", () => {
     restoreArchivedJobs.mockResolvedValue({
       restoredJobIDs: ["job-1"],
       jobs: [],
-      groups: [{ groupID: "group-1", groupName: "Drone run", includedJobIDs: ["job-1"] }],
+      groups: [
+        {
+          groupID: "group-1",
+          groupName: "Drone run",
+          includedJobIDs: ["job-1"],
+        },
+      ],
     });
     renderWithProviders(<ArchivedJobsList enabled />);
     fireEvent.click(await screen.findByRole("button", { name: "Restore" }));
 
-    await waitFor(() => expect(actions().updateModifiedGroups).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(actions().updateModifiedGroups).toHaveBeenCalled(),
+    );
     expect(actions().addGroupToGroupArray).not.toHaveBeenCalled();
     useUsersStore.getState().jobData.groupArray.length = 0;
   });

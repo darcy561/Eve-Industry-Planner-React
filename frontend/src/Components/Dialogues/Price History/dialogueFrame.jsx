@@ -24,7 +24,10 @@ function PriceHistoryDialogue() {
     error,
     isWorldDataLoading,
     worldDataError,
-  } = useMarketHistoryData(messageData.selectedTypeID, messageData.selectedLocation);
+  } = useMarketHistoryData(
+    messageData.selectedTypeID,
+    messageData.selectedLocation,
+  );
 
   const handleClose = useCallback(() => {
     useUsersStore.getState().worldData.actions.addUniverseIDs(worldData);

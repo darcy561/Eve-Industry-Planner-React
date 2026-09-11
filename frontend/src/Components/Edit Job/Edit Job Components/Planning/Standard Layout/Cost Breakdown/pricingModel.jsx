@@ -33,13 +33,25 @@ export default function PricingModelToggle({ value, onChange }) {
       }}
       aria-label="How the materials are priced"
     >
-      <Tooltip title="Linked child builds price their material; everything else is bought" arrow>
-        <ToggleButton value={PRICING_MODEL.CHEAPEST} sx={{ textTransform: "none" }}>
+      <Tooltip
+        title="Linked child builds price their material; everything else is bought"
+        arrow
+      >
+        <ToggleButton
+          value={PRICING_MODEL.CHEAPEST}
+          sx={{ textTransform: "none" }}
+        >
           Build where cheaper
         </ToggleButton>
       </Tooltip>
-      <Tooltip title="Every material priced at market, as if nothing were built" arrow>
-        <ToggleButton value={PRICING_MODEL.BUY_ALL} sx={{ textTransform: "none" }}>
+      <Tooltip
+        title="Every material priced at market, as if nothing were built"
+        arrow
+      >
+        <ToggleButton
+          value={PRICING_MODEL.BUY_ALL}
+          sx={{ textTransform: "none" }}
+        >
           Buy everything
         </ToggleButton>
       </Tooltip>

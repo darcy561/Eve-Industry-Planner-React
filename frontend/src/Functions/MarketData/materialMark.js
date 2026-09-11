@@ -39,7 +39,12 @@ export const MATERIAL_MARK = {
  * @param {boolean} [params.isExempt]
  * @returns {MaterialMark}
  */
-export function materialMark({ jobType, hasLinked, hasPending, isExempt = false }) {
+export function materialMark({
+  jobType,
+  hasLinked,
+  hasPending,
+  isExempt = false,
+}) {
   const name = jobTypeNames[jobType] ?? "Material";
 
   const kind = hasLinked

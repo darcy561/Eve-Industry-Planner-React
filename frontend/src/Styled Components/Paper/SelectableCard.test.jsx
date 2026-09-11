@@ -19,7 +19,9 @@ describe("SelectableCard", () => {
     render(card());
 
     expect(screen.getByText("Local")).toBeInTheDocument();
-    expect(screen.getByText("Stores tokens in the browser.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Stores tokens in the browser."),
+    ).toBeInTheDocument();
   });
 
   it("is the control itself, so the hit area is what a reader sees", async () => {
@@ -78,7 +80,7 @@ describe("SelectableCard", () => {
     // read twice to a screen reader.
     expect(container.querySelector("input")).toHaveAttribute(
       "aria-hidden",
-      "true"
+      "true",
     );
   });
 });

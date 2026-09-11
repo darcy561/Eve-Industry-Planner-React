@@ -6,32 +6,38 @@ import { ShoppingListDialogueContent } from "./ShoppingListDialogueContent";
 // Hooks are always called (React rules) but queries are conditionally enabled
 export function ShoppingListContent({ state, actions }) {
   // Always call hooks unconditionally, but conditionally enable the queries
-  const allCharacterAssetsResult = useGetAllCharacterAssets(state.assetType === "character");
+  const allCharacterAssetsResult = useGetAllCharacterAssets(
+    state.assetType === "character",
+  );
   const corporationAssetsResult = useGetSingleCorporationAssets(
     state.selectedCorporation,
-    state.assetType === "corporation"
+    state.assetType === "corporation",
   );
 
   // Extract loading and error states
-  const allCharacterAssetsLoading = state.assetType === "character"
-    ? allCharacterAssetsResult.isLoading 
-    : undefined;
-  const allCharacterAssetsError = state.assetType === "character"
-    ? allCharacterAssetsResult.isError 
-    : undefined;
+  const allCharacterAssetsLoading =
+    state.assetType === "character"
+      ? allCharacterAssetsResult.isLoading
+      : undefined;
+  const allCharacterAssetsError =
+    state.assetType === "character"
+      ? allCharacterAssetsResult.isError
+      : undefined;
 
-  const corporationAssetsLoading = state.assetType === "corporation"
-    ? corporationAssetsResult.isLoading 
-    : undefined;
-  const corporationAssetsError = state.assetType === "corporation"
-    ? corporationAssetsResult.isError 
-    : undefined;
+  const corporationAssetsLoading =
+    state.assetType === "corporation"
+      ? corporationAssetsResult.isLoading
+      : undefined;
+  const corporationAssetsError =
+    state.assetType === "corporation"
+      ? corporationAssetsResult.isError
+      : undefined;
 
   // Always render the same component structure to prevent remounting
   return (
-    <ShoppingListDialogueContent 
-      state={state} 
-      actions={actions} 
+    <ShoppingListDialogueContent
+      state={state}
+      actions={actions}
       allCharacterAssetsLoading={allCharacterAssetsLoading}
       allCharacterAssetsError={allCharacterAssetsError}
       corporationAssetsLoading={corporationAssetsLoading}

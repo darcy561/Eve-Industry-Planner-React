@@ -7,12 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
-import {
-  MarketLocationSelectApplicationSettings,
-} from "../../../../../../Styled Components/Select/marketLocation.jsx";
-import {
-  MarketListingSelectApplicationSettings,
-} from "../../../../../../Styled Components/Select/marketListing.jsx";
+import { MarketLocationSelectApplicationSettings } from "../../../../../../Styled Components/Select/marketLocation.jsx";
+import { MarketListingSelectApplicationSettings } from "../../../../../../Styled Components/Select/marketListing.jsx";
 import { showSnackbarError } from "../../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { showShoppingList } from "../../../../../../Events/shoppingListEvents";
@@ -23,7 +19,7 @@ import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel
 export function PurchasingDataPanel_EditJob(props) {
   const { state, actions } = props;
   const hideCompleteMaterials = useUsersStore(
-    (state) => state.applicationSettings.hideCompleteMaterials
+    (state) => state.applicationSettings.hideCompleteMaterials,
   );
   const { toggleHideCompleteMaterials } =
     useUsersStore.getState().applicationSettings.actions;
@@ -32,9 +28,13 @@ export function PurchasingDataPanel_EditJob(props) {
 
   return (
     <ContentPanel>
-      <Grid container align="center" sx={{
-        width: "100%"
-      }}>
+      <Grid
+        container
+        align="center"
+        sx={{
+          width: "100%",
+        }}
+      >
         <Grid container size={12}>
           <Grid
             size={{
@@ -71,7 +71,7 @@ export function PurchasingDataPanel_EditJob(props) {
               Material Cost Per Item:{" "}
               {formatNumberForLocale(
                 state.activeJob.totalMaterialCost /
-                  state.activeJob.totalQuantityProduced
+                  state.activeJob.totalQuantityProduced,
               )}
             </Typography>
           </Grid>
@@ -142,13 +142,12 @@ export function PurchasingDataPanel_EditJob(props) {
                           for (let material of state.activeJob.build
                             .materials) {
                             const matchedItem = matches.find(
-                              (i) => i.importedName === material.name
+                              (i) => i.importedName === material.name,
                             );
                             if (!matchedItem) continue;
                             matchedCount++;
 
-                            const stillRequired =
-                              material.quantityRemaining;
+                            const stillRequired = material.quantityRemaining;
                             if (stillRequired <= 0) continue;
 
                             const pastedQuantity =
@@ -177,10 +176,10 @@ export function PurchasingDataPanel_EditJob(props) {
                         } catch (error) {
                           console.error(
                             "Failed to import from clipboard:",
-                            error
+                            error,
                           );
                           showSnackbarError(
-                            error.message || "Failed to import from clipboard"
+                            error.message || "Failed to import from clipboard",
                           );
                         }
                       }}

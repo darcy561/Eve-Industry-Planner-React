@@ -23,7 +23,7 @@ export function LinkedMarketOrdersTab({
   state,
   actions,
   activeOrder,
-  updateActiveOrder
+  updateActiveOrder,
 }) {
   const getCorporation =
     useUsersStore.getState().account.actions.getCorporation;
@@ -43,7 +43,8 @@ export function LinkedMarketOrdersTab({
             xl: 480,
           },
         }}
-        size={12}>
+        size={12}
+      >
         {state.activeJob.build.sale.marketOrders?.map((order) => {
           const charData = useUsersStore
             .getState()
@@ -63,18 +64,24 @@ export function LinkedMarketOrdersTab({
               sx={{ marginBottom: { xs: 2, sm: 0 } }}
               size={{
                 xs: 12,
-                sm: 6
-              }}>
+                sm: 6,
+              }}
+            >
               <Grid container>
-                <Grid container align="center" size={12} sx={{
-                  justifyContent: "center"
-                }}>
+                <Grid
+                  container
+                  align="center"
+                  size={12}
+                  sx={{
+                    justifyContent: "center",
+                  }}
+                >
                   <Tooltip
                     title={
                       order.is_corporation
-                        ? corpData?.name ?? "Corporation Data Unavailable"
-                        : charData?.CharacterName ??
-                        "Character Data Unavailable"
+                        ? (corpData?.name ?? "Corporation Data Unavailable")
+                        : (charData?.CharacterName ??
+                          "Character Data Unavailable")
                     }
                     arrow
                     placement="right"
@@ -118,7 +125,10 @@ export function LinkedMarketOrdersTab({
                       Duration: {order.duration} Days
                     </Typography>
                   </Grid>
-                  <Grid sx={{ margin: { xs: 0.5, sm: 0 }, marginTop: 1 }} size={12}>
+                  <Grid
+                    sx={{ margin: { xs: 0.5, sm: 0 }, marginTop: 1 }}
+                    size={12}
+                  >
                     <>
                       {charData === undefined && (
                         <Box
@@ -147,9 +157,9 @@ export function LinkedMarketOrdersTab({
                               color: (theme) => theme.palette.secondary.main,
                             },
                             "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                            {
-                              display: "none",
-                            },
+                              {
+                                display: "none",
+                              },
                           }}
                         >
                           <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
@@ -170,9 +180,9 @@ export function LinkedMarketOrdersTab({
                                 color: (theme) => theme.palette.secondary.main,
                               },
                               "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                              {
-                                display: "none",
-                              },
+                                {
+                                  display: "none",
+                                },
                             }}
                           >
                             <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
@@ -192,9 +202,9 @@ export function LinkedMarketOrdersTab({
                               color: (theme) => theme.palette.secondary.main,
                             },
                             "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                            {
-                              display: "none",
-                            },
+                              {
+                                display: "none",
+                              },
                           }}
                         >
                           <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
@@ -221,7 +231,7 @@ export function LinkedMarketOrdersTab({
                             activeOrder.some((t) => t === order.location_id)
                           ) {
                             newActiveOrder = newActiveOrder.filter(
-                              (i) => i != order.location_id
+                              (i) => i != order.location_id,
                             );
                           } else {
                             newActiveOrder.push(order.location_id);
@@ -259,8 +269,8 @@ export function LinkedMarketOrdersTab({
                           actions.addMarketOrdersForRemoval(
                             order.order_id,
                             state.activeJob.build.sale.transactions.filter(
-                              (item) => item.location_id === order.location_id
-                            )
+                              (item) => item.location_id === order.location_id,
+                            ),
                           );
                           actions.updateActiveJob(state.activeJob);
                           showSnackbarError("Unlinked");

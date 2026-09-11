@@ -92,16 +92,18 @@ export function ParentJobDialogue({
                   size={12}
                   sx={{
                     justifyContent: "center",
-                    alignItems: "center"
-                  }}>
+                    alignItems: "center",
+                  }}
+                >
                   <Grid
                     sx={{
                       display: { xs: "none", sm: "block" },
                     }}
                     align="center"
                     size={{
-                      sm: 1
-                    }}>
+                      sm: 1,
+                    }}
+                  >
                     <img
                       src={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
                       alt=""
@@ -147,9 +149,7 @@ export function ParentJobDialogue({
               );
             })
           ) : (
-            <Grid size={12}>
-              No Jobs Available
-            </Grid>
+            <Grid size={12}>No Jobs Available</Grid>
           )}
         </Grid>
       </DialogContent>

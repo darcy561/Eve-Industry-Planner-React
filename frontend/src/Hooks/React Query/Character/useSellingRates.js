@@ -36,7 +36,11 @@ export function useSellingRates(saleLocation, characterHash) {
       inputs.updatedAt,
     ],
     queryFn: async () => ({
-      brokerFee: await brokerFeeWorking(saleLocation, queryClient, characterHash),
+      brokerFee: await brokerFeeWorking(
+        saleLocation,
+        queryClient,
+        characterHash,
+      ),
       salesTax: salesTaxWorking(queryClient, characterHash),
     }),
     enabled: Boolean(saleLocation) && settled,

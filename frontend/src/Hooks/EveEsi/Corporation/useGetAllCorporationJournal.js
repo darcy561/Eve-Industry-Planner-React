@@ -17,7 +17,11 @@ import {
  * @returns {import("./corporationCollection").CorporationCollection}
  */
 export function getAllCachedCorporationJournal(queryClient) {
-  return readCorporationCollection(queryClient, corporationJournalQueryKey, CORPORATION_WALLET_DIVISIONS);
+  return readCorporationCollection(
+    queryClient,
+    corporationJournalQueryKey,
+    CORPORATION_WALLET_DIVISIONS,
+  );
 }
 
 /**
@@ -28,5 +32,8 @@ export function getAllCachedCorporationJournal(queryClient) {
  * @returns {import("./corporationCollection").CorporationCollection}
  */
 export function useGetAllCorporationJournal() {
-  return useCorporationCollection(corporationJournalQuery, CORPORATION_WALLET_DIVISIONS);
+  return useCorporationCollection(
+    corporationJournalQuery,
+    CORPORATION_WALLET_DIVISIONS,
+  );
 }

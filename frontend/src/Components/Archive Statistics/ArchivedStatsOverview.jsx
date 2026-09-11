@@ -124,7 +124,11 @@ function MetricCard({
           </Tooltip>
         }
         tone={valueTone}
-        icon={<ArrowIcon sx={{ fontSize: 16, mr: 0.5, color: figureToneColour(tone) }} />}
+        icon={
+          <ArrowIcon
+            sx={{ fontSize: 16, mr: 0.5, color: figureToneColour(tone) }}
+          />
+        }
         change={changeLabel}
         changeTone={tone}
         comparison={

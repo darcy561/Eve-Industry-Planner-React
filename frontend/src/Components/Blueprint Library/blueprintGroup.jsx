@@ -37,7 +37,9 @@ export default function BlueprintGroup({
   } = useCachedData(CACHED_DATA_FILES.SEARCH_INDEX);
 
   // Only for the type's category: a relic is drawn from its own image variant.
-  const { data: fullItemList } = useCachedData(CACHED_DATA_FILES.FULL_ITEM_LIST);
+  const { data: fullItemList } = useCachedData(
+    CACHED_DATA_FILES.FULL_ITEM_LIST,
+  );
 
   const {
     data: apiJobs = [],
@@ -46,7 +48,7 @@ export default function BlueprintGroup({
   } = useGetAllIndustryJobs();
 
   const esiJobs = apiJobs.filter(
-    (job) => job.product_type_id === bpID || job.blueprint_type_id === bpID
+    (job) => job.product_type_id === bpID || job.blueprint_type_id === bpID,
   );
 
   const bpData = blueprintIDs?.find((item) => item.blueprintID === bpID);
@@ -56,7 +58,9 @@ export default function BlueprintGroup({
   // The page keeps every blueprint of a type that has at least one active job, so under the active
   // filter the panel shows only the cards actually carrying one.
   const shown =
-    currentFilter === "active" ? stacks.filter((stack) => stack.esiJob) : stacks;
+    currentFilter === "active"
+      ? stacks.filter((stack) => stack.esiJob)
+      : stacks;
 
   const density = compact
     ? BLUEPRINT_CARD_DENSITY.COMPACT
@@ -91,7 +95,7 @@ export default function BlueprintGroup({
                 bpData={bpData}
                 locationName={locationNames?.get(stack.blueprint.itemId)}
                 isRelic={isAncientRelic(
-                  fullItemList?.[stack.blueprint.typeId]?.category_id
+                  fullItemList?.[stack.blueprint.typeId]?.category_id,
                 )}
                 density={density}
               />

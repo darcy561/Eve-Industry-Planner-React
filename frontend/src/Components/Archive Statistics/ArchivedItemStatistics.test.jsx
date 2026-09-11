@@ -20,7 +20,10 @@ vi.mock("../../Hooks/React Query/Backend/statisticsTotals", () => ({
 // that choosing one hands back an item id, not how the list is drawn.
 vi.mock("../../Styled Components/autocomplete/virtualisedRecipeSearch", () => ({
   default: ({ onSelect: select }) => (
-    <button type="button" onClick={() => select({ itemID: 34, name: "Tritanium" })}>
+    <button
+      type="button"
+      onClick={() => select({ itemID: 34, name: "Tritanium" })}
+    >
       pick an item
     </button>
   ),
@@ -29,7 +32,9 @@ vi.mock("../../Styled Components/autocomplete/virtualisedRecipeSearch", () => ({
 const { ArchivedItemStatistics } = await import("./ArchivedItemStatistics.jsx");
 
 function renderTab(props) {
-  return renderWithTheme(      <ArchivedItemStatistics onSelectItem={onSelect} item={null} {...props} />);
+  return renderWithTheme(
+    <ArchivedItemStatistics onSelectItem={onSelect} item={null} {...props} />,
+  );
 }
 
 const tritanium = { typeID: 34, name: "Tritanium" };
@@ -91,7 +96,9 @@ describe("ArchivedItemStatistics", () => {
     renderTab({ item: null });
 
     expect(screen.getByText(/Search for an item/i)).toBeTruthy();
-    expect(useAccountTimelineQuery.mock.calls[0][1]).toEqual({ enabled: false });
+    expect(useAccountTimelineQuery.mock.calls[0][1]).toEqual({
+      enabled: false,
+    });
     expect(useAccountTotalsQuery.mock.calls[0][1]).toEqual({ enabled: false });
   });
 
@@ -181,7 +188,9 @@ describe("ArchivedItemStatistics", () => {
     });
     renderTab({ item: tritanium });
 
-    expect(screen.getByText(/Nothing archived for Tritanium yet/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Nothing archived for Tritanium yet/i),
+    ).toBeTruthy();
     expect(screen.queryByText("Cost composition")).toBeNull();
   });
 });

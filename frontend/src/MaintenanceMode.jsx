@@ -52,7 +52,8 @@ function MaintenanceMode() {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 EVE Industry Planner is temporarily unavailable. Thank you for
-                your patience — the app returns on its own when maintenance ends.
+                your patience — the app returns on its own when maintenance
+                ends.
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary">

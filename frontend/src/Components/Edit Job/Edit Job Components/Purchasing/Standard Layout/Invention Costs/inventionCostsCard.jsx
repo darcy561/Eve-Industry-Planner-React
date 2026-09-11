@@ -32,10 +32,13 @@ export function InventionCostsCard({ state, actions }) {
   }
 
   function handleSubmit(formData) {
-    const itemName = DOMPurify.sanitize(String(formData.get("itemName") ?? ""), {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-    }).trim();
+    const itemName = DOMPurify.sanitize(
+      String(formData.get("itemName") ?? ""),
+      {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+      },
+    ).trim();
     const itemCost = Number(formData.get("itemCost") ?? 0);
     if (!itemName || !Number.isFinite(itemCost)) {
       return;
@@ -121,12 +124,13 @@ export function InventionCostsCard({ state, actions }) {
                   sx={{
                     justifyContent: "center",
                     alignItems: "center",
-                    marginBottom: "5px"
-                  }}>
+                    marginBottom: "5px",
+                  }}
+                >
                   <Chip
                     key={record.id}
                     label={`${record.itemName} ${formatNumberForLocale(
-                      record.itemCost
+                      record.itemCost,
                     )}`}
                     variant="outlined"
                     deleteIcon={<ClearIcon />}

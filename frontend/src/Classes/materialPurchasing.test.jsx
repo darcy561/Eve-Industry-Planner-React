@@ -12,9 +12,8 @@ vi.mock("../Zustand/usersStore.js", () => ({
   },
 }));
 
-const { MaterialCostsFrame_Purchasing } = await import(
-  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCostsFrame.jsx"
-);
+const { MaterialCostsFrame_Purchasing } =
+  await import("../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCostsFrame.jsx");
 const { default: Job } = await import("./job.js");
 
 // The same scenarios each purchasing surface handled before the material class
@@ -131,7 +130,7 @@ describe("removing a purchase from a material card", () => {
         state={{ activeJob: job }}
         actions={actions}
         material={material}
-      />
+      />,
     );
 
     await userEvent.click(screen.getAllByTestId("ClearIcon")[0]);

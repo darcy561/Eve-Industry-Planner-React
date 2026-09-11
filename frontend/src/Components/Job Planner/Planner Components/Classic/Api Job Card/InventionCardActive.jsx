@@ -1,9 +1,11 @@
 import { Typography, Grid } from "@mui/material";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
-import { formatNumberForLocale, formatTimeRemaining } from "../../../../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  formatTimeRemaining,
+} from "../../../../../Functions/Helper/numberParser";
 
 export function InventionESICardActive({ job }) {
-
   const timeRemaining = formatTimeRemaining(Date.parse(job.end_date));
 
   return (

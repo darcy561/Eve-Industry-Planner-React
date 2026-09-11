@@ -9,9 +9,7 @@ import {
 } from "@mui/material";
 import { startTransition, useOptimistic } from "react";
 
-import {
-  scheduleDebouncedApplicationSettingsSave,
-  } from "../../../Functions/Debounce/userDocumentsPersistSchedule.js";
+import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import {
   JOB_STATUS_CATALOG,
   STANDARD_TEXT_FORMAT,
@@ -44,7 +42,7 @@ function LayoutSettingsFrame() {
     (current, { id, name }) => ({
       ...current,
       [String(id)]: { name },
-    })
+    }),
   );
 
   function handleJobStatusNameChange(id, raw) {

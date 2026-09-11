@@ -54,7 +54,11 @@ describe("the cost comparison", () => {
 
   it("draws no range against a single previous build", () => {
     renderFor(
-      history({ buildCount: 1, cheapestCostPerItem: 230, dearestCostPerItem: 230 }),
+      history({
+        buildCount: 1,
+        cheapestCostPerItem: 230,
+        dearestCostPerItem: 230,
+      }),
       240,
     );
 

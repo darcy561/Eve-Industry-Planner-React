@@ -46,7 +46,7 @@ function useAppConfig({
   shouldFetchOnMount = false,
 } = {}) {
   const [config, setConfig] = useState(
-    () => getAppConfig() || DEFAULT_APP_CONFIG
+    () => getAppConfig() || DEFAULT_APP_CONFIG,
   );
 
   useEffect(() => {
@@ -70,7 +70,11 @@ function useAppConfig({
   }, [shouldFetchOnMount, enableAutoRefresh, refreshIntervalMs]);
 
   useEffect(() => {
-    if (!shouldFetchOnMount || !enableVersionCheck || versionCheckIntervalMs <= 0) {
+    if (
+      !shouldFetchOnMount ||
+      !enableVersionCheck ||
+      versionCheckIntervalMs <= 0
+    ) {
       return undefined;
     }
 

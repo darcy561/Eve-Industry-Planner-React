@@ -14,7 +14,10 @@ import {
  * @returns {import("./corporationCollection").CorporationCollection}
  */
 export function getAllCachedCorporationMarketOrders(queryClient) {
-  return readCorporationCollection(queryClient, corporationMarketOrdersQueryKey);
+  return readCorporationCollection(
+    queryClient,
+    corporationMarketOrdersQueryKey,
+  );
 }
 
 /**

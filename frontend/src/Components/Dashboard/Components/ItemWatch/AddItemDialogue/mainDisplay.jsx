@@ -29,7 +29,8 @@ export function EditItemDisplay_WatchlistDialogue({
         onClick={() => {
           updateItemToModify(watchlistItemRequest);
         }}
-        size={12}>
+        size={12}
+      >
         <Grid align="center" size={12}>
           <img
             src={`https://images.evetech.net/types/${watchlistItemRequest}/icon?size=64 `}
@@ -41,7 +42,8 @@ export function EditItemDisplay_WatchlistDialogue({
           sx={{
             marginBottom: "20px",
           }}
-          size={12}>
+          size={12}
+        >
           <Typography
             color={itemToModify === watchlistItemRequest ? "primary" : null}
             sx={{

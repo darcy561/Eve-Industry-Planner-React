@@ -14,7 +14,7 @@ async function getCharacterTransactions({
 
     const { CharacterID } = character;
     const { accessToken } = await getEsiAccessToken(character.CharacterHash);
-        const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/wallet/transactions/?datasource=tranquility&page=${page}`;
+    const endpointURL = `https://esi.evetech.net/characters/${CharacterID}/wallet/transactions/?datasource=tranquility&page=${page}`;
 
     const response = await fetchWithCustomHeaders(endpointURL, {
       headers: {
@@ -48,7 +48,9 @@ async function getCharacterTransactions({
     if (response.status >= 400 && response.status < 500) {
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
-        console.warn(`Access forbidden for character transactions: ${CharacterID}`);
+        console.warn(
+          `Access forbidden for character transactions: ${CharacterID}`,
+        );
         return {
           data: [],
           etag: "",
@@ -57,14 +59,14 @@ async function getCharacterTransactions({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -78,7 +80,7 @@ async function getCharacterTransactions({
       .filter(
         (item) =>
           currentDate - Date.parse(item.date) <=
-            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy
+            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 && !item.is_buy,
       )
       .map((transaction) => ({
         ...transaction,
@@ -90,7 +92,6 @@ async function getCharacterTransactions({
       etag,
       totalPages,
     };
-
   } catch (err) {
     console.error(`Error fetching character transactions: ${err}`);
     return {

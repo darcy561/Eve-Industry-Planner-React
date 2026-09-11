@@ -6,10 +6,10 @@ export const MAX_SYSTEM_INDEXES_PER_REQUEST = 500;
 /**
  * Retrieves system indexes for given system IDs, checking cache and refresh requirements.
  * Returns cached data if fresh, otherwise fetches from the API.
- * 
+ *
  * @param {number|Array<number>|Set<number>} inputIDs - System ID(s) to get indexes for
  * @returns {Promise<Object>} Promise that resolves to system index data object
- * 
+ *
  * @example
  * const indexes = await getSystemIndexes([30000142, 30002187]);
  * console.log(indexes); // { 30000142: { solar_system_id: 30000142, manufacturing: 0.1, ... }, 30002187: { solar_system_id: 30002187, manufacturing: 0.2, ... } }
@@ -40,10 +40,10 @@ async function getSystemIndexes(inputIDs) {
 /**
  * Finds system IDs that require system index data refresh.
  * Checks cache and determines which systems need updated data.
- * 
+ *
  * @param {Set<number>} inputSet - Set of system IDs to check
  * @returns {Array<number>} Array of system IDs that need refresh
- * 
+ *
  * @private
  */
 function findRequiredSystemIndexes(inputSet) {

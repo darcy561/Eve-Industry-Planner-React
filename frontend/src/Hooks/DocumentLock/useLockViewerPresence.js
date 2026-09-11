@@ -23,7 +23,8 @@ export function useLockViewerPresence({
   const registerAsViewer = readOnly || waitingInHandoffQueue;
 
   useEffect(() => {
-    if (!enabled || !collection || !docID || !registerAsViewer) return undefined;
+    if (!enabled || !collection || !docID || !registerAsViewer)
+      return undefined;
     void postDocumentLockViewerArrived(collection, docID).catch(() => {});
     function onPageHide() {
       sendDocumentLockViewerDepartedBeacon(collection, docID);
@@ -34,7 +35,7 @@ export function useLockViewerPresence({
       const scope = selectScopedDocumentLock(
         useUsersStore.getState(),
         collection,
-        docID
+        docID,
       );
       if (!releaseOnUnmount) return;
       if (scope.lockHeld && !scope.readOnly) {

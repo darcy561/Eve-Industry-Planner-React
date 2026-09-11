@@ -27,7 +27,7 @@ export const activePlannerActions = (set, get) => ({
         },
       }),
       false,
-      "activePlanner/setActivePlannerOwner"
+      "activePlanner/setActivePlannerOwner",
     );
   },
 
@@ -42,7 +42,7 @@ export const activePlannerActions = (set, get) => ({
         },
       }),
       false,
-      "resetActivePlannerStore"
+      "resetActivePlannerStore",
     );
   },
 });

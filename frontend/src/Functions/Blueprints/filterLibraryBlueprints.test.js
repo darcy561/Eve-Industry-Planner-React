@@ -11,8 +11,12 @@ import {
 } from "../../tests/blueprintFixtures";
 
 const { rows } = buildBlueprintRows(
-  [...characterBlueprintRows, ...corporationBlueprintRows, reactionFormulaStackRow],
-  blueprintSearchIndex
+  [
+    ...characterBlueprintRows,
+    ...corporationBlueprintRows,
+    reactionFormulaStackRow,
+  ],
+  blueprintSearchIndex,
 );
 
 const ids = (result) => result.map((row) => row.itemId).sort((a, b) => a - b);
@@ -20,7 +24,7 @@ const ids = (result) => result.map((row) => row.itemId).sort((a, b) => a - b);
 describe("the blueprint library's filters", () => {
   it("offers everything held", () => {
     expect(filterLibraryBlueprints(rows, LIBRARY_FILTER.ALL)).toHaveLength(
-      rows.length
+      rows.length,
     );
   });
 
@@ -31,7 +35,7 @@ describe("the blueprint library's filters", () => {
   it("narrows to what a job type builds", () => {
     const manufacturing = filterLibraryBlueprints(
       rows,
-      LIBRARY_FILTER.MANUFACTURING
+      LIBRARY_FILTER.MANUFACTURING,
     );
     const reactions = filterLibraryBlueprints(rows, LIBRARY_FILTER.REACTIONS);
 
@@ -45,7 +49,9 @@ describe("the blueprint library's filters", () => {
     const originals = filterLibraryBlueprints(rows, LIBRARY_FILTER.BPO);
     const copies = filterLibraryBlueprints(rows, LIBRARY_FILTER.BPC);
 
-    expect(originals.every((row) => !row.isCopy && row.jobType === 1)).toBe(true);
+    expect(originals.every((row) => !row.isCopy && row.jobType === 1)).toBe(
+      true,
+    );
     expect(copies.every((row) => row.isCopy && row.jobType === 1)).toBe(true);
     expect(ids(originals).some((id) => ids(copies).includes(id))).toBe(false);
   });
@@ -55,12 +61,12 @@ describe("the blueprint library's filters", () => {
   it("leaves reaction formulas out of the original and copy views", () => {
     const formula = reactionFormulaStackRow.item_id;
 
-    expect(ids(filterLibraryBlueprints(rows, LIBRARY_FILTER.BPO))).not.toContain(
-      formula
-    );
-    expect(ids(filterLibraryBlueprints(rows, LIBRARY_FILTER.BPC))).not.toContain(
-      formula
-    );
+    expect(
+      ids(filterLibraryBlueprints(rows, LIBRARY_FILTER.BPO)),
+    ).not.toContain(formula);
+    expect(
+      ids(filterLibraryBlueprints(rows, LIBRARY_FILTER.BPC)),
+    ).not.toContain(formula);
   });
 
   describe("the blueprints currently building", () => {
@@ -75,9 +81,9 @@ describe("the blueprint library's filters", () => {
     });
 
     it("offers nothing when no job is running", () => {
-      expect(
-        filterLibraryBlueprints(rows, LIBRARY_FILTER.ACTIVE, [])
-      ).toEqual([]);
+      expect(filterLibraryBlueprints(rows, LIBRARY_FILTER.ACTIVE, [])).toEqual(
+        [],
+      );
       expect(filterLibraryBlueprints(rows, LIBRARY_FILTER.ACTIVE)).toEqual([]);
     });
   });

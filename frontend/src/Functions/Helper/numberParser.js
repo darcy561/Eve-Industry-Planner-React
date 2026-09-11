@@ -11,7 +11,7 @@ export function parseNumberWithSeparators(str) {
   if (typeof str === "number") {
     return isNaN(str) ? NaN : str;
   }
-  
+
   // If not a string, try to convert to string
   if (typeof str !== "string") {
     return isNaN(Number(str)) ? NaN : Number(str);
@@ -170,7 +170,11 @@ export function formatCompactNumber(value) {
  * @returns {string|null} null where the ratio has no answer
  */
 export function formatPercentage(fraction, { places = 1 } = {}) {
-  if (fraction === null || fraction === undefined || !Number.isFinite(fraction)) {
+  if (
+    fraction === null ||
+    fraction === undefined ||
+    !Number.isFinite(fraction)
+  ) {
     return null;
   }
   return `${formatNumberForLocale(fraction * 100, { max: places })}%`;
@@ -192,7 +196,7 @@ export function formatDateForLocale(date) {
     useUsersStore.getState().applicationSettings.actions.getCurrentLocale(),
     {
       dateStyle: "short",
-    }
+    },
   ).format(dateObj);
 }
 
@@ -338,7 +342,7 @@ export function formatTimeRemaining(inputTime, options = {}) {
       seconds: false,
       ...options,
     };
- 
+
     const formatted = formatTimeDuration(timeLeft / 1000, formatOptions);
 
     // Return formatted string (empty string if less than a minute, matching original behaviour)
@@ -347,4 +351,3 @@ export function formatTimeRemaining(inputTime, options = {}) {
     return "Time Not Available";
   }
 }
-

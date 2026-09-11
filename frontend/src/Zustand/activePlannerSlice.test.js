@@ -14,21 +14,21 @@ describe("the planner the app works in", () => {
     const store = storeWithAccount("acct-1");
 
     expect(store.getState().activePlanner.owner).toBeNull();
-    expect(
-      store.getState().activePlanner.actions.getActivePlannerOwner()
-    ).toBe("account:acct-1");
+    expect(store.getState().activePlanner.actions.getActivePlannerOwner()).toBe(
+      "account:acct-1",
+    );
   });
 
   it("is the named planner once one is set", () => {
     const store = storeWithAccount("acct-1");
 
-    store.getState().activePlanner.actions.setActivePlannerOwner(
-      "corporation:98000001"
-    );
+    store
+      .getState()
+      .activePlanner.actions.setActivePlannerOwner("corporation:98000001");
 
-    expect(
-      store.getState().activePlanner.actions.getActivePlannerOwner()
-    ).toBe("corporation:98000001");
+    expect(store.getState().activePlanner.actions.getActivePlannerOwner()).toBe(
+      "corporation:98000001",
+    );
   });
 
   it("falls back to the account's own when the name is dropped", () => {
@@ -48,16 +48,20 @@ describe("the planner the app works in", () => {
     const store = storeWithAccount("");
 
     expect(
-      store.getState().activePlanner.actions.getActivePlannerOwner()
+      store.getState().activePlanner.actions.getActivePlannerOwner(),
     ).toBeNull();
   });
 
   it("keeps the same state object when the planner does not change", () => {
     const store = storeWithAccount("acct-1");
-    store.getState().activePlanner.actions.setActivePlannerOwner("corporation:1");
+    store
+      .getState()
+      .activePlanner.actions.setActivePlannerOwner("corporation:1");
     const before = store.getState().activePlanner;
 
-    store.getState().activePlanner.actions.setActivePlannerOwner("corporation:1");
+    store
+      .getState()
+      .activePlanner.actions.setActivePlannerOwner("corporation:1");
 
     expect(store.getState().activePlanner).toBe(before);
   });

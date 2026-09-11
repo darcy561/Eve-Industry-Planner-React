@@ -470,9 +470,12 @@ export const plannerSessionActions = (set, get) => ({
         // cannot be acquired is not fatal there; local mode has no such fallback and must send one.
         let eveTokenForRefresh = "";
         try {
-          const acquired = await getEsiAccessToken(mainCharacter.CharacterHash, {
-            minRemainingSec: ESI_ACCESS_TOKEN_REFRESH_SKEW_SEC,
-          });
+          const acquired = await getEsiAccessToken(
+            mainCharacter.CharacterHash,
+            {
+              minRemainingSec: ESI_ACCESS_TOKEN_REFRESH_SKEW_SEC,
+            },
+          );
           eveTokenForRefresh = acquired.accessToken;
         } catch (err) {
           if (!cloud) {
@@ -522,10 +525,13 @@ export const plannerSessionActions = (set, get) => ({
           return;
         }
         const cloud = !!get().applicationSettings?.userCloudAccounts;
-        const eveTokenForRecovery = heldEsiAccessToken(mainCharacter.CharacterHash);
+        const eveTokenForRecovery = heldEsiAccessToken(
+          mainCharacter.CharacterHash,
+        );
         if (err?.status === 401 && !cloud && eveTokenForRecovery) {
           try {
-            const loginResp = await establishPlannerSession(eveTokenForRecovery);
+            const loginResp =
+              await establishPlannerSession(eveTokenForRecovery);
             get().account.actions.applyLoginAuthResponse(
               loginResp,
               mainCharacter.CharacterHash,

@@ -3,10 +3,7 @@ import { Typography, Grid } from "@mui/material";
 import { STANDARD_TEXT_FORMAT } from "../../../Context/defaultValues";
 import { ShoppingListItem_ShoppingListDialogue } from "./shoppingListItem";
 
-export function ListDataFrame_ShoppingListDialogue({
-  state,
-  actions,
-}) {
+export function ListDataFrame_ShoppingListDialogue({ state, actions }) {
   if (state.isLoading || !state.shoppingList) return null;
   return state.shoppingList.items.some((item) => item.isVisible) ? (
     <ListItems state={state} actions={actions} />
@@ -16,8 +13,10 @@ export function ListDataFrame_ShoppingListDialogue({
 }
 
 function ListItems({ state, actions }) {
-  const visibleItems = state.shoppingList.items.filter((item) => item.isVisible);
-  
+  const visibleItems = state.shoppingList.items.filter(
+    (item) => item.isVisible,
+  );
+
   return (
     <Grid container>
       {visibleItems.map((item, index) => {

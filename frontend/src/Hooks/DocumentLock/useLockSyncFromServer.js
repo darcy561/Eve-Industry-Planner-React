@@ -32,7 +32,7 @@ export function useLockSyncFromServer({
         const prev = selectScopedDocumentLock(
           useUsersStore.getState(),
           collection,
-          docID
+          docID,
         );
         const viewerCountPatch =
           typeof data.viewerCount === "number"

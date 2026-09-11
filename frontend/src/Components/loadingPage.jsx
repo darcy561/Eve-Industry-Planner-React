@@ -1,9 +1,6 @@
 import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import { appShellSimpleLoadingSurfaceSx } from "../Context/appShell";
-import {
-  LoadingBrandBackdrop,
-  LoadingBrandScene,
-} from "./loadingBrand";
+import { LoadingBrandBackdrop, LoadingBrandScene } from "./loadingBrand";
 
 /**
  * @param {Object} props
@@ -13,10 +10,7 @@ import {
  *     tinted panel), for in-panel Suspense (e.g. Edit Job steps) — not the branded route loader.
  * @param {string} [props.helperText] — Caption under the spinner when `variant="simple"` (updates when the prop changes).
  */
-export function LoadingPage({
-  variant = "embedded",
-  helperText = "Loading…",
-}) {
+export function LoadingPage({ variant = "embedded", helperText = "Loading…" }) {
   if (variant === "simple") {
     return (
       <Box

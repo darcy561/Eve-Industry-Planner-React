@@ -48,16 +48,18 @@ function AvailableJobEntry({ job, actions, siblingLinkLock }) {
       size={12}
       sx={{
         justifyContent: "center",
-        alignItems: "center"
-      }}>
+        alignItems: "center",
+      }}
+    >
       <Grid
         sx={{
           display: { xs: "none", sm: "block" },
         }}
         align="center"
         size={{
-          sm: 1
-        }}>
+          sm: 1,
+        }}
+      >
         <Avatar
           src={`https://image.eveonline.com/Type/${job.itemID}_32.png`}
           alt={job.name}

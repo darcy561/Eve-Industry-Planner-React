@@ -10,7 +10,7 @@ const { useUsersStoreMock, storeRef } = vi.hoisted(() => {
       getState: () => ref.current.getState(),
       setState: (...args) => ref.current.setState(...args),
       subscribe: (...args) => ref.current.subscribe(...args),
-    }
+    },
   );
   return { useUsersStoreMock: mock, storeRef: ref };
 });
@@ -68,33 +68,39 @@ describe("useDocumentLockState", () => {
   });
 
   it("useJobLockReadOnly reflects scope readOnly", () => {
-    storeRef.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOBS_COLLECTION,
-      "job-9",
-      { readOnly: true }
-    );
+    storeRef.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "job-9",
+        { readOnly: true },
+      );
     const { result } = renderHook(() => useJobLockReadOnly("job-9"));
     expect(result.current).toBe(true);
   });
 
   it("useActiveGroupLockReadOnly uses jobData.activeGroupID", () => {
-    storeRef.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOB_GROUPS_COLLECTION,
-      "group-1",
-      { readOnly: true }
-    );
+    storeRef.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOB_GROUPS_COLLECTION,
+        "group-1",
+        { readOnly: true },
+      );
     const { result } = renderHook(() => useActiveGroupLockReadOnly());
     expect(result.current).toBe(true);
   });
 
   it("useJobCardLockState combines job and group read-only on planner", () => {
-    storeRef.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOBS_COLLECTION,
-      "job-1",
-      { readOnly: true }
-    );
+    storeRef.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "job-1",
+        { readOnly: true },
+      );
     const { result } = renderHook(() =>
-      useJobCardLockState({ jobID: "job-1", groupReadOnly: false })
+      useJobCardLockState({ jobID: "job-1", groupReadOnly: false }),
     );
     expect(result.current.cardLocked).toBe(true);
     expect(result.current.jobReadOnly).toBe(true);
@@ -102,17 +108,19 @@ describe("useDocumentLockState", () => {
   });
 
   it("useJobCardLockState ignores per-job read-only when subordinate to group", () => {
-    storeRef.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOBS_COLLECTION,
-      "job-1",
-      { readOnly: true }
-    );
+    storeRef.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOBS_COLLECTION,
+        "job-1",
+        { readOnly: true },
+      );
     const { result } = renderHook(() =>
       useJobCardLockState({
         jobID: "job-1",
         groupReadOnly: false,
         jobLockSubordinateToGroup: true,
-      })
+      }),
     );
     expect(result.current.cardLocked).toBe(false);
   });

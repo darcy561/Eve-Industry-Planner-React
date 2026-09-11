@@ -49,9 +49,8 @@ const { default: calcSellingCharges } = await import("./calcSellingCharges.js");
 // through React Query, and passing null hid that the wiring was never exercised.
 const client = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
-const { default: findBrokersFeeEntry } = await import(
-  "./findBrokersFeeEntry.js"
-);
+const { default: findBrokersFeeEntry } =
+  await import("./findBrokersFeeEntry.js");
 const { default: Job } = await import("../../Classes/job.js");
 
 const ISSUED = "2026-08-01T00:00:00Z";
@@ -74,7 +73,11 @@ const CITADEL = 1035466617946;
 
 describe("what listing an order costs", () => {
   it("charges the citadel's own rate outside NPC stations", async () => {
-    const { brokerFee: fee } = await calcSellingCharges(orderAt(CITADEL), client(), 1.5);
+    const { brokerFee: fee } = await calcSellingCharges(
+      orderAt(CITADEL),
+      client(),
+      1.5,
+    );
 
     // 1.5% of 100,000,000
     expect(fee).toBe(1500000);
@@ -89,7 +92,11 @@ describe("what listing an order costs", () => {
       { from_id: stationData.owner, from_type: "npc_corp", standing: 2.5 },
     ];
 
-    const { brokerFee: fee } = await calcSellingCharges(orderAt(NPC_STATION), client(), 1.5);
+    const { brokerFee: fee } = await calcSellingCharges(
+      orderAt(NPC_STATION),
+      client(),
+      1.5,
+    );
 
     // 3 − 1.5 − 0.15 − 0.05 = 1.3% of 100,000,000
     expect(fee).toBeCloseTo(1300000, 6);
@@ -99,7 +106,11 @@ describe("what listing an order costs", () => {
     skills.data = {};
     standings.data = [];
 
-    const { brokerFee: fee } = await calcSellingCharges(orderAt(NPC_STATION), client(), 1.5);
+    const { brokerFee: fee } = await calcSellingCharges(
+      orderAt(NPC_STATION),
+      client(),
+      1.5,
+    );
 
     expect(fee).toBeCloseTo(3000000, 6);
   });
@@ -128,7 +139,10 @@ describe("the fee that reaches the job", () => {
       name: "Tritanium",
     });
     const order = orderAt(CITADEL);
-    job.addMarketOrder(order, findBrokersFeeEntry(order, { brokerFee: feeAmount }, null));
+    job.addMarketOrder(
+      order,
+      findBrokersFeeEntry(order, { brokerFee: feeAmount }, null),
+    );
     return job;
   }
 
@@ -185,15 +199,13 @@ describe("the constants selling costs are worked out from", () => {
     // Accounting takes a fraction of the base per level rather than subtracting
     // from it, which is what puts the rate at 3.375% rather than 6.95% at V.
     expect(salesTaxRates.base * (1 - salesTaxRates.accounting * 5)).toBeCloseTo(
-      3.375
+      3.375,
     );
   });
 
   it("resolves every market skill through the catalogue", async () => {
     const { marketSkillIDs } = await import("../../Context/defaultValues");
-    const { default: catalogue } = await import(
-      "../../RawData/bpSkills.json"
-    );
+    const { default: catalogue } = await import("../../RawData/bpSkills.json");
 
     for (const [name, typeID] of Object.entries(marketSkillIDs)) {
       expect(catalogue[typeID], `${name} (${typeID}) missing`).toMatchObject({
@@ -264,7 +276,11 @@ describe("the tax worked out alongside the fee", () => {
   it("taxes a citadel sale the same as a station one", async () => {
     skills.data = {};
 
-    const station = await calcSellingCharges(orderAt(NPC_STATION), client(), 1.5);
+    const station = await calcSellingCharges(
+      orderAt(NPC_STATION),
+      client(),
+      1.5,
+    );
     const citadel = await calcSellingCharges(orderAt(CITADEL), client(), 1.5);
 
     expect(citadel.salesTax).toBeCloseTo(station.salesTax, 6);

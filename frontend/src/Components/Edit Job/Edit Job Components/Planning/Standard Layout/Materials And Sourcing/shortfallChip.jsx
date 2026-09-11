@@ -41,7 +41,10 @@ export default function ShortfallChip({ coverage, childJobs = [] }) {
 function explain(coverage, childJobs) {
   const named =
     childJobs.length > 0
-      ? childJobs.map((job) => job.name).filter(Boolean).join(", ")
+      ? childJobs
+          .map((job) => job.name)
+          .filter(Boolean)
+          .join(", ")
       : "The linked job";
 
   const makes = `${named} makes ${quantity(coverage.produced)} of the ${quantity(coverage.required)} needed.`;

@@ -11,7 +11,7 @@ function renderSelect(props = {}) {
     <AppShellSelect value="16" onChange={onChange} {...props}>
       <MenuItem value="16">Sixteen</MenuItem>
       <MenuItem value="32">Thirty-two</MenuItem>
-    </AppShellSelect>
+    </AppShellSelect>,
   );
   return onChange;
 }
@@ -32,7 +32,7 @@ describe("the app-shell dropdown", () => {
     const { unmount } = render(
       <AppShellSelect value="" onChange={() => {}} helperText="Items Per Page">
         <MenuItem value="">None</MenuItem>
-      </AppShellSelect>
+      </AppShellSelect>,
     );
     expect(screen.getByText("Items Per Page")).toBeTruthy();
     unmount();

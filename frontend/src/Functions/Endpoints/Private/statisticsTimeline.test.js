@@ -85,17 +85,24 @@ describe("getAccountTimeline", () => {
       text: async () => "statistics_range_too_long",
     });
 
-    expect(await getAccountTimeline({ from: "2000-01", to: "2026-08" })).toBeNull();
+    expect(
+      await getAccountTimeline({ from: "2000-01", to: "2026-08" }),
+    ).toBeNull();
   });
 });
 
 describe("getAccountTimelineItems", () => {
   it("passes ranking and paging to the server", async () => {
     requestWithPrivateHeaders.mockResolvedValue(
-      jsonResponse({ period: {}, paging: { totalItems: 0 }, items: [] })
+      jsonResponse({ period: {}, paging: { totalItems: 0 }, items: [] }),
     );
 
-    await getAccountTimelineItems({ sort: "salesTotal", order: "asc", limit: 50, offset: 100 });
+    await getAccountTimelineItems({
+      sort: "salesTotal",
+      order: "asc",
+      limit: 50,
+      offset: 100,
+    });
 
     const url = requestedURL();
     expect(url).toContain("sort=salesTotal");
@@ -108,7 +115,7 @@ describe("getAccountTimelineItems", () => {
   // from wherever the server defaults to.
   it("sends offset zero rather than omitting it", async () => {
     requestWithPrivateHeaders.mockResolvedValue(
-      jsonResponse({ period: {}, paging: {}, items: [] })
+      jsonResponse({ period: {}, paging: {}, items: [] }),
     );
 
     await getAccountTimelineItems({ offset: 0 });
@@ -118,7 +125,9 @@ describe("getAccountTimelineItems", () => {
 
   it("applies the same range rules as the month view", async () => {
     expect(await getAccountTimelineItems({ from: "2026-01" })).toBeNull();
-    expect(await getAccountTimelineItems({ from: "bad", to: "2026-03" })).toBeNull();
+    expect(
+      await getAccountTimelineItems({ from: "bad", to: "2026-03" }),
+    ).toBeNull();
     expect(requestWithPrivateHeaders).not.toHaveBeenCalled();
   });
 });

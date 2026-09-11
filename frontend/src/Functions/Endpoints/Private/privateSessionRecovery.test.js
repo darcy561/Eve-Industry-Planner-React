@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockEnsurePlannerSession, mockRedirectToFullEveLogin } = vi.hoisted(() => ({
-  mockEnsurePlannerSession: vi.fn().mockResolvedValue(undefined),
-  mockRedirectToFullEveLogin: vi.fn(),
-}));
+const { mockEnsurePlannerSession, mockRedirectToFullEveLogin } = vi.hoisted(
+  () => ({
+    mockEnsurePlannerSession: vi.fn().mockResolvedValue(undefined),
+    mockRedirectToFullEveLogin: vi.fn(),
+  }),
+);
 
 vi.mock("../../Auth/plannerSessionRedirect.js", async (importOriginal) => ({
   ...(await importOriginal()),
@@ -35,7 +37,10 @@ describe("private requests and the planner session", () => {
       account: {
         ...s.account,
         sessionID: "session-1",
-        actions: { ...s.account.actions, ensurePlannerSession: mockEnsurePlannerSession },
+        actions: {
+          ...s.account.actions,
+          ensurePlannerSession: mockEnsurePlannerSession,
+        },
       },
     }));
   });
@@ -56,7 +61,11 @@ describe("private requests and the planner session", () => {
       .mockResolvedValueOnce(jsonResponse(401, { code: "session_missing" }))
       .mockResolvedValueOnce(jsonResponse(200, { ok: true }));
 
-    const res = await requestWithPrivateHeaders("/api/v1/thing", {}, { retry: false });
+    const res = await requestWithPrivateHeaders(
+      "/api/v1/thing",
+      {},
+      { retry: false },
+    );
 
     expect(res.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -67,7 +76,11 @@ describe("private requests and the planner session", () => {
   it("retries at most once when the session stays missing", async () => {
     fetchMock.mockResolvedValue(jsonResponse(401, { code: "session_missing" }));
 
-    const res = await requestWithPrivateHeaders("/api/v1/thing", {}, { retry: false });
+    const res = await requestWithPrivateHeaders(
+      "/api/v1/thing",
+      {},
+      { retry: false },
+    );
 
     expect(res.status).toBe(401);
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -77,7 +90,7 @@ describe("private requests and the planner session", () => {
     fetchMock.mockResolvedValue(jsonResponse(401, { code: "session_revoked" }));
 
     await expect(
-      requestWithPrivateHeaders("/api/v1/thing", {}, { retry: false })
+      requestWithPrivateHeaders("/api/v1/thing", {}, { retry: false }),
     ).rejects.toMatchObject({ status: 401 });
 
     expect(mockRedirectToFullEveLogin).toHaveBeenCalledTimes(1);
@@ -90,7 +103,7 @@ describe("private requests and the planner session", () => {
     await requestWithPrivateHeaders(
       "/api/v1/thing",
       {},
-      { retry: false, skipSessionRefresh: true }
+      { retry: false, skipSessionRefresh: true },
     );
 
     expect(mockEnsurePlannerSession).not.toHaveBeenCalled();

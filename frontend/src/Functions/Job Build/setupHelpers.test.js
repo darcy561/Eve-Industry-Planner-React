@@ -45,7 +45,7 @@ describe("the blueprint a job is set up from", () => {
     const { ME, TE } = findHighestMaterialEfficiencyBlueprint(
       jobTypes.manufacturing,
       RIFTER_BLUEPRINT_TYPE_ID,
-      null
+      null,
     );
 
     // 7002 is the ME 10 / TE 20 original; TE is halved into the job's own scale.
@@ -57,7 +57,7 @@ describe("the blueprint a job is set up from", () => {
     const { ME, TE } = findHighestMaterialEfficiencyBlueprint(
       jobTypes.manufacturing,
       999999999,
-      null
+      null,
     );
 
     expect(TE).toBe(0);
@@ -68,7 +68,7 @@ describe("the blueprint a job is set up from", () => {
     const { TE } = findHighestMaterialEfficiencyBlueprint(
       jobTypes.reaction,
       POLYMER_REACTION_TYPE_ID,
-      null
+      null,
     );
 
     expect(TE).toBe(0);
@@ -80,7 +80,7 @@ describe("the blueprint a job is set up from", () => {
     const { TE } = findHighestMaterialEfficiencyBlueprint(
       jobTypes.manufacturing,
       RIFTER_BLUEPRINT_TYPE_ID,
-      null
+      null,
     );
 
     expect(TE).toBe(0);
@@ -99,7 +99,7 @@ describe("spreading runs across the originals a job can use", () => {
       1000,
       40,
       1,
-      null
+      null,
     );
 
     const slots = segments.reduce((total, s) => total + s.jobCount, 0);
@@ -109,7 +109,7 @@ describe("spreading runs across the originals a job can use", () => {
 
   it("uses one slot when only one original is held", () => {
     const [single] = characterBlueprintRows.filter(
-      (row) => row.type_id === RIFTER_BLUEPRINT_TYPE_ID && row.quantity === -1
+      (row) => row.type_id === RIFTER_BLUEPRINT_TYPE_ID && row.quantity === -1,
     );
     withBlueprints([single]);
 
@@ -118,7 +118,7 @@ describe("spreading runs across the originals a job can use", () => {
       1000,
       40,
       1,
-      null
+      null,
     );
 
     expect(segments.reduce((total, s) => total + s.jobCount, 0)).toBe(1);
@@ -133,7 +133,7 @@ describe("spreading runs across the originals a job can use", () => {
       1000,
       40,
       1,
-      null
+      null,
     );
 
     expect(segments.reduce((total, s) => total + s.jobCount, 0)).toBe(1);
@@ -147,7 +147,7 @@ describe("spreading runs across the originals a job can use", () => {
       1000,
       40,
       1,
-      null
+      null,
     );
 
     expect(segments.reduce((total, s) => total + s.jobCount, 0)).toBe(5);

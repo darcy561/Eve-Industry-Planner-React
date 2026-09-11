@@ -30,7 +30,7 @@ export function childJobSupplyForMaterial(activeJob, material, childJobs) {
   const childIDs = new Set(childJobs.map((childJob) => childJob.jobID));
   const output = childJobs.reduce(
     (total, childJob) => total + childJob.totalQuantityProduced,
-    0
+    0,
   );
 
   // Every job these children supply, this one included: a job that links a child
@@ -59,14 +59,14 @@ export function childJobSupplyForMaterial(activeJob, material, childJobs) {
     }
 
     const parentMaterial = parent.build.materials?.find(
-      (i) => i.typeID === material.typeID
+      (i) => i.typeID === material.typeID,
     );
     if (!parentMaterial) continue;
 
     imported += parentMaterial.purchasing.reduce(
       (total, row) =>
         childIDs.has(row.childID) ? total + row.itemCount : total,
-      0
+      0,
     );
 
     if (parentID === activeJob.jobID) continue;
@@ -77,7 +77,9 @@ export function childJobSupplyForMaterial(activeJob, material, childJobs) {
   const supply = Math.max(0, output - imported);
   const claims = ownNeed + otherClaims;
   const max = Math.min(supply, ownNeed);
-  const min = claimsKnown ? Math.max(0, Math.min(supply - otherClaims, ownNeed)) : 0;
+  const min = claimsKnown
+    ? Math.max(0, Math.min(supply - otherClaims, ownNeed))
+    : 0;
 
   return {
     output,

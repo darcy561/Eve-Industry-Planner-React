@@ -1,11 +1,11 @@
 /**
  * Auto Recalculation Hook for EVE Industry Planner.
- * 
+ *
  * Custom React hook that automatically triggers reprocessing calculations when
  * relevant state changes occur. Monitors specific state properties and triggers
  * recalculation only when appropriate conditions are met to avoid unnecessary
  * calculations and provide a smooth user experience.
- * 
+ *
  * @fileoverview Hook for automatic reprocessing recalculation
  * @author EVE Industry Planner Team
  */
@@ -15,11 +15,11 @@ import { calculateReprocessing } from "../../../Functions/Reprocessing/calculate
 
 /**
  * Custom hook that automatically triggers recalculation when relevant state changes.
- * 
+ *
  * Monitors specific state properties and automatically triggers reprocessing
  * calculations when they change, but only under appropriate conditions to
  * avoid unnecessary calculations and provide optimal user experience.
- * 
+ *
  * @param {Object} pageState - Current page state object
  * @param {string} pageState.inputText - Raw input text
  * @param {boolean} pageState.isPageLoading - Page loading state
@@ -34,14 +34,14 @@ import { calculateReprocessing } from "../../../Functions/Reprocessing/calculate
  * @param {Object} pageState.reprocessingCalculationSettings - Calculation settings
  * @param {Object} pageActions - Page action functions
  * @param {Function} pageActions.calculateReprocessing - Function to trigger recalculation
- * 
+ *
  * @example
  * function ReprocessingPage() {
  *   const { state, actions } = useReprocessingReducer();
- *   
+ *
  *   // Automatically recalculate when relevant state changes
  *   useAutoRecalculation(state, actions);
- *   
+ *
  *   return (
  *     <div>
  *       Reprocessing UI
@@ -49,10 +49,7 @@ import { calculateReprocessing } from "../../../Functions/Reprocessing/calculate
  *   );
  * }
  */
-export default function useAutoRecalculation(
-  pageState,
-  pageActions
-) {
+export default function useAutoRecalculation(pageState, pageActions) {
   const isInitialMount = useRef(true);
 
   useEffect(() => {
@@ -67,9 +64,16 @@ export default function useAutoRecalculation(
     // 2. We're not already loading (!pageState.isPageLoading)
     // 3. We have some results (meaning the reprocess button has been pressed at least once)
     // 4. Input text hasn't been modified (let user finish their changes)
-    const hasResults = pageState.reprocessingObjects.length > 0 || pageState.processedInput.length > 0;
+    const hasResults =
+      pageState.reprocessingObjects.length > 0 ||
+      pageState.processedInput.length > 0;
 
-    if (pageState.inputText.trim() && !pageState.isPageLoading && hasResults && !pageState.inputModified) {
+    if (
+      pageState.inputText.trim() &&
+      !pageState.isPageLoading &&
+      hasResults &&
+      !pageState.inputModified
+    ) {
       calculateReprocessing({
         pageState,
         pageActions,

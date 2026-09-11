@@ -12,13 +12,18 @@ import useUsersStore from "../../Zustand/usersStore";
 import { scheduleDebouncedApplicationSettingsSave } from "../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import ContentPanel from "../../Styled Components/Paper/ContentPanel";
 
-function TutorialTemplate({ TutorialContent, updateExpandedMenu, paperSx, onFadeOutComplete }) {
+function TutorialTemplate({
+  TutorialContent,
+  updateExpandedMenu,
+  paperSx,
+  onFadeOutComplete,
+}) {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
   const displayHelpCards = useUsersStore(
-    (state) => state.applicationSettings.displayHelpCards
+    (state) => state.applicationSettings.displayHelpCards,
   );
   const { toggleHideTutorials } = useUsersStore(
-    (state) => state.applicationSettings.actions
+    (state) => state.applicationSettings.actions,
   );
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
@@ -54,7 +59,8 @@ function TutorialTemplate({ TutorialContent, updateExpandedMenu, paperSx, onFade
   return (
     <Fade in={shouldBeVisible} timeout={1000} appear={false}>
       <Box sx={{ width: "100%", height: "100%" }}>
-        <ContentPanel componentName="Tutorial Template"
+        <ContentPanel
+          componentName="Tutorial Template"
           paperSx={{
             padding: 2,
             width: "100%",
@@ -64,7 +70,10 @@ function TutorialTemplate({ TutorialContent, updateExpandedMenu, paperSx, onFade
             ...paperSx,
           }}
         >
-          <Grid container sx={{ flex: 1, minHeight: 0, flexDirection: "column" }}>
+          <Grid
+            container
+            sx={{ flex: 1, minHeight: 0, flexDirection: "column" }}
+          >
             <Grid size={12} sx={{ flex: 1, overflow: "auto", minHeight: 0 }}>
               {TutorialContent}
             </Grid>

@@ -61,11 +61,11 @@ export function LoadingBrandBackdrop({ children, sx }) {
           t.palette.mode === "dark"
             ? `radial-gradient(ellipse 80% 60% at 50% 35%, ${alpha(
                 t.palette.primary.main,
-                0.14
+                0.14,
               )} 0%, transparent 55%), ${t.palette.background.default}`
             : `radial-gradient(ellipse 80% 60% at 50% 35%, ${alpha(
                 t.palette.primary.main,
-                0.1
+                0.1,
               )} 0%, transparent 55%), ${t.palette.background.default}`,
         ...sx,
       }}
@@ -102,7 +102,7 @@ export function LoadingBrandScene({
           borderRadius: "50%",
           background: `radial-gradient(circle, ${alpha(
             theme.palette.primary.main,
-            0.22
+            0.22,
           )} 0%, transparent 70%)`,
           animation: `${glowPulse} 2.8s ease-in-out infinite`,
           pointerEvents: "none",

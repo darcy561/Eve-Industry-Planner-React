@@ -7,7 +7,10 @@
  * @param {(id: string) => unknown} getCustomStructureWithID
  * @returns {boolean}
  */
-export function setupHasOrphanedCustomStructure(setup, getCustomStructureWithID) {
+export function setupHasOrphanedCustomStructure(
+  setup,
+  getCustomStructureWithID,
+) {
   const id = setup?.customStructureID;
   if (!id) return false;
   return !getCustomStructureWithID(id);
@@ -23,7 +26,7 @@ export function setupHasOrphanedCustomStructure(setup, getCustomStructureWithID)
  */
 export function setupShowsManualStructureFields(
   setup,
-  getCustomStructureWithID
+  getCustomStructureWithID,
 ) {
   const id = setup?.customStructureID;
   if (!id) return true;
@@ -38,7 +41,7 @@ export function setupShowsManualStructureFields(
  */
 export function clearOrphanedCustomStructureOnSetups(
   setups,
-  getCustomStructureWithID
+  getCustomStructureWithID,
 ) {
   if (!setups) return;
 

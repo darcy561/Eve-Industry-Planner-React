@@ -172,11 +172,17 @@ export function appShellSliderSx(theme) {
     py: 0.5,
     "& .MuiSlider-rail": {
       opacity: 1,
-      backgroundColor: alpha(primary, theme.palette.mode === "dark" ? 0.22 : 0.16),
+      backgroundColor: alpha(
+        primary,
+        theme.palette.mode === "dark" ? 0.22 : 0.16,
+      ),
     },
     "& .MuiSlider-track": {
       border: "none",
-      backgroundColor: alpha(primary, theme.palette.mode === "dark" ? 0.55 : 0.42),
+      backgroundColor: alpha(
+        primary,
+        theme.palette.mode === "dark" ? 0.55 : 0.42,
+      ),
     },
     "& .MuiSlider-thumb": {
       width: 18,
@@ -212,10 +218,7 @@ export function appShellSliderSx(theme) {
 export function appShellMarketDataGridSx(theme) {
   const edge = alpha(theme.palette.primary.main, 0.2);
   const accent = theme.palette.primary.main;
-  const headerBg = alpha(
-    accent,
-    theme.palette.mode === "dark" ? 0.12 : 0.08,
-  );
+  const headerBg = alpha(accent, theme.palette.mode === "dark" ? 0.12 : 0.08);
   const hover = alpha(accent, 0.085);
   const paperFill = alpha(
     theme.palette.background.paper,

@@ -48,11 +48,15 @@ function dedupeQueueLastWins() {
  * @returns {CitadelStructureSubmission | null}
  */
 export function buildEsiStructureSubmission(structureId, esi) {
-  if (structureId == null || structureId <= 0 || !esi || typeof esi !== "object") {
+  if (
+    structureId == null ||
+    structureId <= 0 ||
+    !esi ||
+    typeof esi !== "object"
+  ) {
     return null;
   }
-  const name =
-    typeof esi.name === "string" ? esi.name.trim() : "";
+  const name = typeof esi.name === "string" ? esi.name.trim() : "";
   if (!name) return null;
 
   /** @type {CitadelStructureSubmission} */
@@ -112,7 +116,7 @@ async function postCitadelNamesBatch(submissions) {
         },
         body: JSON.stringify({ submissions }),
       },
-      { requestName: "submitCitadelNamesBatch" }
+      { requestName: "submitCitadelNamesBatch" },
     );
     return response.ok;
   } catch (error) {
@@ -166,7 +170,8 @@ function scheduleFlush() {
  */
 export function queueCitadelStructureSubmission(submission) {
   if (!submission || submission.id == null || submission.id <= 0) return;
-  const name = typeof submission.name === "string" ? submission.name.trim() : "";
+  const name =
+    typeof submission.name === "string" ? submission.name.trim() : "";
   if (!name) return;
 
   const idx = submissionQueue.findIndex((e) => e.id === submission.id);

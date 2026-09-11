@@ -23,7 +23,7 @@ function upsertCharactersByCanonicalHash(existing, incoming) {
     const k =
       ch && typeof ch === "object"
         ? canonicalCharacterHashKey(
-            /** @type {{ CharacterHash?: string }} */ (ch).CharacterHash
+            /** @type {{ CharacterHash?: string }} */ (ch).CharacterHash,
           )
         : "";
     if (k) indexByCanon.set(k, i);
@@ -32,7 +32,7 @@ function upsertCharactersByCanonicalHash(existing, incoming) {
     const k =
       row && typeof row === "object"
         ? canonicalCharacterHashKey(
-            /** @type {{ CharacterHash?: string }} */ (row).CharacterHash
+            /** @type {{ CharacterHash?: string }} */ (row).CharacterHash,
           )
         : "";
     if (!k) continue;
@@ -49,34 +49,32 @@ function upsertCharactersByCanonicalHash(existing, incoming) {
 
 /** @param {Function} set @param {Function} get */
 export const characterActions = (set, get) => ({
-
   getMainCharacter: () => {
     return get().account.characters?.find((ch) => ch.isMainCharacter) || null;
   },
 
   getMainCharacterName: () => {
-    return get().account.characters?.find((ch) => ch.isMainCharacter)?.CharacterName || null;
+    return (
+      get().account.characters?.find((ch) => ch.isMainCharacter)
+        ?.CharacterName || null
+    );
   },
 
   findCharacterByHash: (characterHash) => {
     const { characters } = get().account;
-    return (
-      characters?.find((ch) => ch.CharacterHash === characterHash) || null
-    );
+    return characters?.find((ch) => ch.CharacterHash === characterHash) || null;
   },
 
   findCharacterById: (characterID) => {
     const { characters } = get().account;
-    return (
-      characters?.find((ch) => ch.CharacterID === characterID) || null
-    );
+    return characters?.find((ch) => ch.CharacterID === characterID) || null;
   },
 
   matchCharacterByIDorCorporationID: (id, isCorporation) => {
     const { characters } = get().account;
     return (
       characters?.find((ch) =>
-        isCorporation ? ch.CorporationID === id : ch.CharacterID === id
+        isCorporation ? ch.CorporationID === id : ch.CharacterID === id,
       ) || null
     );
   },
@@ -89,13 +87,13 @@ export const characterActions = (set, get) => ({
           ...state.account,
           characters: upsertCharactersByCanonicalHash(
             state.account.characters,
-            [character]
+            [character],
           ),
           actions: state.account.actions,
         },
       }),
       false,
-      "account/characters/addCharacter"
+      "account/characters/addCharacter",
     );
   },
 
@@ -111,13 +109,13 @@ export const characterActions = (set, get) => ({
         account: {
           ...state.account,
           characters: state.account.characters.filter(
-            (ch) => canonicalCharacterHashKey(ch?.CharacterHash || "") !== drop
+            (ch) => canonicalCharacterHashKey(ch?.CharacterHash || "") !== drop,
           ),
           actions: state.account.actions,
         },
       }),
       false,
-      "account/characters/removeCharacter"
+      "account/characters/removeCharacter",
     );
   },
 
@@ -132,7 +130,7 @@ export const characterActions = (set, get) => ({
         },
       }),
       false,
-      "account/characters/updateCharacters"
+      "account/characters/updateCharacters",
     );
   },
 
@@ -144,13 +142,13 @@ export const characterActions = (set, get) => ({
           ...state.account,
           characters: upsertCharactersByCanonicalHash(
             state.account.characters,
-            characters
+            characters,
           ),
           actions: state.account.actions,
         },
       }),
       false,
-      "account/characters/addCharacters"
+      "account/characters/addCharacters",
     );
   },
 });

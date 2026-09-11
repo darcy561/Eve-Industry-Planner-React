@@ -51,8 +51,7 @@ export function SideMenu({ open, setOpen }) {
               Tranquility: {eveServerStatus ? "Online" : "Offline"}
             </Typography>
             <Typography variant="body1">
-              Player Count:{" "}
-              {formatNumberForLocale(evePlayerCount, { max: 0 })}
+              Player Count: {formatNumberForLocale(evePlayerCount, { max: 0 })}
             </Typography>
           </Box>
         </Box>

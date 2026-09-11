@@ -16,7 +16,7 @@ function WatchlistContainerInner({
 }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
   const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType
+    (state) => state.applicationSettings.defaultOrderType,
   );
 
   const hasItems = userWatchlist.items.length > 0;
@@ -41,17 +41,20 @@ function WatchlistContainerInner({
             marginBottom: "20px",
             display: { xs: "none", sm: "flex" },
           }}
-          size={12}>
+          size={12}
+        >
           <Grid
             size={{
               sm: 4,
-              lg: 3
-            }} />
+              lg: 3,
+            }}
+          />
           <Grid
             size={{
               sm: 2,
-              lg: 2
-            }}>
+              lg: 2,
+            }}
+          >
             <Typography
               align="center"
               sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -62,8 +65,9 @@ function WatchlistContainerInner({
           <Grid
             size={{
               sm: 3,
-              lg: 3
-            }}>
+              lg: 3,
+            }}
+          >
             <Typography
               align="center"
               sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -81,8 +85,9 @@ function WatchlistContainerInner({
           <Grid
             size={{
               sm: 3,
-              lg: 3
-            }}>
+              lg: 3,
+            }}
+          >
             <Typography
               align="center"
               sx={{ typography: { xs: "caption", sm: "body2" } }}
@@ -138,7 +143,7 @@ function WatchlistContainerInner({
 export function WatchlistContainer(props) {
   const items = useUsersStore((state) => state.jobData.userWatchlist.items);
   const addMarketData = useUsersStore(
-    (state) => state.worldData.actions.addMarketData
+    (state) => state.worldData.actions.addMarketData,
   );
   const [marketReady, setMarketReady] = useState(false);
 

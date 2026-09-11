@@ -8,7 +8,7 @@ describe("FirstLoginSetupSection", () => {
     render(
       <FirstLoginSetupSection title="Your characters" subtitle="Add more later">
         <p>content</p>
-      </FirstLoginSetupSection>
+      </FirstLoginSetupSection>,
     );
 
     expect(screen.getByText("Your characters")).toBeInTheDocument();
@@ -19,7 +19,11 @@ describe("FirstLoginSetupSection", () => {
   it("titles it the way every other app-shell panel does", () => {
     // Onboarding used a primary-coloured h6 here, so the first screens a player
     // saw looked unlike the app they were being set up for.
-    render(<FirstLoginSetupSection title="Your characters">x</FirstLoginSetupSection>);
+    render(
+      <FirstLoginSetupSection title="Your characters">
+        x
+      </FirstLoginSetupSection>,
+    );
 
     const title = screen.getByText("Your characters");
     expect(title.tagName).not.toBe("H6");
@@ -27,7 +31,11 @@ describe("FirstLoginSetupSection", () => {
   });
 
   it("does without a subtitle", () => {
-    render(<FirstLoginSetupSection title="Your characters">x</FirstLoginSetupSection>);
+    render(
+      <FirstLoginSetupSection title="Your characters">
+        x
+      </FirstLoginSetupSection>,
+    );
 
     expect(screen.getByText("x")).toBeInTheDocument();
   });
@@ -42,7 +50,7 @@ describe("spacing between a step's children", () => {
         <p>first</p>
         <p>second</p>
         <p>third</p>
-      </FirstLoginSetupSection>
+      </FirstLoginSetupSection>,
     );
 
     const stack = container.querySelector(".MuiStack-root");
@@ -54,7 +62,7 @@ describe("spacing between a step's children", () => {
     const { container } = render(
       <FirstLoginSetupSection title="Your characters" subtitle="Add more later">
         <p>content</p>
-      </FirstLoginSetupSection>
+      </FirstLoginSetupSection>,
     );
 
     expect(container.querySelector(".MuiStack-root").children).toHaveLength(2);

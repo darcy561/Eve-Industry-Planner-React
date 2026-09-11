@@ -10,28 +10,31 @@ import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
 
 export function ActiveCharacterSlots() {
   const queryClient = useQueryClient();
-  const {
-    isLoading,
-    isError,
-    error,
-    calculateActiveSlotsMultiple,
-  } = useActiveSlotTotals();
+  const { isLoading, isError, error, calculateActiveSlotsMultiple } =
+    useActiveSlotTotals();
   const activeCharSlots = calculateActiveSlotsMultiple(queryClient);
 
   return (
-    <ContentPanel title="Active Slots" componentName="Active Slots" isLoading={isLoading} isError={isError} error={error}>
+    <ContentPanel
+      title="Active Slots"
+      componentName="Active Slots"
+      isLoading={isLoading}
+      isError={isError}
+      error={error}
+    >
       <Grid
         container
         sx={{
           overflowY: "auto",
           maxHeight: { xs: "320px", sm: "220px", md: "320px" },
         }}
-        size={12}>
+        size={12}
+      >
         {activeCharSlots.map((char) => {
           const charName = useUsersStore
             .getState()
             .account.actions.findCharacterByHash(
-              char.characterHash
+              char.characterHash,
             )?.CharacterName;
 
           if (!charName) return null;
@@ -40,7 +43,8 @@ export function ActiveCharacterSlots() {
               key={char.characterHash}
               container
               sx={{ marginBottom: { xs: "5px" } }}
-              size={12}>
+              size={12}
+            >
               <Grid size={12}>
                 <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                   {charName}

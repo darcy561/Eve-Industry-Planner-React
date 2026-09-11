@@ -9,15 +9,16 @@ vi.mock("../../Hooks/EveEsi/Character/useGetAllCharacterTransactions", () => ({
 }));
 vi.mock(
   "../../Hooks/EveEsi/Corporation/useGetAllCorporationTransactions",
-  () => ({ getAllCachedCorporationTransactions: () => corporationTransactions }),
+  () => ({
+    getAllCachedCorporationTransactions: () => corporationTransactions,
+  }),
 );
 vi.mock("../../Zustand/usersStore", () => ({
   default: { getState: () => ({ account: { linkedTrans } }) },
 }));
 
-const { default: findTransactionsForMarketOrders } = await import(
-  "./findTransactionsForMarketOrders.js"
-);
+const { default: findTransactionsForMarketOrders } =
+  await import("./findTransactionsForMarketOrders.js");
 
 const ORDER = { order_id: 900, location_id: 60003760, type_id: 34 };
 
@@ -48,7 +49,9 @@ describe("which sales could belong to a market order", () => {
     linkedTrans.clear();
     withTransactions([sale(1), sale(2)]);
 
-    expect(idsFrom(findTransactionsForMarketOrders(ORDER, null))).toEqual([1, 2]);
+    expect(idsFrom(findTransactionsForMarketOrders(ORDER, null))).toEqual([
+      1, 2,
+    ]);
   });
 
   // The same item sold elsewhere, or a different item at the same station, was
@@ -80,7 +83,13 @@ describe("which sales could belong to a market order", () => {
     linkedTrans.add(2);
     withTransactions([sale(1), sale(2)]);
 
-    const result = findTransactionsForMarketOrders(ORDER, null, new Set(), [], [2]);
+    const result = findTransactionsForMarketOrders(
+      ORDER,
+      null,
+      new Set(),
+      [],
+      [2],
+    );
 
     expect(idsFrom(result)).toEqual([1, 2]);
   });
@@ -110,7 +119,9 @@ describe("which sales could belong to a market order", () => {
     linkedTrans.clear();
     withTransactions([sale(1)], [sale(2, { is_corp: true })]);
 
-    expect(idsFrom(findTransactionsForMarketOrders(ORDER, null))).toEqual([1, 2]);
+    expect(idsFrom(findTransactionsForMarketOrders(ORDER, null))).toEqual([
+      1, 2,
+    ]);
   });
 
   it("returns nothing when no sale matches", () => {

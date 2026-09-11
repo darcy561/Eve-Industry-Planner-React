@@ -27,9 +27,7 @@ import {
   flushPendingUserDocumentSaves,
   scheduleDebouncedUserAccountDocumentSave,
 } from "../../Functions/Debounce/userDocumentsPersistSchedule.js";
-import {
-  upsertCloudStoredEsiRefreshTokens,
-} from "../../Functions/Endpoints/Private/cloudStoredEsiRefreshTokens.js";
+import { upsertCloudStoredEsiRefreshTokens } from "../../Functions/Endpoints/Private/cloudStoredEsiRefreshTokens.js";
 import {
   buildAdditionalAccountState,
   subscribeToAdditionalUserAuthCode,
@@ -91,7 +89,9 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
     [],
   );
 
-  const submitCloudLinkedCharacterRefreshTokens = async (tokenOverrides = new Map()) => {
+  const submitCloudLinkedCharacterRefreshTokens = async (
+    tokenOverrides = new Map(),
+  ) => {
     const payload = [];
     for (const [hash, token] of tokenOverrides.entries()) {
       const characterHash = typeof hash === "string" ? hash.trim() : "";
@@ -112,12 +112,12 @@ export function AdditionalAccounts({ appearance = "default" } = {}) {
     const overrides = new Map();
     for (const row of characterRows) {
       if (!row || row.isMainCharacter) continue;
-      const characterHash = typeof row.CharacterHash === "string"
-        ? row.CharacterHash.trim()
-        : "";
-      const token = typeof row.esiRefreshToken === "string"
-        ? row.esiRefreshToken.trim()
-        : "";
+      const characterHash =
+        typeof row.CharacterHash === "string" ? row.CharacterHash.trim() : "";
+      const token =
+        typeof row.esiRefreshToken === "string"
+          ? row.esiRefreshToken.trim()
+          : "";
       if (!characterHash || !token) continue;
       overrides.set(characterHash, token);
     }

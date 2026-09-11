@@ -1,9 +1,7 @@
 import withRequestRetries from "../Endpoints/withRequestRetries.js";
 import requestWithPrivateHeaders from "../Endpoints/Private/applyPrivateHeaders.js";
 import { clearPlannerAuthCookiesClientSide } from "./plannerAuthCookies.js";
-import {
-  parsePlannerAuthCodeFromText,
-} from "./plannerSessionRedirect.js";
+import { parsePlannerAuthCodeFromText } from "./plannerSessionRedirect.js";
 import {
   clearTabPlannerSession,
   getTabPlannerRefreshToken,
@@ -17,7 +15,10 @@ const AUTH_SESSIONS_BOOTSTRAP = "/api/v1/auth/sessions/bootstrap";
 const AUTH_SESSIONS_LOGOUT = "/api/v1/auth/sessions/logout";
 
 function getAppVersionHeaderValue() {
-  if (typeof __APP_VERSION__ === "string" && __APP_VERSION__.trim().length > 0) {
+  if (
+    typeof __APP_VERSION__ === "string" &&
+    __APP_VERSION__.trim().length > 0
+  ) {
     return __APP_VERSION__;
   }
   return "unknown";
@@ -41,7 +42,7 @@ async function throwPlannerAuthSessionHttpError(response, prefix) {
   const text = await response.text().catch(() => "");
   const code = parsePlannerAuthCodeFromText(text);
   const err = new Error(
-    `${prefix}: ${response.status} ${text || response.statusText}`
+    `${prefix}: ${response.status} ${text || response.statusText}`,
   );
   err.status = response.status;
   if (code) {
@@ -58,12 +59,12 @@ export async function establishPlannerSession(eveSSOToken) {
       credentials: "same-origin",
       headers: authSessionHeaders(),
       body: JSON.stringify({ token: eveSSOToken }),
-    })
+    }),
   );
   if (!response.ok) {
     await throwPlannerAuthSessionHttpError(
       response,
-      "Failed to fetch server session"
+      "Failed to fetch server session",
     );
   }
   const json = await response.json();
@@ -87,12 +88,12 @@ export async function rotatePlannerSession(refreshToken, eveSSOToken) {
       credentials: "same-origin",
       headers: authSessionHeaders(),
       body: JSON.stringify(body),
-    })
+    }),
   );
   if (!response.ok) {
     await throwPlannerAuthSessionHttpError(
       response,
-      "Failed to refresh server session"
+      "Failed to refresh server session",
     );
   }
   const json = await response.json();
@@ -115,12 +116,12 @@ export async function bootstrapPlannerSession(refreshToken, eveSSOToken) {
       credentials: "same-origin",
       headers: authSessionHeaders(),
       body: JSON.stringify(body),
-    })
+    }),
   );
   if (!response.ok) {
     await throwPlannerAuthSessionHttpError(
       response,
-      "Failed to refresh server session for login"
+      "Failed to refresh server session for login",
     );
   }
   const json = await response.json();
@@ -146,7 +147,7 @@ export async function logoutPlannerSession(refreshToken) {
         requestName: "logoutPlannerSession",
         retry: false,
         skipSessionRefresh: true,
-      }
+      },
     );
     return response.ok;
   } catch {

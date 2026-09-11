@@ -20,11 +20,11 @@ export function stubElementHeights(height = 40, width = 1024) {
   const originalRect = Element.prototype.getBoundingClientRect;
   const originalHeight = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
-    "offsetHeight"
+    "offsetHeight",
   );
   const originalWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
-    "offsetWidth"
+    "offsetWidth",
   );
 
   Element.prototype.getBoundingClientRect = function stubbed() {

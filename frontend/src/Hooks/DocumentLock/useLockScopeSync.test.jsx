@@ -12,7 +12,8 @@ const patchPlannerJobLockScopeFromApi = vi.fn();
 const patchPlannerGroupLockScopeFromApi = vi.fn();
 
 vi.mock("./plannerLockScopeFromApi.js", () => ({
-  patchPlannerJobLockScopeFromApi: (...a) => patchPlannerJobLockScopeFromApi(...a),
+  patchPlannerJobLockScopeFromApi: (...a) =>
+    patchPlannerJobLockScopeFromApi(...a),
   patchPlannerGroupLockScopeFromApi: (...a) =>
     patchPlannerGroupLockScopeFromApi(...a),
 }));
@@ -39,9 +40,7 @@ vi.mock("../../Zustand/usersStore.js", () => ({
 }));
 
 function dispatchDocLock(detail) {
-  window.dispatchEvent(
-    new CustomEvent(DOCUMENT_LOCK_CUSTOM_EVENT, { detail })
-  );
+  window.dispatchEvent(new CustomEvent(DOCUMENT_LOCK_CUSTOM_EVENT, { detail }));
 }
 
 describe("useLockScopeSync — eip-document-lock (regression)", () => {
@@ -61,7 +60,7 @@ describe("useLockScopeSync — eip-document-lock (regression)", () => {
         getGroupIDs: () => [],
         trackGroups: false,
         chunkSize: 500,
-      })
+      }),
     );
 
     await act(async () => {
@@ -97,16 +96,15 @@ describe("useLockScopeSync — eip-document-lock (regression)", () => {
         getGroupIDs: () => [],
         trackGroups: false,
         chunkSize: 500,
-      })
+      }),
     );
 
     await act(async () => {
       vi.advanceTimersByTime(LOCK_SCOPE_SYNC_DEBOUNCE_MS + 10);
     });
 
-    const { getDocumentLockStateBatch } = await import(
-      "../../Functions/Endpoints/Private/documentLockClient.js"
-    );
+    const { getDocumentLockStateBatch } =
+      await import("../../Functions/Endpoints/Private/documentLockClient.js");
     expect(getDocumentLockStateBatch).toHaveBeenCalled();
 
     unmount();

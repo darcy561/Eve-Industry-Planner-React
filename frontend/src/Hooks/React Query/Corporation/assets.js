@@ -39,17 +39,25 @@ function corporationAssetsQuery(characterHash) {
     queryKey: [corporationAssetsQueryKey, characterHash],
     queryFn: async () => {
       const userObject = findCharacterByHash(characterHash);
-      
+
       // Check if assets group is rate limited for this specific character
       // Use config.group as hint, will be updated from headers if different
-      const assetsStatus = getESIRateLimitStatus('assets', characterHash);
+      const assetsStatus = getESIRateLimitStatus("assets", characterHash);
 
-      if (assetsStatus && assetsStatus.availableTokens <= 0 && assetsStatus.maxTokens && assetsStatus.windowSize) {
+      if (
+        assetsStatus &&
+        assetsStatus.availableTokens <= 0 &&
+        assetsStatus.maxTokens &&
+        assetsStatus.windowSize
+      ) {
         const tokensPerMs = assetsStatus.maxTokens / assetsStatus.windowSize;
-        const tokensToRecover = assetsStatus.maxTokens - assetsStatus.availableTokens;
+        const tokensToRecover =
+          assetsStatus.maxTokens - assetsStatus.availableTokens;
         const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
 
-        throw new Error(`Assets group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`);
+        throw new Error(
+          `Assets group is rate limited. Wait ${Math.ceil(waitTime / 1000)} seconds.`,
+        );
       }
 
       try {
@@ -60,13 +68,11 @@ function corporationAssetsQuery(characterHash) {
             config: {
               characterHash,
               group: corporationAssetsQueryGroup,
-              priority: 'normal',
-              batchable: true
-            }
+              priority: "normal",
+              batchable: true,
+            },
           });
-
         });
-
       } catch (error) {
         console.error("Error fetching corporation assets:", error);
         throw new Error(`Failed to fetch corporation assets: ${error.message}`);
@@ -77,12 +83,13 @@ function corporationAssetsQuery(characterHash) {
     gcTime: 60 * 60 * 1000, // 1 hour
     retry: 3,
     retryDelay: (attemptIndex, error) => {
-      if (error?.message?.includes('rate limited')) {
+      if (error?.message?.includes("rate limited")) {
         // Get status for this specific character's assets bucket
-        const assetsStatus = getESIRateLimitStatus('assets', characterHash);
+        const assetsStatus = getESIRateLimitStatus("assets", characterHash);
         if (assetsStatus && assetsStatus.maxTokens && assetsStatus.windowSize) {
           const tokensPerMs = assetsStatus.maxTokens / assetsStatus.windowSize;
-          const tokensToRecover = assetsStatus.maxTokens - assetsStatus.availableTokens;
+          const tokensToRecover =
+            assetsStatus.maxTokens - assetsStatus.availableTokens;
           const waitTime = Math.ceil(tokensToRecover / tokensPerMs);
           return Math.max(waitTime, 1000);
         }
@@ -94,4 +101,8 @@ function corporationAssetsQuery(characterHash) {
   };
 }
 
-export { corporationAssetsQuery, corporationAssetsQueryKey, corporationAssetsQueryGroup };
+export {
+  corporationAssetsQuery,
+  corporationAssetsQueryKey,
+  corporationAssetsQueryGroup,
+};

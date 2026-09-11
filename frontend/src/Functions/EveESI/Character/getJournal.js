@@ -6,7 +6,7 @@ async function getCharacterJournal({
   character,
   page = 1,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
@@ -25,13 +25,13 @@ async function getCharacterJournal({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'character',
+      group: "character",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -42,7 +42,7 @@ async function getCharacterJournal({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -79,14 +79,14 @@ async function getCharacterJournal({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -101,7 +101,7 @@ async function getCharacterJournal({
         (item) =>
           currentDate - Date.parse(item.date) <=
             GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000 &&
-          refTypes.has(item.ref_type)
+          refTypes.has(item.ref_type),
       )
       .map((entry) => ({
         ...entry,
@@ -113,7 +113,6 @@ async function getCharacterJournal({
       etag,
       totalPages,
     };
-
   } catch (err) {
     console.error(`Error fetching character journal: ${err}`);
     return {

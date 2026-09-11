@@ -75,7 +75,7 @@ function buildBranch(node, collection, keep) {
     children: node.childIds
       .filter((childId) => keep.has(childId))
       .map((childId) =>
-        buildBranch(collection.byItemId.get(childId), collection, keep)
+        buildBranch(collection.byItemId.get(childId), collection, keep),
       ),
   };
 }

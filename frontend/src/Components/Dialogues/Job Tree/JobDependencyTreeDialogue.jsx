@@ -36,7 +36,7 @@ const defaultState = () => ({
 export default function JobDependencyTreeDialogue() {
   const [messageData, , resetDialogue] = useDialogueEventState(
     JOB_DEPENDENCY_TREE_DIALOGUE_EVENT,
-    defaultState
+    defaultState,
   );
 
   const jobArray = useUsersStore((s) => s.jobData.jobArray);
@@ -74,7 +74,7 @@ export default function JobDependencyTreeDialogue() {
         messageData.editContextJobId,
         messageData.editSearchActiveGroup,
         jobArray,
-        getGroupObject
+        getGroupObject,
       );
       if (!r) {
         return {
@@ -116,21 +116,20 @@ export default function JobDependencyTreeDialogue() {
     if (gId) {
       const g = getGroupObject(gId);
       if (g) {
-        const inGroup = [...g.includedJobIDs]
-          .map(String)
-          .filter((id) => {
-            if (wantIds != null && wantIds.length) {
-              return wantIds.includes(id);
-            }
-            return true;
-          });
+        const inGroup = [...g.includedJobIDs].map(String).filter((id) => {
+          if (wantIds != null && wantIds.length) {
+            return wantIds.includes(id);
+          }
+          return true;
+        });
         const out = inGroup.map((id) => byId.get(id)).filter(Boolean);
         const f = focus;
         const focusInTree =
           f && inGroup.includes(String(f)) ? String(f) : undefined;
         return {
           jobs: out,
-          completeJobIds: g.areComplete instanceof Set ? g.areComplete : new Set(),
+          completeJobIds:
+            g.areComplete instanceof Set ? g.areComplete : new Set(),
           chainSet: chainSetOrNull,
           focusInTree,
           groupForEdit,
@@ -215,7 +214,7 @@ export default function JobDependencyTreeDialogue() {
       }
       resetDialogue();
     },
-    [navigate, groupForEdit, editPageView, resetDialogue]
+    [navigate, groupForEdit, editPageView, resetDialogue],
   );
 
   if (!messageData.isOpen) return null;
@@ -227,9 +226,9 @@ export default function JobDependencyTreeDialogue() {
 
   const helpText = (
     <Typography variant="subtitle2" color="text.secondary" component="div">
-      Same controls as the group <strong>Job tree</strong> view: click a job to focus the chain;{" "}
-      double-click to open the job. Pan and zoom the canvas; use <strong>Close</strong> when
-      done.
+      Same controls as the group <strong>Job tree</strong> view: click a job to
+      focus the chain; double-click to open the job. Pan and zoom the canvas;
+      use <strong>Close</strong> when done.
     </Typography>
   );
 
@@ -269,7 +268,9 @@ export default function JobDependencyTreeDialogue() {
         <JobDependencyTreeFlow
           jobs={jobs}
           completeJobIds={completeJobIds}
-          chainHighlightJobIds={chainSet && chainSet.size > 0 ? chainSet : undefined}
+          chainHighlightJobIds={
+            chainSet && chainSet.size > 0 ? chainSet : undefined
+          }
           onJobDoubleClick={onJobDoubleClick}
           showHelpText={messageData.showHelpText}
           helpText={messageData.showHelpText ? helpText : undefined}

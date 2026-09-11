@@ -47,19 +47,19 @@ describe("the size asked of EVE's image server", () => {
 describe("an owner", () => {
   it("is drawn from the character's id, not the hash it is held by", () => {
     expect(ownerImageUrl(CHARACTER)).toBe(
-      "https://images.evetech.net/characters/2114000001/portrait?size=32"
+      "https://images.evetech.net/characters/2114000001/portrait?size=32",
     );
   });
 
   it("is drawn from the corporation's own id", () => {
     expect(ownerImageUrl(CORPORATION)).toBe(
-      "https://images.evetech.net/corporations/98000001/logo?size=32"
+      "https://images.evetech.net/corporations/98000001/logo?size=32",
     );
   });
 
   it("has no image when the account does not know the character", () => {
     expect(
-      ownerImageUrl({ kind: OWNER_KIND.CHARACTER, id: "hash-z" })
+      ownerImageUrl({ kind: OWNER_KIND.CHARACTER, id: "hash-z" }),
     ).toBeUndefined();
     expect(ownerImageUrl(null)).toBeUndefined();
   });

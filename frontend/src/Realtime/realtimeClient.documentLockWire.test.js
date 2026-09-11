@@ -7,12 +7,14 @@ import {
 
 describe("documentLockWireToDetail", () => {
   it("returns null when event is missing or blank", () => {
-    expect(documentLockWireToDetail({ type: DOCUMENT_LOCK_FRAME_TYPES.CHANNEL })).toBeNull();
+    expect(
+      documentLockWireToDetail({ type: DOCUMENT_LOCK_FRAME_TYPES.CHANNEL }),
+    ).toBeNull();
     expect(
       documentLockWireToDetail({
         type: DOCUMENT_LOCK_FRAME_TYPES.CHANNEL,
         event: "   ",
-      })
+      }),
     ).toBeNull();
   });
 

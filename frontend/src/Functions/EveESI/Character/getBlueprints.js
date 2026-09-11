@@ -3,14 +3,14 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Fetches character blueprints from EVE ESI API with pagination and caching support.
- * 
+ *
  * @param {Object} params - Parameters object
  * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {number} [params.page=1] - Page number for pagination
  * @param {Object} [params.existingData={}] - Existing data for caching
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to blueprints data with etag and totalPages
- * 
+ *
  * @example
  * const blueprints = await getCharacterBlueprints({
  *   character: { CharacterID: 123456, CharacterHash: "hash" },
@@ -22,7 +22,7 @@ async function getCharacterBlueprints({
   character,
   page = 1,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
@@ -35,13 +35,13 @@ async function getCharacterBlueprints({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'character',
+      group: "character",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -52,7 +52,7 @@ async function getCharacterBlueprints({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -80,7 +80,9 @@ async function getCharacterBlueprints({
     if (response.status >= 400 && response.status < 500) {
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
-        console.warn(`Access forbidden for character blueprints: ${CharacterID}`);
+        console.warn(
+          `Access forbidden for character blueprints: ${CharacterID}`,
+        );
         return {
           data: [],
           etag: "",
@@ -89,14 +91,14 @@ async function getCharacterBlueprints({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -105,7 +107,7 @@ async function getCharacterBlueprints({
     const totalPages = parseInt(response.headers.get("x-pages") || "1", 10);
     let data = await response.json();
 
-    data = data.map(blueprint => ({
+    data = data.map((blueprint) => ({
       ...blueprint,
       CharacterHash,
       is_corporation: false,
@@ -117,7 +119,6 @@ async function getCharacterBlueprints({
       etag,
       totalPages,
     };
-
   } catch (err) {
     console.error(`Error fetching character blueprints: ${err}`);
     return {

@@ -15,7 +15,9 @@ describe("the mark at the head of a row", () => {
   it("names the kind of thing the material is", () => {
     expect(mark().label).toBe("Manufacturing Job");
     expect(mark({ jobType: jobTypes.reaction }).label).toBe("Reaction Job");
-    expect(mark({ jobType: jobTypes.baseMaterial }).label).toBe("Base Material");
+    expect(mark({ jobType: jobTypes.baseMaterial }).label).toBe(
+      "Base Material",
+    );
   });
 
   it("says so when a child job is linked", () => {
@@ -34,7 +36,7 @@ describe("the mark at the head of a row", () => {
 
   it("counts a material as linked once it is, pending or not", () => {
     expect(mark({ hasLinked: true, hasPending: true }).kind).toBe(
-      MATERIAL_MARK.LINKED
+      MATERIAL_MARK.LINKED,
     );
   });
 
@@ -44,13 +46,15 @@ describe("the mark at the head of a row", () => {
     });
 
     it("is not a material that is already linked", () => {
-      expect(mark({ hasLinked: true, hasPending: true }).isUnsettled).toBe(false);
+      expect(mark({ hasLinked: true, hasPending: true }).isUnsettled).toBe(
+        false,
+      );
     });
 
     it("is not a material that cannot be built at all", () => {
       // A base material with something pending against it is not waiting.
       expect(
-        mark({ jobType: jobTypes.baseMaterial, hasPending: true }).isUnsettled
+        mark({ jobType: jobTypes.baseMaterial, hasPending: true }).isUnsettled,
       ).toBe(false);
     });
   });

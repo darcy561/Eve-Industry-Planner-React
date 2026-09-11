@@ -66,7 +66,9 @@ async function getAccountTotalsByTypeID(typeID) {
 
   const idStr = String(typeID).trim();
   if (!idStr || !/^\d+$/.test(idStr)) {
-    console.error("getAccountTotalsByTypeID: typeID must be a non-negative integer");
+    console.error(
+      "getAccountTotalsByTypeID: typeID must be a non-negative integer",
+    );
     return null;
   }
 
@@ -80,14 +82,14 @@ async function getAccountTotalsByTypeID(typeID) {
       {
         requestName: "getAccountTotalsByTypeID",
         retry: { maxAttempts: MAX_ATTEMPTS, baseDelayMs: RETRY_BASE_DELAY_MS },
-      }
+      },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `getAccountTotalsByTypeID: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return null;
     }
@@ -126,13 +128,13 @@ export async function getAccountTotalsSummary() {
       {
         requestName: "getAccountTotalsSummary",
         retry: { maxAttempts: MAX_ATTEMPTS, baseDelayMs: RETRY_BASE_DELAY_MS },
-      }
+      },
     );
 
     if (!response.ok) {
       console.error(
         `getAccountTotalsSummary: ${response.status} ${response.statusText}`,
-        await response.text()
+        await response.text(),
       );
       return null;
     }

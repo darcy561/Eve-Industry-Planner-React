@@ -69,7 +69,7 @@ describe("the blueprint library", () => {
     render(
       <ThemeProvider theme={theme}>
         <BlueprintLibrary />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await user.click(screen.getByRole("combobox"));

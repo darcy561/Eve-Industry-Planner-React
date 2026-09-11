@@ -6,15 +6,19 @@ import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Deb
 
 function ReprocessingSettingsFrame() {
   const defaultReprocessingCharacter = useUsersStore(
-    (state) => state.applicationSettings.defaultReprocessingCharacter
+    (state) => state.applicationSettings.defaultReprocessingCharacter,
   );
   const { setDefaultReprocessingCharacter } =
     useUsersStore.getState().applicationSettings.actions;
 
   return (
-    <Grid container spacing={2} sx={{
-      alignItems: "center"
-    }}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        alignItems: "center",
+      }}
+    >
       <Grid item xs={12} sm={6}>
         <AssignUsersSelect
           value={defaultReprocessingCharacter}

@@ -21,7 +21,7 @@ const A_COPY = 7003;
 beforeEach(() => {
   collection.current = buildBlueprintRows(
     [...characterBlueprintRows, reactionFormulaStackRow],
-    blueprintSearchIndex
+    blueprintSearchIndex,
   );
 });
 

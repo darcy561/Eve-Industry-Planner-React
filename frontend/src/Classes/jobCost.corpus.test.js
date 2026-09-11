@@ -6,7 +6,10 @@ import Job from "./job.js";
 // The shared case file, read from the repo root rather than copied here: the
 // backend (models.Job.CostParts) reads the same file, and what a job cost may not
 // change on one side alone.
-const corpusPath = resolve(process.cwd(), "../testing/fixtures/job-cost/cases.json");
+const corpusPath = resolve(
+  process.cwd(),
+  "../testing/fixtures/job-cost/cases.json",
+);
 const corpus = JSON.parse(readFileSync(corpusPath, "utf8"));
 
 describe("job cost corpus", () => {

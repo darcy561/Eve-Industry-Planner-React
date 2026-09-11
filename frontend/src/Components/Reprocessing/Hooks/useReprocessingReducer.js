@@ -1,10 +1,10 @@
 /**
  * Reprocessing Reducer Hook for EVE Industry Planner.
- * 
+ *
  * Custom React hook that provides state management for the reprocessing page component.
  * Uses useReducer with a custom reducer to handle complex reprocessing calculations,
  * skill management, structure configuration, market settings, and ore filtering.
- * 
+ *
  * @fileoverview Custom hook for reprocessing page state management
  * @author EVE Industry Planner Team
  */
@@ -24,12 +24,12 @@ const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 
 /**
  * Custom hook for managing reprocessing page state.
- * 
+ *
  * Provides a reducer-based state management solution for the reprocessing page,
  * including initial state creation based on user settings, action dispatching,
  * and state access. The hook manages complex reprocessing operations including
  * calculations, skill management, structure configuration, and market settings.
- * 
+ *
  * @returns {Object} Hook return object
  * @returns {Object} returns.state - Current page state
  * @returns {Array} returns.state.reprocessingObjects - Reprocessing calculation results
@@ -71,19 +71,19 @@ const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
  * @returns {Function} returns.actions.setInputModified - Set input modification flag
  * @returns {Function} returns.actions.setRequestedMinerals - Set requested minerals
  * @returns {Function} returns.actions.setReprocessingCalculationSettings - Set calculation settings
- * 
+ *
  * @example
  * function ReprocessingPage() {
  *   const { state, actions } = useReprocessingReducer();
- *   
+ *
  *   const handleCalculate = (data) => {
  *     actions.setReprocessingObjects(data);
  *   };
- *   
+ *
  *   const handleSkillChange = (skillId, level) => {
  *     actions.setSingleSkill(skillId, level);
  *   };
- *   
+ *
  *   return (
  *     <div>
  *       Output type: {state.toMinerals ? 'Minerals' : 'Materials'}
@@ -96,15 +96,15 @@ const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 export default function useReprocessingReducer() {
   const getDefaultReprocessingStructure = useUsersStore(
     (state) =>
-      state.applicationSettings.actions.getDefaultCustomStructureWithJobType
+      state.applicationSettings.actions.getDefaultCustomStructureWithJobType,
   );
   const { getDefaultReprocessingCharacter } =
     useUsersStore.getState().applicationSettings.actions;
   const defaultMarketLocation = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation
+    (state) => state.applicationSettings.defaultMarketLocation,
   );
   const defaultOrderType = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType
+    (state) => state.applicationSettings.defaultOrderType,
   );
 
   const characters = useUsersStore((state) => state.account.characters);
@@ -164,16 +164,16 @@ export default function useReprocessingReducer() {
 
   /**
    * Action dispatchers for the reprocessing page state.
-   * 
+   *
    * Provides convenient methods to dispatch actions to the reducer,
- * abstracting away the action creation and dispatch logic.
+   * abstracting away the action creation and dispatch logic.
    */
   const actions = {
     /**
      * Sets the reprocessing calculation results.
-     * 
+     *
      * @param {Array} data - Reprocessing calculation results
-     * 
+     *
      * @example
      * actions.setReprocessingObjects(reprocessingResults);
      */
@@ -185,9 +185,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the processed input data.
-     * 
+     *
      * @param {Array} data - Processed input data
-     * 
+     *
      * @example
      * actions.setProcessedInput(processedData);
      */
@@ -199,9 +199,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the raw input text.
-     * 
+     *
      * @param {string} data - Raw input text
-     * 
+     *
      * @example
      * actions.setInputText("Tritanium\t1000\nPyerite\t500");
      */
@@ -213,7 +213,7 @@ export default function useReprocessingReducer() {
     },
     /**
      * Toggles between minerals and materials output.
-     * 
+     *
      * @example
      * actions.toggleToMinerals();
      */
@@ -224,9 +224,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the page loading state.
-     * 
+     *
      * @param {boolean} data - Loading state value
-     * 
+     *
      * @example
      * actions.setPageLoading(true); // Start loading
      * actions.setPageLoading(false); // Stop loading
@@ -239,7 +239,7 @@ export default function useReprocessingReducer() {
     },
     /**
      * Toggles the advanced view display.
-     * 
+     *
      * @example
      * actions.toggleDisplayAdvancedView();
      */
@@ -250,9 +250,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the current reprocessing structure.
-     * 
+     *
      * @param {Object} data - Reprocessing structure object
-     * 
+     *
      * @example
      * actions.setCurrentStructure(new ReprocessingStructure());
      */
@@ -264,10 +264,10 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets an individual skill level and marks skills as manually modified.
-     * 
+     *
      * @param {number} id - Skill ID
      * @param {number} level - Skill level (0-5)
-     * 
+     *
      * @example
      * actions.setSingleSkill(3385, 5); // Set Reprocessing to level 5
      */
@@ -279,9 +279,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets all skills at once and resets manual modification flag.
-     * 
+     *
      * @param {Object} skills - Skills object with skill IDs as keys and levels as values
-     * 
+     *
      * @example
      * actions.setAllSkills({ 3385: 5, 3386: 4, 3387: 3 });
      */
@@ -293,9 +293,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the selected user character and resets manual modification flag.
-     * 
+     *
      * @param {string} userHash - User character hash
-     * 
+     *
      * @example
      * actions.setSelectedUser('character-hash-123');
      */
@@ -307,9 +307,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the manual skill modification flag.
-     * 
+     *
      * @param {boolean} modified - Whether skills were manually modified
-     * 
+     *
      * @example
      * actions.setSkillsManuallyModified(true);
      */
@@ -321,9 +321,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Loads character skills and resets manual modification flag.
-     * 
+     *
      * @param {Object} skills - Character skills object
-     * 
+     *
      * @example
      * actions.loadCharacterSkills({ 3385: 5, 3386: 4 });
      */
@@ -335,9 +335,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets rig slot validation errors.
-     * 
+     *
      * @param {Object} errors - Rig slot errors object
-     * 
+     *
      * @example
      * actions.setRigSlotErrors({ slot1: true, slot2: false });
      */
@@ -349,9 +349,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Adds an ore ID to the ignore list.
-     * 
+     *
      * @param {number} id - Ore type ID to ignore
-     * 
+     *
      * @example
      * actions.addOreIDToBeIgnored(12345); // Ignore specific ore type
      */
@@ -363,9 +363,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Removes an ore ID from the ignore list.
-     * 
+     *
      * @param {number} id - Ore type ID to remove from ignore list
-     * 
+     *
      * @example
      * actions.removeOreIDToBeIgnored(12345);
      */
@@ -377,7 +377,7 @@ export default function useReprocessingReducer() {
     },
     /**
      * Clears all ignored ore IDs.
-     * 
+     *
      * @example
      * actions.clearOreIDsToBeIgnored();
      */
@@ -388,9 +388,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the market location for pricing.
-     * 
+     *
      * @param {string} location - Market location (e.g., 'jita', 'amarr')
-     * 
+     *
      * @example
      * actions.setMarketLocation('jita');
      */
@@ -402,9 +402,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the market listing type (buy/sell).
-     * 
+     *
      * @param {string} listing - Market listing type ('buy' or 'sell')
-     * 
+     *
      * @example
      * actions.setMarketListing('sell');
      */
@@ -416,9 +416,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the input modification flag.
-     * 
+     *
      * @param {boolean} modified - Whether input has been modified
-     * 
+     *
      * @example
      * actions.setInputModified(true);
      */
@@ -430,9 +430,9 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the requested minerals data.
-     * 
+     *
      * @param {Object} minerals - Requested minerals object
-     * 
+     *
      * @example
      * actions.setRequestedMinerals({ 34: 1000, 35: 500 });
      */
@@ -444,13 +444,13 @@ export default function useReprocessingReducer() {
     },
     /**
      * Sets the reprocessing calculation settings.
-     * 
+     *
      * @param {Object} settings - Calculation settings object
-     * 
+     *
      * @example
-     * actions.setReprocessingCalculationSettings({ 
-     *   includeWaste: true, 
-     *   useSkills: true 
+     * actions.setReprocessingCalculationSettings({
+     *   includeWaste: true,
+     *   useSkills: true
      * });
      */
     setReprocessingCalculationSettings: (settings) => {

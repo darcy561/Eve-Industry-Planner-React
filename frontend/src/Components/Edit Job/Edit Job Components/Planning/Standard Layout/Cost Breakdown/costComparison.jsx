@@ -1,6 +1,9 @@
 import { Box, Stack, Typography } from "@mui/material";
 
-import { RangeBar, rangeMarkSx } from "../../../../../../Styled Components/Charts";
+import {
+  RangeBar,
+  rangeMarkSx,
+} from "../../../../../../Styled Components/Charts";
 import {
   FigureCaption,
   SignedPercent,

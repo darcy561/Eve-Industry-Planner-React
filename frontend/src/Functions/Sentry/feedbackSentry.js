@@ -51,8 +51,7 @@ export async function sendFeedbackToSentry({
     }
     const buf = new Uint8Array(await screenshotFile.arrayBuffer());
     const baseName = screenshotFile.name || `screenshot-${i + 1}.png`;
-    const filename =
-      files.length > 1 ? `${i + 1}-${baseName}` : baseName;
+    const filename = files.length > 1 ? `${i + 1}-${baseName}` : baseName;
     attachments.push({
       filename,
       contentType: screenshotFile.type || "image/png",

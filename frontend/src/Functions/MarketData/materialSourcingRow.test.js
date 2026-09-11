@@ -12,7 +12,7 @@ import {
 const material = (required, { purchasing = [], volume = 0.01 } = {}) =>
   new JobMaterial(
     { typeID: 34, name: "Tritanium", volume, purchasing },
-    required
+    required,
   );
 
 const row = (overrides = {}) =>
@@ -57,9 +57,9 @@ describe("a material row", () => {
   });
 
   it("carries the volume the quantity occupies, not the unit volume", () => {
-    expect(row({ material: material(1000, { volume: 0.01 }) }).volume).toBeCloseTo(
-      10
-    );
+    expect(
+      row({ material: material(1000, { volume: 0.01 }) }).volume,
+    ).toBeCloseTo(10);
   });
 
   describe("what the plan column says", () => {
@@ -85,7 +85,7 @@ describe("a material row", () => {
       });
 
       expect(row({ material: bought, isLinked: true }).plan).toBe(
-        MATERIAL_PLAN.PAID
+        MATERIAL_PLAN.PAID,
       );
     });
 
@@ -197,7 +197,11 @@ describe("what a row can and cannot say at once", () => {
     // makes the plan Build — so no row reaches the state the offer above the
     // table looks for. Speculative child jobs are what break the tie, and they
     // are Stage G's. Until then the offer is inert by construction.
-    const linkedAndCheaper = row({ isLinked: true, buildPrice: 8, buyPrice: 10 });
+    const linkedAndCheaper = row({
+      isLinked: true,
+      buildPrice: 8,
+      buyPrice: 10,
+    });
 
     expect(linkedAndCheaper.plan).toBe(MATERIAL_PLAN.BUILD);
     expect(hasSavingAvailable(linkedAndCheaper)).toBe(false);
@@ -251,7 +255,7 @@ describe("a speculatively costed row", () => {
     expect(hasSavingAvailable(linked)).toBe(false);
   });
 
-  it("is not speculative by default" , () => {
+  it("is not speculative by default", () => {
     const row = buildMaterialSourcingRow({
       material: { typeID: 34, name: "Tritanium", quantity: 100, volume: 0.01 },
       buyPrice: 5.4,

@@ -21,7 +21,9 @@ function rootState({ registrations, scopes = {} }) {
 
 describe("documentLockHeaderSelectors", () => {
   it("selectHeaderDocumentLockActive is false when no registrations", () => {
-    expect(selectHeaderDocumentLockActive(rootState({ registrations: [] }))).toBe(false);
+    expect(
+      selectHeaderDocumentLockActive(rootState({ registrations: [] })),
+    ).toBe(false);
   });
 
   it("primaryHeaderRegistration prefers group over job when both enabled", () => {

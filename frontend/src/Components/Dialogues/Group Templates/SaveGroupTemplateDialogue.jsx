@@ -8,11 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  useMutation,
-  useQueryClient,
-  useQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import ContentDialogue, {
   useDialogueCloseReset,
   useDialogueEventState,
@@ -37,9 +33,7 @@ import {
   sanitizeTemplateText,
 } from "./helpers/templateDialogueUtils";
 import { appShellSetupSectionPaperSx } from "../../../Context/appShell";
-import {
-  GROUP_TEMPLATES_SAVE_DIALOGUE_EVENT,
-} from "../../../Events/groupTemplatesDialogueEvents";
+import { GROUP_TEMPLATES_SAVE_DIALOGUE_EVENT } from "../../../Events/groupTemplatesDialogueEvents";
 import { trackAppEvent } from "../../../analytics/trackAppEvent";
 import { AppEvent } from "../../../analytics/appEventNames";
 
@@ -53,14 +47,14 @@ const defaultState = () => ({
 function SaveGroupTemplateDialogueInner() {
   const [messageData, , resetDialogue] = useDialogueEventState(
     GROUP_TEMPLATES_SAVE_DIALOGUE_EVENT,
-    defaultState
+    defaultState,
   );
   const queryClient = useQueryClient();
   const groupArray = useUsersStore((s) => s.jobData.groupArray);
   const jobArray = useUsersStore((s) => s.jobData.jobArray);
   const getGroupObject = useUsersStore((s) => s.jobData.actions.getGroupObject);
   const getActiveGroupObject = useUsersStore(
-    (s) => s.jobData.actions.getActiveGroupObject
+    (s) => s.jobData.actions.getActiveGroupObject,
   );
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -72,19 +66,26 @@ function SaveGroupTemplateDialogueInner() {
       return getGroupObject(messageData.contextGroupId);
     }
     return getActiveGroupObject();
-  }, [messageData.contextGroupId, getGroupObject, getActiveGroupObject, groupArray]);
+  }, [
+    messageData.contextGroupId,
+    getGroupObject,
+    getActiveGroupObject,
+    groupArray,
+  ]);
   const groupID = resolvedGroup?.groupID ?? "";
   const groupJobs = useMemo(() => {
     if (!resolvedGroup?.includedJobIDs) return [];
-    return jobArray.filter((job) => resolvedGroup.includedJobIDs.has(job.jobID));
+    return jobArray.filter((job) =>
+      resolvedGroup.includedJobIDs.has(job.jobID),
+    );
   }, [resolvedGroup, jobArray]);
   const { data: catalog = [] } = useQuery(
-    buildCatalogQueryOptions(activeSession, open)
+    buildCatalogQueryOptions(activeSession, open),
   );
 
   const normalizedName = useMemo(
     () => name.trim() || "Untitled template",
-    [name]
+    [name],
   );
 
   const buildSerializedBody = () =>
@@ -100,11 +101,15 @@ function SaveGroupTemplateDialogueInner() {
       makeTemplateFilter({
         getOutputSearchText: (o) => (o.rootOutputItemIDs || []).join(" "),
       }),
-    []
+    [],
   );
 
   const handleClose = useDialogueCloseReset({
-    resetFns: [() => setName(""), () => setDescription(""), () => setSelectedTemplate(null)],
+    resetFns: [
+      () => setName(""),
+      () => setDescription(""),
+      () => setSelectedTemplate(null),
+    ],
     onClose: resetDialogue,
   });
 
@@ -122,7 +127,7 @@ function SaveGroupTemplateDialogueInner() {
     onError: (e) => {
       showSnackbarError(
         e instanceof Error ? e.message : "Failed to save template",
-        6
+        6,
       );
     },
   });
@@ -145,7 +150,7 @@ function SaveGroupTemplateDialogueInner() {
     onError: (e) => {
       showSnackbarError(
         e instanceof Error ? e.message : "Failed to replace template",
-        6
+        6,
       );
     },
   });
@@ -165,13 +170,15 @@ function SaveGroupTemplateDialogueInner() {
     onError: (e) => {
       showSnackbarError(
         e instanceof Error ? e.message : "Failed to delete template",
-        6
+        6,
       );
     },
   });
 
   const busy =
-    saveNewMutation.isPending || replaceMutation.isPending || deleteMutation.isPending;
+    saveNewMutation.isPending ||
+    replaceMutation.isPending ||
+    deleteMutation.isPending;
 
   const onSaveNew = async () => {
     if (!groupJobs?.length) {
@@ -191,7 +198,7 @@ function SaveGroupTemplateDialogueInner() {
       return;
     }
     const ok = window.confirm(
-      `Replace "${selectedTemplate.name}" with this group's current jobs and setups?`
+      `Replace "${selectedTemplate.name}" with this group's current jobs and setups?`,
     );
     if (!ok) return;
 
@@ -204,7 +211,7 @@ function SaveGroupTemplateDialogueInner() {
       return;
     }
     const ok = window.confirm(
-      `Delete "${selectedTemplate.name}"? This cannot be undone.`
+      `Delete "${selectedTemplate.name}"? This cannot be undone.`,
     );
     if (!ok) return;
     await deleteMutation.mutateAsync();
@@ -267,9 +274,9 @@ function SaveGroupTemplateDialogueInner() {
         </Paper>
 
         <Typography variant="caption" color="text.secondary">
-          Use "Save as new" to create a new template. Select an existing template, then
-          use "Replace existing" to overwrite its contents or "Delete existing" to
-          remove it completely.
+          Use "Save as new" to create a new template. Select an existing
+          template, then use "Replace existing" to overwrite its contents or
+          "Delete existing" to remove it completely.
         </Typography>
       </Stack>
     </SaveGroupTemplateDialogueFrame>
@@ -300,7 +307,11 @@ function SaveGroupTemplateDialogueFrame({
       actions={
         <Box sx={{ display: "flex", gap: 1, justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button color="error" onClick={onDelete} disabled={busy || !selectedTemplate}>
+            <Button
+              color="error"
+              onClick={onDelete}
+              disabled={busy || !selectedTemplate}
+            >
               Delete existing
             </Button>
             <Button onClick={onReplace} disabled={busy || !selectedTemplate}>

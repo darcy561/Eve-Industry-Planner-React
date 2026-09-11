@@ -13,13 +13,13 @@
  * @property {string} SET_HIGHLIGHTED_ITEMS - Set highlighted items collection
  */
 export const GROUP_PAGE_ACTION_TYPES = {
-    SET_RIGHT_DRAWER_CONTENT_ID: "SET_RIGHT_DRAWER_CONTENT_ID",
-    SET_EXPAND_RIGHT_DRAWER: "SET_EXPAND_RIGHT_DRAWER",
-    SET_SKELETON_ELEMENTS_TO_DISPLAY: "SET_SKELETON_ELEMENTS_TO_DISPLAY",
-    SET_PAGE_REQUIRES_DRAWER_TO_BE_OPEN: "SET_PAGE_REQUIRES_DRAWER_TO_BE_OPEN",
-    SET_HIGHLIGHTED_ITEMS: "SET_HIGHLIGHTED_ITEMS",
-    SET_PAGE_VIEW: "SET_PAGE_VIEW",
-}
+  SET_RIGHT_DRAWER_CONTENT_ID: "SET_RIGHT_DRAWER_CONTENT_ID",
+  SET_EXPAND_RIGHT_DRAWER: "SET_EXPAND_RIGHT_DRAWER",
+  SET_SKELETON_ELEMENTS_TO_DISPLAY: "SET_SKELETON_ELEMENTS_TO_DISPLAY",
+  SET_PAGE_REQUIRES_DRAWER_TO_BE_OPEN: "SET_PAGE_REQUIRES_DRAWER_TO_BE_OPEN",
+  SET_HIGHLIGHTED_ITEMS: "SET_HIGHLIGHTED_ITEMS",
+  SET_PAGE_VIEW: "SET_PAGE_VIEW",
+};
 
 /**
  * Reducer function for managing group page state.
@@ -36,21 +36,20 @@ export const GROUP_PAGE_ACTION_TYPES = {
  * @returns {Object} New state object
  */
 export function groupPageReducer(state, action) {
-    switch (action.type) {
-        case GROUP_PAGE_ACTION_TYPES.SET_RIGHT_DRAWER_CONTENT_ID:
-            return { ...state, rightDrawerContentID: action.payload };
-        case GROUP_PAGE_ACTION_TYPES.SET_EXPAND_RIGHT_DRAWER:
-            return { ...state, expandRightDrawer: action.payload };
-        case GROUP_PAGE_ACTION_TYPES.SET_SKELETON_ELEMENTS_TO_DISPLAY:
-            return { ...state, skeletonElementsToDisplay: action.payload };
-        case GROUP_PAGE_ACTION_TYPES.SET_PAGE_REQUIRES_DRAWER_TO_BE_OPEN:
-            return { ...state, pageRequiresDrawerToBeOpen: action.payload };
-        case GROUP_PAGE_ACTION_TYPES.SET_HIGHLIGHTED_ITEMS:
-            return { ...state, highlightedItems: action.payload };
-        case GROUP_PAGE_ACTION_TYPES.SET_PAGE_VIEW:
-            return { ...state, pageView: action.payload };
-        default:
-            return state;
-    }
-}      
-
+  switch (action.type) {
+    case GROUP_PAGE_ACTION_TYPES.SET_RIGHT_DRAWER_CONTENT_ID:
+      return { ...state, rightDrawerContentID: action.payload };
+    case GROUP_PAGE_ACTION_TYPES.SET_EXPAND_RIGHT_DRAWER:
+      return { ...state, expandRightDrawer: action.payload };
+    case GROUP_PAGE_ACTION_TYPES.SET_SKELETON_ELEMENTS_TO_DISPLAY:
+      return { ...state, skeletonElementsToDisplay: action.payload };
+    case GROUP_PAGE_ACTION_TYPES.SET_PAGE_REQUIRES_DRAWER_TO_BE_OPEN:
+      return { ...state, pageRequiresDrawerToBeOpen: action.payload };
+    case GROUP_PAGE_ACTION_TYPES.SET_HIGHLIGHTED_ITEMS:
+      return { ...state, highlightedItems: action.payload };
+    case GROUP_PAGE_ACTION_TYPES.SET_PAGE_VIEW:
+      return { ...state, pageView: action.payload };
+    default:
+      return state;
+  }
+}

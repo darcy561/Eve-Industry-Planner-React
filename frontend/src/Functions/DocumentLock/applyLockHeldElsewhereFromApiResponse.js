@@ -15,12 +15,12 @@ export function applyLockHeldElsewhereFromApiBody(text) {
   }
   if (!body || typeof body !== "object") return false;
   if (body.error !== DOCUMENT_LOCK_API_ERROR_LOCK_HELD_ELSEWHERE) return false;
-  const collection =
-    typeof body.collection === "string" ? body.collection : "";
+  const collection = typeof body.collection === "string" ? body.collection : "";
   const rejected = Array.isArray(body.rejected) ? body.rejected : [];
   if (!collection || rejected.length === 0) return false;
 
-  const patch = useUsersStore.getState().documentLock.actions.patchDocumentLockForScope;
+  const patch =
+    useUsersStore.getState().documentLock.actions.patchDocumentLockForScope;
   for (const row of rejected) {
     if (!row || typeof row.docID !== "string" || !row.docID) continue;
     const exp =

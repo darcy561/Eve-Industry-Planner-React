@@ -16,9 +16,8 @@ export function showSnackbar(
   severity = "info",
   duration = 1,
   action = null,
-  extra = {}
+  extra = {},
 ) {
-
   eventEmitter.emit("snackbar", {
     open: true,
     message,
@@ -98,7 +97,7 @@ export const showVersionUpdateSnackbar = (targetVersion, onDismiss) => {
     {
       versionUpdateTarget: targetVersion,
       onDismiss,
-    }
+    },
   );
 };
 
@@ -110,7 +109,7 @@ export const showVersionUpdateSnackbar = (targetVersion, onDismiss) => {
  */
 export const showDocumentLockAccessRequestSnackbar = (
   message = "Another tab requested edit access for this document.",
-  scope = {}
+  scope = {},
 ) => {
   showSnackbar(message, "info", null, "DOCUMENT_LOCK_ACCESS_REQUEST", {
     documentLockCollection: scope.collection,
@@ -127,7 +126,7 @@ export const showDocumentLockAccessRequestSnackbar = (
  */
 export const showDocumentLockExtendNudgeSnackbar = (
   message = "Your edit session is about to end — renew now while this tab is visible.",
-  scope = {}
+  scope = {},
 ) => {
   showSnackbar(message, "warning", null, "DOCUMENT_LOCK_EXTEND_NUDGE", {
     documentLockCollection: scope.collection,

@@ -236,7 +236,10 @@ export function ItemTree() {
                     >
                       {selectedItems.length < 1 ? (
                         <Typography
-                          sx={{ typography: STANDARD_TEXT_FORMAT, fontStyle: "italic" }}
+                          sx={{
+                            typography: STANDARD_TEXT_FORMAT,
+                            fontStyle: "italic",
+                          }}
                         >
                           No items queued — pick from search above.
                         </Typography>

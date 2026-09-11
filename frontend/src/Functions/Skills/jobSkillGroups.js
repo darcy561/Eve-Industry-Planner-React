@@ -1,5 +1,9 @@
 import bpSkills from "../../RawData/bpSkills.json";
-import { industrySkillIDs, jobTypes, marketSkillIDs } from "../../Context/defaultValues";
+import {
+  industrySkillIDs,
+  jobTypes,
+  marketSkillIDs,
+} from "../../Context/defaultValues";
 import { SALE_LOCATION_KIND } from "../MarketOrders/saleLocations";
 
 /**
@@ -135,7 +139,9 @@ function buildTimeRows(jobSkills, jobType, row) {
     .map((skill) => row(skill.typeID, { effect: "1% a level" }));
 
   return [
-    ...appliedOnce.map((typeID) => row(typeID, { effect: "applied to the whole job" })),
+    ...appliedOnce.map((typeID) =>
+      row(typeID, { effect: "applied to the whole job" }),
+    ),
     ...perSkill,
   ];
 }

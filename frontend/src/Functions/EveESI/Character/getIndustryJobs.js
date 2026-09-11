@@ -13,7 +13,12 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to industry jobs data with etag and totalPages
  */
-async function getCharacterIndustryJobs({ character, page = 1, existingData = {}, config = {} }) {
+async function getCharacterIndustryJobs({
+  character,
+  page = 1,
+  existingData = {},
+  config = {},
+}) {
   try {
     if (!character || !character.CharacterID || !character.CharacterHash) {
       throw new Error("Character information is incomplete.");
@@ -25,13 +30,13 @@ async function getCharacterIndustryJobs({ character, page = 1, existingData = {}
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'industry',
+      group: "industry",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -42,7 +47,7 @@ async function getCharacterIndustryJobs({ character, page = 1, existingData = {}
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -70,7 +75,9 @@ async function getCharacterIndustryJobs({ character, page = 1, existingData = {}
     if (response.status >= 400 && response.status < 500) {
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
-        console.warn(`Access forbidden for character industry jobs: ${CharacterID}`);
+        console.warn(
+          `Access forbidden for character industry jobs: ${CharacterID}`,
+        );
         return {
           data: [],
           etag: "",
@@ -79,14 +86,14 @@ async function getCharacterIndustryJobs({ character, page = 1, existingData = {}
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -102,9 +109,13 @@ async function getCharacterIndustryJobs({ character, page = 1, existingData = {}
         (job) =>
           !job.completed_date ||
           currentDate - Date.parse(job.completed_date) <=
-          GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000
+            GLOBAL_CONFIG.ESI_DATE_PERIOD * 24 * 60 * 60 * 1000,
       )
-      .map((job) => ({ ...job, is_corporation: false, character_id: CharacterID }));
+      .map((job) => ({
+        ...job,
+        is_corporation: false,
+        character_id: CharacterID,
+      }));
 
     return {
       data,

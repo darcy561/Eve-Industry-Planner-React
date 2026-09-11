@@ -115,7 +115,10 @@ export function subscribeToAdditionalUserAuthCode({
  * @param {string | null} authCode
  * @returns {Promise<boolean>} `true` if this request was fully handled (window closed).
  */
-export async function tryCompleteAdditionalAccountImportWindow(state, authCode) {
+export async function tryCompleteAdditionalAccountImportWindow(
+  state,
+  authCode,
+) {
   const nonce = parseAdditionalAccountState(state);
   if (nonce === null) {
     return false;

@@ -12,11 +12,7 @@ function purchaseCountedText(counted, itemCount) {
   return `The job needed ${counted} of these, and is charged for those. The cheapest purchases fill the requirement first.`;
 }
 
-export function MaterialCostsFrame_Purchasing({
-  state,
-  actions,
-  material,
-}) {
+export function MaterialCostsFrame_Purchasing({ state, actions, material }) {
   function handleRemove(purchaseID) {
     state.activeJob.removeMaterialPurchase(material.typeID, purchaseID);
     actions.updateActiveJob(state.activeJob);

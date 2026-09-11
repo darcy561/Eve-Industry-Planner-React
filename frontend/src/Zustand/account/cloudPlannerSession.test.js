@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGetEsiAccessToken, mockHeldEsiAccessToken, mockRedirectToEveSSO } = vi.hoisted(() => ({
-  mockGetEsiAccessToken: vi.fn(),
-  mockHeldEsiAccessToken: vi.fn(() => ""),
-  mockRedirectToEveSSO: vi.fn(),
-}));
+const { mockGetEsiAccessToken, mockHeldEsiAccessToken, mockRedirectToEveSSO } =
+  vi.hoisted(() => ({
+    mockGetEsiAccessToken: vi.fn(),
+    mockHeldEsiAccessToken: vi.fn(() => ""),
+    mockRedirectToEveSSO: vi.fn(),
+  }));
 vi.mock("../../Functions/Auth/esiCredentials/provider.js", () => ({
   getEsiAccessToken: mockGetEsiAccessToken,
   heldEsiAccessToken: mockHeldEsiAccessToken,
@@ -41,7 +42,11 @@ function seed({ userCloudAccounts }) {
       sessionID: "session-1",
       lastPlannerSessionValidatedAt: null,
       characters: [
-        { isMainCharacter: true, isPlaceholder: false, CharacterHash: "owner-hash" },
+        {
+          isMainCharacter: true,
+          isPlaceholder: false,
+          CharacterHash: "owner-hash",
+        },
       ],
       actions: s.account.actions,
     },
@@ -58,7 +63,7 @@ describe("rotating without an ESI token in hand", () => {
       new Response(JSON.stringify({ session_id: "session-1" }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      })
+      }),
     );
     vi.stubGlobal("fetch", fetchMock);
     mockGetEsiAccessToken.mockReset();
@@ -75,7 +80,7 @@ describe("rotating without an ESI token in hand", () => {
   it("rotates a cloud account with an empty eve_token", async () => {
     seed({ userCloudAccounts: true });
     mockGetEsiAccessToken.mockRejectedValue(
-      new EsiCredentialError("no material", ESI_CREDENTIAL_RECOVERABLE)
+      new EsiCredentialError("no material", ESI_CREDENTIAL_RECOVERABLE),
     );
 
     await useUsersStore.getState().account.actions.ensurePlannerSession();
@@ -88,18 +93,23 @@ describe("rotating without an ESI token in hand", () => {
 
   it("sends the acquired token when a cloud account has one", async () => {
     seed({ userCloudAccounts: true });
-    mockGetEsiAccessToken.mockResolvedValue({ accessToken: "cloud-token", exp: 1 });
+    mockGetEsiAccessToken.mockResolvedValue({
+      accessToken: "cloud-token",
+      exp: 1,
+    });
 
     await useUsersStore.getState().account.actions.ensurePlannerSession();
 
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).eve_token).toBe("cloud-token");
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).eve_token).toBe(
+      "cloud-token",
+    );
   });
 
   // Local accounts have no server-side fallback: without a token there is nothing to rotate with.
   it("does not rotate a local account with no token", async () => {
     seed({ userCloudAccounts: false });
     mockGetEsiAccessToken.mockRejectedValue(
-      new EsiCredentialError("network", ESI_CREDENTIAL_RECOVERABLE)
+      new EsiCredentialError("network", ESI_CREDENTIAL_RECOVERABLE),
     );
 
     await useUsersStore.getState().account.actions.ensurePlannerSession();
@@ -111,7 +121,7 @@ describe("rotating without an ESI token in hand", () => {
   it("starts a full login when a local account's credentials are dead", async () => {
     seed({ userCloudAccounts: false });
     mockGetEsiAccessToken.mockRejectedValue(
-      new EsiCredentialError("dead", ESI_CREDENTIAL_REAUTH_REQUIRED)
+      new EsiCredentialError("dead", ESI_CREDENTIAL_REAUTH_REQUIRED),
     );
 
     await useUsersStore.getState().account.actions.ensurePlannerSession();

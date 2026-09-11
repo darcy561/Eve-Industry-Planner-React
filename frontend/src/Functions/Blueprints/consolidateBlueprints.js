@@ -81,6 +81,6 @@ export function stackCount(stack) {
   return stack.blueprints.reduce(
     (total, blueprint) =>
       total + (blueprint.isCopy ? 1 : Math.max(blueprint.originalCount, 1)),
-    0
+    0,
   );
 }

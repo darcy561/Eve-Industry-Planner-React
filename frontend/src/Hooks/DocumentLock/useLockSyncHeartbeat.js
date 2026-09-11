@@ -26,7 +26,7 @@ export function useLockSyncHeartbeat({
       const scoped = selectScopedDocumentLock(
         useUsersStore.getState(),
         collection,
-        docID
+        docID,
       );
       if (scoped.lockHeld && !scoped.readOnly && leasePressure) {
         flushExtendLease();
@@ -41,7 +41,14 @@ export function useLockSyncHeartbeat({
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("online", onOnline);
     };
-  }, [enabled, docID, collection, syncLockFromServer, flushExtendLease, leasePressure]);
+  }, [
+    enabled,
+    docID,
+    collection,
+    syncLockFromServer,
+    flushExtendLease,
+    leasePressure,
+  ]);
 
   useEffect(() => {
     if (!enabled || !docID) return;
@@ -57,7 +64,7 @@ export function useLockSyncHeartbeat({
       const exp = selectScopedDocumentLock(
         useUsersStore.getState(),
         collection,
-        docID
+        docID,
       ).lockExpiresAtUnix;
       if (exp == null || typeof exp !== "number") return;
       const now = Math.floor(Date.now() / 1000);

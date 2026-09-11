@@ -106,11 +106,21 @@ describe("a job's materials", () => {
 
 describe("recording a purchase", () => {
   function needing(quantity, purchasing = []) {
-    return new Material({ typeID: 34, name: "Tritanium", purchasing }, quantity);
+    return new Material(
+      { typeID: 34, name: "Tritanium", purchasing },
+      quantity,
+    );
   }
 
   function purchase(id, itemCount, itemCost, childID = null) {
-    return { id, typeID: 34, itemCount, itemCost, childID, childJobImport: Boolean(childID) };
+    return {
+      id,
+      typeID: 34,
+      itemCount,
+      itemCost,
+      childID,
+      childJobImport: Boolean(childID),
+    };
   }
 
   test("takes what the job still needs and hands back the rest", () => {
@@ -137,7 +147,7 @@ describe("recording a purchase", () => {
 
     const { taken, leftOver } = material.importPurchase(
       purchase("p1", 120, 5),
-      { recordExcess: true }
+      { recordExcess: true },
     );
 
     expect({ taken, leftOver }).toEqual({ taken: 100, leftOver: 20 });
@@ -151,7 +161,7 @@ describe("recording a purchase", () => {
     const material = needing(100);
 
     expect(
-      material.importPurchase(purchase("p1", 80, 5), { availableToBuy: 30 })
+      material.importPurchase(purchase("p1", 80, 5), { availableToBuy: 30 }),
     ).toEqual({ taken: 30, leftOver: 50 });
     expect(material.quantityImported).toBe(30);
   });
@@ -161,9 +171,10 @@ describe("recording a purchase", () => {
   test("a purchase that is not numbers is refused", () => {
     const material = needing(100);
 
-    expect(
-      material.importPurchase(purchase("p1", 40, Number.NaN))
-    ).toEqual({ taken: 0, leftOver: 40 });
+    expect(material.importPurchase(purchase("p1", 40, Number.NaN))).toEqual({
+      taken: 0,
+      leftOver: 40,
+    });
     expect(material.purchasing).toHaveLength(0);
   });
 
@@ -184,7 +195,7 @@ describe("what the job is charged for", () => {
     for (const [id, itemCount, itemCost] of rows) {
       material.importPurchase(
         { id, typeID: 34, itemCount, itemCost },
-        { recordExcess: true }
+        { recordExcess: true },
       );
     }
     return material;
@@ -242,7 +253,10 @@ describe("what the job is charged for", () => {
       ["p1", 60, 5],
       ["p2", 60, 20],
     ]) {
-      material.importPurchase({ id, itemCount, itemCost }, { recordExcess: true });
+      material.importPurchase(
+        { id, itemCount, itemCost },
+        { recordExcess: true },
+      );
     }
 
     expect(material.purchasedCost).toBe(1100);

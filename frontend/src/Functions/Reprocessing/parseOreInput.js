@@ -5,11 +5,11 @@ import { parseNumberWithSeparators } from "../Helper/numberParser";
  * Parses a text input string containing ore names and quantities into reprocessing objects.
  * Supports both tab-separated and space-separated formats for ore name and quantity pairs.
  * Creates ReprocessingItem objects for each unique ore type found in the input.
- * 
+ *
  * @param {string} inputString - Input string containing ore names and quantities
  * @param {Object} ores - Object containing ore data with names as keys
  * @returns {Array<ReprocessingItem>} Array of ReprocessingItem objects
- * 
+ *
  * @example
  * const input = "Tritanium Ore\t1000\nPyerite Ore 500";
  * const ores = { "Tritanium Ore": { id: 34, name: "Tritanium Ore" } };
@@ -41,7 +41,7 @@ function parseReprocessingInput(inputString, ores) {
     quantity = Math.floor(parseNumberWithSeparators(quantity));
 
     const ore = Object.values(ores).find(
-      (o) => o.name.toLowerCase() === name.trim().toLowerCase()
+      (o) => o.name.toLowerCase() === name.trim().toLowerCase(),
     );
     if (ore) {
       if (!matchedItems[ore.id]) {

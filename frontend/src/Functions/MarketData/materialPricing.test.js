@@ -52,7 +52,7 @@ describe("materialCostByBasis", () => {
         marketSelect: "jita",
         listingSelect: "sell",
         getPrice,
-      })
+      }),
     );
 
     expect(byId.sell.isCurrent).toBe(true);
@@ -74,7 +74,7 @@ describe("materialCostByBasis", () => {
         marketSelect: "jita",
         listingSelect: "sell",
         getPrice,
-      })
+      }),
     );
 
     // The overridden row stays on buy (5) whichever basis is being costed, so
@@ -95,7 +95,7 @@ describe("materialCostByBasis", () => {
         marketSelect: "jita",
         listingSelect: "sell",
         getPrice,
-      })
+      }),
     );
 
     expect(byId.sell.total).toBe(1000);
@@ -122,7 +122,7 @@ describe("materialCostByBasis", () => {
         marketSelect: "jita",
         listingSelect: "sell",
         getPrice,
-      })
+      }),
     );
 
     expect(byId.sell.total).toBe(0);
@@ -135,7 +135,7 @@ describe("materialPurchaseState", () => {
   const materialBought = (required, purchases) =>
     new JobMaterial(
       { typeID: 34, name: "Tritanium", purchasing: purchases },
-      required
+      required,
     );
 
   it("reports a fully bought material as paid, at what it cost", () => {
@@ -198,7 +198,7 @@ describe("a material the job needs none of", () => {
         name: "Tritanium",
         purchasing: [{ id: "p1", itemCount: 50, itemCost: 7 }],
       },
-      0
+      0,
     );
 
     expect(materialPurchaseState(material)).toMatchObject({

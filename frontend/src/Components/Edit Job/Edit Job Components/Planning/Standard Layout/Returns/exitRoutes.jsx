@@ -95,4 +95,3 @@ export function signTone(value) {
   }
   return value < 0 ? FIGURE_TONE.BAD : FIGURE_TONE.GOOD;
 }
-

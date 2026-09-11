@@ -26,7 +26,8 @@ export const ASSET_ROW = Object.freeze({
  */
 
 const locationKey = (locationId) => `location:${locationId}`;
-const compartmentKey = (locationId, flag) => `compartment:${locationId}:${flag}`;
+const compartmentKey = (locationId, flag) =>
+  `compartment:${locationId}:${flag}`;
 const itemKey = (itemId) => `item:${itemId}`;
 
 /**
@@ -135,14 +136,14 @@ function pushCompartments(
     excludeItemIds,
     matching,
     openAll,
-  }
+  },
 ) {
   compartments.forEach(({ assetLocationRef, name }, index) => {
     const key = compartmentKey(locationId, assetLocationRef);
     const held = rows.filter(
       (node) =>
         node.rootFlag === assetLocationRef &&
-        (!matching || matching.has(node.itemId))
+        (!matching || matching.has(node.itemId)),
     );
 
     flat.push({
@@ -174,7 +175,7 @@ function pushItems(
   flat,
   nodes,
   depth,
-  { expanded, byItemId, fullItemList, excludeItemIds, matching, openAll }
+  { expanded, byItemId, fullItemList, excludeItemIds, matching, openAll },
 ) {
   const shown = matching ? nodes.filter((n) => matching.has(n.itemId)) : nodes;
 
@@ -183,7 +184,7 @@ function pushItems(
     // What is hidden cannot be opened to: a container holding only blueprints is a leaf here.
     const childIds = node.childIds.filter(
       (childId) =>
-        !excludeItemIds?.has(childId) && (!matching || matching.has(childId))
+        !excludeItemIds?.has(childId) && (!matching || matching.has(childId)),
     );
     const expandable = childIds.length > 0;
 
@@ -219,7 +220,10 @@ function pushItems(
  * @param {{term: string, byItemId: Map, fullItemList: Object, containerNames: Map, excludeItemIds: Set<number>}} against
  * @returns {Set<number>} item ids worth showing
  */
-function matchesUnder(rows, { term, byItemId, fullItemList, containerNames, excludeItemIds }) {
+function matchesUnder(
+  rows,
+  { term, byItemId, fullItemList, containerNames, excludeItemIds },
+) {
   const keep = new Set();
 
   function walk(node) {
@@ -261,7 +265,7 @@ function countStacks(rows, byItemId, { excludeItemIds, matching } = {}) {
     held += countStacks(
       node.childIds.map((childId) => byItemId.get(childId)),
       byItemId,
-      { excludeItemIds, matching }
+      { excludeItemIds, matching },
     );
   }
 

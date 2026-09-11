@@ -1,4 +1,3 @@
-
 /**
  * WatchlistGroup class for organising watchlist items in EVE Online industry planning.
  *
@@ -22,7 +21,7 @@ class WatchlistGroup {
     this.name = data?.name ?? "Unnamed Group";
     this.expanded = data?.expanded ?? true;
     this.version = data?.version ?? 1;
-    this.documentID = documentID ?? null
+    this.documentID = documentID ?? null;
   }
 
   /**

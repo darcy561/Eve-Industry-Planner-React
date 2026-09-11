@@ -28,7 +28,7 @@ describe("storeOriginalPathFromOAuthState", () => {
 
   it("does not store a nonce-carrying additional-import state", () => {
     storeOriginalPathFromOAuthState(
-      buildAdditionalAccountState("11111111-2222-3333-4444-555555555555")
+      buildAdditionalAccountState("11111111-2222-3333-4444-555555555555"),
     );
     expect(localStorage.getItem("originalPath")).toBeNull();
   });

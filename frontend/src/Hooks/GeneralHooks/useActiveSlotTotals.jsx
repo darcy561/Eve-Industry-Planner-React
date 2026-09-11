@@ -9,30 +9,30 @@ import { calculateActiveSlotsSingleFromData } from "../../Functions/Helper/activ
 
 /**
  * Custom hook that calculates active industry slot totals for characters.
- * 
+ *
  * This hook provides functions to:
  * - Calculate active slots for individual characters
  * - Calculate active slots for multiple characters
  * - Track manufacturing, reaction, and science slot usage
  * - Include both character and corporation industry jobs
  * - Calculate total available slots based on character skills
- * 
+ *
  * The hook considers EVE Online industry activities:
  * - Manufacturing (activity_id: 1)
  * - Science (activity_ids: 3, 4, 5, 8)
  * - Reaction (activity_id: 9)
- * 
+ *
  * @returns {Object} Object containing slot calculation functions
  * @returns {Function} returns.calculateActiveSlotsSingle - Calculates slots for a single character
  * @returns {Function} returns.calculateActiveSlotsMultiple - Calculates slots for all characters
- * 
+ *
  * @example
  * function SlotTracker() {
  *   const { calculateActiveSlotsSingle, calculateActiveSlotsMultiple } = useActiveSlotTotals();
- * 
+ *
  *   const slotSummary = calculateActiveSlotsSingle(character, queryClient);
  *   console.log(`Manufacturing: ${slotSummary.activeManufacturingJobs}/${slotSummary.manufacturingSlots}`);
- * 
+ *
  *   return <div>Slot tracking interface</div>;
  * }
  */
@@ -60,9 +60,7 @@ export function useActiveSlotTotals() {
     characterSkillsLoading ||
     corpIndustryJobsLoading;
   const isError =
-    characterIndustryJobsError ||
-    characterSkillsError ||
-    corpIndustryJobsError;
+    characterIndustryJobsError || characterSkillsError || corpIndustryJobsError;
   const error =
     characterIndustryJobsErrorObject ||
     characterSkillsErrorObject ||
@@ -100,7 +98,7 @@ export function useActiveSlotTotals() {
    * @returns {number} returns.activeScienceSlots - Number of active science jobs
    * @returns {number} returns.scienceSlots - Total available science slots
    * @returns {boolean} returns.corpJobsPresent - Whether corporation jobs are present
-   * 
+   *
    * @private
    */
   function calculateActiveSlotsSingle(character, queryClient) {
@@ -122,7 +120,7 @@ export function useActiveSlotTotals() {
       character,
       userSkills,
       userIndJobs,
-      userCorpIndJobs
+      userCorpIndJobs,
     );
   }
 

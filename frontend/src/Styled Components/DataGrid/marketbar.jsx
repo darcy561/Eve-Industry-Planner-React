@@ -8,15 +8,15 @@ import useUsersStore from "../../Zustand/usersStore";
 /**
  * A data grid component for displaying EVE Online market order data.
  * Shows both sell and buy orders in separate grids with sorting capabilities.
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} [props.marketData=[]] - Array of market order objects containing order data
  * @param {Object} [props.alternativeRegionData={}] - Alternative region data for location lookups
  * @param {boolean} [props.isLoading=true] - Loading state for the data grids
  * @returns {JSX.Element} Market data display grid component
- * 
+ *
  * @example
- * <MarketDataDisplayGrid 
+ * <MarketDataDisplayGrid
  *   marketData={marketOrders}
  *   alternativeRegionData={regionData}
  *   isLoading={false}
@@ -33,7 +33,8 @@ function MarketDataDisplayGrid({
   const [buySortModel, setBuySortModel] = useState([
     { field: "price", sort: "desc" },
   ]);
-  const findUniverseData = useUsersStore.getState().worldData.actions.findUniverseData
+  const findUniverseData =
+    useUsersStore.getState().worldData.actions.findUniverseData;
 
   const sellOrders = marketData.filter((order) => !order.is_buy_order);
   const buyOrders = marketData.filter((order) => order.is_buy_order);
@@ -61,8 +62,7 @@ function MarketDataDisplayGrid({
       type: "string",
       flex: 0,
       valueGetter: (id) =>
-        findUniverseData(id, alternativeRegionData)?.name ??
-        "Unknown System",
+        findUniverseData(id, alternativeRegionData)?.name ?? "Unknown System",
     },
     {
       field: "volume_remain",
@@ -83,8 +83,7 @@ function MarketDataDisplayGrid({
       type: "string",
       flex: 1,
       valueGetter: (id) =>
-        findUniverseData(id, alternativeRegionData)?.name ??
-        "Unknown Location",
+        findUniverseData(id, alternativeRegionData)?.name ?? "Unknown Location",
     },
     {
       field: "range",
@@ -104,8 +103,7 @@ function MarketDataDisplayGrid({
       type: "string",
       flex: 0,
       valueGetter: (id) =>
-        findUniverseData(id, alternativeRegionData)?.name ??
-        "Unknown System",
+        findUniverseData(id, alternativeRegionData)?.name ?? "Unknown System",
     },
 
     {
@@ -127,8 +125,7 @@ function MarketDataDisplayGrid({
       type: "string",
       flex: 1,
       valueGetter: (id) =>
-        findUniverseData(id, alternativeRegionData)?.name ??
-        "Unknown Location",
+        findUniverseData(id, alternativeRegionData)?.name ?? "Unknown Location",
     },
     {
       field: "range",

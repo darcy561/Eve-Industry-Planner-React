@@ -10,12 +10,13 @@ export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
         container
         size={{
           xs: 2,
-          sm: 1
+          sm: 1,
         }}
         sx={{
           alignItems: "center",
-          justifyContent: "center"
-        }}>
+          justifyContent: "center",
+        }}
+      >
         <Avatar
           src={`https://images.evetech.net/types/${item.itemID}/icon?size=32`}
           alt={item.itemName}
@@ -27,11 +28,12 @@ export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
         container
         size={{
           xs: 7,
-          sm: 8
+          sm: 8,
         }}
         sx={{
-          alignItems: "center"
-        }}>
+          alignItems: "center",
+        }}
+      >
         <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
           {item.itemName}
         </Typography>
@@ -41,8 +43,9 @@ export function ImportFittingItemRow({ updateImportedItemList, item, index }) {
         size={2}
         sx={{
           justifyContent: "center",
-          alignItems: "center"
-        }}>
+          alignItems: "center",
+        }}
+      >
         <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
           {formatNumberForLocale(item.itemCalculatedQty, { max: 0 })}
         </Typography>

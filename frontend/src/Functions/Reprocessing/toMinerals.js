@@ -7,12 +7,12 @@ import { getReprocessingData } from "../Helper/getCachedData";
  * Processes ore input string and converts it into mineral outputs with market pricing.
  * Parses the input, calculates reprocessing yields based on skills and structure,
  * and fetches current market prices for all materials.
- * 
+ *
  * @param {string} inputString - Input string containing ore quantities and types
  * @param {Object} skillsMap - Map of reprocessing skills and their levels
  * @param {Object} reprocessingStructure - Structure object with reprocessing bonuses
  * @returns {Promise<Object>} Promise that resolves to reprocessing results object
- * 
+ *
  * @example
  * const result = await reprocessIntoMinerals(
  *   "1000 Tritanium Ore",

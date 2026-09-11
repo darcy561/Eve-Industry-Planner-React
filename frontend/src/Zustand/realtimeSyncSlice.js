@@ -70,7 +70,7 @@ const realtimeSyncSlice = (set, get) => ({
             },
           }),
           false,
-          "realtimeSync/setCursorMs"
+          "realtimeSync/setCursorMs",
         );
       },
 
@@ -99,7 +99,7 @@ const realtimeSyncSlice = (set, get) => ({
             },
           }),
           false,
-          "realtimeSync/setCursorMsBatch"
+          "realtimeSync/setCursorMsBatch",
         );
       },
 
@@ -113,7 +113,7 @@ const realtimeSyncSlice = (set, get) => ({
             },
           }),
           false,
-          "realtimeSync/reset"
+          "realtimeSync/reset",
         ),
     },
   },

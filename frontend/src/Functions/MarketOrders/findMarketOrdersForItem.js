@@ -8,13 +8,13 @@ import { getAllCachedCorporationHistoricMarketOrders } from "../../Hooks/EveEsi/
  * Finds market orders for a specific item from cached character and corporation data.
  * Searches through active and historic orders, handling corporation order precedence
  * and filtering based on linked orders and temporary modifications.
- * 
+ *
  * @param {Object} queryClient - React Query client for data access
  * @param {Object} inputJob - Job object containing itemID to search for
  * @param {Array<number>} [temporaryOrderIDsToAdd=[]] - Temporary order IDs to add
  * @param {Array<number>} [temporaryOrderIDsToRemove=[]] - Temporary order IDs to remove
  * @returns {Array<Object>} Array of matching market orders
- * 
+ *
  * @example
  * const orders = findMarketOrdersForItem(
  *   queryClient,
@@ -28,7 +28,7 @@ export default function findMarketOrdersForItem(
   queryClient,
   inputJob,
   temporaryOrderIDsToAdd = [],
-  temporaryOrderIDsToRemove = []
+  temporaryOrderIDsToRemove = [],
 ) {
   const { linkedOrders, characters } = useUsersStore.getState().account;
 
@@ -39,7 +39,7 @@ export default function findMarketOrdersForItem(
     (characters ?? []).map(({ CharacterID, CharacterHash }) => [
       CharacterID,
       CharacterHash,
-    ])
+    ]),
   );
 
   /**
@@ -87,7 +87,10 @@ export default function findMarketOrdersForItem(
       if (!held || (order.is_corporation && !held.is_corporation)) {
         // Carried on the row so the fee is worked out from the member who issued the order rather
         // than from whichever token fetched the corporation's list.
-        byOrderID.set(order.order_id, { ...order, CharacterHash: characterHash });
+        byOrderID.set(order.order_id, {
+          ...order,
+          CharacterHash: characterHash,
+        });
       }
     });
 
@@ -96,10 +99,10 @@ export default function findMarketOrdersForItem(
   /**
    * Determines if an order matches the criteria for the input job.
    * Checks item type, linked status, and temporary modifications.
-   * 
+   *
    * @param {Object} order - Market order to evaluate
    * @returns {boolean} True if order matches criteria, false otherwise
-   * 
+   *
    * @private
    */
   function orderCriteria(order) {

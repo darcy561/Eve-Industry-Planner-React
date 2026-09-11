@@ -63,7 +63,10 @@ describe("resolveArchiveRange", () => {
 // very wide window: it is asked for by name and bounded by what the account has.
 describe("all time", () => {
   it("resolves to a named range rather than a pair of bounds", () => {
-    const resolved = resolveArchiveRange("all", new Date("2026-09-01T00:00:00Z"));
+    const resolved = resolveArchiveRange(
+      "all",
+      new Date("2026-09-01T00:00:00Z"),
+    );
 
     expect(resolved).toEqual({ range: "all" });
     expect(resolved.from).toBeUndefined();
@@ -71,12 +74,18 @@ describe("all time", () => {
   });
 
   it("is offered as the last preset", () => {
-    expect(ARCHIVE_RANGES.at(-1)).toMatchObject({ key: "all", label: "All time" });
+    expect(ARCHIVE_RANGES.at(-1)).toMatchObject({
+      key: "all",
+      label: "All time",
+    });
   });
 
   // The month presets keep working alongside it.
   it("leaves a month preset resolving to bounds", () => {
-    const resolved = resolveArchiveRange("6m", new Date("2026-09-01T00:00:00Z"));
+    const resolved = resolveArchiveRange(
+      "6m",
+      new Date("2026-09-01T00:00:00Z"),
+    );
 
     expect(resolved).toEqual({ from: "2026-04", to: "2026-09" });
     expect(resolved.range).toBeUndefined();

@@ -45,7 +45,10 @@ describe("useArchiveTimeline", () => {
   // The default preset names no window, which is how the server is asked for
   // its own — this month and the one before.
   it("asks for nothing when the default preset is resolved", () => {
-    const window = resolveArchiveRange("default", new Date("2026-02-15T00:00:00Z"));
+    const window = resolveArchiveRange(
+      "default",
+      new Date("2026-02-15T00:00:00Z"),
+    );
     renderHook(() => useArchiveTimeline(window));
 
     expect(useAccountTimelineQuery.mock.calls[0][0]).toEqual({});
@@ -90,7 +93,9 @@ describe("useArchiveTimeline", () => {
       isLoading: true,
       isError: false,
     });
-    const { result } = renderHook(() => useArchiveTimeline({ from: "2026-01" }));
+    const { result } = renderHook(() =>
+      useArchiveTimeline({ from: "2026-01" }),
+    );
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.months).toEqual([]);

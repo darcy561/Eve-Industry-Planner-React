@@ -1,4 +1,3 @@
-
 /**
  * WatchlistItem class for tracking items in EVE Online industry watchlists.
  *

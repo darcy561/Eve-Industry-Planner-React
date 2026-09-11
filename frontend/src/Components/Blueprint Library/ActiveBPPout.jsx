@@ -8,7 +8,6 @@ export function ActiveBPPopout({
   displayPopover,
   updateDisplayPopover,
 }) {
-
   const timeRemaining = formatTimeRemaining(Date.parse(esiJob.end_date));
 
   return (
@@ -35,12 +34,12 @@ export function ActiveBPPopout({
               {esiJob.activity_id === 1
                 ? "Manufacturing Job"
                 : esiJob.activity_id === 3
-                ? "Time Efficiency Research"
-                : esiJob.activity_id === 4
-                ? "Material Efficiency Research"
-                : esiJob.activity_id === 9
-                ? "Reaction Job"
-                : null}
+                  ? "Time Efficiency Research"
+                  : esiJob.activity_id === 4
+                    ? "Material Efficiency Research"
+                    : esiJob.activity_id === 9
+                      ? "Reaction Job"
+                      : null}
             </Typography>
           </Grid>
           <Grid container align="center" size={12}>

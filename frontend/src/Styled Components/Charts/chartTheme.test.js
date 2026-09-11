@@ -119,13 +119,19 @@ describe("withSeriesColours", () => {
   });
 
   it("gives neighbouring rows different colours", () => {
-    const rows = withSeriesColours(theme, [{ name: "A" }, { name: "B" }, { name: "C" }]);
+    const rows = withSeriesColours(theme, [
+      { name: "A" },
+      { name: "B" },
+      { name: "C" },
+    ]);
 
     expect(new Set(rows.map((row) => row.fill)).size).toBe(3);
   });
 
   it("keeps the row's own fields, and its own colour when it has one", () => {
-    const rows = withSeriesColours(theme, [{ name: "A", value: 5, colour: "#123456" }]);
+    const rows = withSeriesColours(theme, [
+      { name: "A", value: 5, colour: "#123456" },
+    ]);
 
     expect(rows[0]).toMatchObject({ name: "A", value: 5, fill: "#123456" });
   });
@@ -137,7 +143,12 @@ describe("withSeriesColours", () => {
 });
 
 describe("sectorHighlight", () => {
-  const sector = { name: "Hauling Service", index: 1, outerRadius: 100, isActive: false };
+  const sector = {
+    name: "Hauling Service",
+    index: 1,
+    outerRadius: 100,
+    isActive: false,
+  };
 
   // Nothing is hovered, so every slice draws at full strength.
   it("leaves the chart alone when nothing is hovered", () => {
@@ -149,7 +160,10 @@ describe("sectorHighlight", () => {
   });
 
   it("grows the slice whose legend key is hovered", () => {
-    const { active, fillOpacity, outerRadius } = sectorHighlight(sector, "Hauling Service");
+    const { active, fillOpacity, outerRadius } = sectorHighlight(
+      sector,
+      "Hauling Service",
+    );
 
     expect(active).toBe(true);
     expect(fillOpacity).toBe(1);
@@ -186,7 +200,9 @@ describe("sectorHighlight", () => {
   // A percentage radius is resolved by the chart before the shape sees it, but a
   // non-numeric one must pass through rather than becoming NaN.
   it("passes a non-numeric radius through untouched", () => {
-    expect(sectorHighlight({ name: "A", outerRadius: "75%" }, "A").outerRadius).toBe("75%");
+    expect(
+      sectorHighlight({ name: "A", outerRadius: "75%" }, "A").outerRadius,
+    ).toBe("75%");
   });
 });
 
@@ -275,7 +291,9 @@ describe("where a chart starts in the rotation", () => {
   });
 
   it("starts at the top of the rotation for a chart with no seed", () => {
-    expect(resolveSeriesColour(theme, {}, 0)).toBe(chartSeriesColours(theme)[0]);
+    expect(resolveSeriesColour(theme, {}, 0)).toBe(
+      chartSeriesColours(theme)[0],
+    );
   });
 });
 

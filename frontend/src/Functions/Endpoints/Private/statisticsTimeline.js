@@ -68,14 +68,14 @@ async function readStatistics(url, requestName) {
       {
         requestName,
         retry: { maxAttempts: MAX_ATTEMPTS, baseDelayMs: RETRY_BASE_DELAY_MS },
-      }
+      },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `${requestName}: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return null;
     }
@@ -122,7 +122,10 @@ export async function getAccountTimeline(options = {}) {
 
   const params = rangeParams(options);
   const query = params.toString();
-  return readStatistics(query ? `${path}?${query}` : path, "getAccountTimeline");
+  return readStatistics(
+    query ? `${path}?${query}` : path,
+    "getAccountTimeline",
+  );
 }
 
 /**
@@ -141,7 +144,9 @@ export async function getAccountTimeline(options = {}) {
 export async function getAccountTimelineItems(options = {}) {
   const { from, to, sort, order, limit, offset } = options;
   if ((from && !to) || (to && !from)) {
-    console.error("getAccountTimelineItems: from and to must be given together");
+    console.error(
+      "getAccountTimelineItems: from and to must be given together",
+    );
     return null;
   }
   if ((from && !isCalendarMonth(from)) || (to && !isCalendarMonth(to))) {
@@ -161,6 +166,6 @@ export async function getAccountTimelineItems(options = {}) {
   const query = params.toString();
   return readStatistics(
     query ? `${path}?${query}` : path,
-    "getAccountTimelineItems"
+    "getAccountTimelineItems",
   );
 }

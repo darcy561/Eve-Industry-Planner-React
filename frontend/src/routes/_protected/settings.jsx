@@ -1,7 +1,9 @@
-import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
 
-const Settings = lazyRouteComponent(() => import('../../Components/Settings/settingsPage'))
+const Settings = lazyRouteComponent(
+  () => import("../../Components/Settings/settingsPage"),
+);
 
-export const Route = createFileRoute('/_protected/settings')({
+export const Route = createFileRoute("/_protected/settings")({
   component: Settings,
-})
+});

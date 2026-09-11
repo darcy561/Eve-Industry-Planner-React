@@ -11,7 +11,7 @@ export function AwaitingCostImportBox_Purchasing({
     let costNotImported = true;
     for (const job of childJobs) {
       const matchedCostImport = material.purchasing.find(
-        (i) => i.childID === job.jobID
+        (i) => i.childID === job.jobID,
       );
       if (!matchedCostImport) continue;
       costNotImported = false;

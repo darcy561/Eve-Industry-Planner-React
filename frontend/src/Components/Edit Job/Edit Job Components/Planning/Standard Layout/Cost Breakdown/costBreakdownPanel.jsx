@@ -23,12 +23,7 @@ import { costParts } from "./costParts";
  * @param {React.ReactNode} [props.children] - Shown under the table
  * @param {React.ReactNode} [props.action] - Shown in the panel header
  */
-export default function CostBreakdownPanel({
-  cost,
-  aside,
-  action,
-  children,
-}) {
+export default function CostBreakdownPanel({ cost, aside, action, children }) {
   const theme = useTheme();
   // Which part of the cost is being looked at. The bar shows the shape and the
   // table states the figures, and on a build with six components it is not

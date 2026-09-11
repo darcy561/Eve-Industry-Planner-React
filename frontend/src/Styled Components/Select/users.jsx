@@ -11,9 +11,9 @@ import useUsersStore from "../../Zustand/usersStore";
  * @param {Function} props.onChange - Called with the selected character hash
  * @param {string} [props.formHelperText] - Custom helper text below the select
  * @returns {JSX.Element} Character assignment select
- * 
+ *
  * @example
- * <AssignUsersSelect 
+ * <AssignUsersSelect
  *   value={selectedUserHash}
  *   onChange={(hash) => setSelectedUser(hash)}
  *   formHelperText="Choose assigned character"
@@ -22,7 +22,7 @@ import useUsersStore from "../../Zustand/usersStore";
 function AssignUsersSelect({ value, onChange, formHelperText }) {
   const characters = useUsersStore((state) => state.account.characters);
   const mainCharacterHash = useUsersStore(
-    (state) => state.account.mainCharacterHash
+    (state) => state.account.mainCharacterHash,
   );
 
   const selectedUserHash = useMemo(() => {
@@ -40,9 +40,9 @@ function AssignUsersSelect({ value, onChange, formHelperText }) {
           color: (theme) => theme.palette.secondary.main,
         },
         "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-        {
-          display: "none",
-        },
+          {
+            display: "none",
+          },
       }}
       fullWidth
     >

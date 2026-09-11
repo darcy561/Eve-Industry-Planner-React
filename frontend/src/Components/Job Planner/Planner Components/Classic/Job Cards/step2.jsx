@@ -25,7 +25,13 @@ export default function Step2JobCard({ job }) {
               Awaiting Materials
             </Typography>
           </Box>
-          <Box sx={{ flex: "0 0 16.666%", textAlign: "right", paddingRight: { xs: 2, md: 3 } }}>
+          <Box
+            sx={{
+              flex: "0 0 16.666%",
+              textAlign: "right",
+              paddingRight: { xs: 2, md: 3 },
+            }}
+          >
             <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
               {totalMaterials - totalComplete}/{totalMaterials}
             </Typography>

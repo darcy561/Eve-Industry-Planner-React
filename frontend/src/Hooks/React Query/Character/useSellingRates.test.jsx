@@ -21,7 +21,9 @@ vi.mock("../../../Functions/Shared/queryExecutionEnabled", () => ({
 vi.mock("../../../Zustand/usersStore", () => ({
   default: {
     getState: () => ({
-      account: { actions: { findCharacterByHash: () => ({ CharacterHash: "hash" }) } },
+      account: {
+        actions: { findCharacterByHash: () => ({ CharacterHash: "hash" }) },
+      },
     }),
   },
 }));
@@ -41,9 +43,8 @@ vi.mock("../../../Functions/EveESI/World/getStationData", () => ({
 }));
 
 const { useSellingRates } = await import("./useSellingRates");
-const { SALE_LOCATION_KIND } = await import(
-  "../../../Functions/MarketOrders/saleLocations"
-);
+const { SALE_LOCATION_KIND } =
+  await import("../../../Functions/MarketOrders/saleLocations");
 
 const hub = {
   kind: SALE_LOCATION_KIND.HUB,
@@ -100,7 +101,9 @@ describe("useSellingRates", () => {
   it("quotes the base rates for a signed-out seller without asking ESI", async () => {
     const { wrapper } = harness();
 
-    const { result } = renderHook(() => useSellingRates(hub, null), { wrapper });
+    const { result } = renderHook(() => useSellingRates(hub, null), {
+      wrapper,
+    });
 
     await waitFor(() => expect(result.current.data).toBeDefined());
 

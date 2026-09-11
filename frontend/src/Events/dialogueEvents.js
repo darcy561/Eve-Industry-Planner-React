@@ -52,7 +52,10 @@ export function showAssetsDialogue(typeID = null) {
  * @param {number|null} [typeID=null] - Product / output item type ID (same as blueprint index `itemID`)
  * @param {string|null} [displayName=null] - Optional title label (e.g. blueprint name from search index)
  */
-export function showBlueprintArchiveDialogue(typeID = null, displayName = null) {
+export function showBlueprintArchiveDialogue(
+  typeID = null,
+  displayName = null,
+) {
   eventEmitter.emit("showBlueprintArchiveDialogue", {
     isOpen: true,
     selectedTypeID: typeID,

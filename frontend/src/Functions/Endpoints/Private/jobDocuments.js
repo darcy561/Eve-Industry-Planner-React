@@ -23,7 +23,7 @@ async function parseJsonBodyOrExplainHtml(res, label) {
   const trimmed = text.trim();
   if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")) {
     throw new Error(
-      `${label}: API returned HTML instead of JSON (${res.status}). Usually the dev proxy is not forwarding /api to the Go server, or the route is missing.`
+      `${label}: API returned HTML instead of JSON (${res.status}). Usually the dev proxy is not forwarding /api to the Go server, or the route is missing.`,
     );
   }
   try {
@@ -31,7 +31,7 @@ async function parseJsonBodyOrExplainHtml(res, label) {
   } catch {
     const preview = trimmed.replace(/\s+/g, " ").slice(0, 120);
     throw new Error(
-      `${label}: response is not valid JSON (${res.status}): ${preview}`
+      `${label}: response is not valid JSON (${res.status}): ${preview}`,
     );
   }
 }
@@ -47,13 +47,17 @@ const MAX_DELETE_JOB_DOCUMENTS_BATCH = 200;
  */
 export async function fetchPlannerJobDocumentsFromApi() {
   const url = new URL("/api/v1/job-documents/planner", window.location.origin);
-  const res = await requestWithPrivateHeaders(url.toString(), { method: "GET" }, {
-    requestName: "getPlannerJobDocuments",
-  });
+  const res = await requestWithPrivateHeaders(
+    url.toString(),
+    { method: "GET" },
+    {
+      requestName: "getPlannerJobDocuments",
+    },
+  );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET /api/v1/job-documents/planner failed: ${res.status} ${text || res.statusText}`
+      `GET /api/v1/job-documents/planner failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const data = await res.json();
@@ -67,7 +71,9 @@ export async function fetchPlannerJobDocumentsFromApi() {
   }
   useUsersStore
     .getState()
-    .jobData.actions.replaceJobArray([...mergedById.values()], { fromServer: true });
+    .jobData.actions.replaceJobArray([...mergedById.values()], {
+      fromServer: true,
+    });
 }
 
 /**
@@ -76,13 +82,17 @@ export async function fetchPlannerJobDocumentsFromApi() {
 export async function fetchJobDocumentsByGroupFromApi(groupID) {
   const path = `/api/v1/job-documents/by-group/${encodeURIComponent(groupID)}`;
   const url = new URL(path, window.location.origin);
-  const res = await requestWithPrivateHeaders(url.toString(), { method: "GET" }, {
-    requestName: "getJobDocumentsByGroup",
-  });
+  const res = await requestWithPrivateHeaders(
+    url.toString(),
+    { method: "GET" },
+    {
+      requestName: "getJobDocumentsByGroup",
+    },
+  );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET job-documents by-group failed: ${res.status} ${text || res.statusText}`
+      `GET job-documents by-group failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const data = await res.json();
@@ -98,14 +108,18 @@ export async function fetchJobDocumentsByGroupFromApi(groupID) {
 export async function fetchJobDocumentByIdFromApi(jobID) {
   const path = `/api/v1/job-documents/${encodeURIComponent(jobID)}`;
   const url = new URL(path, window.location.origin);
-  const res = await requestWithPrivateHeaders(url.toString(), { method: "GET" }, {
-    requestName: "getJobDocumentById",
-  });
+  const res = await requestWithPrivateHeaders(
+    url.toString(),
+    { method: "GET" },
+    {
+      requestName: "getJobDocumentById",
+    },
+  );
   if (res.status === 404) return null;
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET job-document failed: ${res.status} ${text || res.statusText}`
+      `GET job-document failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const row = await res.json();
@@ -133,7 +147,9 @@ export async function fetchJobDocumentsByIdsFromApi(jobIDs) {
  * @param {Array<Job|object>} jobs - Plain or Job instances (serialised as JSON)
  */
 export async function putJobDocumentsBatch(jobs) {
-  const payload = jobs.map((j) => (typeof j.toDocument === "function" ? j.toDocument() : j));
+  const payload = jobs.map((j) =>
+    typeof j.toDocument === "function" ? j.toDocument() : j,
+  );
   if (payload.length === 0) return;
 
   await requestWithPrivateHeaders(
@@ -151,7 +167,7 @@ export async function putJobDocumentsBatch(jobs) {
         arrayKey: "jobs",
         errorLabel: "PUT /api/v1/job-documents",
       },
-    }
+    },
   );
 }
 
@@ -177,6 +193,6 @@ export async function deleteJobDocumentsFromApi(jobIDs) {
         arrayKey: "jobIDs",
         errorLabel: "DELETE /api/v1/job-documents",
       },
-    }
+    },
   );
 }

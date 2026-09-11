@@ -36,7 +36,7 @@ export function useJobPlannerSideMenuFunctions(pageState, pageActions) {
   const queryClient = useQueryClient();
   const buildJobWithContext = (buildRequest) =>
     buildJob(buildRequest, { queryClient });
-  const navigate = useNavigate({ from: '/jobplanner' });
+  const navigate = useNavigate({ from: "/jobplanner" });
 
   const standardDialogueError =
     "You will need to select at least 1 job using the checkbox's on the job cards.";
@@ -53,7 +53,7 @@ export function useJobPlannerSideMenuFunctions(pageState, pageActions) {
             // Fall back to tutorial-based state
             pageActions.setRightDrawerContentID(null);
             const shouldExpand = shouldExpandRightDrawer(
-              pageState.pageRequiresDrawerToBeOpen
+              pageState.pageRequiresDrawerToBeOpen,
             );
             pageActions.setExpandRightDrawer(shouldExpand);
           } else {
@@ -71,8 +71,8 @@ export function useJobPlannerSideMenuFunctions(pageState, pageActions) {
           "Creates a new job group from the current job selection or an empty group.",
         onClick: async () => {
           navigate({
-            to: '/group/new',
-            search: { includes: [...multiSelect].join(',') }
+            to: "/group/new",
+            search: { includes: [...multiSelect].join(",") },
           });
         },
       },
@@ -82,8 +82,7 @@ export function useJobPlannerSideMenuFunctions(pageState, pageActions) {
               displayText: "Group Templates",
               icon: <LibraryBooksIcon />,
               divider: true,
-              tooltip:
-                "Creates a new group from a saved group template.",
+              tooltip: "Creates a new group from a saved group template.",
               onClick: () => openGroupTemplatesApplyDialogue({}),
             },
           ]
@@ -181,8 +180,8 @@ export function useJobPlannerSideMenuFunctions(pageState, pageActions) {
             filterUnlockedDocumentIDs(
               useUsersStore.getState(),
               USER_JOBS_COLLECTION,
-              eligibleJobIDs
-            )
+              eligibleJobIDs,
+            ),
           );
         },
       },

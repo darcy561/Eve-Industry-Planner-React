@@ -7,7 +7,7 @@ const storeState = {
     actions: {
       getCorporation: (id) =>
         storeState.account.corporations.find(
-          (corporation) => corporation.corporation_id === id
+          (corporation) => corporation.corporation_id === id,
         ) ?? null,
     },
   },
@@ -36,7 +36,7 @@ describe("naming a planner for display", () => {
         kind: "corporation",
         name: "Karkur Industries",
         named: true,
-      })
+      }),
     ).toBe("Karkur Industries");
   });
 
@@ -49,7 +49,12 @@ describe("naming a planner for display", () => {
     ];
 
     expect(
-      plannerDisplayName({ owner: CORP_OWNER, kind: "corporation", name: "", named: false })
+      plannerDisplayName({
+        owner: CORP_OWNER,
+        kind: "corporation",
+        name: "",
+        named: false,
+      }),
     ).toBe("Karkur Industries");
   });
 
@@ -62,19 +67,34 @@ describe("naming a planner for display", () => {
     ];
 
     expect(
-      plannerDisplayName({ owner: CORP_OWNER, kind: "corporation", name: "", named: false })
+      plannerDisplayName({
+        owner: CORP_OWNER,
+        kind: "corporation",
+        name: "",
+        named: false,
+      }),
     ).toBe("First");
   });
 
   it("labels a corporation the client does not hold", () => {
     expect(
-      plannerDisplayName({ owner: CORP_OWNER, kind: "corporation", name: "", named: false })
+      plannerDisplayName({
+        owner: CORP_OWNER,
+        kind: "corporation",
+        name: "",
+        named: false,
+      }),
     ).toBe("Corporation");
   });
 
   it("names an account's own planner without asking anything", () => {
     expect(
-      plannerDisplayName({ owner: "account:abc", kind: "account", name: "", named: false })
+      plannerDisplayName({
+        owner: "account:abc",
+        kind: "account",
+        name: "",
+        named: false,
+      }),
     ).toBe("My planner");
   });
 
@@ -85,7 +105,7 @@ describe("naming a planner for display", () => {
         kind: "alliance",
         name: "",
         named: false,
-      })
+      }),
     ).toBe("Alliance");
   });
 });
@@ -94,12 +114,10 @@ vi.mock("../Functions/Endpoints/Private/applyPrivateHeaders.js", () => ({
   requestWithPrivateHeaders: vi.fn(),
 }));
 
-const { requestWithPrivateHeaders } = await import(
-  "../Functions/Endpoints/Private/applyPrivateHeaders.js"
-);
-const { ensurePlannerViaApi, fetchPlannersFromApi } = await import(
-  "../Functions/Endpoints/Private/planners.js"
-);
+const { requestWithPrivateHeaders } =
+  await import("../Functions/Endpoints/Private/applyPrivateHeaders.js");
+const { ensurePlannerViaApi, fetchPlannersFromApi } =
+  await import("../Functions/Endpoints/Private/planners.js");
 
 describe("addressing a planner over the API", () => {
   beforeEach(() => {

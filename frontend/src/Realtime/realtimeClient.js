@@ -162,7 +162,7 @@ function scheduleReconnect(connectFn) {
   }
   const delay = Math.min(
     WS_RECONNECT_MAX_MS,
-    WS_RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt)
+    WS_RECONNECT_BASE_MS * Math.pow(2, reconnectAttempt),
   );
   reconnectAttempt += 1;
   clearTimers();
@@ -240,7 +240,7 @@ export function connectRealtime(params) {
 
     void (async () => {
       const attemptedSessionResume = Boolean(
-        sessionResumePreviousId && socket === ws
+        sessionResumePreviousId && socket === ws,
       );
       let resumeSkippedBaseline = false;
 
@@ -250,14 +250,14 @@ export function connectRealtime(params) {
             JSON.stringify({
               type: "session_resume",
               previousClientID: sessionResumePreviousId,
-            })
+            }),
           );
           const resumeAck = await Promise.race([
             new Promise((resolve) => {
               resumeBootstrap = { resolve };
             }),
             new Promise((resolve) =>
-              setTimeout(() => resolve({ skipBaselineSync: false }), 400)
+              setTimeout(() => resolve({ skipBaselineSync: false }), 400),
             ),
           ]);
           resumeSkippedBaseline = !!resumeAck.skipBaselineSync;
@@ -292,7 +292,7 @@ export function connectRealtime(params) {
         void fetchPlannerJobDocumentsFromApi().catch((e) => {
           console.warn(
             "[realtime] planner job documents refetch after session identity change failed",
-            e
+            e,
           );
         });
       }
@@ -368,27 +368,26 @@ export function connectRealtime(params) {
               action: parsed.action,
               via: parsed.via,
               slot: parsed.slot,
-            }
+            },
           );
           return;
         }
       }
       if (parsed.type === DOCUMENT_LOCK_FRAME_TYPES.CHANNEL) {
         const detail = documentLockWireToDetail(
-          /** @type {Record<string, unknown>} */ (parsed)
+          /** @type {Record<string, unknown>} */ (parsed),
         );
         if (detail) {
           window.dispatchEvent(
             new CustomEvent(DOCUMENT_LOCK_CUSTOM_EVENT, {
               detail,
-            })
+            }),
           );
         }
         return;
       }
       if (parsed.type === DOCUMENT_LOCK_FRAME_TYPES.LOCK_STATE_BATCH_ACK) {
-        const id =
-          typeof parsed.requestId === "string" ? parsed.requestId : "";
+        const id = typeof parsed.requestId === "string" ? parsed.requestId : "";
         const pending = id
           ? documentLockLockStateBatchPending.get(id)
           : undefined;
@@ -555,7 +554,11 @@ function writeActivePlanner(ownerHandle) {
 }
 
 /** @returns {boolean} true if the command was queued on the socket */
-export function sendDocumentLockEphemeralCommand(messageType, collection, docID) {
+export function sendDocumentLockEphemeralCommand(
+  messageType,
+  collection,
+  docID,
+) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     return false;
   }
@@ -568,7 +571,7 @@ export function sendDocumentLockEphemeralCommand(messageType, collection, docID)
         type: messageType,
         collection,
         docID,
-      })
+      }),
     );
     return true;
   } catch {
@@ -630,7 +633,7 @@ export function requestDocumentLockLockStateBatchOverRealtime(params = {}) {
           requestId,
           jobDocIDs,
           groupDocIDs,
-        })
+        }),
       );
     } catch (e) {
       clearTimeout(timer);

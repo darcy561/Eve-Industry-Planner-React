@@ -55,7 +55,9 @@ describe("timeline query keys", () => {
   // an explicit range are different responses and must not share an entry.
   it("distinguish a defaulted window from an explicit one", () => {
     const bare = JSON.stringify(timelineQueryKey());
-    const ranged = JSON.stringify(timelineQueryKey({ from: "2026-01", to: "2026-03" }));
+    const ranged = JSON.stringify(
+      timelineQueryKey({ from: "2026-01", to: "2026-03" }),
+    );
     expect(bare).not.toBe(ranged);
   });
 
@@ -65,7 +67,7 @@ describe("timeline query keys", () => {
     expect(all).not.toBe(one);
     // A numeric and string type id are the same request.
     expect(JSON.stringify(timelineQueryKey({ typeID: 34 }))).toBe(
-      JSON.stringify(timelineQueryKey({ typeID: "34" }))
+      JSON.stringify(timelineQueryKey({ typeID: "34" })),
     );
   });
 
@@ -73,7 +75,9 @@ describe("timeline query keys", () => {
   // different response rather than a re-slice of one already cached.
   it("distinguish sort, order and page for the item breakdown", () => {
     const base = JSON.stringify(timelineItemsQueryKey());
-    const sorted = JSON.stringify(timelineItemsQueryKey({ sort: "salesTotal" }));
+    const sorted = JSON.stringify(
+      timelineItemsQueryKey({ sort: "salesTotal" }),
+    );
     const ascending = JSON.stringify(timelineItemsQueryKey({ order: "asc" }));
     const paged = JSON.stringify(timelineItemsQueryKey({ offset: 25 }));
 
@@ -81,8 +85,10 @@ describe("timeline query keys", () => {
   });
 
   it("treat the same options as the same key", () => {
-    expect(JSON.stringify(timelineQueryKey({ from: "2026-01", to: "2026-03" }))).toBe(
-      JSON.stringify(timelineQueryKey({ from: "2026-01", to: "2026-03" }))
+    expect(
+      JSON.stringify(timelineQueryKey({ from: "2026-01", to: "2026-03" })),
+    ).toBe(
+      JSON.stringify(timelineQueryKey({ from: "2026-01", to: "2026-03" })),
     );
   });
 });

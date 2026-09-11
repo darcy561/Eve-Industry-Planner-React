@@ -8,7 +8,10 @@ vi.mock("../../Zustand/usersStore", () => ({
   default: { getState: () => ({ account }) },
 }));
 
-import { corporationMembers, readAsAuthorisedMember } from "./corporationAccess";
+import {
+  corporationMembers,
+  readAsAuthorisedMember,
+} from "./corporationAccess";
 
 beforeEach(() => {
   account.corporations = [
@@ -22,7 +25,11 @@ beforeEach(() => {
 
 describe("corporationMembers", () => {
   it("returns the corporation's members", () => {
-    expect(corporationMembers(98000001)).toEqual(["hash-a", "hash-b", "hash-c"]);
+    expect(corporationMembers(98000001)).toEqual([
+      "hash-a",
+      "hash-b",
+      "hash-c",
+    ]);
   });
 
   it("matches a corporation id given as a string", () => {
@@ -42,7 +49,7 @@ describe("readAsAuthorisedMember", () => {
       async (character, hash) => {
         tried.push(hash);
         return { rows: [{ owner: hash }], forbidden: false };
-      }
+      },
     );
 
     expect(tried).toEqual(["hash-a"]);
@@ -56,7 +63,7 @@ describe("readAsAuthorisedMember", () => {
       async (character, hash) => {
         tried.push(hash);
         return { rows: [{ owner: hash }], forbidden: hash !== "hash-b" };
-      }
+      },
     );
 
     expect(tried).toEqual(["hash-a", "hash-b"]);
@@ -72,7 +79,7 @@ describe("readAsAuthorisedMember", () => {
       async (character, hash) => {
         tried.push(hash);
         return { rows: [], forbidden: false };
-      }
+      },
     );
 
     expect(tried).toEqual(["hash-a"]);
@@ -82,7 +89,7 @@ describe("readAsAuthorisedMember", () => {
   it("returns nothing when every member is refused", async () => {
     const rows = await readAsAuthorisedMember(
       ["hash-a", "hash-b"],
-      async () => ({ rows: [{ any: true }], forbidden: true })
+      async () => ({ rows: [{ any: true }], forbidden: true }),
     );
 
     expect(rows).toEqual([]);
@@ -95,7 +102,7 @@ describe("readAsAuthorisedMember", () => {
       async (character, hash) => {
         tried.push(hash);
         return { rows: [{ owner: hash }], forbidden: false };
-      }
+      },
     );
 
     expect(tried).toEqual(["hash-b"]);

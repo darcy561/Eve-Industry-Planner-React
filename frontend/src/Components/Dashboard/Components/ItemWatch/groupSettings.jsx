@@ -45,9 +45,9 @@ export function GroupSettingsDialogue({
               color: (theme) => theme.palette.secondary.main,
             },
             "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-            {
-              display: "none",
-            },
+              {
+                display: "none",
+              },
           }}
           onChange={(e) => {
             updateSetName(e.target.value);
@@ -64,7 +64,7 @@ export function GroupSettingsDialogue({
             let newUserWatchlistGroups = [...userWatchlist.groups];
             let newUserWatchlistItems = [...userWatchlist.items];
             let index = newUserWatchlistGroups.findIndex(
-              (i) => i.id === groupSettingsContent.id
+              (i) => i.id === groupSettingsContent.id,
             );
             newUserWatchlistGroups.splice(index, 1);
 
@@ -76,7 +76,7 @@ export function GroupSettingsDialogue({
             setUserWatchlist(newUserWatchlistItems, newUserWatchlistGroups);
             await putWatchlistDeprecatedToApi(
               newUserWatchlistGroups,
-              newUserWatchlistItems
+              newUserWatchlistItems,
             );
             handleClose();
           }}
@@ -92,7 +92,7 @@ export function GroupSettingsDialogue({
           onClick={async () => {
             let newUserWatchlistGroups = [...userWatchlist.groups];
             let index = newUserWatchlistGroups.findIndex(
-              (i) => i.id === groupSettingsContent.id
+              (i) => i.id === groupSettingsContent.id,
             );
             newUserWatchlistGroups[index].name = DOMPurify.sanitize(setName, {
               ALLOWED_TAGS: [],
@@ -101,7 +101,7 @@ export function GroupSettingsDialogue({
             setUserWatchlistGroups(newUserWatchlistGroups);
             await putWatchlistDeprecatedToApi(
               newUserWatchlistGroups,
-              userWatchlist.items
+              userWatchlist.items,
             );
             handleClose();
           }}

@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 import { Typography, Grid } from "@mui/material";
 import useUsersStore from "../../../../../../Zustand/usersStore";
-import { formatNumberForLocale, formatTimeDuration } from "../../../../../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  formatTimeDuration,
+} from "../../../../../../Functions/Helper/numberParser";
 import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel";
 import { resolveParentRequirements } from "../../../../../../Functions/Groups/parentRequirements";
 
@@ -60,9 +63,8 @@ export function ProductionStats({ state, actions }) {
                 align="right"
               >
                 {formatNumberForLocale(
-                  activeJob.itemsProducedPerRun *
-                    selectedSetup.runCount,
-                  { max: 0 }
+                  activeJob.itemsProducedPerRun * selectedSetup.runCount,
+                  { max: 0 },
                 )}
               </Typography>
             </Grid>
@@ -82,7 +84,7 @@ export function ProductionStats({ state, actions }) {
                   activeJob.itemsProducedPerRun *
                     selectedSetup.runCount *
                     selectedSetup.jobCount,
-                  { max: 0 }
+                  { max: 0 },
                 )}
               </Typography>
             </Grid>

@@ -3,14 +3,14 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 
 /**
  * Fetches character assets from EVE ESI API with pagination and caching support.
- * 
+ *
  * @param {Object} params - Parameters object
  * @param {Object} params.character - Character object with CharacterID and CharacterHash
  * @param {number} [params.page=1] - Page number for pagination
  * @param {Object} [params.existingEtags={}] - Existing ETags for caching
  * @param {Object} [params.config={}] - Additional configuration options
  * @returns {Promise<Object>} Promise that resolves to assets data with etag and totalPages
- * 
+ *
  * @example
  * const assets = await getCharacterAssets({
  *   character: { CharacterHash: "hash", CharacterID: 123456 },
@@ -18,7 +18,12 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
  *   config: { characterHash: "hash" }
  * });
  */
-async function getCharacterAssets({ character, page = 1, existingEtags = {}, config = {} }) {
+async function getCharacterAssets({
+  character,
+  page = 1,
+  existingEtags = {},
+  config = {},
+}) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
       throw new Error("Character information is incomplete.");
@@ -29,13 +34,13 @@ async function getCharacterAssets({ character, page = 1, existingEtags = {}, con
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'assets',
+      group: "assets",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -46,7 +51,7 @@ async function getCharacterAssets({ character, page = 1, existingEtags = {}, con
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -83,14 +88,14 @@ async function getCharacterAssets({ character, page = 1, existingEtags = {}, con
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

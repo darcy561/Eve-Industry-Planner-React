@@ -32,7 +32,10 @@ const SERVER_OWNED = new Set(["schemaVersion", "_meta"]);
 // agree about which keys name an instance rather than a field.
 const instanceKeys = JSON.parse(
   fs.readFileSync(
-    resolve(process.cwd(), "../testing/fixtures/model-parity/instance-keys.json"),
+    resolve(
+      process.cwd(),
+      "../testing/fixtures/model-parity/instance-keys.json",
+    ),
     "utf8",
   ),
 );
@@ -79,7 +82,8 @@ function isEmpty(value) {
  */
 function compare(sent, written, prefix, found, seen) {
   const sentKeys = sent && typeof sent === "object" ? Object.keys(sent) : [];
-  const writtenKeys = written && typeof written === "object" ? Object.keys(written) : [];
+  const writtenKeys =
+    written && typeof written === "object" ? Object.keys(written) : [];
   for (const key of new Set([...sentKeys, ...writtenKeys])) {
     const path = prefix ? `${prefix}.${key}` : key;
     const normalised = normalisePath(path);
@@ -87,11 +91,13 @@ function compare(sent, written, prefix, found, seen) {
     const inSent = sentKeys.includes(key);
     const inWritten = writtenKeys.includes(key);
     if (inSent && !inWritten) {
-      if (!seen.has(`d${normalised}`)) seen.add(`d${normalised}`), record(found.dropped, normalised);
+      if (!seen.has(`d${normalised}`))
+        (seen.add(`d${normalised}`), record(found.dropped, normalised));
       continue;
     }
     if (!inSent && inWritten) {
-      if (!seen.has(`a${normalised}`)) seen.add(`a${normalised}`), record(found.added, normalised);
+      if (!seen.has(`a${normalised}`))
+        (seen.add(`a${normalised}`), record(found.added, normalised));
       continue;
     }
     const before = sent[key];
@@ -99,25 +105,34 @@ function compare(sent, written, prefix, found, seen) {
     if (isEmpty(before) && isEmpty(after)) continue;
     if (Array.isArray(before) && Array.isArray(after)) {
       if (before.length !== after.length) {
-        if (!seen.has(`c${normalised}`)) seen.add(`c${normalised}`), record(found.changed, `${normalised} (length)`);
+        if (!seen.has(`c${normalised}`))
+          (seen.add(`c${normalised}`),
+            record(found.changed, `${normalised} (length)`));
         continue;
       }
       for (let i = 0; i < before.length; i++) {
         if (before[i] && typeof before[i] === "object") {
           compare(before[i], after[i], `${path}[]`, found, seen);
         } else if (before[i] !== after[i] && !seen.has(`c${normalised}`)) {
-          seen.add(`c${normalised}`), record(found.changed, `${normalised}[]`);
+          (seen.add(`c${normalised}`),
+            record(found.changed, `${normalised}[]`));
         }
       }
       continue;
     }
-    if (before && after && typeof before === "object" && typeof after === "object") {
+    if (
+      before &&
+      after &&
+      typeof before === "object" &&
+      typeof after === "object"
+    ) {
       compare(before, after, path, found, seen);
       continue;
     }
     // null and undefined both mean "not set" across the boundary.
     if (before !== after && !(before == null && after == null)) {
-      if (!seen.has(`c${normalised}`)) seen.add(`c${normalised}`), record(found.changed, normalised);
+      if (!seen.has(`c${normalised}`))
+        (seen.add(`c${normalised}`), record(found.changed, normalised));
     }
   }
 }
@@ -139,7 +154,9 @@ describe("a job survives the API boundary", () => {
     const corpus = process.env.EIP_JOB_CORPUS;
     if (!corpus || !fs.existsSync(corpus)) {
       // eslint-disable-next-line no-console
-      console.warn(`skipping: set EIP_JOB_CORPUS to a corpus from testing/model_parity`);
+      console.warn(
+        `skipping: set EIP_JOB_CORPUS to a corpus from testing/model_parity`,
+      );
       return;
     }
     const schemaPath = corpus.replace(/\.[^.]*$/, "") + ".schema.json";
@@ -174,7 +191,9 @@ describe("a job survives the API boundary", () => {
     );
 
     expect(scanned).toBeGreaterThan(0);
-    expect(failures, `the Job constructor rejected documents`).toEqual(new Map());
+    expect(failures, `the Job constructor rejected documents`).toEqual(
+      new Map(),
+    );
     expect(
       found.changed,
       `values changed across the boundary:\n${summarise(found.changed, scanned)}`,

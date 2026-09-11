@@ -36,7 +36,7 @@ describe("the accent colour for a job type", () => {
 
   it("gives something usable even with no theme at all", () => {
     expect(getJobTypeAccentColour(undefined, jobTypes.reaction)).toBe(
-      "currentColor"
+      "currentColor",
     );
   });
 });

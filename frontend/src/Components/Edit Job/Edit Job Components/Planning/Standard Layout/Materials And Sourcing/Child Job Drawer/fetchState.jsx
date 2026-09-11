@@ -1,9 +1,6 @@
 import { CircularProgress, Typography, Grid } from "@mui/material";
 
-export function ImportingStateLayout({
-  fetchError,
-  material,
-}) {
+export function ImportingStateLayout({ fetchError, material }) {
   return (
     <Grid container>
       <Grid sx={{ marginBottom: "30px" }} size={12}>

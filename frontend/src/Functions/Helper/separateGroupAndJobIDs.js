@@ -31,7 +31,7 @@ function separateGroupAndJobIDs(inputItems) {
       }
       return acc;
     },
-    { groupIDs: new Set(), jobIDs: new Set() }
+    { groupIDs: new Set(), jobIDs: new Set() },
   );
 
   return {

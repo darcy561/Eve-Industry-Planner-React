@@ -190,7 +190,9 @@ function SkillGroup({ group, characterName, sellingSkills, onPropose }) {
         ))}
       </Stack>
 
-      {group.requirement ? <RequirementImpact requirement={group.requirement} /> : null}
+      {group.requirement ? (
+        <RequirementImpact requirement={group.requirement} />
+      ) : null}
     </Box>
   );
 }
@@ -286,7 +288,9 @@ function SkillRow({ row, onPropose }) {
           </Typography>
         ) : null}
       </Box>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+      <Box
+        sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}
+      >
         <SkillLevelPips
           level={row.level}
           required={row.required}
@@ -313,11 +317,14 @@ function SkillRow({ row, onPropose }) {
  * @param {import("../../../../../../Functions/Skills/jobSkillGroups").SkillRow} row
  */
 function levelText(row) {
-  if (row.level === null) return row.required === null ? null : `needs ${row.required}`;
+  if (row.level === null)
+    return row.required === null ? null : `needs ${row.required}`;
   // A level being tried is stated as a move from the real one, so the figure it
   // replaces stays visible beside it.
   if (row.proposed !== null) return `${row.level} → ${row.proposed}`;
-  return row.required === null ? String(row.level) : `${row.level} / ${row.required}`;
+  return row.required === null
+    ? String(row.level)
+    : `${row.level} / ${row.required}`;
 }
 
 /**

@@ -38,7 +38,7 @@ function throwIfAnySettledFailed(settled, label) {
   const err = /** @type {PromiseRejectedResult} */ (failed[0]).reason;
   const msg = err instanceof Error ? err.message : String(err);
   throw new Error(
-    `${label}: ${failed.length}/${settled.length} batch(es) failed — ${msg}`
+    `${label}: ${failed.length}/${settled.length} batch(es) failed — ${msg}`,
   );
 }
 
@@ -58,7 +58,7 @@ function throwNonOkPrivateResponse(res, methodLabel, url, text, errorLabel) {
     throw err;
   }
   const err = new Error(
-    `${methodLabel} ${url} failed: ${res.status} ${text || res.statusText}`
+    `${methodLabel} ${url} failed: ${res.status} ${text || res.statusText}`,
   );
   err.status = res.status;
   throw err;
@@ -123,7 +123,10 @@ function stripBatchFromConfig(config) {
  */
 async function responseIndicatesSessionMissing(res) {
   if (res.status !== 401) return false;
-  const text = await res.clone().text().catch(() => "");
+  const text = await res
+    .clone()
+    .text()
+    .catch(() => "");
   return text.includes("session_missing");
 }
 
@@ -193,7 +196,8 @@ function applyPrivateHeaders(options = {}, config = {}) {
  */
 async function executePrivateFetchOnce(URL, options, headerConfig) {
   if (!headerConfig.skipSessionRefresh) {
-    const refresh = useUserStore.getState()?.account?.actions?.ensurePlannerSession;
+    const refresh =
+      useUserStore.getState()?.account?.actions?.ensurePlannerSession;
     if (typeof refresh === "function") {
       await refresh();
     }
@@ -230,7 +234,8 @@ async function executePrivateRequestSingle(URL, options = {}, config = {}) {
       !headerConfig.skipSessionRefresh &&
       (await responseIndicatesSessionMissing(res))
     ) {
-      const refresh = useUserStore.getState()?.account?.actions?.ensurePlannerSession;
+      const refresh =
+        useUserStore.getState()?.account?.actions?.ensurePlannerSession;
       if (typeof refresh === "function") {
         await refresh({ force: true });
         return runOnce(true);
@@ -271,7 +276,9 @@ async function executeBatchedPrivateRequest(URL, options, innerConfig, batch) {
   } = batch;
 
   if (typeof options.body !== "string") {
-    throw new Error("Batched private request requires options.body as a JSON string");
+    throw new Error(
+      "Batched private request requires options.body as a JSON string",
+    );
   }
 
   let bodyObj;
@@ -281,9 +288,13 @@ async function executeBatchedPrivateRequest(URL, options, innerConfig, batch) {
     throw new Error("Batched private request body must be valid JSON");
   }
 
-  if (!bodyObj || typeof bodyObj !== "object" || !Array.isArray(bodyObj[arrayKey])) {
+  if (
+    !bodyObj ||
+    typeof bodyObj !== "object" ||
+    !Array.isArray(bodyObj[arrayKey])
+  ) {
     throw new Error(
-      `Batched private request body must contain an array property "${arrayKey}"`
+      `Batched private request body must contain an array property "${arrayKey}"`,
     );
   }
 
@@ -311,7 +322,7 @@ async function executeBatchedPrivateRequest(URL, options, innerConfig, batch) {
       const res = await executePrivateRequestSingle(
         URL,
         { ...options, body: JSON.stringify(nextBody) },
-        innerConfig
+        innerConfig,
       );
 
       if (mergeResponseJsonArrays) {
@@ -388,7 +399,7 @@ async function requestWithPrivateHeaders(URL, options = {}, config = {}) {
 
   if (batch && !useBatch) {
     throw new Error(
-      "requestWithPrivateHeaders: config.batch needs size >= 1 and a non-empty arrayKey (or omit batch for a single request)"
+      "requestWithPrivateHeaders: config.batch needs size >= 1 and a non-empty arrayKey (or omit batch for a single request)",
     );
   }
 
@@ -409,8 +420,4 @@ async function requestWithPrivateHeaders(URL, options = {}, config = {}) {
 }
 
 export default requestWithPrivateHeaders;
-export {
-  requestWithPrivateHeaders,
-  applyPrivateHeaders,
-  chunkArray,
-};
+export { requestWithPrivateHeaders, applyPrivateHeaders, chunkArray };

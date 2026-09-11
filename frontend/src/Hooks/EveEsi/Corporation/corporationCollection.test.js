@@ -23,7 +23,10 @@ function cacheOf(entries) {
 }
 
 beforeEach(() => {
-  account.corporations = [{ corporation_id: 98000001 }, { corporation_id: 98000002 }];
+  account.corporations = [
+    { corporation_id: 98000001 },
+    { corporation_id: 98000002 },
+  ];
 });
 
 describe("keyRowsByCorporation", () => {
@@ -47,20 +50,28 @@ describe("keyRowsByCorporation", () => {
   });
 
   it("ignores a payload that names no corporation", () => {
-    expect(keyRowsByCorporation([undefined, {}, { data: [{ id: 1 }] }])).toEqual({});
+    expect(
+      keyRowsByCorporation([undefined, {}, { data: [{ id: 1 }] }]),
+    ).toEqual({});
   });
 });
 
 describe("readCorporationCollection", () => {
   it("reads one entry per corporation", () => {
     const queryClient = cacheOf([
-      [["corpThing", 98000001], { corporation_id: 98000001, data: [{ id: 1 }] }],
-      [["corpThing", 98000002], { corporation_id: 98000002, data: [{ id: 2 }] }],
+      [
+        ["corpThing", 98000001],
+        { corporation_id: 98000001, data: [{ id: 1 }] },
+      ],
+      [
+        ["corpThing", 98000002],
+        { corporation_id: 98000002, data: [{ id: 2 }] },
+      ],
     ]);
 
     const { data, isLoading, isError } = readCorporationCollection(
       queryClient,
-      "corpThing"
+      "corpThing",
     );
 
     expect(isLoading).toBe(false);
@@ -74,14 +85,14 @@ describe("readCorporationCollection", () => {
       divisions.map((division) => [
         ["corpWallet", 98000001, division],
         { corporation_id: 98000001, division, data: [{ division }] },
-      ])
+      ]),
     );
     account.corporations = [{ corporation_id: 98000001 }];
 
     const { data } = readCorporationCollection(
       queryClient,
       "corpWallet",
-      divisions
+      divisions,
     );
 
     expect(data[98000001]).toEqual([
@@ -99,7 +110,7 @@ describe("readCorporationCollection", () => {
 
     const { isError, error, data } = readCorporationCollection(
       queryClient,
-      "corpThing"
+      "corpThing",
     );
 
     expect(isError).toBe(true);

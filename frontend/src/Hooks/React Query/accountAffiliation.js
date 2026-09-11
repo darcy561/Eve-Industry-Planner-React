@@ -6,7 +6,9 @@ import GLOBAL_CONFIG from "../../global-config-app";
 export const ACCOUNT_AFFILIATION_QUERY_KEY = ["account", "affiliation"];
 
 const REFRESH_MS =
-  Math.max(1, Number(GLOBAL_CONFIG.ACCOUNT_AFFILIATION_REFRESH_MINUTES) || 15) * 60 * 1000;
+  Math.max(1, Number(GLOBAL_CONFIG.ACCOUNT_AFFILIATION_REFRESH_MINUTES) || 15) *
+  60 *
+  1000;
 
 /**
  * Re-reads each character's public data and resubmits ESI tokens for session grants.
@@ -21,9 +23,11 @@ async function refreshAccountAffiliation() {
   const live = characters.filter((c) => c && !c.isPlaceholder);
 
   const before = new Map(live.map((c) => [c.CharacterHash, c.corporation_id]));
-  await Promise.allSettled(live.map((character) => character.getPublicCharacterData()));
+  await Promise.allSettled(
+    live.map((character) => character.getPublicCharacterData()),
+  );
   const corporationsChanged = live.filter(
-    (c) => before.get(c.CharacterHash) !== c.corporation_id
+    (c) => before.get(c.CharacterHash) !== c.corporation_id,
   ).length;
 
   if (corporationsChanged > 0) {
@@ -47,7 +51,9 @@ export function accountAffiliationQueryOptions() {
 /** App-level: keeps character affiliation and account session grants current while the app is open. */
 export function useAccountAffiliationQuery() {
   const isLoggedIn = useUsersStore((s) => s.account.isLoggedIn);
-  const plannerPrivateAuthReady = useUsersStore((s) => s.account.plannerPrivateAuthReady);
+  const plannerPrivateAuthReady = useUsersStore(
+    (s) => s.account.plannerPrivateAuthReady,
+  );
 
   return useQuery({
     ...accountAffiliationQueryOptions(),

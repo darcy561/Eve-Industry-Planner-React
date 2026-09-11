@@ -7,17 +7,18 @@ import { useSellingRateInputs } from "../../../../Hooks/React Query/Character/us
 export function LayoutSelector_EditJob_Selling(props) {
   const { state } = props;
   const deviceNotMobile = useMediaQuery((theme) => theme.breakpoints.up("sm"));
-  const mainCharacterHash =
-    useUsersStore.getState().account.actions.getMainCharacterHash();
+  const mainCharacterHash = useUsersStore
+    .getState()
+    .account.actions.getMainCharacterHash();
 
   const characterHashes = [
     ...new Set(
       [
         mainCharacterHash,
         ...state.activeJob.build.sale.marketOrders.map(
-          (order) => order.CharacterHash
+          (order) => order.CharacterHash,
         ),
-      ].filter(Boolean)
+      ].filter(Boolean),
     ),
   ];
 
@@ -45,10 +46,31 @@ export function LayoutSelector_EditJob_Selling(props) {
 
   switch (deviceNotMobile) {
     case true:
-      return <Selling_StandardLayout_EditJob {...props} isLoading={isLoading} isError={isError} error={error} />;
+      return (
+        <Selling_StandardLayout_EditJob
+          {...props}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+        />
+      );
     case false:
-      return <Selling_StandardLayout_EditJob {...props} isLoading={isLoading} isError={isError} error={error} />;
+      return (
+        <Selling_StandardLayout_EditJob
+          {...props}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+        />
+      );
     default:
-      return <Selling_StandardLayout_EditJob {...props} isLoading={isLoading} isError={isError} error={error} />;
+      return (
+        <Selling_StandardLayout_EditJob
+          {...props}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+        />
+      );
   }
 }

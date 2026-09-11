@@ -22,9 +22,9 @@ const requiredSkills = [
 /**
  * Retrieves all reprocessing skills from the skills list.
  * Returns skill objects for the predefined list of reprocessing skill IDs.
- * 
+ *
  * @returns {Array<Object>} Array of reprocessing skill objects
- * 
+ *
  * @example
  * const reprocessingSkills = getAllReprocessingSkills();
  * console.log(reprocessingSkills.length); // 16 skills

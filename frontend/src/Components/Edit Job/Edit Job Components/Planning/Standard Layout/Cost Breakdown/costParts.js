@@ -116,7 +116,9 @@ function basePartColour(theme, id) {
   const palette = buildPalette(theme);
   const position = BUILD_ORDER.indexOf(id);
 
-  return palette[(position < 0 ? BUILD_ORDER.length : position) % palette.length];
+  return palette[
+    (position < 0 ? BUILD_ORDER.length : position) % palette.length
+  ];
 }
 
 /**
@@ -128,7 +130,10 @@ function basePartColour(theme, id) {
  * @returns {Array<{id: string, label: string, value: number, colour: string}>}
  */
 export function costParts(cost, theme) {
-  const lines = [...(cost?.toBuild?.lines ?? []), ...(cost?.toSell?.lines ?? [])];
+  const lines = [
+    ...(cost?.toBuild?.lines ?? []),
+    ...(cost?.toSell?.lines ?? []),
+  ];
   const extrasIds = extrasIdsOf(lines);
 
   return lines.map((line) => ({
@@ -146,5 +151,7 @@ export function costParts(cost, theme) {
  * @returns {string[]}
  */
 export function extrasIdsOf(lines = []) {
-  return lines.filter((line) => line.id.startsWith("extras")).map((line) => line.id);
+  return lines
+    .filter((line) => line.id.startsWith("extras"))
+    .map((line) => line.id);
 }

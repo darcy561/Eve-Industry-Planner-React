@@ -1,9 +1,4 @@
-import {
-  Box,
-  Grid,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Box, Grid, IconButton, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import PlaylistAddIcon from "@mui/icons-material/PlaylistAdd";
 import { AddWatchItemDialogue } from "./AddItemDialogue/dialogueFrame";
@@ -23,7 +18,11 @@ export function ItemWatchPanel() {
   });
 
   return (
-    <ContentPanel title="Item Watchlist" componentName="Item Watchlist" paperSx={{ position: "relative" }}>
+    <ContentPanel
+      title="Item Watchlist"
+      componentName="Item Watchlist"
+      paperSx={{ position: "relative" }}
+    >
       <AddWatchItemDialogue
         openDialogue={openDialogue}
         setOpenDialogue={setOpenDialogue}

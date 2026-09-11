@@ -46,7 +46,7 @@ function materialTreeShaker(allJobObjects, recalculateJob) {
  * @param {Object} job - The job to calculate requirements for
  * @param {Array} allJobs - Array of all job objects
  * @returns {number} Total quantity of materials needed from parent jobs
- * 
+ *
  * @private
  */
 function getParentJobRequirements(job, allJobs) {
@@ -58,7 +58,7 @@ function getParentJobRequirements(job, allJobs) {
     const parentJob = allJobs.find(({ jobID }) => jobID === parentJobID);
     if (parentJob && parentJob.build && parentJob.build.materials) {
       const material = parentJob.build.materials.find(
-        ({ typeID }) => typeID === job.itemID
+        ({ typeID }) => typeID === job.itemID,
       );
       if (material) {
         return total + (material.quantity || 0);
@@ -74,7 +74,7 @@ function getParentJobRequirements(job, allJobs) {
  * @param {Object} job - The job to check
  * @param {number} parentJobRequirements - Total requirements from parent jobs
  * @returns {boolean} True if the job needs recalculation
- * 
+ *
  * @private
  */
 const shouldRecalculate = (job, parentJobRequirements) => {

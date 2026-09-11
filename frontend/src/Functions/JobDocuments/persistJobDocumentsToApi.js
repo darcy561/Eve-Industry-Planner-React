@@ -12,8 +12,10 @@ export async function persistJobDocumentsToApi() {
     }
 
     const { jobData } = useUsersStore.getState();
-    const { getPendingJobDocumentWritesPayload, clearPendingJobDocumentWrites } =
-      jobData.actions;
+    const {
+      getPendingJobDocumentWritesPayload,
+      clearPendingJobDocumentWrites,
+    } = jobData.actions;
     const queuedIds = [...new Set(jobData.pendingJobDocumentWrites ?? [])];
     if (queuedIds.length === 0) {
       return;

@@ -90,7 +90,8 @@ describe("the material cards", () => {
   it("opens a row's drawer beneath its own card", () => {
     renderCards([row()], {
       openTypeIDs: [34],
-      renderDrawer: (r, isOpen) => (isOpen ? <div>drawer for {r.name}</div> : null),
+      renderDrawer: (r, isOpen) =>
+        isOpen ? <div>drawer for {r.name}</div> : null,
     });
 
     expect(screen.getByText(/drawer for Tritanium/)).toBeInTheDocument();
@@ -110,7 +111,9 @@ describe("a card whose child jobs no longer make enough", () => {
   };
 
   it("carries the shortfall tag beside the plan chip", () => {
-    renderCards([row({ coverage: short, matchedChildJobs: [{ name: "Trit job" }] })]);
+    renderCards([
+      row({ coverage: short, matchedChildJobs: [{ name: "Trit job" }] }),
+    ]);
 
     expect(screen.getByText("6,000,000 short")).toBeInTheDocument();
   });
@@ -130,7 +133,14 @@ describe("a card whose child jobs no longer make enough", () => {
 
   it("says nothing on a card its jobs still cover", () => {
     renderCards([
-      row({ coverage: { ...short, produced: 10_000_000, shortfall: 0, isShort: false } }),
+      row({
+        coverage: {
+          ...short,
+          produced: 10_000_000,
+          shortfall: 0,
+          isShort: false,
+        },
+      }),
     ]);
 
     expect(screen.queryByText(/short/)).not.toBeInTheDocument();

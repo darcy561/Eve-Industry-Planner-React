@@ -19,7 +19,7 @@ export function isCharacterInListByHash(characters, characterHash) {
   const c = canonicalCharacterHashKey(characterHash);
   if (!c) return false;
   return characters.some(
-    (u) => canonicalCharacterHashKey(u?.CharacterHash) === c
+    (u) => canonicalCharacterHashKey(u?.CharacterHash) === c,
   );
 }
 

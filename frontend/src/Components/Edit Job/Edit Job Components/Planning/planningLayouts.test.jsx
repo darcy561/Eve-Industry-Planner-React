@@ -14,26 +14,42 @@ import { render, screen } from "@testing-library/react";
  */
 
 const PANELS = [
-  ["./Standard Layout/Production Stats Panel/productionStats", "ProductionStats"],
+  [
+    "./Standard Layout/Production Stats Panel/productionStats",
+    "ProductionStats",
+  ],
   ["./Standard Layout/Setup Panel/jobSetups", "JobSetupPanel"],
   ["./Standard Layout/Edit Setup Panel/editJobSetup", "EditJobSetup"],
-  ["./Standard Layout/Blueprint Options/blueprintPanel", "AvailableBlueprintsPanel"],
+  [
+    "./Standard Layout/Blueprint Options/blueprintPanel",
+    "AvailableBlueprintsPanel",
+  ],
   ["./Standard Layout/Skills Panel/SkillsPanel", "SkillsPanel"],
   ["./Standard Layout/Archive Jobs Panel/archiveJobsPanel", "ArchiveJobsPanel"],
 ];
 
 for (const [path, name] of PANELS) {
   vi.doMock(path, () => ({
-    [name]: (props) => <div data-testid={name} data-has-state={!!props.state} />,
-    default: (props) => <div data-testid={name} data-has-state={!!props.state} />,
+    [name]: (props) => (
+      <div data-testid={name} data-has-state={!!props.state} />
+    ),
+    default: (props) => (
+      <div data-testid={name} data-has-state={!!props.state} />
+    ),
   }));
 }
 
-vi.mock("./Standard Layout/Materials And Sourcing/materialsAndSourcingPanel", () => ({
-  default: (props) => (
-    <div data-testid="MaterialsAndSourcingPanel" data-has-state={!!props.state} />
-  ),
-}));
+vi.mock(
+  "./Standard Layout/Materials And Sourcing/materialsAndSourcingPanel",
+  () => ({
+    default: (props) => (
+      <div
+        data-testid="MaterialsAndSourcingPanel"
+        data-has-state={!!props.state}
+      />
+    ),
+  }),
+);
 
 vi.mock("./Standard Layout/Cost Breakdown/planningEconomics", () => ({
   default: (props) => (
@@ -47,12 +63,10 @@ vi.mock("../../../Tutorials/tutorialTemplate", () => ({
 
 vi.mock("./tutorialStep1", () => ({ TutorialStep1: () => null }));
 
-const { Planning_StandardLayout_EditJob } = await import(
-  "./Standard Layout/standardLayout"
-);
-const { Planning_MobileLayout_EditJob } = await import(
-  "./Mobile Layout/mobileLayout"
-);
+const { Planning_StandardLayout_EditJob } =
+  await import("./Standard Layout/standardLayout");
+const { Planning_MobileLayout_EditJob } =
+  await import("./Mobile Layout/mobileLayout");
 const { jobFixture } = await import("../../../../tests/jobFixture");
 
 const expected = [
@@ -87,7 +101,10 @@ describe.each([
     render(<Layout {...props} />);
 
     for (const panel of expected) {
-      expect(screen.getByTestId(panel)).toHaveAttribute("data-has-state", "true");
+      expect(screen.getByTestId(panel)).toHaveAttribute(
+        "data-has-state",
+        "true",
+      );
     }
   });
 });

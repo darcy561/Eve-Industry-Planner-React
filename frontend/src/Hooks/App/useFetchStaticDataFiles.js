@@ -9,12 +9,18 @@ export default function useFetchStaticDataFiles() {
       try {
         await refreshStaticDataCache();
       } catch (err) {
-        console.error("[App] useFetchStaticDataFiles: Error fetching static data files:", err);
+        console.error(
+          "[App] useFetchStaticDataFiles: Error fetching static data files:",
+          err,
+        );
       }
     };
 
     fetchStaticDataFiles();
-    const intervalId = setInterval(fetchStaticDataFiles, STATIC_DATA_REFRESH_INTERVAL_MS);
+    const intervalId = setInterval(
+      fetchStaticDataFiles,
+      STATIC_DATA_REFRESH_INTERVAL_MS,
+    );
     return () => {
       clearInterval(intervalId);
     };

@@ -56,8 +56,9 @@ export function Home() {
             sx={{
               justifyContent: "center",
               alignItems: "center",
-              paddingLeft: { lg: "20px" }
-            }}>
+              paddingLeft: { lg: "20px" },
+            }}
+          >
             <Box
               component="img"
               src="/images/loggedOutHome/planningStepImage.png"

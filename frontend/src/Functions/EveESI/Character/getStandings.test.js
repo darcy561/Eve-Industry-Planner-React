@@ -71,7 +71,9 @@ describe("reading a character's standings", () => {
   it("throws when the network is gone", async () => {
     fetchWithCustomHeaders.mockRejectedValue(new Error("offline"));
 
-    await expect(getCharacterStandings({ character })).rejects.toThrow("offline");
+    await expect(getCharacterStandings({ character })).rejects.toThrow(
+      "offline",
+    );
   });
 
   it("throws rather than guessing for an incomplete character", async () => {

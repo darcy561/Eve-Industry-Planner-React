@@ -40,10 +40,10 @@ export function WatchListRow({
   const { setUserWatchlistItems } = useUsersStore.getState().jobData.actions;
 
   const defaultMarket = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation
+    (state) => state.applicationSettings.defaultMarketLocation,
   );
   const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType
+    (state) => state.applicationSettings.defaultOrderType,
   );
   const marketData = useUsersStore((state) => state.worldData.marketData);
 
@@ -57,7 +57,10 @@ export function WatchListRow({
     let newUserWatchlistItems = [...userWatchlist.items];
     newUserWatchlistItems.splice(index, 1);
     setUserWatchlistItems(newUserWatchlistItems);
-    await putWatchlistDeprecatedToApi(userWatchlist.groups, newUserWatchlistItems);
+    await putWatchlistDeprecatedToApi(
+      userWatchlist.groups,
+      newUserWatchlistItems,
+    );
     trackAppEvent(AppEvent.REMOVE_WATCHLIST_ITEM);
     showSnackbarError(`${item.name} Removed`, 3);
   }
@@ -102,7 +105,7 @@ export function WatchListRow({
   const isItemDataOutdated = !item?.buildData;
 
   const isStructureMissing = !getCustomStructureWithID(
-    item?.buildData?.customStructureID
+    item?.buildData?.customStructureID,
   );
 
   const calculatedCosts = buildCosts();
@@ -121,13 +124,14 @@ export function WatchListRow({
           <Grid
             size={{
               xs: 2,
-              sm: 1
+              sm: 1,
             }}
             sx={{
               justifyContent: "center",
               alignItems: "center",
-              display: "flex"
-            }}>
+              display: "flex",
+            }}
+          >
             {isItemDataOutdated || isStructureMissing ? (
               <Tooltip
                 title={
@@ -154,12 +158,13 @@ export function WatchListRow({
             size={{
               xs: 10,
               sm: 2,
-              lg: 2
+              lg: 2,
             }}
             sx={{
               alignItems: "center",
-              marginBottom: { xs: "20px", sm: "0px" }
-            }}>
+              marginBottom: { xs: "20px", sm: "0px" },
+            }}
+          >
             <MaterialPopoverIconButtons typeID={item.typeID}>
               <Typography sx={{ typography: { xs: "subtitle2", sm: "body2" } }}>
                 {item.name}
@@ -171,7 +176,7 @@ export function WatchListRow({
             size={{
               xs: 12,
               sm: 3,
-              lg: 2
+              lg: 2,
             }}
             sx={{
               justifyContent: "center",
@@ -182,11 +187,12 @@ export function WatchListRow({
                   ? "none"
                   : "success.main",
 
-              marginBottom: { xs: "5px", sm: "0px" }
-            }}>
+              marginBottom: { xs: "5px", sm: "0px" },
+            }}
+          >
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
               {formatNumberForLocale(
-                calculatedCosts.mainItemPrice[defaultMarket].sell
+                calculatedCosts.mainItemPrice[defaultMarket].sell,
               )}
             </Typography>
           </Grid>
@@ -195,15 +201,17 @@ export function WatchListRow({
             size={{
               xs: 12,
               sm: 3,
-              lg: 3
-            }}>
+              lg: 3,
+            }}
+          >
             <Grid
               container
               size={12}
               sx={{
                 justifyContent: "center",
-                alignItems: "center"
-              }}>
+                alignItems: "center",
+              }}
+            >
               <Typography
                 sx={{
                   typography: { xs: "caption", sm: "body2" },
@@ -225,15 +233,16 @@ export function WatchListRow({
               size={12}
               sx={{
                 justifyContent: "center",
-                alignItems: "center"
-              }}>
+                alignItems: "center",
+              }}
+            >
               <Tooltip
                 title={formatNumberForLocale(
                   ((calculatedCosts.totalPurchase -
                     calculatedCosts.mainItemPrice[defaultMarket].sell) /
                     calculatedCosts.totalPurchase) *
                     100,
-                  { min: 0, max: 4 }
+                  { min: 0, max: 4 },
                 )}
                 arrow
                 placement="bottom"
@@ -256,7 +265,7 @@ export function WatchListRow({
                       calculatedCosts.mainItemPrice[defaultMarket].sell) /
                       calculatedCosts.totalPurchase) *
                       100,
-                    { min: 0, max: 0 }
+                    { min: 0, max: 0 },
                   )}
                   %
                 </Typography>
@@ -269,16 +278,18 @@ export function WatchListRow({
             size={{
               xs: 12,
               sm: 3,
-              lg: 3
-            }}>
+              lg: 3,
+            }}
+          >
             {!item.childJobPresent && (
               <Grid
                 container
                 size={12}
                 sx={{
                   justifyContent: "center",
-                  alignItems: "center"
-                }}>
+                  alignItems: "center",
+                }}
+              >
                 <Typography
                   align="center"
                   sx={{
@@ -296,8 +307,9 @@ export function WatchListRow({
                   size={12}
                   sx={{
                     justifyContent: "center",
-                    alignItems: "center"
-                  }}>
+                    alignItems: "center",
+                  }}
+                >
                   <Typography
                     align="center"
                     sx={{
@@ -320,15 +332,16 @@ export function WatchListRow({
                   size={12}
                   sx={{
                     justifyContent: "center",
-                    alignItems: "center"
-                  }}>
+                    alignItems: "center",
+                  }}
+                >
                   <Tooltip
                     title={formatNumberForLocale(
                       ((calculatedCosts.totalBuild -
                         calculatedCosts.mainItemPrice[defaultMarket].sell) /
                         calculatedCosts.totalBuild) *
                         100,
-                      { min: 0, max: 4 }
+                      { min: 0, max: 4 },
                     )}
                     arrow
                     placement="bottom"
@@ -351,7 +364,7 @@ export function WatchListRow({
                         ((calculatedCosts.totalBuild -
                           calculatedCosts.mainItemPrice[defaultMarket].sell) /
                           calculatedCosts.totalBuild) *
-                          100
+                          100,
                       )}
                       %
                     </Typography>
@@ -365,8 +378,9 @@ export function WatchListRow({
             sx={{ display: { xs: "none", lg: "flex" } }}
             size={{
               xs: 12,
-              sm: 1
-            }}>
+              sm: 1,
+            }}
+          >
             <Tooltip
               title="Remove Item From Watchlist"
               arrow
@@ -401,14 +415,10 @@ export function WatchListRow({
                   marginTop: "20px",
                   position: "relative",
                 }}
-                size={12}>
+                size={12}
+              >
                 {item.materials.map((mat) => {
-                  return (
-                    <ExpandedWatchlistRow
-                      key={mat.id}
-                      mat={mat}
-                    />
-                  );
+                  return <ExpandedWatchlistRow key={mat.id} mat={mat} />;
                 })}
               </Grid>
               <Grid container sx={{ marginTop: "10px" }} size={12}>
@@ -436,7 +446,7 @@ export function WatchListRow({
                         setUserWatchlistItems(newUserWatchlistItems);
                         void putWatchlistDeprecatedToApi(
                           userWatchlist.groups,
-                          newUserWatchlistItems
+                          newUserWatchlistItems,
                         );
                       }}
                     >

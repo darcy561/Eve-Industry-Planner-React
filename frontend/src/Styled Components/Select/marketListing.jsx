@@ -9,7 +9,7 @@ const { DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 /**
  * A select component for choosing market listing types (buy/sell orders).
  * Displays available listing types with error handling and custom styling options.
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} [props.value] - Currently selected listing type ID (defaults to DEFAULT_ORDER_OPTION)
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the listing type object.
@@ -20,9 +20,9 @@ const { DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
  * @param {string} [props.labelText="Listing"] - Label text to display in helper text
  * @param {boolean} [props.disabled] - Refuses changes, e.g. while a job is locked
  * @returns {JSX.Element} Market listing select component
- * 
+ *
  * @example
- * <MarketListingSelect 
+ * <MarketListingSelect
  *   value="buy"
  *   onChange={(listing) => setListingType(listing)}
  *   error={{ isError: false, errorText: "" }}
@@ -30,7 +30,7 @@ const { DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
  * />
  */
 function MarketListingSelect({
-  value = GLOBAL_CONFIG.DEFAULT_ORDER_OPTION  ,
+  value = GLOBAL_CONFIG.DEFAULT_ORDER_OPTION,
   onChange,
   error = { isError: false, errorText: "" },
   customFormStyling = {},
@@ -70,7 +70,7 @@ function MarketListingSelect({
             onChange(listingType.find((i) => i.id == e.target.value));
           } else {
             console.error(
-              "Market Listing Select is missing an onChange Function"
+              "Market Listing Select is missing an onChange Function",
             );
           }
         }}
@@ -122,11 +122,10 @@ export function MarketListingSelectApplicationSettings({
   ...rest
 }) {
   const storeDefault = useUsersStore(
-    (s) => s.applicationSettings.defaultOrderType
+    (s) => s.applicationSettings.defaultOrderType,
   );
   const applicationDefault = alternativeDefaultOrderType ?? storeDefault;
-  const value =
-    overrideOrderType ?? applicationDefault ?? DEFAULT_ORDER_OPTION;
+  const value = overrideOrderType ?? applicationDefault ?? DEFAULT_ORDER_OPTION;
 
   return (
     <MarketListingSelect
@@ -137,8 +136,8 @@ export function MarketListingSelectApplicationSettings({
           normalizedOverrideWhenMatchesDefault(
             listing.id,
             applicationDefault,
-            DEFAULT_ORDER_OPTION
-          )
+            DEFAULT_ORDER_OPTION,
+          ),
         )
       }
     />

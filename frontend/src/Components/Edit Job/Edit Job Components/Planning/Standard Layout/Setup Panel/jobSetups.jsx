@@ -1,8 +1,4 @@
-import {
-  Grid,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Grid, IconButton, Tooltip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import AddIcon from "@mui/icons-material/Add";
 import { JobSetupCard } from "./jobSetupCard";
@@ -30,7 +26,7 @@ export function JobSetupPanel(props) {
             if (!successfullyDeleted) {
               showSnackbarWarning(
                 "Cannot delete the final setup. Create a replacement setup first.",
-                3
+                3,
               );
               return;
             }

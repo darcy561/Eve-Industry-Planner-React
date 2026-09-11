@@ -8,9 +8,8 @@ vi.mock("../Helper/getStructureInfo", () => ({
   getRigInfoFromID: () => ({ time: rigTime.value }),
 }));
 
-const { default: manufacturingTimeModifierCalculation } = await import(
-  "./manufacturingTimeModifierCalculation.js"
-);
+const { default: manufacturingTimeModifierCalculation } =
+  await import("./manufacturingTimeModifierCalculation.js");
 
 const INDUSTRY = 3380;
 const ADVANCED_INDUSTRY = 3388;
@@ -20,7 +19,7 @@ const skills = (levels = {}) =>
     Object.entries(levels).map(([id, activeLevel]) => [
       id,
       { id: Number(id), activeLevel },
-    ])
+    ]),
   );
 
 /** Nothing trained, no structure or rig bonus: the modifier should be 1. */
@@ -31,7 +30,7 @@ function baseline(overrides = {}) {
     overrides.te ?? 0,
     overrides.structureID ?? 0,
     overrides.rigID ?? 0,
-    overrides.skills ?? skills()
+    overrides.skills ?? skills(),
   );
 }
 
@@ -58,7 +57,7 @@ describe("manufacturing time modifier", () => {
 
   it("takes 3% off per level of Advanced Industry", () => {
     expect(
-      baseline({ skills: skills({ [ADVANCED_INDUSTRY]: 3 }) })
+      baseline({ skills: skills({ [ADVANCED_INDUSTRY]: 3 }) }),
     ).toBeCloseTo(0.91);
   });
 
@@ -68,7 +67,7 @@ describe("manufacturing time modifier", () => {
       baseline({
         te: 5,
         skills: skills({ [INDUSTRY]: 5, [ADVANCED_INDUSTRY]: 5 }),
-      })
+      }),
     ).toBeCloseTo(0.612);
   });
 
@@ -90,10 +89,10 @@ describe("manufacturing time modifier", () => {
 
     it("stops at Advanced Industry V, likewise", () => {
       expect(
-        baseline({ skills: skills({ [ADVANCED_INDUSTRY]: 5 }) })
+        baseline({ skills: skills({ [ADVANCED_INDUSTRY]: 5 }) }),
       ).toBeCloseTo(0.85);
       expect(
-        baseline({ skills: skills({ [ADVANCED_INDUSTRY]: 9 }) })
+        baseline({ skills: skills({ [ADVANCED_INDUSTRY]: 9 }) }),
       ).toBeCloseTo(0.85);
     });
   });

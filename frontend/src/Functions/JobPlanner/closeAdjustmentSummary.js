@@ -37,7 +37,7 @@ export function closeAdjustmentSummary(job, adjustments = []) {
     parts.push(
       parentIDs.size > 0
         ? `now making ${produced} to cover its parent jobs`
-        : `now making ${produced}`
+        : `now making ${produced}`,
     );
   }
   if (parents > 0) parts.push(`${count(parents, "parent job")} adjusted`);

@@ -14,7 +14,8 @@ export const AppEvent = Object.freeze({
   BUILD_SHOPPING_LIST: "build_shopping_list",
   ADD_CUSTOM_STRUCTURE: "add_custom_structure",
   REPROCESSING_CALCULATION_TO_MINERALS: "reprocessing_calculation_to_minerals",
-  REPROCESSING_CALCULATION_FROM_MINERALS: "reprocessing_calculation_from_minerals",
+  REPROCESSING_CALCULATION_FROM_MINERALS:
+    "reprocessing_calculation_from_minerals",
   VIEW_ARCHIVED_JOB_DATA: "view_archived_job_data",
   ADD_ADDITIONAL_CHARACTER_CLOUD: "add_additional_character_cloud",
   ADD_ADDITIONAL_CHARACTER_LOCAL: "add_additional_character_local",

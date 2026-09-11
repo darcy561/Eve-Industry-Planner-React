@@ -14,7 +14,10 @@ describe("Job _meta", () => {
     const job = new Job({
       jobID: "job-1",
       itemID: 34,
-      _meta: { accountID: "acct-from-server", owner: { kind: "account", id: "x" } },
+      _meta: {
+        accountID: "acct-from-server",
+        owner: { kind: "account", id: "x" },
+      },
     });
 
     const sent = job.toDocument()._meta;
@@ -29,7 +32,10 @@ describe("Job _meta", () => {
     const job = new Job({
       jobID: "job-1",
       itemID: 34,
-      _meta: { lastModified: "2026-01-01T00:00:00Z", createdAt: "2025-01-01T00:00:00Z" },
+      _meta: {
+        lastModified: "2026-01-01T00:00:00Z",
+        createdAt: "2025-01-01T00:00:00Z",
+      },
     });
 
     const sent = job.toDocument()._meta;

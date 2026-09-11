@@ -35,13 +35,13 @@ export default function findBrokersFeeEntry(order, charges, queryClient) {
   const entry = journalEntries.find(
     (candidate) =>
       candidate?.ref_type === "brokers_fee" &&
-      Date.parse(order?.issued) === Date.parse(candidate?.date)
+      Date.parse(order?.issued) === Date.parse(candidate?.date),
   );
 
   return BrokerFee.fromJournalEntry(
     entry,
     order,
     charges?.brokerFee ?? 0,
-    charges?.salesTax ?? 0
+    charges?.salesTax ?? 0,
   );
 }

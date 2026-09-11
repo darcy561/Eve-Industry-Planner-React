@@ -36,14 +36,14 @@ export function CompactGroupJobCard({ group }) {
     isDragging,
     style: dragStyle,
   } = usePlannerGroupCardDrag(group);
-  const navigate = useNavigate({ from: '/jobplanner' });
+  const navigate = useNavigate({ from: "/jobplanner" });
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const groupCardChecked = useMemo(
     () => multiSelect.includes(group.groupID),
-    [multiSelect]
+    [multiSelect],
   );
 
   return (
@@ -82,8 +82,9 @@ export function CompactGroupJobCard({ group }) {
           align="center"
           size={{
             xs: 2,
-            sm: 1
-          }}>
+            sm: 1,
+          }}
+        >
           <Checkbox
             sx={{
               color: (theme) =>
@@ -105,14 +106,15 @@ export function CompactGroupJobCard({ group }) {
           container
           size={{
             xs: 7,
-            sm: 9
+            sm: 9,
           }}
           sx={{
             alignItems: "center",
             minWidth: 0,
             flexWrap: "nowrap",
             gap: 1,
-          }}>
+          }}
+        >
           <Typography
             sx={{
               typography: STANDARD_TEXT_FORMAT,
@@ -131,12 +133,13 @@ export function CompactGroupJobCard({ group }) {
           align="center"
           size={{
             xs: 3,
-            sm: 1
+            sm: 1,
           }}
           sx={{
             alignItems: "center",
-            justifyContent: "center"
-          }}>
+            justifyContent: "center",
+          }}
+        >
           <Tooltip
             title={
               groupLockReadOnly
@@ -151,10 +154,12 @@ export function CompactGroupJobCard({ group }) {
           >
             <Button
               color={groupLockReadOnly ? "warning" : "primary"}
-              onClick={() => navigate({
-                to: '/group/$groupID',
-                params: { groupID: group.groupID }
-              })}
+              onClick={() =>
+                navigate({
+                  to: "/group/$groupID",
+                  params: { groupID: group.groupID },
+                })
+              }
             >
               View
             </Button>
@@ -165,11 +170,12 @@ export function CompactGroupJobCard({ group }) {
             container
             align="center"
             size={{
-              sm: 1
+              sm: 1,
             }}
             sx={{
-              alignItems: "center"
-            }}>
+              alignItems: "center",
+            }}
+          >
             <Tooltip
               title={
                 groupLockReadOnly
@@ -210,7 +216,8 @@ export function CompactGroupJobCard({ group }) {
                 ? `linear-gradient(to right, ${yellow[600]} 30%, ${grey[900]} 60%)`
                 : `linear-gradient(to right, ${yellow[600]} 20%, white 60%)`,
           }}
-          size={12} />
+          size={12}
+        />
       </Grid>
     </Card>
   );

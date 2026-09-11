@@ -17,10 +17,10 @@ async function refreshAccountSessionGrants() {
     }
 
     const characters = state.account.characters.filter(
-      (character) => character?.CharacterHash && !character.isPlaceholder
+      (character) => character?.CharacterHash && !character.isPlaceholder,
     );
     const acquired = await Promise.allSettled(
-      characters.map((character) => getEsiAccessToken(character.CharacterHash))
+      characters.map((character) => getEsiAccessToken(character.CharacterHash)),
     );
     const esiTokens = acquired
       .filter((result) => result.status === "fulfilled")

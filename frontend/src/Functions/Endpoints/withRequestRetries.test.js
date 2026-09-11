@@ -61,19 +61,16 @@ describe("withRequestRetries", () => {
     vi.useFakeTimers();
     let calls = 0;
 
-    const promise = withRequestRetries(
-      async () => {
-        calls += 1;
-        if (calls === 1) {
-          return new Response("Limit exceeded", {
-            status: 429,
-            headers: { "Retry-After": "30" },
-          });
-        }
-        return new Response(null, { status: 204 });
-      },
-      apiRateLimitRetryConfig
-    );
+    const promise = withRequestRetries(async () => {
+      calls += 1;
+      if (calls === 1) {
+        return new Response("Limit exceeded", {
+          status: 429,
+          headers: { "Retry-After": "30" },
+        });
+      }
+      return new Response(null, { status: 204 });
+    }, apiRateLimitRetryConfig);
 
     await vi.advanceTimersByTimeAsync(30100);
     const res = await promise;
@@ -98,7 +95,7 @@ describe("withRequestRetries", () => {
         }
         return new Response(null, { status: 204 });
       },
-      { maxAttempts: 3, baseDelayMs: 350 }
+      { maxAttempts: 3, baseDelayMs: 350 },
     );
 
     await vi.advanceTimersByTimeAsync(2100);

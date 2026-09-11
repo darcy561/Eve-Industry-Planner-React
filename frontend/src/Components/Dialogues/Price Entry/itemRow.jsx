@@ -9,8 +9,14 @@ import {
 import { useEffect, useRef, useState } from "react";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import useUsersStore from "../../../Zustand/usersStore";
-import { numberToShortText, formatNumberForLocale } from "../../../Functions/Helper/numberParser";
-import { STANDARD_TEXT_FORMAT, SMALL_TEXT_FORMAT } from "../../../Context/defaultValues";
+import {
+  numberToShortText,
+  formatNumberForLocale,
+} from "../../../Functions/Helper/numberParser";
+import {
+  STANDARD_TEXT_FORMAT,
+  SMALL_TEXT_FORMAT,
+} from "../../../Context/defaultValues";
 const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
 export function ItemPriceRow({
@@ -27,7 +33,9 @@ export function ItemPriceRow({
 
   const materialPrice = findMarketData(item.typeID);
   const rawDefault = materialPrice?.[displayMarket]?.[displayOrder];
-  const defaultPrice = Number.isFinite(Number(rawDefault)) ? Number(rawDefault) : 0;
+  const defaultPrice = Number.isFinite(Number(rawDefault))
+    ? Number(rawDefault)
+    : 0;
 
   const lastListingKeyRef = useRef(null);
   const lastSyncedDefaultRef = useRef(null);
@@ -35,29 +43,35 @@ export function ItemPriceRow({
   // item.priceEntries only contains confirmed entries
   // Unconfirmed entries are held in component state only
   const confirmedEntries = item.priceEntries || [];
-  
+
   // Initialise unconfirmed entries - start with one entry if no confirmed entries exist
   const getInitialUnconfirmedEntries = () => {
-    const confirmedQty = confirmedEntries.reduce((sum, e) => sum + (e.itemCount || 0), 0);
+    const confirmedQty = confirmedEntries.reduce(
+      (sum, e) => sum + (e.itemCount || 0),
+      0,
+    );
     const remainingQty = item.remainingQuantity - confirmedQty;
-    
+
     if (remainingQty > 0) {
       const initialEntry = itemPriceEntryFactory(
         item.typeID,
         remainingQty,
-        defaultPrice
+        defaultPrice,
       );
       return [initialEntry];
     }
     return [];
   };
 
-  const [unconfirmedEntries, setUnconfirmedEntries] = useState(getInitialUnconfirmedEntries());
+  const [unconfirmedEntries, setUnconfirmedEntries] = useState(
+    getInitialUnconfirmedEntries(),
+  );
 
   // Sync unconfirmed row prices when hub/listing changes, or when market data fills in / updates
   // (without clobbering a value the user edited away from the last synced default).
   useEffect(() => {
-    const { findMarketData: findMd } = useUsersStore.getState().worldData.actions;
+    const { findMarketData: findMd } =
+      useUsersStore.getState().worldData.actions;
     const mp = findMd(item.typeID);
     const raw = mp?.[displayMarket]?.[displayOrder];
     const nextDefault = Number(raw);
@@ -67,7 +81,8 @@ export function ItemPriceRow({
 
     const listingKey = `${displayMarket}:${displayOrder}`;
     const listingChanged =
-      lastListingKeyRef.current === null || lastListingKeyRef.current !== listingKey;
+      lastListingKeyRef.current === null ||
+      lastListingKeyRef.current !== listingKey;
     lastListingKeyRef.current = listingKey;
 
     const priorDefault = lastSyncedDefaultRef.current;
@@ -105,15 +120,18 @@ export function ItemPriceRow({
 
   useEffect(() => {
     // When confirmed entries change externally, update unconfirmed if needed
-    const confirmedQty = (item.priceEntries || []).reduce((sum, e) => sum + (e.itemCount || 0), 0);
+    const confirmedQty = (item.priceEntries || []).reduce(
+      (sum, e) => sum + (e.itemCount || 0),
+      0,
+    );
     const remainingQty = item.remainingQuantity - confirmedQty;
-    
+
     // If we have remaining quantity but no unconfirmed entries, create one
     if (remainingQty > 0 && unconfirmedEntries.length === 0) {
       const initialEntry = itemPriceEntryFactory(
         item.typeID,
         remainingQty,
-        defaultPrice
+        defaultPrice,
       );
       setUnconfirmedEntries([initialEntry]);
     } else if (remainingQty <= 0 && unconfirmedEntries.length > 0) {
@@ -125,9 +143,12 @@ export function ItemPriceRow({
   // Clear unconfirmed entries when Confirm All is triggered
   useEffect(() => {
     if (clearUnconfirmedTrigger > 0) {
-      const confirmedQty = (item.priceEntries || []).reduce((sum, e) => sum + (e.itemCount || 0), 0);
+      const confirmedQty = (item.priceEntries || []).reduce(
+        (sum, e) => sum + (e.itemCount || 0),
+        0,
+      );
       const remainingQty = item.remainingQuantity - confirmedQty;
-      
+
       // Clear unconfirmed entries since Confirm All creates new confirmed entries
       if (remainingQty <= 0) {
         setUnconfirmedEntries([]);
@@ -136,12 +157,18 @@ export function ItemPriceRow({
         const newEntry = itemPriceEntryFactory(
           item.typeID,
           remainingQty,
-          defaultPrice
+          defaultPrice,
         );
         setUnconfirmedEntries([newEntry]);
       }
     }
-  }, [clearUnconfirmedTrigger, item.priceEntries, item.remainingQuantity, item.typeID, defaultPrice]);
+  }, [
+    clearUnconfirmedTrigger,
+    item.priceEntries,
+    item.remainingQuantity,
+    item.typeID,
+    defaultPrice,
+  ]);
 
   // Clipboard import is now handled in parent component and added directly to confirmed entries
   // No need for this useEffect anymore
@@ -170,10 +197,10 @@ export function ItemPriceRow({
       // Explicitly allow 0 - isNaN(0) is false, so 0 will be stored
       newValue = isNaN(numValue) ? "" : numValue;
     }
-    
+
     const newEntry = { ...entryToUpdate, [field]: newValue };
     const newEntries = unconfirmedEntries.map((e) =>
-      e.id === entryId ? newEntry : e
+      e.id === entryId ? newEntry : e,
     );
     setUnconfirmedEntries(newEntries);
   };
@@ -181,30 +208,37 @@ export function ItemPriceRow({
   const confirmEntry = (entryId) => {
     const entryToConfirm = unconfirmedEntries.find((e) => e.id === entryId);
     // Allow 0 values - only prevent negative values or null/undefined
-    if (!entryToConfirm || 
-        entryToConfirm.itemCount == null || entryToConfirm.itemCount < 0 || 
-        entryToConfirm.itemCost == null || entryToConfirm.itemCost < 0) {
+    if (
+      !entryToConfirm ||
+      entryToConfirm.itemCount == null ||
+      entryToConfirm.itemCount < 0 ||
+      entryToConfirm.itemCost == null ||
+      entryToConfirm.itemCost < 0
+    ) {
       return;
     }
 
     // Move entry from unconfirmed to confirmed
     const newUnconfirmed = unconfirmedEntries.filter((e) => e.id !== entryId);
     const newConfirmed = [...confirmedEntries, entryToConfirm];
-    
+
     // Calculate remaining quantity after this confirmation
-    const newConfirmedQty = newConfirmed.reduce((sum, e) => sum + (e.itemCount || 0), 0);
+    const newConfirmedQty = newConfirmed.reduce(
+      (sum, e) => sum + (e.itemCount || 0),
+      0,
+    );
     const newRemainingQty = item.remainingQuantity - newConfirmedQty;
-    
+
     // Automatically create a new unconfirmed entry if there's remaining quantity
     if (newRemainingQty > 0) {
       const newEntry = itemPriceEntryFactory(
         item.typeID,
         newRemainingQty,
-        defaultPrice
+        defaultPrice,
       );
       newUnconfirmed.push(newEntry);
     }
-    
+
     setUnconfirmedEntries(newUnconfirmed);
     updateConfirmedEntries(newConfirmed);
   };
@@ -216,7 +250,10 @@ export function ItemPriceRow({
   };
 
   // Calculate remaining quantity (only counting confirmed entries)
-  const confirmedQuantity = confirmedEntries.reduce((sum, e) => sum + (e.itemCount || 0), 0);
+  const confirmedQuantity = confirmedEntries.reduce(
+    (sum, e) => sum + (e.itemCount || 0),
+    0,
+  );
   const remainingQuantity = item.remainingQuantity - confirmedQuantity;
 
   return (
@@ -224,23 +261,30 @@ export function ItemPriceRow({
       key={item.typeID}
       container
       spacing={1}
-      sx={{ marginBottom: 2, paddingBottom: 2, borderBottom: "1px solid rgba(0,0,0,0.12)" }}
-      size={12}>
+      sx={{
+        marginBottom: 2,
+        paddingBottom: 2,
+        borderBottom: "1px solid rgba(0,0,0,0.12)",
+      }}
+      size={12}
+    >
       {/* Item Header */}
       <Grid
         container
         size={12}
         sx={{
           alignItems: "center",
-          marginBottom: 1
-        }}>
+          marginBottom: 1,
+        }}
+      >
         <Grid
           sx={{
             display: { xs: "none", sm: "block" },
             paddingRight: "5px",
           }}
           align="center"
-          size={{ sm: 1 }}>
+          size={{ sm: 1 }}
+        >
           <Avatar
             src={`https://images.evetech.net/types/${item.typeID}/icon?size=32`}
             alt={item.name}
@@ -256,14 +300,17 @@ export function ItemPriceRow({
             title={`Total Needed: ${numberToShortText(item.totalQuantity)} | Remaining: ${numberToShortText(remainingQuantity)}`}
             arrow
             placement="top"
-          > 
-          <Typography
-            sx={{
-              color: "text.secondary",
-              typography: SMALL_TEXT_FORMAT
-            }}>
-            Total Needed: { formatNumberForLocale(item.totalQuantity, { max: 0 })} | Remaining: {formatNumberForLocale(remainingQuantity, { max: 0 })}
-          </Typography>
+          >
+            <Typography
+              sx={{
+                color: "text.secondary",
+                typography: SMALL_TEXT_FORMAT,
+              }}
+            >
+              Total Needed:{" "}
+              {formatNumberForLocale(item.totalQuantity, { max: 0 })} |
+              Remaining: {formatNumberForLocale(remainingQuantity, { max: 0 })}
+            </Typography>
           </Tooltip>
         </Grid>
       </Grid>
@@ -276,17 +323,18 @@ export function ItemPriceRow({
           spacing={1}
           sx={{
             alignItems: "center",
-            marginLeft: { xs: 0, sm: "40px" }
-          }}>
+            marginLeft: { xs: 0, sm: "40px" },
+          }}
+        >
           <Grid size={{ xs: 3, sm: 3 }}>
             <Tooltip
               title={numberToShortText(entry.itemCount || 0)}
               arrow
               placement="top"
             >
-            <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
-              Qty: {formatNumberForLocale(entry.itemCount || 0, { max: 0 })}
-            </Typography>
+              <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
+                Qty: {formatNumberForLocale(entry.itemCount || 0, { max: 0 })}
+              </Typography>
             </Tooltip>
           </Grid>
           <Grid size={{ xs: 4, sm: 3 }}>
@@ -302,21 +350,27 @@ export function ItemPriceRow({
           </Grid>
           <Grid size={{ xs: 2, sm: 3 }}>
             <Tooltip
-              title={numberToShortText((entry.itemCount || 0) * (entry.itemCost || 0))}
+              title={numberToShortText(
+                (entry.itemCount || 0) * (entry.itemCost || 0),
+              )}
               arrow
               placement="top"
             >
-            <Typography
-              sx={{
-                color: "text.secondary",
-                typography: STANDARD_TEXT_FORMAT
-              }}>
-              Total: {formatNumberForLocale((entry.itemCount || 0) * (entry.itemCost || 0))}
-            </Typography>
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                  typography: STANDARD_TEXT_FORMAT,
+                }}
+              >
+                Total:{" "}
+                {formatNumberForLocale(
+                  (entry.itemCount || 0) * (entry.itemCost || 0),
+                )}
+              </Typography>
             </Tooltip>
           </Grid>
-          <Grid 
-            size={{ xs: 3, sm: 3 }} 
+          <Grid
+            size={{ xs: 3, sm: 3 }}
             sx={{ display: "flex", justifyContent: "flex-end" }}
           >
             <Tooltip title="Click to delete" arrow>
@@ -344,8 +398,9 @@ export function ItemPriceRow({
           spacing={1}
           sx={{
             alignItems: "center",
-            marginLeft: { xs: 0, sm: "40px" }
-          }}>
+            marginLeft: { xs: 0, sm: "40px" },
+          }}
+        >
           <Grid size={{ xs: 3, sm: 3 }}>
             <Tooltip
               title={numberToShortText(entry.itemCount)}
@@ -402,21 +457,27 @@ export function ItemPriceRow({
           </Grid>
           <Grid size={{ xs: 2, sm: 3 }}>
             <Tooltip
-              title={numberToShortText((entry.itemCount || 0) * (entry.itemCost || 0))}
+              title={numberToShortText(
+                (entry.itemCount || 0) * (entry.itemCost || 0),
+              )}
               arrow
               placement="top"
             >
-            <Typography
-              sx={{
-                color: "text.secondary",
-                typography: STANDARD_TEXT_FORMAT
-              }}>
-              Total: {formatNumberForLocale((entry.itemCount || 0) * (entry.itemCost || 0))}
-            </Typography>
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                  typography: STANDARD_TEXT_FORMAT,
+                }}
+              >
+                Total:{" "}
+                {formatNumberForLocale(
+                  (entry.itemCount || 0) * (entry.itemCost || 0),
+                )}
+              </Typography>
             </Tooltip>
           </Grid>
-          <Grid 
-            size={{ xs: 3, sm: 3 }} 
+          <Grid
+            size={{ xs: 3, sm: 3 }}
             sx={{ display: "flex", justifyContent: "flex-end" }}
           >
             <Tooltip title="Click to confirm" arrow>
@@ -424,7 +485,12 @@ export function ItemPriceRow({
                 checked={false}
                 size="small"
                 onChange={() => confirmEntry(entry.id)}
-                disabled={entry.itemCount == null || entry.itemCount < 0 || entry.itemCost == null || entry.itemCost < 0}
+                disabled={
+                  entry.itemCount == null ||
+                  entry.itemCount < 0 ||
+                  entry.itemCost == null ||
+                  entry.itemCost < 0
+                }
                 sx={{
                   color: (theme) =>
                     theme.palette.mode === PRIMARY_THEME

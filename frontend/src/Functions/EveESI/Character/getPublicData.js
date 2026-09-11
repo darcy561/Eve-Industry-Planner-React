@@ -3,7 +3,7 @@ import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 async function getCharacterPublicInfo(characterID) {
   try {
     const response = await fetchWithCustomHeaders(
-      `https://esi.evetech.net/characters/${characterID}/?datasource=tranquility`
+      `https://esi.evetech.net/characters/${characterID}/?datasource=tranquility`,
     );
 
     // Handle no content responses (204)
@@ -14,14 +14,14 @@ async function getCharacterPublicInfo(characterID) {
     // Handle client errors (4xx)
     if (response.status >= 400 && response.status < 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

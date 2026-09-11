@@ -4,14 +4,14 @@ import { blueprintOptions } from "../../Context/defaultValues";
 /**
  * A select component for choosing time efficiency levels.
  * Displays time efficiency options from blueprint configuration.
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} [props.value=0] - Currently selected time efficiency value
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the efficiency value.
  * @returns {JSX.Element} Time efficiency select component
- * 
+ *
  * @example
- * <TimeEfficiencySelect 
+ * <TimeEfficiencySelect
  *   value={10}
  *   onChange={(efficiency) => setTimeEfficiency(efficiency)}
  * />
@@ -41,7 +41,7 @@ function TimeEfficiencySelect({ value = 0, onChange }) {
             onChange(e.target.value);
           } else {
             console.error(
-              "Time Efficiency Select is missing an onChange Function"
+              "Time Efficiency Select is missing an onChange Function",
             );
           }
         }}

@@ -52,14 +52,14 @@ export function useEditJobInitialState({
             .getCustomStructureWithID;
         clearOrphanedCustomStructureOnSetups(
           matchedJob.build.setup,
-          getCustomStructureWithID
+          getCustomStructureWithID,
         );
 
         for (const setup of Object.values(matchedJob.build.setup)) {
           setup.estimatedInstallCost = calculateInstallCostfromSetup(
             setup,
             requestedMarketData,
-            requestedSystemIndexes
+            requestedSystemIndexes,
           );
         }
 

@@ -12,7 +12,7 @@ const noModifiers = [0, 0, 0, 0];
 describe("manufacturing material quantities", () => {
   it("needs base × runs × slots when nothing modifies it", () => {
     expect(manufacturingFormulaCalculation(100, 10, 2, ...noModifiers)).toBe(
-      2000
+      2000,
     );
   });
 
@@ -36,7 +36,7 @@ describe("manufacturing material quantities", () => {
   it("compounds the modifiers rather than adding them", () => {
     // 1,000,000 × 0.9 × 0.99 × (1 − 0.02×1.1) = 871,398
     expect(
-      manufacturingFormulaCalculation(1_000_000, 1, 1, 10, 1, 2, 1.1)
+      manufacturingFormulaCalculation(1_000_000, 1, 1, 10, 1, 2, 1.1),
     ).toBe(871_398);
   });
 

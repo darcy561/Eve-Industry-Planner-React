@@ -61,7 +61,7 @@ export function JobCardFrame({ job, previewStandalone = false }) {
     isDragging,
     style: dragStyle,
   } = usePlannerJobCardDrag(job);
-  const navigate = useNavigate({ from: '/jobplanner' });
+  const navigate = useNavigate({ from: "/jobplanner" });
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
   const theme = useTheme();
 
@@ -121,7 +121,15 @@ export function JobCardFrame({ job, previewStandalone = false }) {
           },
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", flex: 1, minHeight: 0 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
           <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
             <Box sx={{ flex: "0 0 auto" }}>
               <Checkbox
@@ -199,8 +207,17 @@ export function JobCardFrame({ job, previewStandalone = false }) {
               <DisplaySwitch job={job} />
             </Box>
           </Box>
-          <Box sx={{ display: "flex", flexDirection: "column", marginTop: "auto", width: "100%" }}>
-            <Box sx={{ display: "flex", justifyContent: "center", marginTop: 0.5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              marginTop: "auto",
+              width: "100%",
+            }}
+          >
+            <Box
+              sx={{ display: "flex", justifyContent: "center", marginTop: 0.5 }}
+            >
               <Tooltip
                 title={jobLockReason}
                 arrow
@@ -211,8 +228,8 @@ export function JobCardFrame({ job, previewStandalone = false }) {
                   color={jobLockReadOnly ? "warning" : "primary"}
                   onClick={() => {
                     navigate({
-                      to: '/editjob/$jobID',
-                      params: { jobID: job.jobID }
+                      to: "/editjob/$jobID",
+                      params: { jobID: job.jobID },
                     });
                   }}
                   sx={{ height: 25, width: 100 }}
@@ -229,7 +246,10 @@ export function JobCardFrame({ job, previewStandalone = false }) {
                 width: "100%",
               }}
             >
-              <Typography align="center" sx={{ typography: STANDARD_TEXT_FORMAT, color: "black" }}>
+              <Typography
+                align="center"
+                sx={{ typography: STANDARD_TEXT_FORMAT, color: "black" }}
+              >
                 {job.jobType === jobTypes.manufacturing ? (
                   <b>Manufacturing Job</b>
                 ) : (

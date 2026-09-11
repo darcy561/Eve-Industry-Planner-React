@@ -33,7 +33,9 @@ vi.mock("../Zustand/usersStore", () => ({
         isLoggedIn: true,
         actions: {
           getMainCharacterHash: () => RECALCULATING_USER.mainCharacter,
-          getMainCharacter: () => ({ CharacterHash: RECALCULATING_USER.mainCharacter }),
+          getMainCharacter: () => ({
+            CharacterHash: RECALCULATING_USER.mainCharacter,
+          }),
           findCharacterByHash: (hash) => ({ CharacterHash: hash }),
         },
       },
@@ -86,9 +88,8 @@ vi.mock("../Hooks/EveEsi/useBlueprintIndex", () => ({
   }),
 }));
 
-const { default: recalculateJobForNewTotal } = await import(
-  "../Functions/JobPlanner/recalculateJobForNewTotal"
-);
+const { default: recalculateJobForNewTotal } =
+  await import("../Functions/JobPlanner/recalculateJobForNewTotal");
 const { default: Setup } = await import("../Classes/jobSetup");
 
 const { default: Job } = await import("../Classes/job");
@@ -191,7 +192,10 @@ describe("recalculating a job's setups", () => {
     recalculateJobForNewTotal(job, 25, emptyQueryClient());
 
     const setups = Object.values(job.build.setup);
-    const totalRuns = setups.reduce((sum, s) => sum + s.runCount * s.jobCount, 0);
+    const totalRuns = setups.reduce(
+      (sum, s) => sum + s.runCount * s.jobCount,
+      0,
+    );
     expect(totalRuns).toBe(25);
     expect(setups.length).toBeGreaterThan(1);
   });
@@ -215,7 +219,7 @@ describe("recalculating a job's setups", () => {
     recalculateJobForNewTotal(job, 7, emptyQueryClient());
 
     expect(onlySetup(job).customStructureID).toBe(
-      JOB_AS_BUILT.customStructureID
+      JOB_AS_BUILT.customStructureID,
     );
   });
 
@@ -230,8 +234,13 @@ describe("recalculating a job's setups", () => {
     expect(setups.length).toBeGreaterThan(1);
     const contexts = new Set(
       setups.map((setup) =>
-        [setup.customStructureID, setup.structureID, setup.ME, setup.selectedCharacter].join("|")
-      )
+        [
+          setup.customStructureID,
+          setup.structureID,
+          setup.ME,
+          setup.selectedCharacter,
+        ].join("|"),
+      ),
     );
     expect(contexts.size).toBe(1);
   });
@@ -269,7 +278,11 @@ describe("recalculating a job's setups", () => {
     const setups = Object.values(job.build.setup);
     expect(setups).toHaveLength(2);
     // Still the job's context, whichever calculator produced the layout.
-    expect(setups.every((s) => s.customStructureID === JOB_AS_BUILT.customStructureID)).toBe(true);
+    expect(
+      setups.every(
+        (s) => s.customStructureID === JOB_AS_BUILT.customStructureID,
+      ),
+    ).toBe(true);
   });
 
   it("recomputes the derived figures rather than carrying them", () => {
@@ -295,7 +308,9 @@ describe("recalculating a job's setups", () => {
   it("leaves the setup it was built from untouched", () => {
     const job = jobBuiltByAnotherMember();
     const before = onlySetup(job);
-    before.materialCount = { 34: { typeID: 34, quantity: 999999, rawQuantity: 999999 } };
+    before.materialCount = {
+      34: { typeID: 34, quantity: 999999, rawQuantity: 999999 },
+    };
 
     recalculateJobForNewTotal(job, 5, emptyQueryClient());
 
@@ -360,7 +375,9 @@ describe("adding a setup to a job that already has one", () => {
 
     job.addNewSetup(emptyQueryClient());
 
-    const added = Object.values(job.build.setup).find((s) => s.id !== existing.id);
+    const added = Object.values(job.build.setup).find(
+      (s) => s.id !== existing.id,
+    );
     expect(added).toBeDefined();
     expect(added.customStructureID).toBe(JOB_AS_BUILT.customStructureID);
     expect(added.structureID).toBe(JOB_AS_BUILT.structureID);
@@ -377,8 +394,11 @@ describe("building a job for the first time", () => {
   // explicit choice for this job, so they outrank both the inherited context and
   // the current settings.
   it("lets a build request outrank the setup it is based on", async () => {
-    const { buildSetupContextForJob, buildSetupFromQuantity, setupQuantitiesForTotal } =
-      await import("../Functions/JobPlanner/setupBuildHelpers");
+    const {
+      buildSetupContextForJob,
+      buildSetupFromQuantity,
+      setupQuantitiesForTotal,
+    } = await import("../Functions/JobPlanner/setupBuildHelpers");
 
     const existing = new Setup({
       runCount: 1,
@@ -411,7 +431,7 @@ describe("building a job for the first time", () => {
           systemID: 30000001,
           characterToUse: "hash-from-the-build-request",
         },
-      }
+      },
     );
 
     expect(setup.systemID).toBe(30000001);
@@ -421,9 +441,8 @@ describe("building a job for the first time", () => {
   });
 
   it("restores a stored template row through the same builder", async () => {
-    const { buildSetupContextForJob, buildSetupFromQuantity } = await import(
-      "../Functions/JobPlanner/setupBuildHelpers"
-    );
+    const { buildSetupContextForJob, buildSetupFromQuantity } =
+      await import("../Functions/JobPlanner/setupBuildHelpers");
 
     const job = {
       jobType: 1,
@@ -455,7 +474,7 @@ describe("building a job for the first time", () => {
       { runCount: row.runCount, jobCount: row.jobCount },
       emptyQueryClient(),
       context,
-      { overrides: row }
+      { overrides: row },
     );
 
     expect(setup.runCount).toBe(5);
@@ -488,9 +507,8 @@ describe("recalculating one setup in place", () => {
   });
 
   it("takes the system index values it is given", async () => {
-    const { default: findSystemIndexForJob } = await import(
-      "../Functions/Helper/findSystemIndexValue"
-    );
+    const { default: findSystemIndexForJob } =
+      await import("../Functions/Helper/findSystemIndexValue");
     const job = jobBuiltByAnotherMember();
     const setup = onlySetup(job);
     const additionalSystemIndexValues = {
@@ -547,9 +565,8 @@ describe("calculating materials for a job type", () => {
   });
 
   it("passes raw quantities through for a job type with no formula", async () => {
-    const { default: materialQuantitiesForSetup } = await import(
-      "../Functions/Blueprint Calculations/calculateMaterialsForSetup"
-    );
+    const { default: materialQuantitiesForSetup } =
+      await import("../Functions/Blueprint Calculations/calculateMaterialsForSetup");
     const setup = new Setup({ runCount: 5, jobCount: 2, jobType: 0 });
 
     const materials = materialQuantitiesForSetup(setup, [

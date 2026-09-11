@@ -23,7 +23,7 @@ const BlueprintItem = ({ print, esiJob, state, actions }) => {
 
   const activityColor = useMemo(
     () => activityStyleSelector(blueprintType, esiJob, print.runs),
-    [blueprintType, esiJob, print.runs]
+    [blueprintType, esiJob, print.runs],
   );
 
   const runsDisplay = useMemo(() => {
@@ -59,7 +59,7 @@ const BlueprintItem = ({ print, esiJob, state, actions }) => {
             currentSetup,
             state,
             actions,
-            queryClient
+            queryClient,
           );
         }}
         size={{
@@ -167,7 +167,7 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
     return {
       blueprintOptions,
       esiJobSelection: (industryJobs ?? []).filter(
-        (job) => job.blueprint_type_id === state.activeJob.blueprintTypeID
+        (job) => job.blueprint_type_id === state.activeJob.blueprintTypeID,
       ),
     };
   }, [blueprints, state.activeJob.blueprintTypeID, industryJobs]);
@@ -184,10 +184,7 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
   }, [esiJobSelection]);
 
   // Loading state
-  if (
-    isLoadingBlueprints ||
-    isLoadingIndustryJobs
-  ) {
+  if (isLoadingBlueprints || isLoadingIndustryJobs) {
     return (
       <Grid align="center" size={12}>
         <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>

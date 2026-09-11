@@ -204,8 +204,11 @@ function SegmentChip({ segment }) {
  */
 function applyRestoreLocally(result) {
   const { jobData } = useUsersStore.getState();
-  const { updateOrAddJobsToJobArray, addGroupToGroupArray, updateModifiedGroups } =
-    jobData.actions;
+  const {
+    updateOrAddJobsToJobArray,
+    addGroupToGroupArray,
+    updateModifiedGroups,
+  } = jobData.actions;
 
   const jobs = (result?.jobs ?? []).map((document) => new Job(document));
   if (jobs.length > 0) updateOrAddJobsToJobArray(jobs);
@@ -268,8 +271,23 @@ function JobRow({ job, onRestore, onFile, busy, indented }) {
         <Money value={job.measures?.profitLoss} />
       </TableCell>
       <TableCell align="right">
-        <Stack direction="row" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
-          <Button size="small" disabled={busy} onClick={() => onFile({ kind: "job", id: job.jobID, label: job.name, jobs: [job] })}>
+        <Stack
+          direction="row"
+          spacing={0.5}
+          sx={{ justifyContent: "flex-end" }}
+        >
+          <Button
+            size="small"
+            disabled={busy}
+            onClick={() =>
+              onFile({
+                kind: "job",
+                id: job.jobID,
+                label: job.name,
+                jobs: [job],
+              })
+            }
+          >
             Months
           </Button>
           <Button
@@ -310,10 +328,10 @@ function JobCard({ job, onRestore, onFile, busy }) {
           <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
             <SegmentChip segment={job.measures?.segment} />
             <FiguresChip
-            awaiting={job.awaitingTotals}
-            stale={job.figuresStale}
-            filed={job.monthsFiled}
-          />
+              awaiting={job.awaitingTotals}
+              stale={job.figuresStale}
+              filed={job.monthsFiled}
+            />
           </Stack>
         </Stack>
 
@@ -337,7 +355,14 @@ function JobCard({ job, onRestore, onFile, busy }) {
             fullWidth
             variant="outlined"
             disabled={busy}
-            onClick={() => onFile({ kind: "job", id: job.jobID, label: job.name, jobs: [job] })}
+            onClick={() =>
+              onFile({
+                kind: "job",
+                id: job.jobID,
+                label: job.name,
+                jobs: [job],
+              })
+            }
           >
             Months
           </Button>
@@ -403,7 +428,12 @@ function BlockCard({ block, onRestore, onFile, busy }) {
 
   if (block.kind === "job") {
     return (
-      <JobCard job={block.jobs[0]} onRestore={onRestore} onFile={onFile} busy={busy} />
+      <JobCard
+        job={block.jobs[0]}
+        onRestore={onRestore}
+        onFile={onFile}
+        busy={busy}
+      />
     );
   }
 
@@ -488,7 +518,12 @@ function Block({ block, onRestore, onFile, busy }) {
 
   if (block.kind === "job") {
     return (
-      <JobRow job={block.jobs[0]} onRestore={onRestore} onFile={onFile} busy={busy} />
+      <JobRow
+        job={block.jobs[0]}
+        onRestore={onRestore}
+        onFile={onFile}
+        busy={busy}
+      />
     );
   }
 
@@ -533,7 +568,11 @@ function Block({ block, onRestore, onFile, busy }) {
           <Money value={totals.counted > 0 ? totals.profitLoss : null} />
         </TableCell>
         <TableCell align="right">
-          <Stack direction="row" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
+          <Stack
+            direction="row"
+            spacing={0.5}
+            sx={{ justifyContent: "flex-end" }}
+          >
             <Button size="small" disabled={busy} onClick={() => onFile(block)}>
               Months
             </Button>

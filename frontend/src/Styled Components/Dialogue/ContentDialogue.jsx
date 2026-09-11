@@ -1,5 +1,11 @@
 import { Suspense } from "react";
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import { alpha } from "@mui/material/styles";
 import ContentErrorBoundary from "../Paper/ContentErrorBoundary";
@@ -161,7 +167,9 @@ export default function ContentDialogue({
           resolvedIsLoading ? (
             useAppShellDesign ? (
               loadingSkeleton || (
-                <DefaultDialogueLoadingSkeleton loadingVariant={loadingVariant} />
+                <DefaultDialogueLoadingSkeleton
+                  loadingVariant={loadingVariant}
+                />
               )
             ) : (
               <PanelFallBack

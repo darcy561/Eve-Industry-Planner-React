@@ -30,14 +30,14 @@ async function upsertCloudStoredEsiRefreshTokens(refreshTokens) {
         },
         body: JSON.stringify(payload),
       },
-      { requestName: "upsertCloudStoredEsiRefreshTokens" }
+      { requestName: "upsertCloudStoredEsiRefreshTokens" },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `Failed to upsert cloud-stored ESI refresh tokens: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return false;
     }
@@ -59,7 +59,9 @@ async function deleteCloudStoredEsiRefreshTokens(characterHashes) {
   try {
     const payload = {
       characterHashes: Array.isArray(characterHashes)
-        ? characterHashes.filter((hash) => typeof hash === "string" && hash.trim())
+        ? characterHashes.filter(
+            (hash) => typeof hash === "string" && hash.trim(),
+          )
         : [],
     };
 
@@ -72,14 +74,14 @@ async function deleteCloudStoredEsiRefreshTokens(characterHashes) {
         },
         body: JSON.stringify(payload),
       },
-      { requestName: "deleteCloudStoredEsiRefreshTokens" }
+      { requestName: "deleteCloudStoredEsiRefreshTokens" },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `Failed to delete cloud-stored ESI refresh tokens: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return false;
     }
@@ -104,7 +106,7 @@ async function getCloudStoredEsiRefreshTokens() {
         method: "GET",
         cache: "no-store",
       },
-      { requestName: "getCloudStoredEsiRefreshTokens" }
+      { requestName: "getCloudStoredEsiRefreshTokens" },
     );
 
     if (!response.ok) {
@@ -114,7 +116,7 @@ async function getCloudStoredEsiRefreshTokens() {
       const errorText = await response.text();
       console.error(
         `Failed to get cloud-stored ESI refresh tokens: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return null;
     }

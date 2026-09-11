@@ -46,7 +46,7 @@ export default function MaterialDrawer({
   ...rest
 }) {
   const checkTypeIDisExempt = useUsersStore(
-    (store) => store.applicationSettings.actions.checkTypeIDisExempt
+    (store) => store.applicationSettings.actions.checkTypeIDisExempt,
   );
   const { buildSingleChildJobPreview } = useChildJobBuildActions({
     state,
@@ -77,7 +77,7 @@ export default function MaterialDrawer({
     childJobObjects[jobDisplay],
     state.temporaryChildJobs,
     marketSelect,
-    listingSelect
+    listingSelect,
   );
 
   const shared = {
@@ -138,10 +138,7 @@ export default function MaterialDrawer({
             ) : null}
           </Stack>
         ) : (
-          <ImportingStateLayout
-            fetchError={fetchError}
-            material={material}
-          />
+          <ImportingStateLayout fetchError={fetchError} material={material} />
         )}
       </InsetSurface>
     </Collapse>

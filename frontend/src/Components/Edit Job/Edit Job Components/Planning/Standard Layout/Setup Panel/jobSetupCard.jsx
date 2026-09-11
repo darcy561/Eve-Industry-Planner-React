@@ -33,8 +33,9 @@ export function JobSetupCard({ setupEntry, state, actions }) {
       container
       size={{
         xs: 6,
-        sm: 4
-      }}>
+        sm: 4,
+      }}
+    >
       <Card elevation={3} square sx={{ minWidth: "100%" }}>
         <CardActionArea
           onClick={() => {
@@ -70,14 +71,16 @@ export function JobSetupCard({ setupEntry, state, actions }) {
               )}
               <Grid
                 align="center"
-                size={jobTypes.manufacturing === setupEntry.jobType ? 3 : 6}>
+                size={jobTypes.manufacturing === setupEntry.jobType ? 3 : 6}
+              >
                 <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   Runs: {setupEntry.runCount}
                 </Typography>
               </Grid>
               <Grid
                 align="center"
-                size={jobTypes.manufacturing === setupEntry.jobType ? 3 : 6}>
+                size={jobTypes.manufacturing === setupEntry.jobType ? 3 : 6}
+              >
                 <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                   Jobs: {setupEntry.jobCount}
                 </Typography>
@@ -98,7 +101,7 @@ export function JobSetupCard({ setupEntry, state, actions }) {
 
               <Tooltip
                 title={`Install Cost Per Job: ${formatNumberForLocale(
-                  setupEntry.estimatedInstallCost
+                  setupEntry.estimatedInstallCost,
                 )}`}
                 arrow
                 placement="bottom"
@@ -112,7 +115,7 @@ export function JobSetupCard({ setupEntry, state, actions }) {
                   >
                     Est Total Install Costs:{" "}
                     {formatNumberForLocale(
-                      setupEntry.estimatedInstallCost * setupEntry.jobCount
+                      setupEntry.estimatedInstallCost * setupEntry.jobCount,
                     )}
                   </Typography>
                 </Grid>
@@ -126,7 +129,8 @@ export function JobSetupCard({ setupEntry, state, actions }) {
                     ? theme.palette[jobTypeMapping[setupEntry.jobType]].main
                     : null,
               }}
-              size={12} />
+              size={12}
+            />
           </CardContent>
         </CardActionArea>
       </Card>
@@ -139,10 +143,16 @@ function UseCustomStructure({ setupEntry }) {
     useUsersStore.getState().applicationSettings.actions;
 
   const assignedStructureData = getCustomStructureWithID(
-    setupEntry.customStructureID
+    setupEntry.customStructureID,
   );
 
-  const systemIndexValue = findSystemIndexForJob(setupEntry.systemID, setupEntry.jobType, setupEntry.useAlternativeSystemIndexValue, setupEntry.alternativeSystemIndexValue) * 100;
+  const systemIndexValue =
+    findSystemIndexForJob(
+      setupEntry.systemID,
+      setupEntry.jobType,
+      setupEntry.useAlternativeSystemIndexValue,
+      setupEntry.alternativeSystemIndexValue,
+    ) * 100;
 
   return (
     <Grid size={12}>
@@ -169,19 +179,25 @@ function UseCustomStructure({ setupEntry }) {
 function UseDefaultStructures({ setupEntry }) {
   const structureTypeData = getStructureInfoFromID(
     setupEntry.jobType,
-    setupEntry.structureID
+    setupEntry.structureID,
   );
 
   const rigTypeData = getRigInfoFromID(setupEntry.jobType, setupEntry.rigID);
 
   const systemTypeData = getSystemTypeFromID(
     setupEntry.jobType,
-    setupEntry.systemTypeID
+    setupEntry.systemTypeID,
   );
 
   const matchedSystemID = getSystemNameFromID(setupEntry.systemID);
 
-  const systemIndexValue = findSystemIndexForJob(setupEntry.systemID, setupEntry.jobType, setupEntry.useAlternativeSystemIndexValue, setupEntry.alternativeSystemIndexValue) * 100;
+  const systemIndexValue =
+    findSystemIndexForJob(
+      setupEntry.systemID,
+      setupEntry.jobType,
+      setupEntry.useAlternativeSystemIndexValue,
+      setupEntry.alternativeSystemIndexValue,
+    ) * 100;
 
   return (
     <Grid container size={12}>

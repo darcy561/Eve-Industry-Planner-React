@@ -104,7 +104,9 @@ export function serialiseGroupToTemplatePayload({
   description = "",
 }) {
   if (!groupID || !jobs?.length) {
-    throw new Error("Group must include at least one job to save as a template.");
+    throw new Error(
+      "Group must include at least one job to save as a template.",
+    );
   }
 
   const jobIds = jobs.map((j) => j.jobID);
@@ -114,7 +116,7 @@ export function serialiseGroupToTemplatePayload({
     for (const pid of j.parentJobs || []) {
       if (pid && !jobIdSet.has(pid)) {
         throw new Error(
-          `Job ${j.jobID} references a parent outside this group; remove or include that job first.`
+          `Job ${j.jobID} references a parent outside this group; remove or include that job first.`,
         );
       }
     }
@@ -123,7 +125,7 @@ export function serialiseGroupToTemplatePayload({
       for (const cid of ids || []) {
         if (cid && !jobIdSet.has(cid)) {
           throw new Error(
-            `Job ${j.jobID} references a child outside this group; remove or include that job first.`
+            `Job ${j.jobID} references a child outside this group; remove or include that job first.`,
           );
         }
       }
@@ -131,7 +133,7 @@ export function serialiseGroupToTemplatePayload({
   }
 
   const jobIdToTemplateId = new Map(
-    jobIds.map((id, i) => [id, `tj-${String(i + 1).padStart(3, "0")}`])
+    jobIds.map((id, i) => [id, `tj-${String(i + 1).padStart(3, "0")}`]),
   );
 
   const templateIdToParents = new Map();

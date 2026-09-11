@@ -50,10 +50,18 @@ export default function AssetTemplate_AssetDialogueWindow({
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             badgeContent={<OwnerAvatar owner={node.owner} size={18} />}
           >
-            <Avatar src={assetImageUrl(node, fullItemList)} alt={itemName} variant="square" />
+            <Avatar
+              src={assetImageUrl(node, fullItemList)}
+              alt={itemName}
+              variant="square"
+            />
           </Badge>
         ) : (
-          <Avatar src={assetImageUrl(node, fullItemList)} alt={itemName} variant="square" />
+          <Avatar
+            src={assetImageUrl(node, fullItemList)}
+            alt={itemName}
+            variant="square"
+          />
         )}
         <Figure variant="caption" formatOptions={{ max: 0 }}>
           {node.quantity}

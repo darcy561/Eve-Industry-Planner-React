@@ -18,7 +18,7 @@ import {
 beforeEach(() => {
   collection.current = buildBlueprintRows(
     characterBlueprintRows,
-    blueprintSearchIndex
+    blueprintSearchIndex,
   );
 });
 

@@ -128,7 +128,11 @@ const MERGED_FIELDS = [
 describe("taking the latest state of a market order", () => {
   for (const [name, latest] of Object.entries(UPDATES)) {
     it(`matches the previous merge: ${name}`, () => {
-      const legacy = { ...STORED, timeStamps: [...STORED.timeStamps], complete: false };
+      const legacy = {
+        ...STORED,
+        timeStamps: [...STORED.timeStamps],
+        complete: false,
+      };
       const order = new MarketOrder(STORED);
 
       const legacyTook = legacyMerge(legacy, latest);
@@ -149,7 +153,11 @@ describe("taking the latest state of a market order", () => {
   it("leaves a finished order alone rather than re-taking it", () => {
     const soldOut = new MarketOrder({ ...STORED, volume_remain: 0 });
     const expired = new MarketOrder({ ...STORED, state: "expired" });
-    const latest = { volume_remain: 0, price: 9, issued: "2026-08-09T00:00:00Z" };
+    const latest = {
+      volume_remain: 0,
+      price: 9,
+      issued: "2026-08-09T00:00:00Z",
+    };
 
     expect(soldOut.applyLatest(latest)).toBe(false);
     expect(expired.applyLatest(latest)).toBe(false);
@@ -167,9 +175,8 @@ describe("taking the latest state of a market order", () => {
 
 describe("applying the latest orders to a job", () => {
   it("matches each row by its order id and reports whether anything moved", async () => {
-    const { default: applyLatestOrderData } = await import(
-      "../Functions/MarketOrders/applyLatestOrderData"
-    );
+    const { default: applyLatestOrderData } =
+      await import("../Functions/MarketOrders/applyLatestOrderData");
 
     const job = {
       build: {
@@ -183,8 +190,18 @@ describe("applying the latest orders to a job", () => {
     };
 
     const changed = applyLatestOrderData(job, [
-      { order_id: 901, volume_remain: 5, price: 7, issued: "2026-08-09T00:00:00Z" },
-      { order_id: 999, volume_remain: 0, price: 1, issued: "2026-08-09T00:00:00Z" },
+      {
+        order_id: 901,
+        volume_remain: 5,
+        price: 7,
+        issued: "2026-08-09T00:00:00Z",
+      },
+      {
+        order_id: 999,
+        volume_remain: 0,
+        price: 1,
+        issued: "2026-08-09T00:00:00Z",
+      },
     ]);
 
     expect(changed).toBe(true);
@@ -193,17 +210,16 @@ describe("applying the latest orders to a job", () => {
   });
 
   it("reports nothing when no linked order was reported", async () => {
-    const { default: applyLatestOrderData } = await import(
-      "../Functions/MarketOrders/applyLatestOrderData"
-    );
+    const { default: applyLatestOrderData } =
+      await import("../Functions/MarketOrders/applyLatestOrderData");
 
     const job = {
       build: { sale: { marketOrders: [new MarketOrder(STORED)] } },
     };
 
     expect(applyLatestOrderData(job, [])).toBe(false);
-    expect(applyLatestOrderData(job, [{ order_id: 42, volume_remain: 0 }])).toBe(
-      false,
-    );
+    expect(
+      applyLatestOrderData(job, [{ order_id: 42, volume_remain: 0 }]),
+    ).toBe(false);
   });
 });

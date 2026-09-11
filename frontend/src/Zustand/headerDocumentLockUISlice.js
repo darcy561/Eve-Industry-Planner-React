@@ -36,7 +36,8 @@ function normalizeRegistrations(payload) {
 
 /** @param {HeaderDocumentLockRegistration[]} a @param {HeaderDocumentLockRegistration[]} b */
 function registrationsEqual(a, b) {
-  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+  if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length)
+    return false;
   for (let i = 0; i < a.length; i += 1) {
     const x = a[i];
     const y = b[i];
@@ -82,7 +83,7 @@ const headerDocumentLockUISlice = (set) => ({
             };
           },
           false,
-          "headerDocumentLockUI/register"
+          "headerDocumentLockUI/register",
         ),
 
       patchHeaderDocumentLockUI: (partial = {}) =>
@@ -96,7 +97,7 @@ const headerDocumentLockUISlice = (set) => ({
             },
           }),
           false,
-          "headerDocumentLockUI/patch"
+          "headerDocumentLockUI/patch",
         ),
 
       clearHeaderDocumentLockUI: () =>
@@ -110,7 +111,7 @@ const headerDocumentLockUISlice = (set) => ({
             },
           }),
           false,
-          "headerDocumentLockUI/clear"
+          "headerDocumentLockUI/clear",
         ),
     },
   },

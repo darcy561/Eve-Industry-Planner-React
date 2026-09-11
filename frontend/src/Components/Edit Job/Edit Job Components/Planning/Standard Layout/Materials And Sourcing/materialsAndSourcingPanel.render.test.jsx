@@ -35,8 +35,20 @@ const sourcing = {
   listingSelect: "sell",
   basisUsage: { overridden: 1, purchased: 0 },
   basisOptions: [
-    { id: "sell", label: "Sell Orders", total: 5400, delta: 0, isCurrent: true },
-    { id: "buy", label: "Buy Orders", total: 4950, delta: -450, isCurrent: false },
+    {
+      id: "sell",
+      label: "Sell Orders",
+      total: 5400,
+      delta: 0,
+      isCurrent: true,
+    },
+    {
+      id: "buy",
+      label: "Buy Orders",
+      total: 4950,
+      delta: -450,
+      isCurrent: false,
+    },
   ],
 };
 
@@ -76,15 +88,16 @@ vi.mock("./materialDrawer", () => ({
     <div data-testid={`drawer-${material.typeID}`}>
       {isOpen ? `open at ${marketSelect}` : "shut"}
       <span data-testid={`pricing-${material.typeID}`}>
-        {pricing ? `panel ${pricing.panelMarket}/${pricing.panelListing}` : "none"}
+        {pricing
+          ? `panel ${pricing.panelMarket}/${pricing.panelListing}`
+          : "none"}
       </span>
     </div>
   ),
 }));
 
-const { default: MaterialsAndSourcingPanel } = await import(
-  "./materialsAndSourcingPanel.jsx"
-);
+const { default: MaterialsAndSourcingPanel } =
+  await import("./materialsAndSourcingPanel.jsx");
 
 const state = {
   activeJob: {
@@ -104,7 +117,7 @@ function renderPanel(props = {}) {
         forgetSpeculativeChildJobs,
       }}
       {...props}
-    />
+    />,
   );
 }
 
@@ -123,14 +136,16 @@ describe("the Materials and Sourcing panel", () => {
   it("offers what building the cheaper rows would save", () => {
     renderPanel();
 
-    expect(screen.getByRole("alert")).toHaveTextContent(/Building 1 of 1 saves/);
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      /Building 1 of 1 saves/,
+    );
   });
 
   it("counts the list beneath it", () => {
     renderPanel();
 
     expect(
-      screen.getByText("1 material · 1 buildable · 0 linked")
+      screen.getByText("1 material · 1 buildable · 0 linked"),
     ).toBeInTheDocument();
   });
 
@@ -174,7 +189,7 @@ describe("the Materials and Sourcing panel", () => {
     renderPanel();
 
     expect(screen.getByTestId("pricing-34")).toHaveTextContent(
-      "panel jita/sell"
+      "panel jita/sell",
     );
   });
 
@@ -183,11 +198,11 @@ describe("the Materials and Sourcing panel", () => {
       <MaterialsAndSourcingPanel
         state={{ activeJob: {} }}
         actions={{
-        updateActiveJob: () => {},
-        markChildJobsForAddition,
-        forgetSpeculativeChildJobs,
-      }}
-      />
+          updateActiveJob: () => {},
+          markChildJobsForAddition,
+          forgetSpeculativeChildJobs,
+        }}
+      />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -231,7 +246,9 @@ describe("costing the buildable rows", () => {
   it("does not offer once every buildable row is costed", () => {
     renderPanel();
 
-    expect(screen.queryByRole("button", { name: "Cost them" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Cost them" }),
+    ).not.toBeInTheDocument();
   });
 
   it("builds nothing on its own", () => {

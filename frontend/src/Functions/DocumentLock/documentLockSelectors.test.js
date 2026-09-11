@@ -43,14 +43,14 @@ describe("documentLockSelectors", () => {
       [k2]: { readOnly: false },
     });
     expect(
-      filterUnlockedDocumentIDs(s, "job_documents", ["a", "b", "c"])
+      filterUnlockedDocumentIDs(s, "job_documents", ["a", "b", "c"]),
     ).toEqual(["b", "c"]);
   });
 
   it("filterUnlockedDocumentIDs returns empty for bad inputs", () => {
     expect(filterUnlockedDocumentIDs({}, "", ["a"])).toEqual([]);
-    expect(filterUnlockedDocumentIDs(stateWithScopes({}), "job_documents", null)).toEqual(
-      []
-    );
+    expect(
+      filterUnlockedDocumentIDs(stateWithScopes({}), "job_documents", null),
+    ).toEqual([]);
   });
 });

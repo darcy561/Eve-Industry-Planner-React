@@ -6,9 +6,10 @@ import { buildGroupSearchAfterEditClose } from "../../Functions/Groups/groupPage
 import { yieldEditJobDocumentLocksOnLeave } from "../../Functions/DocumentLock/yieldEditJobDocumentLocksOnLeave.js";
 
 export function CloseJobIcon({ backupJob }) {
-  const { setActiveJobID, updateOrAddJobsToJobArray } = useUsersStore.getState().jobData.actions;
-  const navigate = useNavigate({ from: '/editjob/$jobID' });
-  const search = useSearch({ from: '/editjob/$jobID' });
+  const { setActiveJobID, updateOrAddJobsToJobArray } =
+    useUsersStore.getState().jobData.actions;
+  const navigate = useNavigate({ from: "/editjob/$jobID" });
+  const search = useSearch({ from: "/editjob/$jobID" });
   const { jobID } = useParams({ from: "/editjob/$jobID" });
 
   async function onClick() {
@@ -24,7 +25,7 @@ export function CloseJobIcon({ backupJob }) {
         search: buildGroupSearchAfterEditClose(search, backupJob?.jobID),
       });
     } else {
-      navigate({ to: '/jobplanner' });
+      navigate({ to: "/jobplanner" });
     }
   }
 

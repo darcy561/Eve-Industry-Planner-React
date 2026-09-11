@@ -1,6 +1,7 @@
 import { eventEmitter } from "../utils/EventSystem";
 
-export const GROUP_TEMPLATES_APPLY_DIALOGUE_EVENT = "groupTemplatesApplyDialogue";
+export const GROUP_TEMPLATES_APPLY_DIALOGUE_EVENT =
+  "groupTemplatesApplyDialogue";
 export const GROUP_TEMPLATES_SAVE_DIALOGUE_EVENT = "groupTemplatesSaveDialogue";
 
 /**

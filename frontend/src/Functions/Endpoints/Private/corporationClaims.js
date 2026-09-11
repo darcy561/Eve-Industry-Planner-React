@@ -16,13 +16,19 @@ const CLAIMS_URL = "/api/v1/corporation-claims";
  */
 async function updateCorporationClaims(accessTokenArray) {
   // Validate input
-  if (!accessTokenArray || !Array.isArray(accessTokenArray) || accessTokenArray.length === 0) {
+  if (
+    !accessTokenArray ||
+    !Array.isArray(accessTokenArray) ||
+    accessTokenArray.length === 0
+  ) {
     console.error("Invalid tokens array provided");
     return false;
   }
 
   // Filter out empty tokens
-  const validTokens = accessTokenArray.filter(token => token && token.trim().length > 0);
+  const validTokens = accessTokenArray.filter(
+    (token) => token && token.trim().length > 0,
+  );
   if (validTokens.length === 0) {
     console.error("No valid tokens provided");
     return false;
@@ -40,13 +46,16 @@ async function updateCorporationClaims(accessTokenArray) {
           tokens: validTokens,
         }),
       },
-      { requestName: "updateCorporationClaims" }
+      { requestName: "updateCorporationClaims" },
     );
 
     if (!response.ok) {
       // Error responses are typically plain text from http.Error()
       const errorText = await response.text();
-      console.error(`Failed to request corporation claims: ${response.status} ${response.statusText}`, errorText);
+      console.error(
+        `Failed to request corporation claims: ${response.status} ${response.statusText}`,
+        errorText,
+      );
       return false;
     }
 
@@ -54,7 +63,9 @@ async function updateCorporationClaims(accessTokenArray) {
     return true;
   } catch (error) {
     if (error.message && error.message.includes("Authentication required")) {
-      console.error("Authentication required: No server access token available");
+      console.error(
+        "Authentication required: No server access token available",
+      );
     } else {
       console.error("Error requesting corporation claims:", error);
     }

@@ -3,8 +3,10 @@ import useUsersStore from "../../Zustand/usersStore.js";
 export function mergeHandoffFieldsFromExtendPayload(data) {
   const partial = {};
   const mySessionID = useUsersStore.getState()?.account?.sessionID;
-  if (typeof data.extendCount === "number") partial.extendSegmentCount = data.extendCount;
-  if (typeof data.waitlistLen === "number") partial.waitlistLen = data.waitlistLen;
+  if (typeof data.extendCount === "number")
+    partial.extendSegmentCount = data.extendCount;
+  if (typeof data.waitlistLen === "number")
+    partial.waitlistLen = data.waitlistLen;
   const offered =
     typeof data.probeTargetSessionID === "string"
       ? data.probeTargetSessionID

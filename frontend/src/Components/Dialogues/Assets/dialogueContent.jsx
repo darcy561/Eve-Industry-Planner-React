@@ -24,17 +24,17 @@ export default function AssetsDialogueContent({ state, actions }) {
   const characters = useUsersStore((store) => store.account.characters);
   const corporations = useUsersStore((store) => store.account.corporations);
   const defaultAssetLocation = useUsersStore(
-    (store) => store.applicationSettings.defaultStationIDForAssets
+    (store) => store.applicationSettings.defaultStationIDForAssets,
   );
 
   const { kind, id } = useMemo(
     () => readScopeValue(state.scope),
-    [state.scope]
+    [state.scope],
   );
   const isCorporation = kind === ASSET_OWNER.CORPORATION;
 
   const corporation = corporations.find(
-    (c) => Number(c.corporation_id) === Number(id)
+    (c) => Number(c.corporation_id) === Number(id),
   );
 
   const assets = useMemo(
@@ -42,14 +42,14 @@ export default function AssetsDialogueContent({ state, actions }) {
       scope: SCOPE_FOR_OWNER[kind] ?? ASSET_SCOPE.CHARACTERS,
       id: kind === ASSET_OWNER.CHARACTERS ? undefined : id,
     }),
-    [kind, id]
+    [kind, id],
   );
 
   // Container names are read with one character's token. For a corporation that must be a member;
   // for every character at once, any of them will do.
   const namesCharacter = isCorporation
     ? characters.find((c) => Number(c.corporation_id) === Number(id))
-    : characters.find((c) => c.CharacterHash === id) ?? characters[0];
+    : (characters.find((c) => c.CharacterHash === id) ?? characters[0]);
 
   const compartmentNames = useMemo(() => {
     if (!isCorporation) return undefined;
@@ -57,7 +57,7 @@ export default function AssetsDialogueContent({ state, actions }) {
       (corporation?.hangars ?? []).map(({ assetLocationRef, name }) => [
         assetLocationRef,
         name,
-      ])
+      ]),
     );
   }, [isCorporation, corporation]);
 
@@ -89,7 +89,7 @@ export default function AssetsDialogueContent({ state, actions }) {
   // The default asset location is what the player works from, so it leads.
   const ordered = useMemo(() => {
     const index = locations.findIndex(
-      ({ locationId }) => locationId === defaultAssetLocation
+      ({ locationId }) => locationId === defaultAssetLocation,
     );
     if (index < 1) return locations;
     return [

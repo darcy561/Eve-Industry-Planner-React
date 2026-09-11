@@ -18,9 +18,12 @@ vi.mock("../Helpers/finaliseCreatedChildJobs", () => ({
 
 const findMaterialJobInGroup = vi.fn(() => null);
 
-vi.mock("../../../../../../../Functions/Groups/findMaterialJobInGroup.js", () => ({
-  findMaterialJobInGroup: (...args) => findMaterialJobInGroup(...args),
-}));
+vi.mock(
+  "../../../../../../../Functions/Groups/findMaterialJobInGroup.js",
+  () => ({
+    findMaterialJobInGroup: (...args) => findMaterialJobInGroup(...args),
+  }),
+);
 
 const { useChildJobBuildActions } = await import("./useChildJobBuildActions");
 
@@ -48,7 +51,9 @@ const jobState = (overrides = {}) => ({
 });
 
 const wrapper = ({ children }) => (
-  <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
+  <QueryClientProvider client={new QueryClient()}>
+    {children}
+  </QueryClientProvider>
 );
 
 const setup = (state) => {
@@ -82,7 +87,9 @@ describe("buildSpeculativeChildJobs", () => {
 
     await act(() => result.current.buildSpeculativeChildJobs());
 
-    expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).toEqual([34, 35]);
+    expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).toEqual([
+      34, 35,
+    ]);
     expect(actions.recordSpeculativeChildJobs).toHaveBeenCalledWith([
       { jobID: "spec-34", itemID: 34 },
       { jobID: "spec-35", itemID: 35 },
@@ -95,7 +102,9 @@ describe("buildSpeculativeChildJobs", () => {
 
     await act(() => result.current.buildSpeculativeChildJobs());
 
-    expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).not.toContain(36);
+    expect(buildChildJobs.mock.calls[0][0].map((r) => r.itemID)).not.toContain(
+      36,
+    );
   });
 
   // A row with a real child job already has a real build cost; a guess beside it

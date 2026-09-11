@@ -33,11 +33,11 @@ function renderLocations(collection, typeId, extra = {}) {
   return render(
     <AssetLocations_AssetDialogueWindow
       locations={locations.filter(
-        ({ locationId }) => locationId === JITA_STATION_ID
+        ({ locationId }) => locationId === JITA_STATION_ID,
       )}
       fullItemList={fullItemList}
       {...extra}
-    />
+    />,
   );
 }
 
@@ -56,9 +56,7 @@ describe("where a material is held", () => {
       containerNames: new Map([[1002, { name: "Ore Crate" }]]),
     });
 
-    expect(
-      screen.getByText("Large Secure Container - Ore Crate")
-    ).toBeTruthy();
+    expect(screen.getByText("Large Secure Container - Ore Crate")).toBeTruthy();
   });
 
   it("names the hangar division a corporation's container sits in", () => {
@@ -66,9 +64,7 @@ describe("where a material is held", () => {
       compartmentNames: new Map([["CorpSAG3", "Reactions"]]),
     });
 
-    expect(
-      screen.getByText("Reactions - Large Secure Container")
-    ).toBeTruthy();
+    expect(screen.getByText("Reactions - Large Secure Container")).toBeTruthy();
     expect(screen.getByText("250")).toBeTruthy();
   });
 });

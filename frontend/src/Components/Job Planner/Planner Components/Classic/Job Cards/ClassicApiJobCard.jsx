@@ -8,7 +8,7 @@ function ClassiceAPIJobCard({ job, searchData }) {
   const { apiCardContent, jobCardText } = useApiJobCardSorter(job);
 
   const matchedItemName = searchData?.find(
-    (i) => i.blueprintID === job.blueprint_type_id
+    (i) => i.blueprintID === job.blueprint_type_id,
   )?.name;
 
   if (jobCardText.length === 0) return null;
@@ -20,8 +20,9 @@ function ClassiceAPIJobCard({ job, searchData }) {
           xs: 12,
           sm: 6,
           md: 4,
-          lg: 3
-        }}>
+          lg: 3,
+        }}
+      >
         <Paper
           elevation={3}
           square
@@ -31,9 +32,16 @@ function ClassiceAPIJobCard({ job, searchData }) {
             width: "100%",
           }}
         >
-          <Grid container sx={{ height: "100%", flexDirection: "column" }} size={12}>
+          <Grid
+            container
+            sx={{ height: "100%", flexDirection: "column" }}
+            size={12}
+          >
             <Grid container sx={{ height: "100%" }} size={12}>
-              <Grid sx={{ display: "flex", justifyContent: "center" }} size={12}>
+              <Grid
+                sx={{ display: "flex", justifyContent: "center" }}
+                size={12}
+              >
                 <Typography
                   align="center"
                   sx={{ typography: STANDARD_TEXT_FORMAT }}
@@ -47,17 +55,19 @@ function ClassiceAPIJobCard({ job, searchData }) {
                   marginLeft: { xs: "10px", md: "0px" },
                   marginRight: { xs: "20px", md: "30px" },
                 }}
-                size={12}>
+                size={12}
+              >
                 <Grid
                   container
                   size={{
                     xs: 2,
-                    sm: 3
+                    sm: 3,
                   }}
                   sx={{
                     justifyContent: "center",
-                    alignItems: "center"
-                  }}>
+                    alignItems: "center",
+                  }}
+                >
                   <Badge
                     overlap="circular"
                     anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -88,17 +98,25 @@ function ClassiceAPIJobCard({ job, searchData }) {
                   sx={{ paddingLeft: { xs: "0px", sm: "5px" } }}
                   size={{
                     xs: 10,
-                    sm: 9
-                  }}>
+                    sm: 9,
+                  }}
+                >
                   {apiCardContent}
                 </Grid>
               </Grid>
-              <Grid container sx={{ marginTop: "10px", alignItems: "flex-end" }} size={12}>
+              <Grid
+                container
+                sx={{ marginTop: "10px", alignItems: "flex-end" }}
+                size={12}
+              >
                 <Grid
                   sx={{
-                    backgroundColor: job.is_corporation ? blueGrey[400] : grey[500],
+                    backgroundColor: job.is_corporation
+                      ? blueGrey[400]
+                      : grey[500],
                   }}
-                  size={12}>
+                  size={12}
+                >
                   <Typography align="center" variant="body2" color="black">
                     <b>{jobCardText}</b>
                   </Typography>

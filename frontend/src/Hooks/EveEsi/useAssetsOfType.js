@@ -36,7 +36,7 @@ export default function useAssetsOfType({
 
   const byLocation = useMemo(
     () => (enabled ? assetsOfType(collection, typeId) : new Map()),
-    [enabled, collection, typeId]
+    [enabled, collection, typeId],
   );
 
   const locationIds = useMemo(() => [...byLocation.keys()], [byLocation]);
@@ -44,8 +44,9 @@ export default function useAssetsOfType({
     useLocationNames(locationIds);
 
   const locations = useMemo(
-    () => (enabled ? orderLocations(byLocation, locationNames) : EMPTY_LOCATIONS),
-    [enabled, byLocation, locationNames]
+    () =>
+      enabled ? orderLocations(byLocation, locationNames) : EMPTY_LOCATIONS,
+    [enabled, byLocation, locationNames],
   );
 
   return {

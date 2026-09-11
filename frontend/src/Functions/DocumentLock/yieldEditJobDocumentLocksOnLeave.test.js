@@ -19,7 +19,7 @@ describe("yieldEditJobDocumentLocksOnLeave", () => {
     await yieldEditJobDocumentLocksOnLeave({ jobID: "job-1", groupID: null });
     expect(yieldDocumentLockOnLeave).toHaveBeenCalledWith(
       "job_documents",
-      "job-1"
+      "job-1",
     );
   });
 

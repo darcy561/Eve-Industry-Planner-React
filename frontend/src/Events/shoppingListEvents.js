@@ -25,4 +25,4 @@ export function hideShoppingList() {
     isOpen: false,
     jobIDs: [],
   });
-} 
+}

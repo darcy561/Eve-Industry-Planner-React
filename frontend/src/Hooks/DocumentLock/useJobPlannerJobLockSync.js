@@ -18,7 +18,7 @@ export {
 export function useJobPlannerJobLockSync() {
   const getJobIDs = useCallback(
     () => useUsersStore.getState().jobData.jobArray.map((j) => j.jobID),
-    []
+    [],
   );
   const getGroupIDs = useCallback(() => [], []);
   useLockScopeSync({

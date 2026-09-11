@@ -1,7 +1,10 @@
 import { useQueries } from "@tanstack/react-query";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useCallback } from "react";
-import { characterSkillsQuery, characterSkillsQueryKey } from "../../React Query/Character/skills";
+import {
+  characterSkillsQuery,
+  characterSkillsQueryKey,
+} from "../../React Query/Character/skills";
 import {
   isQueryObserverResultLoading,
   isQueryStateLoading,
@@ -12,7 +15,7 @@ import {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {boolean} True if any query is loading
- * 
+ *
  * @private
  */
 function checkLoadingState(results) {
@@ -24,7 +27,7 @@ function checkLoadingState(results) {
  *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Error|null} First error found, or null if none
- * 
+ *
  * @private
  */
 function findFirstError(results) {
@@ -36,7 +39,7 @@ function findFirstError(results) {
  *
  * @param {Error} error - Error object
  * @returns {Object} Error state object
- * 
+ *
  * @private
  */
 function createErrorObject(error) {
@@ -52,7 +55,7 @@ function createErrorObject(error) {
  * Utility function to create loading object for character skills queries.
  *
  * @returns {Object} Loading state object
- * 
+ *
  * @private
  */
 function createLoadingObject() {
@@ -69,7 +72,7 @@ function createLoadingObject() {
  *
  * @param {Object} data - Object with character hashes as keys and skills objects as values
  * @returns {Object} Success state object
- * 
+ *
  * @private
  */
 function createSuccessObject(data) {
@@ -87,19 +90,19 @@ function createSuccessObject(data) {
  * @param {Array<Object>} results - Array of query result objects
  * @param {Array<Object>} characters - Array of user objects with CharacterHash
  * @returns {Object} Object with character hashes as keys and skills objects as values
- * 
+ *
  * @private
  */
 function mergeSkillsByCharacter(results, characters) {
   const skillsByCharacter = {};
-  
+
   results.forEach((result, index) => {
     const character = characters[index];
     if (character && result.data) {
       skillsByCharacter[character.CharacterHash] = result.data;
     }
   });
-  
+
   return skillsByCharacter;
 }
 
@@ -135,7 +138,7 @@ export function getCachedCharacterSkills(queryClient) {
 
   // Check loading state
   const isLoading = queryStates.some(({ queryState }) =>
-    isQueryStateLoading(queryState)
+    isQueryStateLoading(queryState),
   );
 
   if (isLoading) {
@@ -143,7 +146,8 @@ export function getCachedCharacterSkills(queryClient) {
   }
 
   // Check for errors
-  const error = queryStates.find(({ queryState }) => queryState?.error)?.queryState?.error;
+  const error = queryStates.find(({ queryState }) => queryState?.error)
+    ?.queryState?.error;
 
   if (error) {
     return createErrorObject(error);
@@ -179,26 +183,31 @@ export function getCachedCharacterSkills(queryClient) {
 export default function useGetAllCharacterSkills() {
   const characters = useUsersStore((state) => state.account.characters);
 
-  const combineFunction = useCallback((results) => {
-    const isLoading = checkLoadingState(results);
-    const error = findFirstError(results);
-    const skillsByCharacter = mergeSkillsByCharacter(results, characters);
+  const combineFunction = useCallback(
+    (results) => {
+      const isLoading = checkLoadingState(results);
+      const error = findFirstError(results);
+      const skillsByCharacter = mergeSkillsByCharacter(results, characters);
 
-    if (isLoading) {
-      return createLoadingObject();
-    }
+      if (isLoading) {
+        return createLoadingObject();
+      }
 
-    if (error) {
-      return createErrorObject(error);
-    }
+      if (error) {
+        return createErrorObject(error);
+      }
 
-    return createSuccessObject(skillsByCharacter);
-  }, [characters]);
+      return createSuccessObject(skillsByCharacter);
+    },
+    [characters],
+  );
 
   const result = useQueries({
-    queries: characters.map(({ CharacterHash }) => characterSkillsQuery(CharacterHash)),
+    queries: characters.map(({ CharacterHash }) =>
+      characterSkillsQuery(CharacterHash),
+    ),
     combine: combineFunction,
   });
 
   return result;
-} 
+}

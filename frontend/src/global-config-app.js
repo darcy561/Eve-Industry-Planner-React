@@ -26,7 +26,8 @@ const GLOBAL_CONFIG = Object.freeze({
    *
    * @type {string}
    */
-  DEFAULT_EVE_FORUM_THREAD_LINK: "https://forums.eveonline.com/t/eve-industry-planner-industry-job-management-application-v0-8-0-resource-reprocessing",
+  DEFAULT_EVE_FORUM_THREAD_LINK:
+    "https://forums.eveonline.com/t/eve-industry-planner-industry-job-management-application-v0-8-0-resource-reprocessing",
 
   /**
    * In-game channel name for support.

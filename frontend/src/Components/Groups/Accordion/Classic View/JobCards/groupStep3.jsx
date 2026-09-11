@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { Typography, Box } from "@mui/material";
 import { STANDARD_TEXT_FORMAT } from "../../../../../Context/defaultValues";
-import { formatNumberForLocale, formatTimeRemaining } from "../../../../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  formatTimeRemaining,
+} from "../../../../../Functions/Helper/numberParser";
 
 export default function GroupStep3JobCard({ job }) {
   let timeRemaining = useMemo(() => {
@@ -28,7 +31,13 @@ export default function GroupStep3JobCard({ job }) {
             ESI Jobs Linked
           </Typography>
         </Box>
-        <Box sx={{ flex: "0 0 16.666%", textAlign: "right", paddingRight: { xs: 2, md: 3 } }}>
+        <Box
+          sx={{
+            flex: "0 0 16.666%",
+            textAlign: "right",
+            paddingRight: { xs: 2, md: 3 },
+          }}
+        >
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             {formatNumberForLocale(job.esiJobIDs.size, { max: 0 })}/
             {totalJobCount}
@@ -50,7 +59,13 @@ export default function GroupStep3JobCard({ job }) {
                 Ends In:
               </Typography>
             </Box>
-            <Box sx={{ flex: "0 0 66.666%", textAlign: "right", paddingRight: { xs: 2, md: 3 } }}>
+            <Box
+              sx={{
+                flex: "0 0 66.666%",
+                textAlign: "right",
+                paddingRight: { xs: 2, md: 3 },
+              }}
+            >
               <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                 {timeRemaining}
               </Typography>

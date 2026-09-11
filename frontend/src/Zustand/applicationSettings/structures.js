@@ -15,7 +15,7 @@ export const structureActions = (set, get) => ({
 
     const state = get();
     const jobType = Object.entries(customStructureLocationMap).find(
-      ([, value]) => structureID.includes(value)
+      ([, value]) => structureID.includes(value),
     )?.[0];
 
     if (!jobType) {
@@ -24,8 +24,7 @@ export const structureActions = (set, get) => ({
     }
 
     const key = customStructureMap[jobType];
-    const storageLocation =
-      state.applicationSettings.customStructures?.[key];
+    const storageLocation = state.applicationSettings.customStructures?.[key];
 
     if (!storageLocation) {
       console.error("No Matching Storage Location");
@@ -33,7 +32,7 @@ export const structureActions = (set, get) => ({
     }
 
     const foundStructure = storageLocation.find(
-      (obj) => obj.id === structureID
+      (obj) => obj.id === structureID,
     );
 
     return foundStructure ?? null;
@@ -47,10 +46,7 @@ export const structureActions = (set, get) => ({
     const structureLocation = state.applicationSettings.customStructures?.[key];
 
     if (!Array.isArray(structureLocation)) {
-      console.error(
-        "Structure location is not an array:",
-        structureLocation
-      );
+      console.error("Structure location is not an array:", structureLocation);
       return null;
     }
 
@@ -91,7 +87,7 @@ export const structureActions = (set, get) => ({
         };
       },
       false,
-      "addCustomStructure"
+      "addCustomStructure",
     );
   },
 
@@ -102,7 +98,7 @@ export const structureActions = (set, get) => ({
     }
 
     const jobType = Object.entries(customStructureLocationMap).find(
-      ([, value]) => structureID.includes(value)
+      ([, value]) => structureID.includes(value),
     )?.[0];
 
     if (!jobType) {
@@ -113,7 +109,8 @@ export const structureActions = (set, get) => ({
     set(
       (state) => {
         const key = customStructureMap[jobType];
-        const storageLocation = state.applicationSettings.customStructures?.[key];
+        const storageLocation =
+          state.applicationSettings.customStructures?.[key];
 
         if (!storageLocation) {
           console.error("No Matching Storage Location");
@@ -121,7 +118,7 @@ export const structureActions = (set, get) => ({
         }
 
         const matchingStructure = storageLocation.find(
-          (obj) => obj.id === structureID
+          (obj) => obj.id === structureID,
         );
 
         if (!matchingStructure) {
@@ -148,7 +145,7 @@ export const structureActions = (set, get) => ({
         };
       },
       false,
-      "setDefaultCustomStructure"
+      "setDefaultCustomStructure",
     );
   },
 
@@ -158,7 +155,7 @@ export const structureActions = (set, get) => ({
       return;
     }
     const jobType = Object.entries(customStructureLocationMap).find(
-      ([, value]) => structureID.includes(value)
+      ([, value]) => structureID.includes(value),
     )?.[0];
 
     if (!jobType) {
@@ -178,7 +175,7 @@ export const structureActions = (set, get) => ({
         }
 
         const matchingStructure = storageLocation.find(
-          (obj) => obj.id === structureID
+          (obj) => obj.id === structureID,
         );
 
         if (!matchingStructure) {
@@ -187,7 +184,7 @@ export const structureActions = (set, get) => ({
         }
 
         const updatedStorage = storageLocation.filter(
-          (obj) => obj.id !== structureID
+          (obj) => obj.id !== structureID,
         );
 
         if (matchingStructure.default && updatedStorage.length > 0) {
@@ -206,7 +203,7 @@ export const structureActions = (set, get) => ({
         };
       },
       false,
-      "deleteCustomStructure"
+      "deleteCustomStructure",
     );
   },
 });

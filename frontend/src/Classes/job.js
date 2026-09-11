@@ -60,7 +60,10 @@ class Job {
     // stored name left every new job at null, and the invention costs — offered
     // for T2 and T3 items, which is what the meta group says — never appeared.
     this.metaLevel =
-      itemJson?.metaLevel ?? itemJson?.metaGroupID ?? itemJson?.metaGroup ?? null;
+      itemJson?.metaLevel ??
+      itemJson?.metaGroupID ??
+      itemJson?.metaGroup ??
+      null;
     this.jobType = itemJson.jobType;
     this.name = itemJson.name;
     this.jobID = itemJson?.jobID || `job-${crypto.randomUUID()}`;
@@ -111,8 +114,7 @@ class Job {
         // which are where it went. Null on almost every job: absent means the
         // account's defaults apply.
         plan: {
-          sellerCharacter:
-            itemJson?.build?.sale?.plan?.sellerCharacter ?? null,
+          sellerCharacter: itemJson?.build?.sale?.plan?.sellerCharacter ?? null,
           saleLocationID: itemJson?.build?.sale?.plan?.saleLocationID ?? null,
         },
       },

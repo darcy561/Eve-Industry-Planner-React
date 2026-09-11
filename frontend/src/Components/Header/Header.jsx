@@ -108,7 +108,6 @@ export function Header({ trailing }) {
         </Box>
 
         {isLoggedIn ? (
-
           <UserIcon />
         ) : (
           <Tooltip title="Login with EVE SSO" arrow>

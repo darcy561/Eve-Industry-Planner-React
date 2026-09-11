@@ -1,10 +1,10 @@
 /**
  * User Preferences Management for EVE Industry Planner.
- * 
+ *
  * Handles all user preference settings including toggles, updates, and
  * management of various application settings like cloud accounts, tutorials,
  * market preferences, job settings, and reprocessing configurations.
- * 
+ *
  * @fileoverview User preferences and settings management actions
  * @author EVE Industry Planner Team
  */
@@ -17,10 +17,10 @@ import {
 
 /**
  * User preferences management actions for application settings.
- * 
+ *
  * Provides methods for managing user preferences including toggle operations,
  * update methods, and preference-specific functionality.
- * 
+ *
  * @param {Function} set - Zustand set function for updating state
  * @param {Function} get - Zustand get function for accessing current state
  * @returns {Object} User preferences management actions
@@ -28,9 +28,9 @@ import {
 export const preferencesActions = (set, get) => ({
   /**
    * Toggles the cloud accounts setting.
-   * 
+   *
    * Switches between enabled and disabled states for cloud account storage.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.toggleCloudAccounts();
    */
@@ -44,7 +44,7 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "toggleCloudAccounts"
+      "toggleCloudAccounts",
     ),
 
   /**
@@ -65,14 +65,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "setCloudAccountsEnabled"
+      "setCloudAccountsEnabled",
     ),
 
   /**
    * Toggles the hide tutorials setting.
-   * 
+   *
    * Switches between showing and hiding tutorial elements.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.toggleHideTutorials();
    */
@@ -86,14 +86,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "toggleHideTutorials"
+      "toggleHideTutorials",
     ),
 
   /**
    * Toggles the enable compact view setting.
-   * 
+   *
    * Switches between compact and expanded view modes for the interface.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.toggleEnableCompactView();
    */
@@ -108,7 +108,7 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "toggleEnableCompactView"
+      "toggleEnableCompactView",
     ),
 
   /**
@@ -126,14 +126,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "setEnableCompactLayoutView"
+      "setEnableCompactLayoutView",
     ),
 
   /**
    * Updates the ESI job tab setting.
-   * 
+   *
    * @param {string|null} newValue - New ESI job tab value
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateEsiJobTab('active');
    * store.getState().applicationSettings.actions.updateEsiJobTab(null);
@@ -148,7 +148,7 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateEsiJobTab"
+      "updateEsiJobTab",
     ),
 
   /**
@@ -170,14 +170,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "setJobStatusLabel"
+      "setJobStatusLabel",
     ),
 
   /**
    * Updates the default material efficiency value.
-   * 
+   *
    * @param {number} newValue - New default ME value (typically 0-10)
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateDefaultMaterialEfficiencyValue(5);
    */
@@ -191,14 +191,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateDefaultMaterialEfficiencyValue"
+      "updateDefaultMaterialEfficiencyValue",
     ),
 
   /**
    * Updates the default market location.
-   * 
+   *
    * @param {string} newValue - New default market location (e.g., 'jita', 'amarr')
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateDefaultMarket('jita');
    */
@@ -212,14 +212,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateDefaultMarket"
+      "updateDefaultMarket",
     ),
 
   /**
    * Updates the default order type.
-   * 
+   *
    * @param {string} newValue - New default order type ('buy' or 'sell')
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateDefaultOrders('sell');
    */
@@ -233,14 +233,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateDefaultOrders"
+      "updateDefaultOrders",
     ),
 
   /**
    * Toggles the hide complete materials setting.
-   * 
+   *
    * Switches between showing and hiding materials that are already complete.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.toggleHideCompleteMaterials();
    */
@@ -255,14 +255,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "toggleHideCompleteMaterials"
+      "toggleHideCompleteMaterials",
     ),
 
   /**
    * Updates the default asset location station ID.
-   * 
+   *
    * @param {number} newValue - New default asset location station ID
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateDefaultAssetLocation(60003760);
    */
@@ -276,14 +276,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateDefaultAssetLocation"
+      "updateDefaultAssetLocation",
     ),
 
   /**
    * Updates the citadel broker's fee percentage.
-   * 
+   *
    * @param {number} newValue - New citadel broker's fee percentage (0-100)
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateCitadelBrokersFee(2.5);
    */
@@ -297,17 +297,17 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateCitadelBrokersFee"
+      "updateCitadelBrokersFee",
     ),
 
   /**
    * Updates exempt type IDs (legacy method with bug).
-   * 
+   *
    * ⚠️ **Warning**: This method has a bug where it adds the inputValue twice.
    * Use `addExemptTypeID` instead for proper functionality.
-   * 
+   *
    * @param {number|string} inputValue - Type ID to add to exempt list
-   * 
+   *
    * @example
    * // This method has a bug - use addExemptTypeID instead
    * store.getState().applicationSettings.actions.updateExemptTypeIDs(34);
@@ -319,21 +319,21 @@ export const preferencesActions = (set, get) => ({
         applicationSettings: {
           ...state.applicationSettings,
           exemptTypeIDs: new Set(
-            state.applicationSettings.exemptTypeIDs || []
+            state.applicationSettings.exemptTypeIDs || [],
           ).add(inputValue),
           inputValue,
         },
       }),
       false,
-      "updateExemptTypeIDs"
+      "updateExemptTypeIDs",
     ),
 
   /**
    * Checks if a type ID is exempt from certain calculations.
-   * 
+   *
    * @param {number|string} inputTypeID - Type ID to check
    * @returns {boolean} True if the type ID is exempt, false otherwise
-   * 
+   *
    * @example
    * const isExempt = store.getState().applicationSettings.actions.checkTypeIDisExempt(34);
    * if (isExempt) console.log('Type ID 34 is exempt from calculations');
@@ -345,12 +345,12 @@ export const preferencesActions = (set, get) => ({
 
   /**
    * Adds type ID(s) to the exempt list.
-   * 
+   *
    * Adds one or more type IDs to the exempt type IDs set. Handles single values,
    * arrays, and Sets. Prevents duplicates automatically.
-   * 
+   *
    * @param {number|string|Array|Set} inputValue - Type ID(s) to add to exempt list
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.addExemptTypeID(34);
    * store.getState().applicationSettings.actions.addExemptTypeID([34, 35, 36]);
@@ -372,18 +372,18 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "addExemptTypeID"
+      "addExemptTypeID",
     );
   },
 
   /**
    * Removes type ID(s) from the exempt list.
-   * 
+   *
    * Removes one or more type IDs from the exempt type IDs set. Handles single values,
    * arrays, and Sets.
-   * 
+   *
    * @param {number|string|Array|Set} inputValue - Type ID(s) to remove from exempt list
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.removeExemptTypeID(34);
    * store.getState().applicationSettings.actions.removeExemptTypeID([34, 35, 36]);
@@ -400,21 +400,21 @@ export const preferencesActions = (set, get) => ({
           ...state.applicationSettings,
           exemptTypeIDs: new Set(
             [...(state.applicationSettings.exemptTypeIDs || [])].filter(
-              (i) => !inputAsArray.includes(i)
-            )
+              (i) => !inputAsArray.includes(i),
+            ),
           ),
         },
       }),
       false,
-      "removeExemptTypeID"
+      "removeExemptTypeID",
     );
   },
 
   /**
    * Toggles the automatic job recalculation setting.
-   * 
+   *
    * Switches between enabled and disabled states for automatic job recalculation.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.toggleAutomaticJobRecalculation();
    */
@@ -429,14 +429,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "toggleAutomaticJobRecalculation"
+      "toggleAutomaticJobRecalculation",
     ),
 
   /**
    * Toggles the ignore items without blueprints setting.
-   * 
+   *
    * Switches between enabled and disabled states for ignoring items without blueprints.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.toggleIgnoreItemsWithoutBlueprints();
    */
@@ -451,7 +451,7 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "toggleIgnoreItemsWithoutBlueprints"
+      "toggleIgnoreItemsWithoutBlueprints",
     ),
 
   /**
@@ -469,7 +469,7 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "setDefaultMarketCharacter"
+      "setDefaultMarketCharacter",
     ),
 
   /**
@@ -490,17 +490,17 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "setDefaultReprocessingCharacter"
+      "setDefaultReprocessingCharacter",
     ),
 
   /**
    * Gets the default reprocessing character from the users array.
-   * 
+   *
    * Finds and returns the user object that matches the default reprocessing character hash.
-   * 
+   *
    * @param {Array} users - Array of user objects to search in
    * @returns {Object|null} User object or null if not found
-   * 
+   *
    * @example
    * const defaultCharacter = store.getState().applicationSettings.actions.getDefaultReprocessingCharacter(characters);
    * if (defaultCharacter) console.log(defaultCharacter.CharacterName);
@@ -511,20 +511,20 @@ export const preferencesActions = (set, get) => ({
     return users.find(
       (character) =>
         character.CharacterHash ===
-          state.reprocessingSettings.defaultReprocessingCharacter
+        state.reprocessingSettings.defaultReprocessingCharacter,
     );
   },
 
   /**
    * Updates reprocessing calculation settings.
-   * 
+   *
    * Merges new settings with existing reprocessing calculation settings.
-   * 
+   *
    * @param {Object} newSettings - New reprocessing calculation settings to merge
    * @param {number} [newSettings.efficiency] - Reprocessing efficiency percentage
    * @param {number} [newSettings.refineYield] - Refine yield percentage
    * @param {boolean} [newSettings.useStationBonuses] - Whether to use station bonuses
-   * 
+   *
    * @example
    * const newSettings = {
    *   efficiency: 0.5,
@@ -546,14 +546,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateReprocessingCalculationSettings"
+      "updateReprocessingCalculationSettings",
     ),
 
   /**
    * Updates the locale setting.
-   * 
+   *
    * @param {string} newLocale - New locale code (e.g., 'en', 'fr', 'de')
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.updateLocale('fr');
    */
@@ -567,14 +567,14 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "updateLocale"
+      "updateLocale",
     ),
 
   /**
    * Gets the current locale setting.
-   * 
+   *
    * @returns {string} Current locale code
-   * 
+   *
    * @example
    * const currentLocale = store.getState().applicationSettings.actions.getCurrentLocale();
    * console.log('Current locale:', currentLocale);
@@ -586,9 +586,9 @@ export const preferencesActions = (set, get) => ({
 
   /**
    * Resets the locale to the detected user locale.
-   * 
+   *
    * Resets the locale setting to the automatically detected user locale.
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.resetLocale();
    */
@@ -602,6 +602,6 @@ export const preferencesActions = (set, get) => ({
         },
       }),
       false,
-      "resetLocale"
+      "resetLocale",
     ),
 });

@@ -41,12 +41,14 @@ async function fetchWithCustomHeaders(URL, options = {}, config = {}) {
   applyEsiCompatibilityHeader(URL, headers);
 
   // Check if this is an ESI endpoint
-  const isESIEndpoint = URL.includes('esi.evetech.net') || URL.includes('esi.eveonline.com');
+  const isESIEndpoint =
+    URL.includes("esi.evetech.net") || URL.includes("esi.eveonline.com");
 
   if (isESIEndpoint) {
     // Use group from config if provided, otherwise will be discovered from headers
     // Check if rate limiting is disabled
-    const isIndividuallyDisabled = config.disabled === true || options.disabled === true;
+    const isIndividuallyDisabled =
+      config.disabled === true || options.disabled === true;
 
     if (isIndividuallyDisabled) {
       // Use regular fetch when rate limiting is disabled
@@ -59,13 +61,13 @@ async function fetchWithCustomHeaders(URL, options = {}, config = {}) {
     // Use ESI rate limiting for EVE Online endpoints
     const enhancedOptions = {
       ...options,
-      headers
+      headers,
     };
 
     // Enhanced config with characterHash support
     const enhancedConfig = {
       ...config,
-      characterHash: config.characterHash || options.characterHash
+      characterHash: config.characterHash || options.characterHash,
     };
 
     // Use queue manager for better request management
@@ -95,7 +97,7 @@ async function fetchESIDirect(URL, options = {}, config = {}) {
   applyEsiCompatibilityHeader(URL, headers);
   const enhancedOptions = {
     ...options,
-    headers
+    headers,
   };
 
   return esiFetchWrapper.fetch(URL, enhancedOptions, config);
@@ -113,7 +115,7 @@ async function fetchESIQueued(URL, options = {}, config = {}) {
   applyEsiCompatibilityHeader(URL, headers);
   const enhancedOptions = {
     ...options,
-    headers
+    headers,
   };
 
   return esiQueueManager.addRequest(URL, enhancedOptions, config);
@@ -160,5 +162,5 @@ export {
   getESIRateLimitStatuses,
   getESIRateLimitStatus,
   getESIQueueStatuses,
-  clearESILimits
+  clearESILimits,
 };

@@ -37,14 +37,15 @@ async function getEveOauthToken(authCode, accountType = false) {
           account_type: accountType,
         }),
       },
-      { requestName: "exchangeEsiSsoCode" }
+      { requestName: "exchangeEsiSsoCode" },
     );
 
     // Handle client errors (4xx)
     if (response.status >= 400 && response.status < 500) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.error || `EVE SSO Error: ${response.status} ${response.statusText}`
+        errorData.error ||
+          `EVE SSO Error: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -52,13 +53,15 @@ async function getEveOauthToken(authCode, accountType = false) {
     if (response.status >= 500) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.error || `EVE SSO Error: Server error (${response.status})`
+        errorData.error || `EVE SSO Error: Server error (${response.status})`,
       );
     }
 
     // Handle successful responses (2xx)
     if (!response.ok) {
-      throw new Error(`EVE SSO Error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `EVE SSO Error: ${response.status} ${response.statusText}`,
+      );
     }
 
     const tokenJSON = await response.json();

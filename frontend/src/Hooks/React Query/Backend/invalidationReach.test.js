@@ -11,11 +11,15 @@ vi.mock("../../../global-config-app", () => ({
   default: { DEFAULT_ARCHIVE_REFRESH_PERIOD: 2 },
 }));
 vi.mock("../../../Functions/Endpoints/Private/statisticsTimeline.js", () => ({
-  getAccountTimeline: vi.fn(), getAccountTimelineItems: vi.fn(),
+  getAccountTimeline: vi.fn(),
+  getAccountTimelineItems: vi.fn(),
 }));
-vi.mock("../../../Functions/Endpoints/Private/statisticsTotals.js", () => ({ default: vi.fn() }));
+vi.mock("../../../Functions/Endpoints/Private/statisticsTotals.js", () => ({
+  default: vi.fn(),
+}));
 
-const { timelineQueryKey, timelineItemsQueryKey } = await import("./statisticsTimeline.js");
+const { timelineQueryKey, timelineItemsQueryKey } =
+  await import("./statisticsTimeline.js");
 const { invalidateArchiveQueries, archivedJobsQueryKey, archivedJobQueryKey } =
   await import("./archivedJobsList.js");
 const { totalsQueryKey } = await import("./statisticsTotals.js");
@@ -44,7 +48,9 @@ describe("archive invalidation", () => {
       totalsQueryKey(34),
       archivedJobsQueryKey(),
     ]) {
-      expect(qc.getQueryState(key)?.isInvalidated, JSON.stringify(key)).toBe(true);
+      expect(qc.getQueryState(key)?.isInvalidated, JSON.stringify(key)).toBe(
+        true,
+      );
     }
   });
 
@@ -68,7 +74,9 @@ describe("archive invalidation", () => {
     invalidateArchiveQueries(qc);
 
     for (const key of [own, other, ownTotals, otherTotals]) {
-      expect(qc.getQueryState(key)?.isInvalidated, JSON.stringify(key)).toBe(true);
+      expect(qc.getQueryState(key)?.isInvalidated, JSON.stringify(key)).toBe(
+        true,
+      );
     }
   });
 });
@@ -89,7 +97,11 @@ describe("planner-scoped query keys", () => {
       qc.removeQueries({ queryKey: root });
     }
 
-    for (const key of [archivedJobsQueryKey(), timelineQueryKey(), totalsQueryKey(34)]) {
+    for (const key of [
+      archivedJobsQueryKey(),
+      timelineQueryKey(),
+      totalsQueryKey(34),
+    ]) {
       expect(qc.getQueryData(key), JSON.stringify(key)).toBeUndefined();
     }
   });

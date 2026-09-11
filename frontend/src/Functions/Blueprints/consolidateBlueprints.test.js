@@ -13,7 +13,7 @@ const rowsFor = (raw) => buildBlueprintRows(raw, blueprintSearchIndex).rows;
 
 const copies = rowsFor(identicalCopyRows);
 const rifters = rowsFor(characterBlueprintRows).filter(
-  (row) => row.typeId === RIFTER_BLUEPRINT_TYPE_ID
+  (row) => row.typeId === RIFTER_BLUEPRINT_TYPE_ID,
 );
 
 const activeJobOn = (itemId) => [
@@ -40,7 +40,7 @@ describe("the cards a blueprint panel shows", () => {
 
     expect(stacks).toHaveLength(2);
     expect(stacks.map((stack) => stack.blueprint.typeId).sort()).toEqual(
-      [CAPACITOR_BLUEPRINT_TYPE_ID, RIFTER_BLUEPRINT_TYPE_ID].sort()
+      [CAPACITOR_BLUEPRINT_TYPE_ID, RIFTER_BLUEPRINT_TYPE_ID].sort(),
     );
   });
 
@@ -92,7 +92,7 @@ describe("the cards a blueprint panel shows", () => {
   // those can take its own job, so counting rows would undercount the shelf.
   it("counts a market stack by the blueprints in it, not the rows", () => {
     const [stack] = consolidateBlueprints(
-      rowsFor(characterBlueprintRows).filter((row) => row.quantity === 5)
+      rowsFor(characterBlueprintRows).filter((row) => row.quantity === 5),
     );
 
     expect(stack.blueprints).toHaveLength(1);

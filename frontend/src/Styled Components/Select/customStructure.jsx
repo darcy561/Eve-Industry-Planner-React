@@ -6,15 +6,15 @@ import useUsersStore from "../../Zustand/usersStore";
  * A select component for choosing custom structures based on job type.
  * Displays structures available for the specified job type from user settings.
  * Includes a "Clear" option when a value is selected.
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.value - Currently selected structure ID
  * @param {number} props.jobType - Job type to determine which structures to show
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the structure ID.
  * @returns {JSX.Element} Custom structure select component
- * 
+ *
  * @example
- * <CustomStructureSelect 
+ * <CustomStructureSelect
  *   value={selectedStructureId}
  *   jobType={1}
  *   onChange={(structureId) => setStructure(structureId)}
@@ -23,10 +23,11 @@ import useUsersStore from "../../Zustand/usersStore";
 function CustomStructureSelect({ value, jobType, onChange }) {
   const structures = useUsersStore(
     (state) =>
-      state.applicationSettings.customStructures?.[customStructureMap[jobType]] ??
-      []
+      state.applicationSettings.customStructures?.[
+        customStructureMap[jobType]
+      ] ?? [],
   );
-  
+
   const hasSelectedValue = Boolean(value);
   const validValue = structures.some((structure) => structure.id === value)
     ? value
@@ -57,7 +58,7 @@ function CustomStructureSelect({ value, jobType, onChange }) {
             onChange(e.target.value);
           } else {
             console.error(
-              "Custom Structure Select is missing an onChange Function"
+              "Custom Structure Select is missing an onChange Function",
             );
           }
         }}

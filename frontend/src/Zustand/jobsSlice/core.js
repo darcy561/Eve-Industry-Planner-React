@@ -69,7 +69,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "resetJobDataStore"
+      "resetJobDataStore",
     );
   },
 
@@ -86,7 +86,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "clearJobArray"
+      "clearJobArray",
     );
   },
 
@@ -108,7 +108,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "replaceJobArray"
+      "replaceJobArray",
     );
   },
 
@@ -131,7 +131,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "addRetrievedJobsToJobArray"
+      "addRetrievedJobsToJobArray",
     );
   },
 
@@ -155,7 +155,7 @@ export const coreActions = (set, get) => ({
         },
       }),
       false,
-      "addJobsToJobArray"
+      "addJobsToJobArray",
     );
   },
 
@@ -182,7 +182,7 @@ export const coreActions = (set, get) => ({
         // Remove all jobs that match incoming job IDs (removes duplicates)
         // Keep only jobs that don't match any incoming job IDs
         const jobsToKeep = state.jobData.jobArray.filter(
-          (job) => !incomingJobIDs.has(job.jobID)
+          (job) => !incomingJobIDs.has(job.jobID),
         );
 
         // Add all incoming jobs (replaces any duplicates)
@@ -195,7 +195,7 @@ export const coreActions = (set, get) => ({
         };
       },
       false,
-      "updateOrAddJobsToJobArray"
+      "updateOrAddJobsToJobArray",
     );
   },
 
@@ -214,14 +214,14 @@ export const coreActions = (set, get) => ({
     set(
       (state) => {
         const existingIDs = new Set(
-          state.jobData.jobArray.map(({ jobID }) => jobID)
+          state.jobData.jobArray.map(({ jobID }) => jobID),
         );
         const mergedJobs = [
           ...state.jobData.jobArray,
           ...inputJobs.filter(({ jobID }) => !existingIDs.has(jobID)),
         ];
         const filteredJobs = mergedJobs.filter(
-          (job) => !jobIDsToDelete.includes(job.jobID)
+          (job) => !jobIDsToDelete.includes(job.jobID),
         );
 
         return {
@@ -233,7 +233,7 @@ export const coreActions = (set, get) => ({
         };
       },
       false,
-      "mergeAndRemoveJobsFromJobArray"
+      "mergeAndRemoveJobsFromJobArray",
     );
   },
 
@@ -248,7 +248,9 @@ export const coreActions = (set, get) => ({
 
     set(
       (state) => {
-        const next = state.jobData.jobArray.filter((i) => !removeSet.has(i.jobID));
+        const next = state.jobData.jobArray.filter(
+          (i) => !removeSet.has(i.jobID),
+        );
         if (next.length === state.jobData.jobArray.length) return state;
         return {
           ...state,
@@ -259,7 +261,7 @@ export const coreActions = (set, get) => ({
         };
       },
       false,
-      "removeJobsFromJobArray"
+      "removeJobsFromJobArray",
     );
   },
 
@@ -369,6 +371,9 @@ export const coreActions = (set, get) => ({
   resolveJobObjectsForMixedSelection: async (inputJobIDs) => {
     const { groupIDs, jobIDs } = separateGroupAndJobIDs(inputJobIDs);
     const groupJobIDs = retrieveJobIDsFromGroupObjects(groupIDs);
-    return get().jobData.actions.jobsFromIdsOrObjects([...jobIDs, ...groupJobIDs]);
+    return get().jobData.actions.jobsFromIdsOrObjects([
+      ...jobIDs,
+      ...groupJobIDs,
+    ]);
   },
 });

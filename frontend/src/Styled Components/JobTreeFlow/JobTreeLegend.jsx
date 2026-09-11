@@ -25,14 +25,28 @@ export default function JobTreeLegend() {
         whiteSpace: "nowrap",
       }}
     >
-      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, whiteSpace: "nowrap" }}>
+      <Box
+        sx={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 0.5,
+          whiteSpace: "nowrap",
+        }}
+      >
         <CheckCircleIcon sx={{ fontSize: 16, color: "success.main" }} />
         <Typography variant="caption" color="text.secondary">
           Job is complete and costs have been passed to parent jobs.
         </Typography>
       </Box>
 
-      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, whiteSpace: "nowrap" }}>
+      <Box
+        sx={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 0.5,
+          whiteSpace: "nowrap",
+        }}
+      >
         <Chip
           size="small"
           icon={<BuildIcon sx={{ fontSize: "16px !important" }} />}
@@ -49,7 +63,14 @@ export default function JobTreeLegend() {
         </Typography>
       </Box>
 
-      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, whiteSpace: "nowrap" }}>
+      <Box
+        sx={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 0.5,
+          whiteSpace: "nowrap",
+        }}
+      >
         <Chip
           size="small"
           icon={<PlayArrowIcon sx={{ fontSize: "16px !important" }} />}

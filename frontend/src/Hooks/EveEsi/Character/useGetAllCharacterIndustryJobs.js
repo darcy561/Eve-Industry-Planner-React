@@ -1,7 +1,10 @@
 import { useQueries } from "@tanstack/react-query";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useCallback } from "react";
-import { characterIndustryJobsQuery, characterIndustryJobsQueryKey } from "../../React Query/Character/industryJobs";
+import {
+  characterIndustryJobsQuery,
+  characterIndustryJobsQueryKey,
+} from "../../React Query/Character/industryJobs";
 import {
   isQueryObserverResultLoading,
   isQueryStateLoading,
@@ -10,10 +13,10 @@ import {
 /**
  * Utility function to extract industry jobs from query results.
  * Handles the data structure returned by character industry jobs queries.
- * 
+ *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Array<Object>} Flattened array of industry job objects
- * 
+ *
  * @private
  */
 function extractIndustryJobsFromResults(results) {
@@ -22,10 +25,10 @@ function extractIndustryJobsFromResults(results) {
 
 /**
  * Utility function to check loading state from query results.
- * 
+ *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {boolean} True if any query is loading
- * 
+ *
  * @private
  */
 function checkLoadingState(results) {
@@ -34,10 +37,10 @@ function checkLoadingState(results) {
 
 /**
  * Utility function to find first error from query results.
- * 
+ *
  * @param {Array<Object>} results - Array of query result objects
  * @returns {Error|null} First error found, or null if none
- * 
+ *
  * @private
  */
 function findFirstError(results) {
@@ -46,10 +49,10 @@ function findFirstError(results) {
 
 /**
  * Utility function to create error object for character industry jobs queries.
- * 
+ *
  * @param {Error} error - Error object
  * @returns {Object} Error state object
- * 
+ *
  * @private
  */
 function createErrorObject(error) {
@@ -63,9 +66,9 @@ function createErrorObject(error) {
 
 /**
  * Utility function to create loading object for character industry jobs queries.
- * 
+ *
  * @returns {Object} Loading state object
- * 
+ *
  * @private
  */
 function createLoadingObject() {
@@ -79,10 +82,10 @@ function createLoadingObject() {
 
 /**
  * Utility function to create success object for character industry jobs queries.
- * 
+ *
  * @param {Array<Object>} data - Array of industry job objects
  * @returns {Object} Success state object
- * 
+ *
  * @private
  */
 function createSuccessObject(data) {
@@ -97,10 +100,10 @@ function createSuccessObject(data) {
 /**
  * Utility function to deduplicate industry jobs by job_id.
  * Removes duplicate jobs based on their unique job_id property.
- * 
+ *
  * @param {Array<Object>} jobs - Array of industry job objects
  * @returns {Array<Object>} Array of unique industry job objects
- * 
+ *
  * @private
  */
 function deduplicateJobs(jobs) {
@@ -115,28 +118,28 @@ function deduplicateJobs(jobs) {
 
 /**
  * Retrieves cached character industry jobs data from React Query cache for all users.
- * 
+ *
  * This function provides access to cached character industry jobs data without triggering new queries:
  * - Fetches industry jobs for all user characters
  * - Checks loading states for all character industry job queries
  * - Extracts cached data from React Query cache
  * - Combines and deduplicates all industry jobs
  * - Returns appropriate loading, error, or success states
- * 
+ *
  * The caching process:
  * 1. Gets all user character hashes from the store
  * 2. Checks query states for all character industry job queries
  * 3. Determines overall loading and error states
  * 4. Extracts cached data from successful queries
  * 5. Combines and deduplicates all industry jobs
- * 
+ *
  * @param {Object} queryClient - React Query client instance
  * @returns {Object} Object containing cached character industry jobs data
  * @returns {Array<Object>} returns.data - Array of unique industry jobs from all characters
  * @returns {boolean} returns.isLoading - Whether any queries are still loading
  * @returns {boolean} returns.isError - Whether any queries have errors
  * @returns {Error|null} returns.error - First error encountered, if any
- * 
+ *
  * @example
  * const cachedJobs = getCachedCharacterIndustryJobs(queryClient);
  * if (!cachedJobs.isLoading && !cachedJobs.isError) {
@@ -157,7 +160,7 @@ export function getCachedCharacterIndustryJobs(queryClient) {
 
   // Check loading state
   const isLoading = queryStates.some(({ queryState }) =>
-    isQueryStateLoading(queryState)
+    isQueryStateLoading(queryState),
   );
 
   if (isLoading) {
@@ -165,7 +168,8 @@ export function getCachedCharacterIndustryJobs(queryClient) {
   }
 
   // Check for errors
-  const error = queryStates.find(({ queryState }) => queryState?.error)?.queryState?.error;
+  const error = queryStates.find(({ queryState }) => queryState?.error)
+    ?.queryState?.error;
 
   if (error) {
     return createErrorObject(error);
@@ -183,7 +187,7 @@ export function getCachedCharacterIndustryJobs(queryClient) {
 
 /**
  * Custom hook that fetches character industry jobs for all user characters.
- * 
+ *
  * This hook provides comprehensive character industry jobs data fetching:
  * - Fetches industry jobs for all user characters in parallel
  * - Combines industry jobs from all characters into a single dataset
@@ -191,24 +195,24 @@ export function getCachedCharacterIndustryJobs(queryClient) {
  * - Provides loading, error, and success states
  * - Uses React Query's useQueries for parallel data fetching
  * - Supports industry job management and analysis
- * 
+ *
  * The fetching process:
  * 1. Gets all user character hashes from the store
  * 2. Creates queries for all character industry job data
  * 3. Fetches data in parallel using React Query's useQueries
  * 4. Combines results using a custom combine function
  * 5. Deduplicates jobs based on job_id
- * 
+ *
  * @returns {Object} Object containing character industry jobs data and states
  * @returns {Array<Object>} returns.data - Array of unique industry jobs from all characters
  * @returns {boolean} returns.isLoading - Whether any queries are still loading
  * @returns {boolean} returns.isError - Whether any queries have errors
  * @returns {Error|null} returns.error - First error encountered, if any
- * 
+ *
  * @example
  * function CharacterIndustryJobsManager() {
  *   const { data: allJobs, isLoading, isError, error } = useGetAllCharacterIndustryJobs();
- * 
+ *
  *   if (isLoading) return <div>Loading industry jobs...</div>;
  *   if (isError) return <div>Error: {error.message}</div>;
  *   return <div>Industry Jobs: {allJobs.length} unique jobs across all characters</div>;
@@ -217,25 +221,30 @@ export function getCachedCharacterIndustryJobs(queryClient) {
 function useGetAllCharacterIndustryJobs() {
   const characters = useUsersStore((state) => state.account.characters);
 
-  const combineFunction = useCallback((results) => {
-    const isLoading = checkLoadingState(results);
-    const error = findFirstError(results);
-    const allJobs = extractIndustryJobsFromResults(results);
-    const deduplicatedJobs = deduplicateJobs(allJobs);
+  const combineFunction = useCallback(
+    (results) => {
+      const isLoading = checkLoadingState(results);
+      const error = findFirstError(results);
+      const allJobs = extractIndustryJobsFromResults(results);
+      const deduplicatedJobs = deduplicateJobs(allJobs);
 
-    if (isLoading) {
-      return createLoadingObject();
-    }
+      if (isLoading) {
+        return createLoadingObject();
+      }
 
-    if (error) {
-      return createErrorObject(error);
-    }
+      if (error) {
+        return createErrorObject(error);
+      }
 
-    return createSuccessObject(deduplicatedJobs);
-  }, [characters]);
+      return createSuccessObject(deduplicatedJobs);
+    },
+    [characters],
+  );
 
   const result = useQueries({
-    queries: characters.map(({ CharacterHash }) => characterIndustryJobsQuery(CharacterHash)),
+    queries: characters.map(({ CharacterHash }) =>
+      characterIndustryJobsQuery(CharacterHash),
+    ),
     combine: combineFunction,
   });
 

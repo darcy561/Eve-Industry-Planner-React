@@ -8,10 +8,11 @@ const percent = (element) =>
   Number.parseFloat(window.getComputedStyle(element).left);
 
 const bar = (props) =>
-  render(<RangeBar low={100} high={200} value={150} label="range" {...props} />);
+  render(
+    <RangeBar low={100} high={200} value={150} label="range" {...props} />,
+  );
 
 describe("RangeBar", () => {
-
   it("places this build within the range", () => {
     const { container } = bar();
 
@@ -78,7 +79,9 @@ describe("RangeBar", () => {
   it("describes itself to a reader who cannot see it", () => {
     bar({ label: "This build is mid-range of 7" });
 
-    expect(screen.getByRole("img", { name: /mid-range of 7/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /mid-range of 7/ }),
+    ).toBeInTheDocument();
   });
 
   it("labels the ends of the range where a panel gives it words", () => {
@@ -97,7 +100,7 @@ describe("RangeBar", () => {
         value={undefined}
         label="range"
         empty={<span>No previous builds</span>}
-      />
+      />,
     );
 
     expect(screen.getByText("No previous builds")).toBeInTheDocument();
@@ -121,15 +124,18 @@ describe("an average that is not a number", () => {
       screen.getAllByTestId(id).map(percent),
     );
 
-  it.each([NaN, null, undefined])("still places the range with %s", (average) => {
-    bar({ average });
+  it.each([NaN, null, undefined])(
+    "still places the range with %s",
+    (average) => {
+      bar({ average });
 
-    for (const at of positions()) {
-      expect(Number.isFinite(at)).toBe(true);
-      expect(at).toBeGreaterThanOrEqual(0);
-      expect(at).toBeLessThanOrEqual(100);
-    }
-  });
+      for (const at of positions()) {
+        expect(Number.isFinite(at)).toBe(true);
+        expect(at).toBeGreaterThanOrEqual(0);
+        expect(at).toBeLessThanOrEqual(100);
+      }
+    },
+  );
 
   it("marks no average for one that is not a number", () => {
     bar({ average: NaN });

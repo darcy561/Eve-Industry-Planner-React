@@ -24,14 +24,14 @@ async function saveUserAccountDocument() {
         },
         body: JSON.stringify(userData),
       },
-      { requestName: "saveUserAccountDocument" }
+      { requestName: "saveUserAccountDocument" },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `Failed to save user account document: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return false;
     }
@@ -63,14 +63,14 @@ async function saveApplicationSettings() {
         },
         body: JSON.stringify(body),
       },
-      { requestName: "saveApplicationSettings" }
+      { requestName: "saveApplicationSettings" },
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(
         `Failed to save application settings: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return false;
     }
@@ -108,7 +108,7 @@ async function getUserAccountDocument() {
         method: "GET",
         cache: "no-store",
       },
-      { requestName: "getUserAccountDocument" }
+      { requestName: "getUserAccountDocument" },
     );
 
     if (!response.ok) {
@@ -119,7 +119,7 @@ async function getUserAccountDocument() {
       const errorText = await response.text();
       console.error(
         `Failed to get user account document: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return null;
     }
@@ -144,7 +144,7 @@ async function getApplicationSettingsDocument() {
         method: "GET",
         cache: "no-store",
       },
-      { requestName: "getApplicationSettingsDocument" }
+      { requestName: "getApplicationSettingsDocument" },
     );
 
     if (!response.ok) {
@@ -155,7 +155,7 @@ async function getApplicationSettingsDocument() {
       const errorText = await response.text();
       console.error(
         `Failed to get application settings: ${response.status} ${response.statusText}`,
-        errorText
+        errorText,
       );
       return null;
     }

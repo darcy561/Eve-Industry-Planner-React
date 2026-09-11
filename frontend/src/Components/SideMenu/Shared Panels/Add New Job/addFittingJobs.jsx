@@ -34,7 +34,7 @@ function AddShipFittingPanel({ updateItemIDsToAdd, addNewGroupOnBuild }) {
       if (!hasPermission) {
         showSnackbarError(
           "Clipboard access denied. Please enable clipboard permissions in your browser settings.",
-          3
+          3,
         );
         return;
       }
@@ -56,7 +56,7 @@ function AddShipFittingPanel({ updateItemIDsToAdd, addNewGroupOnBuild }) {
         updateClipboardReadAllowed(false);
         showSnackbarError(
           "Clipboard access denied. Please enable clipboard permissions in your browser settings.",
-          3
+          3,
         );
         return;
       }
@@ -72,7 +72,7 @@ function AddShipFittingPanel({ updateItemIDsToAdd, addNewGroupOnBuild }) {
 
       buildRequests.forEach((request) => {
         const existingObject = newItemsToAdd.find(
-          (i) => i.itemID === request.itemID
+          (i) => i.itemID === request.itemID,
         );
 
         if (existingObject) {

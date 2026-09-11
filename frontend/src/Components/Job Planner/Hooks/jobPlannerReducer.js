@@ -40,7 +40,7 @@ export function jobPlannerReducer(state, action) {
         ...state,
         rightDrawerContentID: action.payload,
         // Don't automatically expand drawer - let the tutorial logic control it
-        expandRightDrawer: state.expandRightDrawer
+        expandRightDrawer: state.expandRightDrawer,
       };
     case JOB_PLANNER_ACTION_TYPES.SET_SKELETON_ELEMENTS_TO_DISPLAY:
       return { ...state, skeletonElementsToDisplay: action.payload };

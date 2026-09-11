@@ -49,7 +49,8 @@ export const REPROCESSING_ACTION_TYPES = {
   SET_MARKET_LISTING: "SET_MARKET_LISTING",
   SET_INPUT_MODIFIED: "SET_INPUT_MODIFIED",
   SET_REQUESTED_MINERALS: "SET_REQUESTED_MINERALS",
-  SET_REPROCESSING_CALCULATION_SETTINGS: "SET_REPROCESSING_CALCULATION_SETTINGS",
+  SET_REPROCESSING_CALCULATION_SETTINGS:
+    "SET_REPROCESSING_CALCULATION_SETTINGS",
 };
 
 /**
@@ -142,7 +143,7 @@ export function reprocessingReducer(state, action) {
       return {
         ...state,
         oreIDsToBeIgnored: state.oreIDsToBeIgnored.filter(
-          (id) => id !== action.payload
+          (id) => id !== action.payload,
         ),
       };
     case REPROCESSING_ACTION_TYPES.CLEAR_ORE_IDS_TO_BE_IGNORED:
@@ -156,12 +157,12 @@ export function reprocessingReducer(state, action) {
     case REPROCESSING_ACTION_TYPES.SET_REQUESTED_MINERALS:
       return { ...state, requestedMinerals: action.payload };
     case REPROCESSING_ACTION_TYPES.SET_REPROCESSING_CALCULATION_SETTINGS:
-      return { 
-        ...state, 
+      return {
+        ...state,
         reprocessingCalculationSettings: {
           ...state.reprocessingCalculationSettings,
-          ...action.payload
-        }
+          ...action.payload,
+        },
       };
     default:
       return state;

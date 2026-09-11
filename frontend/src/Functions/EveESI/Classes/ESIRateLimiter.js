@@ -16,16 +16,16 @@ class ESIRateLimiter {
     // Note: Group is the same for a path regardless of userID (per ESI spec)
     // But each (group, userID) pair gets its own bucket
     this.pathToGroup = new Map(); // path -> group name (shared across all userIDs)
-    
+
     // Initialise disabled groups from configuration (if any)
     this.disabledGroups = new Set();
-    
+
     // Default limits for unknown groups (will be updated from headers)
     this.defaultLimits = {
       default: {
         maxTokens: 150, // Safe default fallback
         windowSize: 15 * 60 * 1000, // 15 minutes
-      }
+      },
     };
 
     // Load disabled groups from configuration if they exist
@@ -58,11 +58,12 @@ class ESIRateLimiter {
 
     if (!this.buckets.has(key)) {
       // Use default limits for this group if available, otherwise use safe defaults
-      const limits = this.defaultLimits[group] || this.defaultLimits.default || {
-        maxTokens: 150, // Safe default fallback
-        windowSize: 15 * 60 * 1000, // 15 minutes
-      };
-      
+      const limits = this.defaultLimits[group] ||
+        this.defaultLimits.default || {
+          maxTokens: 150, // Safe default fallback
+          windowSize: 15 * 60 * 1000, // 15 minutes
+        };
+
       this.buckets.set(key, {
         group,
         userID,
@@ -96,15 +97,15 @@ class ESIRateLimiter {
    */
   parseTokenLimitFromHeader(limitStr) {
     if (!limitStr) return null;
-    
+
     const parts = limitStr.split("/");
     if (parts.length < 2) return null;
-    
+
     const maxTokens = parseInt(parts[0].trim(), 10);
     if (isNaN(maxTokens)) return null;
-    
+
     const windowSize = this.parseWindowSize(parts[1].trim());
-    
+
     return { maxTokens, windowSize };
   }
 
@@ -121,12 +122,12 @@ class ESIRateLimiter {
     // Extract actual group from headers (dynamic discovery)
     const headerGroup = this.extractGroupFromHeaders(headers);
     const actualGroup = headerGroup || initialGroup;
-    
+
     // Map path to discovered group for future requests (only if we got a group from headers)
     if (headerGroup) {
       this.pathToGroup.set(url, headerGroup);
     }
-    
+
     // Get or create bucket for the actual group
     const bucket = this.getBucket(actualGroup, userID);
 
@@ -141,7 +142,7 @@ class ESIRateLimiter {
       if (parsed) {
         bucket.maxTokens = parsed.maxTokens;
         bucket.windowSize = parsed.windowSize;
-        
+
         // Update default limits for this group for future use
         this.defaultLimits[actualGroup] = {
           maxTokens: parsed.maxTokens,
@@ -168,7 +169,7 @@ class ESIRateLimiter {
         bucket.tokens = bucket.maxTokens - tokensUsed;
       }
     }
-    
+
     return actualGroup;
   }
 
@@ -179,7 +180,7 @@ class ESIRateLimiter {
    * @param {string} fallbackGroup - Fallback group if not cached
    * @returns {string} Group name
    */
-  getGroupForUrl(url, fallbackGroup = 'default') {
+  getGroupForUrl(url, fallbackGroup = "default") {
     return this.pathToGroup.get(url) || fallbackGroup;
   }
 
@@ -233,13 +234,13 @@ class ESIRateLimiter {
 
     // Remove old consumption records
     bucket.tokenConsumption = bucket.tokenConsumption.filter(
-      (record) => record.timestamp > cutoffTime
+      (record) => record.timestamp > cutoffTime,
     );
 
     // Recalculate available tokens
     const totalConsumed = bucket.tokenConsumption.reduce(
       (sum, record) => sum + record.tokens,
-      0
+      0,
     );
 
     bucket.tokens = Math.max(0, bucket.maxTokens - totalConsumed);
@@ -309,7 +310,7 @@ class ESIRateLimiter {
       const cachedGroup = this.getGroupForUrl(url, group);
       actualGroup = cachedGroup;
     }
-    
+
     return new Promise((resolve, reject) => {
       this.requestQueue.push({
         requestFn,
@@ -339,7 +340,7 @@ class ESIRateLimiter {
     try {
       // Group requests by (group, userID) to process them in parallel batches
       const requestGroups = new Map();
-      
+
       // Organise requests by group and userID
       for (const request of this.requestQueue) {
         const key = `${request.group}:${request.userID}`;
@@ -351,18 +352,16 @@ class ESIRateLimiter {
 
       // Process all groups in parallel
       const processingPromises = [];
-      
+
       for (const [key, requests] of requestGroups) {
         processingPromises.push(this.processRequestGroup(requests));
       }
 
       // Wait for all groups to process
       await Promise.allSettled(processingPromises);
-      
+
       // Remove processed requests from the main queue
-      this.requestQueue = this.requestQueue.filter(req => 
-        !req.processed
-      );
+      this.requestQueue = this.requestQueue.filter((req) => !req.processed);
 
       // If there are still requests, process again
       if (this.requestQueue.length > 0) {
@@ -389,7 +388,7 @@ class ESIRateLimiter {
     while (requests.length > 0 || activePromises.size > 0) {
       // Start new requests as long as we have tokens available (no artificial concurrency limit)
       let startedNewRequest = false;
-      
+
       while (requests.length > 0) {
         const request = requests.shift();
         const canMake = this.canMakeRequest(group, userID);
@@ -406,11 +405,12 @@ class ESIRateLimiter {
         // Mark as processed and start the request
         // Token availability is the only limiting factor - each bucket manages its own tokens
         request.processed = true;
-        const promise = this.executeRequest(request, group, userID)
-          .finally(() => {
+        const promise = this.executeRequest(request, group, userID).finally(
+          () => {
             activePromises.delete(promise);
-          });
-        
+          },
+        );
+
         activePromises.add(promise);
         startedNewRequest = true;
       }
@@ -441,21 +441,21 @@ class ESIRateLimiter {
       // Reserve tokens before making request (optimistic)
       const bucket = this.getBucket(group, userID);
       const requiredTokens = 2; // Default token cost
-      
+
       // Consume tokens optimistically
       this.consumeTokens(bucket, requiredTokens);
-      
+
       const result = await request.requestFn(...request.args);
-      
+
       // Update tokens from response headers and discover actual group
       if (result && result.headers && request.url) {
         const actualGroup = this.updateBucketFromHeaders(
           request.url,
           group,
           userID,
-          result.headers
+          result.headers,
         );
-        
+
         // If group changed, update the bucket reference
         if (actualGroup !== group) {
           const actualBucket = this.getBucket(actualGroup, userID);
@@ -469,7 +469,7 @@ class ESIRateLimiter {
           }
         }
       }
-      
+
       request.resolve(result);
     } catch (error) {
       request.reject(error);

@@ -22,12 +22,12 @@ describe("useLockViewerPresence", () => {
         docID: "job-1",
         readOnly: false,
         waitingInHandoffQueue: true,
-      })
+      }),
     );
 
     expect(postDocumentLockViewerArrived).toHaveBeenCalledWith(
       "job_documents",
-      "job-1"
+      "job-1",
     );
     expect(postDocumentLockViewerDeparted).not.toHaveBeenCalled();
   });
@@ -43,7 +43,7 @@ describe("useLockViewerPresence", () => {
           readOnly: true,
           waitingInHandoffQueue: true,
         },
-      }
+      },
     );
 
     postDocumentLockViewerArrived.mockClear();
@@ -63,7 +63,7 @@ describe("useLockViewerPresence", () => {
     unmount();
     expect(postDocumentLockViewerDeparted).toHaveBeenCalledWith(
       "job_documents",
-      "job-1"
+      "job-1",
     );
   });
 });

@@ -77,7 +77,7 @@ export async function refreshAppConfig(force = false) {
               : {}),
           },
         },
-        { requestName: "fetchAppConfig" }
+        { requestName: "fetchAppConfig" },
       );
 
       const responseETag = response.headers.get("etag");

@@ -203,7 +203,7 @@ function UseCustomStructure({ setupEntry }) {
     useUsersStore.getState().applicationSettings.actions;
 
   const assignedStructureData = getCustomStructureWithID(
-    setupEntry.customStructureID
+    setupEntry.customStructureID,
   );
 
   const systemIndexValue =
@@ -211,7 +211,7 @@ function UseCustomStructure({ setupEntry }) {
       setupEntry.systemID,
       setupEntry.jobType,
       setupEntry.useAlternativeSystemIndexValue,
-      setupEntry.alternativeSystemIndexValue
+      setupEntry.alternativeSystemIndexValue,
     ) * 100;
 
   return (
@@ -239,14 +239,14 @@ function UseCustomStructure({ setupEntry }) {
 function UseDefaultStructures({ setupEntry }) {
   const structureTypeData = getStructureInfoFromID(
     setupEntry.jobType,
-    setupEntry.structureID
+    setupEntry.structureID,
   );
 
   const rigTypeData = getRigInfoFromID(setupEntry.jobType, setupEntry.rigID);
 
   const systemTypeData = getSystemTypeFromID(
     setupEntry.jobType,
-    setupEntry.systemTypeID
+    setupEntry.systemTypeID,
   );
 
   const matchedSystemID = getSystemNameFromID(setupEntry.systemID);
@@ -256,7 +256,7 @@ function UseDefaultStructures({ setupEntry }) {
       setupEntry.systemID,
       setupEntry.jobType,
       setupEntry.useAlternativeSystemIndexValue,
-      setupEntry.alternativeSystemIndexValue
+      setupEntry.alternativeSystemIndexValue,
     ) * 100;
 
   return (

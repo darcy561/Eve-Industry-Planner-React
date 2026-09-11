@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-const { requestAppConfigRecheck } = await import(
-  "../../../Events/appConfigEvents.js"
-);
+const { requestAppConfigRecheck } =
+  await import("../../../Events/appConfigEvents.js");
 const { getAppConfig } = await import("./appConfig.js");
 
 function appConfigResponse(maintenanceMode) {
@@ -12,7 +11,7 @@ function appConfigResponse(maintenanceMode) {
       maintenance_mode: maintenanceMode,
       feature_flags: {},
     }),
-    { status: 200, headers: { "Content-Type": "application/json" } }
+    { status: 200, headers: { "Content-Type": "application/json" } },
   );
 }
 

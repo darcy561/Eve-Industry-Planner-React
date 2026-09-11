@@ -26,23 +26,29 @@ vi.mock("../../../../../../Functions/Installation Costs/installCosts", () => ({
   getJobInstallCostForPlanning: () => 100,
 }));
 
-vi.mock("../../../../../../Hooks/React Query/Character/useSellingRates", () => ({
-  useSellingRates: () => ({
-    data: {
-      brokerFee: { kind: "structure", base: null, rate: 1.5, terms: [] },
-      salesTax: { base: 7.5, accounting: 0, rate: 7.5 },
-    },
-    isLoading: false,
+vi.mock(
+  "../../../../../../Hooks/React Query/Character/useSellingRates",
+  () => ({
+    useSellingRates: () => ({
+      data: {
+        brokerFee: { kind: "structure", base: null, rate: 1.5, terms: [] },
+        salesTax: { base: 7.5, accounting: 0, rate: 7.5 },
+      },
+      isLoading: false,
+    }),
   }),
-}));
+);
 
 vi.mock("../../../../../../Hooks/React Query/Backend/statisticsTotals", () => ({
   useAccountTotalsQuery: () => ({ data: undefined }),
 }));
 
-vi.mock("../../../../../../Hooks/React Query/Backend/statisticsTimeline", () => ({
-  useAccountTimelineQuery: () => ({ data: undefined }),
-}));
+vi.mock(
+  "../../../../../../Hooks/React Query/Backend/statisticsTimeline",
+  () => ({
+    useAccountTimelineQuery: () => ({ data: undefined }),
+  }),
+);
 
 vi.mock("../../../../../../Functions/MarketOrders/sellerCharacter", () => ({
   resolveSellerCharacter: () => ({
@@ -82,13 +88,14 @@ vi.mock("../../../../../../Zustand/usersStore", () => {
 const parentJobs = {};
 
 const { default: PlanningEconomics } = await import("./planningEconomics");
-const { jobFixture, materialFixture } = await import(
-  "../../../../../../tests/jobFixture"
-);
+const { jobFixture, materialFixture } =
+  await import("../../../../../../tests/jobFixture");
 
 const state = {
   activeJob: jobFixture({
-    materials: [materialFixture({ typeID: 35, name: "Pyerite", quantity: 100 })],
+    materials: [
+      materialFixture({ typeID: 35, name: "Pyerite", quantity: 100 }),
+    ],
     childJobs: { 35: [] },
   }),
   temporaryChildJobs: {},
@@ -141,7 +148,9 @@ describe("the Planning stage's figures, end to end", () => {
 
     const cost = within(panelNamed("Cost Breakdown"));
 
-    expect(cost.getByText(/^1\.50% at Placeholder Citadel$/)).toBeInTheDocument();
+    expect(
+      cost.getByText(/^1\.50% at Placeholder Citadel$/),
+    ).toBeInTheDocument();
     expect(
       cost.getByText(/on the sale at Placeholder Citadel/),
     ).toBeInTheDocument();

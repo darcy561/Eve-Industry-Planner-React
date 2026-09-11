@@ -13,7 +13,11 @@ describe("useLockExtendLoop", () => {
     extendDocumentLock.mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ holding: true, expiresAtUnix: 9e9, ttlSeconds: 300 }),
+      json: async () => ({
+        holding: true,
+        expiresAtUnix: 9e9,
+        ttlSeconds: 300,
+      }),
     });
   });
 
@@ -33,14 +37,14 @@ describe("useLockExtendLoop", () => {
         dispatchHeld,
         keyRef,
         syncLockFromServer,
-      })
+      }),
     );
 
     await act(async () => {
       window.dispatchEvent(
         new CustomEvent(DOCUMENT_LOCK_RENEW_REQUEST_EVENT, {
           detail: { collection: "c1", docID: "d1" },
-        })
+        }),
       );
     });
 
@@ -59,14 +63,14 @@ describe("useLockExtendLoop", () => {
         dispatchHeld: vi.fn(),
         keyRef,
         syncLockFromServer: vi.fn(),
-      })
+      }),
     );
 
     await act(async () => {
       window.dispatchEvent(
         new CustomEvent(DOCUMENT_LOCK_RENEW_REQUEST_EVENT, {
           detail: { collection: "other", docID: "d1" },
-        })
+        }),
       );
     });
 
@@ -85,14 +89,14 @@ describe("useLockExtendLoop", () => {
         dispatchHeld: vi.fn(),
         keyRef,
         syncLockFromServer: vi.fn(),
-      })
+      }),
     );
 
     await act(async () => {
       window.dispatchEvent(
         new CustomEvent(DOCUMENT_LOCK_RENEW_REQUEST_EVENT, {
           detail: { collection: "c1", docID: "d1" },
-        })
+        }),
       );
     });
 

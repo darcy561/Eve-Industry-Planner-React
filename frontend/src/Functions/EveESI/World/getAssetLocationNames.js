@@ -4,7 +4,7 @@ import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 async function getAssetLocationNames(
   character,
   locationIDs,
-  scope = "character"
+  scope = "character",
 ) {
   try {
     if (!character || !locationIDs) {
@@ -42,12 +42,12 @@ async function getAssetLocationNames(
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(chunk),
-        }
+        },
       );
 
       if (!response.ok) {
         throw new Error(
-          `API request failed with status ${response.status}: ${response.statusText}`
+          `API request failed with status ${response.status}: ${response.statusText}`,
         );
       }
 

@@ -49,8 +49,16 @@ describe("mapApiStatsToArchiveBreakdown", () => {
   it("sums the segments into Combined", () => {
     const result = mapApiStatsToArchiveBreakdown({
       breakdown: {
-        productionChain: segment({ totalJobs: 1, itemBuildCount: 10, jobCostTotal: 100 }),
-        retainedStock: segment({ totalJobs: 2, itemBuildCount: 20, jobCostTotal: 200 }),
+        productionChain: segment({
+          totalJobs: 1,
+          itemBuildCount: 10,
+          jobCostTotal: 100,
+        }),
+        retainedStock: segment({
+          totalJobs: 2,
+          itemBuildCount: 20,
+          jobCostTotal: 200,
+        }),
         standaloneRecordedSale: segment({
           totalJobs: 4,
           itemBuildCount: 40,

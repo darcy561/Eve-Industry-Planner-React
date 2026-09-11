@@ -39,7 +39,11 @@ function maybeRegisterInboundNewJobSkeleton(docID, document) {
 }
 
 function flush() {
-  const { account, jobData: { actions }, realtimeSync: { actions: rs } } = useUsersStore.getState();
+  const {
+    account,
+    jobData: { actions },
+    realtimeSync: { actions: rs },
+  } = useUsersStore.getState();
   if (!account.isLoggedIn || account.accountID == null) {
     pendingUpserts = new Map();
     pendingDeletes = new Set();
@@ -56,9 +60,7 @@ function flush() {
     actions.removeJobsFromJobArray(ids);
     actions.clearPendingJobDocumentWrites(ids);
     const now = Date.now();
-    rs.setCursorMsBatch(
-      ids.map((jobID) => [`job_documents.${jobID}`, now])
-    );
+    rs.setCursorMsBatch(ids.map((jobID) => [`job_documents.${jobID}`, now]));
   }
 
   if (pendingUpserts.size > 0) {

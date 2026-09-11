@@ -32,7 +32,7 @@ vi.mock("../../Styled Components/defaultPageLayout", () => ({
 const { ArchivedJobsPage } = await import("./ArchivedJobsPage.jsx");
 
 function renderPage() {
-  return renderWithTheme(      <ArchivedJobsPage />);
+  return renderWithTheme(<ArchivedJobsPage />);
 }
 
 beforeEach(() => {

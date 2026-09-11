@@ -16,8 +16,12 @@ vi.mock("../Functions/App/appVersionCheck.js", () => ({
   considerRemoteAppVersion: vi.fn(),
   isClientAppVersionOutdated: () => false,
 }));
-vi.mock("../Realtime/applyRemoteMessage.js", () => ({ applyRemoteMessage: vi.fn() }));
-vi.mock("../Events/appConfigEvents.js", () => ({ requestAppConfigRecheck: vi.fn() }));
+vi.mock("../Realtime/applyRemoteMessage.js", () => ({
+  applyRemoteMessage: vi.fn(),
+}));
+vi.mock("../Events/appConfigEvents.js", () => ({
+  requestAppConfigRecheck: vi.fn(),
+}));
 vi.mock("../Realtime/syncAccountDocumentsFromServer.js", () => ({
   syncAccountDocumentsFromServer: vi.fn(),
 }));
@@ -28,9 +32,8 @@ vi.mock("../Realtime/wsClientIdentity.js", () => ({
   setRealtimeClientID: vi.fn(),
 }));
 
-const { sendActivePlanner, restoreActivePlanner } = await import(
-  "../Realtime/realtimeClient.js"
-);
+const { sendActivePlanner, restoreActivePlanner } =
+  await import("../Realtime/realtimeClient.js");
 
 beforeEach(() => {
   storeState.activePlanner.owner = null;

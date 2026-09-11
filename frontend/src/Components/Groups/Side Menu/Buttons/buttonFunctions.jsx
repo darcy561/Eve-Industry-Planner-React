@@ -89,7 +89,7 @@ export function useGroupPageSideMenuFunctions(
               .getState()
               .documentLock.actions.yieldDocumentLockOnLeave(
                 USER_JOB_GROUPS_COLLECTION,
-                groupID
+                groupID,
               );
           }
           navigate({ to: "/jobplanner" });

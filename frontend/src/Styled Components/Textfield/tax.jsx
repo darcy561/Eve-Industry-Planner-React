@@ -8,8 +8,7 @@ function formatTaxFieldInitial(initialState) {
 
 function coercePercentToNumber(value) {
   if (value === undefined || value === null || value === "") return 0;
-  const n =
-    typeof value === "number" ? value : Number(String(value).trim());
+  const n = typeof value === "number" ? value : Number(String(value).trim());
   return Number.isFinite(n) ? n : 0;
 }
 
@@ -17,14 +16,14 @@ function coercePercentToNumber(value) {
  * A text field component for inputting tax percentages.
  * Validates input to ensure only non-negative numbers are accepted.
  * Rounds the value to 2 decimal places on blur.
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} [props.initialState] - Initial value for the text field
  * @param {Function} props.onBlur - Callback function called on blur. Receives the rounded percentage value.
  * @returns {JSX.Element} Tax percentage text field component
- * 
+ *
  * @example
- * <TaxPercentageTextField 
+ * <TaxPercentageTextField
  *   initialState={0}
  *   onBlur={(tax) => setTaxPercentage(tax)}
  * />
@@ -38,7 +37,7 @@ function TaxPercentageTextField({
   sx: sxProp,
 }) {
   const [inputValue, updateInputValue] = useState(() =>
-    formatTaxFieldInitial(initialState)
+    formatTaxFieldInitial(initialState),
   );
 
   useEffect(() => {
@@ -77,7 +76,7 @@ function TaxPercentageTextField({
         if (onBlur) {
           let valueToPass =
             Math.round(
-              (coercePercentToNumber(e.target.value) + Number.EPSILON) * 100
+              (coercePercentToNumber(e.target.value) + Number.EPSILON) * 100,
             ) / 100;
           if (isNaN(valueToPass) || valueToPass < 0) {
             valueToPass = 0;

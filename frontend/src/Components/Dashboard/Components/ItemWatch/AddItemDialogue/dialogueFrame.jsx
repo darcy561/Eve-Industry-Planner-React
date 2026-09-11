@@ -54,8 +54,7 @@ export function AddWatchItemDialogue({
         typeID: mat.typeID,
         name: mat.name,
         quantity: mat.quantity,
-        quantityProduced:
-          job !== undefined ? job.totalQuantityProduced : 0,
+        quantityProduced: job !== undefined ? job.totalQuantityProduced : 0,
         materials: [],
         group: groupSelect,
         buildData:
@@ -88,7 +87,7 @@ export function AddWatchItemDialogue({
       materials: mainJobMaterials,
       childJobPresent: childJobPresent,
       buildData: Object.values(
-        materialJobs[watchlistItemRequest].build.setup
+        materialJobs[watchlistItemRequest].build.setup,
       )[0].toDocument(),
     };
     if (watchlistItemToEdit) {
@@ -110,7 +109,7 @@ export function AddWatchItemDialogue({
     setUserWatchlistItems(newUserWatchlistItems);
     await putWatchlistDeprecatedToApi(
       userWatchlist.groups,
-      newUserWatchlistItems
+      newUserWatchlistItems,
     );
     trackAppEvent(AppEvent.NEW_WATCHLIST_ITEM);
 

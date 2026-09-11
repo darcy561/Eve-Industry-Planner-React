@@ -31,7 +31,9 @@ export async function importFromClipboard() {
 
   const itemNameMatch = [...importedText.matchAll(itemNameRegex)];
   const itemMatches = [...importedText.matchAll(itemMatchesRegex)];
-  const itemsWithQuantities = [...importedText.matchAll(itemWithQuantitiesRegex)];
+  const itemsWithQuantities = [
+    ...importedText.matchAll(itemWithQuantitiesRegex),
+  ];
   const itemsWithCharges = [...importedText.matchAll(itemsWithChargesRegex)];
   const shipNameAndFittingName = itemNameMatch[0];
   if (!shipNameAndFittingName) {
@@ -65,7 +67,9 @@ export async function importFromClipboard() {
   });
 
   objectArray.forEach((item) => {
-    const matchingItemType = itemTypes.find((itemType) => itemType.name === item.itemName);
+    const matchingItemType = itemTypes.find(
+      (itemType) => itemType.name === item.itemName,
+    );
     if (matchingItemType) {
       item.itemID = matchingItemType.itemID;
       item.included = true;
@@ -127,10 +131,10 @@ export async function finalBuildRequests(itemArray, queryClient) {
   });
 
   const groupEntriesToModifiy = buildRequests.filter((entry) =>
-    activeGroupObject.hasIncludedTypeId(entry.itemID)
+    activeGroupObject.hasIncludedTypeId(entry.itemID),
   );
   const itemsToBuild = buildRequests.filter(
-    (entry) => !groupEntriesToModifiy.some((i) => i.itemID === entry.itemID)
+    (entry) => !groupEntriesToModifiy.some((i) => i.itemID === entry.itemID),
   );
 
   const newJobData = await buildJob(itemsToBuild, { queryClient });
@@ -146,7 +150,7 @@ export async function finalBuildRequests(itemArray, queryClient) {
   for (const job of normalizedNewJobs) {
     job.build.materials.forEach((material) => {
       const materialMatch = newJobArray.find(
-        (i) => i.itemID === material.typeID && i.groupID === activeGroupID
+        (i) => i.itemID === material.typeID && i.groupID === activeGroupID,
       );
       if (materialMatch) {
         materialMatch.parentJobs.push(job.jobID);
@@ -174,7 +178,7 @@ export async function finalBuildRequests(itemArray, queryClient) {
   recalculateInstallCostsWithNewData(
     normalizedNewJobs,
     requestedMarketData,
-    requestedSystemIndexes
+    requestedSystemIndexes,
   );
 
   if (isLoggedIn) {
@@ -192,5 +196,7 @@ export async function finalBuildRequests(itemArray, queryClient) {
   }
   updateOrAddJobsToJobArray(newJobArray);
   useUsersStore.getState().worldData.actions.addMarketData(requestedMarketData);
-  useUsersStore.getState().worldData.actions.addSystemIndex(requestedSystemIndexes);
+  useUsersStore
+    .getState()
+    .worldData.actions.addSystemIndex(requestedSystemIndexes);
 }

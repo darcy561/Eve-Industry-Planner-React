@@ -17,7 +17,11 @@ import {
  * @returns {import("./corporationCollection").CorporationCollection}
  */
 export function getAllCachedCorporationTransactions(queryClient) {
-  return readCorporationCollection(queryClient, corporationTransactionsQueryKey, CORPORATION_WALLET_DIVISIONS);
+  return readCorporationCollection(
+    queryClient,
+    corporationTransactionsQueryKey,
+    CORPORATION_WALLET_DIVISIONS,
+  );
 }
 
 /**
@@ -28,5 +32,8 @@ export function getAllCachedCorporationTransactions(queryClient) {
  * @returns {import("./corporationCollection").CorporationCollection}
  */
 export function useGetAllCorporationTransactions() {
-  return useCorporationCollection(corporationTransactionsQuery, CORPORATION_WALLET_DIVISIONS);
+  return useCorporationCollection(
+    corporationTransactionsQuery,
+    CORPORATION_WALLET_DIVISIONS,
+  );
 }

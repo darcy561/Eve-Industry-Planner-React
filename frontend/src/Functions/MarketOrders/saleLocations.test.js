@@ -75,7 +75,7 @@ describe("resolveSaleLocation", () => {
 
     expect(other.priceHub).not.toBe(fallback.priceHub);
     expect(resolveSaleLocation(other.id).priceHubStationID).not.toBe(
-      resolveSaleLocation(fallback.id).priceHubStationID
+      resolveSaleLocation(fallback.id).priceHubStationID,
     );
   });
 

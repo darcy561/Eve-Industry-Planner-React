@@ -1,4 +1,11 @@
-import { Avatar, IconButton, Paper, Stack, Typography, Grid } from "@mui/material";
+import {
+  Avatar,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+  Grid,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BusinessIcon from "@mui/icons-material/Business";
 import { alpha } from "@mui/material/styles";
@@ -12,9 +19,11 @@ import { deleteCloudStoredEsiRefreshTokens } from "../../Functions/Endpoints/Pri
 
 export function AccountEntry({ character, appearance = "default" }) {
   const cloudAccounts = useUsersStore(
-    (state) => state.applicationSettings.userCloudAccounts
+    (state) => state.applicationSettings.userCloudAccounts,
   );
-  const getCorporation = useUsersStore((state) => state.account.actions.getCorporation);
+  const getCorporation = useUsersStore(
+    (state) => state.account.actions.getCorporation,
+  );
   const { removeCharacter } = useUsersStore.getState().account.actions;
   const { removeCharacterFromCorporations } =
     useUsersStore.getState().account.actions;
@@ -45,7 +54,8 @@ export function AccountEntry({ character, appearance = "default" }) {
   }
 
   const corporation =
-    getCorporation(character?.corporation_id ?? character?.CorporationID) ?? null;
+    getCorporation(character?.corporation_id ?? character?.CorporationID) ??
+    null;
   const corporationName = corporation?.corporationName || "No corporation";
   const corporationId = corporation?.corporation_id;
 
@@ -72,11 +82,20 @@ export function AccountEntry({ character, appearance = "default" }) {
             <Stack spacing={0.1} sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 variant="body1"
-                sx={{ fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                sx={{
+                  fontWeight: 600,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
               >
                 {character.CharacterName}
               </Typography>
-              <Stack direction="row" spacing={0.75} sx={{ minWidth: 0, alignItems: "center" }}>
+              <Stack
+                direction="row"
+                spacing={0.75}
+                sx={{ minWidth: 0, alignItems: "center" }}
+              >
                 {corporationId ? (
                   <Avatar
                     alt={`${corporationName} logo`}
@@ -90,7 +109,11 @@ export function AccountEntry({ character, appearance = "default" }) {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                  sx={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
                 >
                   {corporationName}
                 </Typography>
@@ -120,13 +143,15 @@ export function AccountEntry({ character, appearance = "default" }) {
           sx={{
             justifyContent: "center",
             alignItems: "center",
-            padding: "10px"
-          }}>
+            padding: "10px",
+          }}
+        >
           <Grid
             size={{
               xs: 2,
-              sm: 1
-            }}>
+              sm: 1,
+            }}
+          >
             <Avatar
               alt={`${character.CharacterName} portrait`}
               src={`https://images.evetech.net/characters/${character.CharacterID}/portrait`}
@@ -135,8 +160,9 @@ export function AccountEntry({ character, appearance = "default" }) {
           <Grid
             size={{
               xs: 9,
-              sm: 10
-            }}>
+              sm: 10,
+            }}
+          >
             <Typography sx={{ typography: { xs: "caption", sm: "body1" } }}>
               {character.CharacterName}
             </Typography>

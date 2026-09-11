@@ -1,20 +1,20 @@
 /**
  * Extras Management for EVE Industry Planner.
- * 
+ *
  * Handles management of extra cost categories and predefined system indexes.
  * Provides methods for adding, removing, updating, and finding extras categories
  * and system cost indexes used in job calculations.
- * 
+ *
  * @fileoverview Extras categories and system indexes management actions
  * @author EVE Industry Planner Team
  */
 
 /**
  * Extras management actions for application settings.
- * 
+ *
  * Provides methods for managing extras categories and predefined system indexes
  * including CRUD operations and search functionality.
- * 
+ *
  * @param {Function} set - Zustand set function for updating state
  * @param {Function} get - Zustand get function for accessing current state
  * @returns {Object} Extras management actions
@@ -24,12 +24,12 @@ import { permanentExtrasCategories } from "../../Context/defaultValues";
 export const extrasActions = (set, get) => ({
   /**
    * Adds an extra category to the extras categories array.
-   * 
+   *
    * @param {Object} category - Extra category object to add
    * @param {string} category.id - Category identifier
    * @param {string} category.name - Category name
    * @param {number} [category.cost] - Category cost
-   * 
+   *
    * @example
    * const newCategory = {
    *   id: 'category-1',
@@ -51,15 +51,15 @@ export const extrasActions = (set, get) => ({
         },
       }),
       false,
-      "addExtraCategory"
+      "addExtraCategory",
     ),
 
   /**
    * Removes an extra category from the extras categories array.
-   * 
+   *
    * @param {Object} category - Extra category object to remove
    * @param {string} category.id - Category identifier to match for removal
-   * 
+   *
    * @example
    * const categoryToRemove = { id: 'category-1', name: 'Transportation' };
    * store.getState().applicationSettings.actions.removeExtraCategory(categoryToRemove);
@@ -70,23 +70,25 @@ export const extrasActions = (set, get) => ({
         ...state,
         applicationSettings: {
           ...state.applicationSettings,
-          extrasCategories: state.applicationSettings.extrasCategories.filter((c) => c.id !== category.id)
+          extrasCategories: state.applicationSettings.extrasCategories.filter(
+            (c) => c.id !== category.id,
+          ),
         },
       }),
       false,
-      "removeExtraCategory"
+      "removeExtraCategory",
     ),
 
   /**
    * Updates the predefined system indexes object by merging new data.
-   * 
+   *
    * Merges new system index data with existing predefined system indexes,
    * preserving all existing data while adding or updating the new entries.
-   * 
+   *
    * @param {Object} newIndexes - New predefined system indexes to merge
    * @param {Object} newIndexes[systemID] - System index data for each system ID
    * @param {number} newIndexes[systemID][indexType] - Index value for specific activity type
-   * 
+   *
    * @example
    * const newIndexes = {
    *   30000142: { manufacturing: 0.0125, invention: 0.0150 }, // Jita system indexes
@@ -97,13 +99,15 @@ export const extrasActions = (set, get) => ({
   updatePredefinedSystemIndexes: (newIndexes) =>
     set(
       (state) => {
-        const mergedIndexes = { ...state.applicationSettings.predefinedSystemIndexes };
+        const mergedIndexes = {
+          ...state.applicationSettings.predefinedSystemIndexes,
+        };
 
         // Merge each system's data
         Object.entries(newIndexes).forEach(([systemID, systemData]) => {
           mergedIndexes[systemID] = {
             ...mergedIndexes[systemID], // Preserve existing activity types for this system
-            ...systemData // Add/update new activity types
+            ...systemData, // Add/update new activity types
           };
         });
 
@@ -111,20 +115,20 @@ export const extrasActions = (set, get) => ({
           ...state,
           applicationSettings: {
             ...state.applicationSettings,
-            predefinedSystemIndexes: mergedIndexes
+            predefinedSystemIndexes: mergedIndexes,
           },
         };
       },
       false,
-      "updatePredefinedSystemIndexes"
+      "updatePredefinedSystemIndexes",
     ),
 
   /**
    * Finds a predefined system index by system ID.
-   * 
+   *
    * @param {number} systemID - System ID to search for
    * @returns {number|undefined} System cost index or undefined if not found
-   * 
+   *
    * @example
    * const systemIndex = store.getState().applicationSettings.actions.findPredefinedSystemIndex(30000142);
    * if (systemIndex !== undefined) console.log('Jita system index:', systemIndex);
@@ -136,20 +140,22 @@ export const extrasActions = (set, get) => ({
 
   /**
    * Deletes a specific index type from a predefined system index.
-   * 
+   *
    * Removes a specific index type from a system's predefined indexes.
    * If no more index types remain for the system, removes the entire system.
-   * 
+   *
    * @param {number} systemID - System ID to remove index type from
    * @param {string} indexType - Index type to remove from predefined indexes
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.deletePredefinedSystemIndexType(30000142, "manufacturing");
    */
   deletePredefinedSystemIndexType: (systemID, indexType) =>
     set(
       (state) => {
-        const newIndexes = { ...state.applicationSettings.predefinedSystemIndexes };
+        const newIndexes = {
+          ...state.applicationSettings.predefinedSystemIndexes,
+        };
         const currentSystemData = newIndexes[systemID];
 
         // Return early if system doesn't exist
@@ -171,20 +177,20 @@ export const extrasActions = (set, get) => ({
           ...state,
           applicationSettings: {
             ...state.applicationSettings,
-            predefinedSystemIndexes: newIndexes
+            predefinedSystemIndexes: newIndexes,
           },
         };
       },
       false,
-      "deletePredefinedSystemIndexType"
+      "deletePredefinedSystemIndexType",
     ),
 
   /**
    * Finds an extras category by category ID.
-   * 
+   *
    * @param {string} categoryID - Category ID to search for
    * @returns {Object|undefined} Extras category object or undefined if not found
-   * 
+   *
    * @example
    * const category = store.getState().applicationSettings.actions.findExtrasCategory('category-1');
    * if (category) console.log('Found category:', category.name);
@@ -196,12 +202,12 @@ export const extrasActions = (set, get) => ({
 
   /**
    * Adds an extras category to the extras categories array.
-   * 
-   * 
+   *
+   *
    * @param {Object} category - Extras category object to add
    * @param {string} category.id - Category identifier
    * @param {string} category.label - Category label
-   * 
+   *
    * @example
    * const newCategory = {
    *   id: 'category-2',
@@ -222,19 +228,19 @@ export const extrasActions = (set, get) => ({
         },
       }),
       false,
-      "addExtrasCategory"
+      "addExtrasCategory",
     ),
 
   /**
    * Removes an extras category by category ID.
-   * 
+   *
    * @param {string} categoryID - Category ID to remove
-   * 
+   *
    * @example
    * store.getState().applicationSettings.actions.removeExtrasCategory('category-1');
    */
   markExtrasCategoryAsDeleted: (categoryID) => {
-    if (permanentExtrasCategories.has(categoryID)) return
+    if (permanentExtrasCategories.has(categoryID)) return;
 
     const state = get().applicationSettings;
     const category = state.extrasCategories.find((c) => c.id === categoryID);
@@ -249,16 +255,16 @@ export const extrasActions = (set, get) => ({
         ...state,
         applicationSettings: {
           ...state.applicationSettings,
-          extrasCategories: [...state.applicationSettings.extrasCategories]
+          extrasCategories: [...state.applicationSettings.extrasCategories],
         },
       }),
 
       false,
-      "markExtrasCategoryAsDeleted"
-    )
+      "markExtrasCategoryAsDeleted",
+    );
   },
   unmarkExtrasCategoryAsDeleted: (categoryID) => {
-    if (permanentExtrasCategories.has(categoryID)) return
+    if (permanentExtrasCategories.has(categoryID)) return;
 
     const state = get().applicationSettings;
     const category = state.extrasCategories.find((c) => c.id === categoryID);
@@ -273,11 +279,11 @@ export const extrasActions = (set, get) => ({
         ...state,
         applicationSettings: {
           ...state.applicationSettings,
-          extrasCategories: [...state.applicationSettings.extrasCategories]
+          extrasCategories: [...state.applicationSettings.extrasCategories],
         },
       }),
       false,
-      "unmarkExtrasCategoryAsDeleted"
-    )
+      "unmarkExtrasCategoryAsDeleted",
+    );
   },
 });

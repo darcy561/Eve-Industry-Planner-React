@@ -7,7 +7,7 @@ import { useLockScopeSync } from "./useLockScopeSync.js";
 /** Stay below {@link MAX_STATUS_BATCH_DOC_IDS} per array; reserve slack for groups in the first chunk. */
 const PLANNER_PAGE_JOB_CHUNK = Math.min(
   PLANNER_PAGE_JOB_CHUNK_MAX,
-  MAX_STATUS_BATCH_DOC_IDS - 50
+  MAX_STATUS_BATCH_DOC_IDS - 50,
 );
 
 /**
@@ -18,12 +18,11 @@ const PLANNER_PAGE_JOB_CHUNK = Math.min(
 export function useJobPlannerPageLockSync() {
   const getJobIDs = useCallback(
     () => useUsersStore.getState().jobData.jobArray.map((j) => j.jobID),
-    []
+    [],
   );
   const getGroupIDs = useCallback(
-    () =>
-      useUsersStore.getState().jobData.groupArray.map((g) => g.groupID),
-    []
+    () => useUsersStore.getState().jobData.groupArray.map((g) => g.groupID),
+    [],
   );
   useLockScopeSync({
     getJobIDs,

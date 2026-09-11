@@ -4,7 +4,11 @@
  */
 
 import { fetchPlannerSettingsFromApi } from "../../Functions/Endpoints/Private/planners.js";
-import { mergePlannerSettings, plannerSettingsDefault, stateDefault } from "./core.js";
+import {
+  mergePlannerSettings,
+  plannerSettingsDefault,
+  stateDefault,
+} from "./core.js";
 
 export const plannerSettingsActions = (set, get) => ({
   /**
@@ -32,7 +36,8 @@ export const plannerSettingsActions = (set, get) => ({
    * @returns {{id: string, label: string}[]}
    */
   getPlannerExtrasCategories: (ownerHandle) => {
-    const settings = get().plannerSettings.actions.getPlannerSettings(ownerHandle);
+    const settings =
+      get().plannerSettings.actions.getPlannerSettings(ownerHandle);
     return (settings.extrasCategories ?? []).filter((entry) => !entry?.deleted);
   },
 
@@ -60,7 +65,7 @@ export const plannerSettingsActions = (set, get) => ({
         },
       }),
       false,
-      "plannerSettings/setPlannerSettings"
+      "plannerSettings/setPlannerSettings",
     );
   },
 
@@ -80,7 +85,7 @@ export const plannerSettingsActions = (set, get) => ({
       get().plannerSettings.actions.setPlannerSettings(
         ownerHandle,
         response?.settings,
-        response?.seeded
+        response?.seeded,
       );
       return get().plannerSettings.byOwner[ownerHandle] ?? null;
     } catch (e) {
@@ -100,7 +105,7 @@ export const plannerSettingsActions = (set, get) => ({
         },
       }),
       false,
-      "resetPlannerSettingsStore"
+      "resetPlannerSettingsStore",
     );
   },
 });

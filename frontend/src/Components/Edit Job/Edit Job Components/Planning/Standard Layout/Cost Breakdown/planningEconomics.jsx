@@ -83,7 +83,6 @@ export default function PlanningEconomics(props) {
             <InventionEditor state={state} actions={props.actions} />
           </Disclosure>
         ) : null}
-
       </CostBreakdownPanel>
       <ContributionPanel
         commitment={commitment}

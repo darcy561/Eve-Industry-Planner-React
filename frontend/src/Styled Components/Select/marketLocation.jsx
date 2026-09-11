@@ -1,4 +1,10 @@
-import { FormControl, FormHelperText, MenuItem, Select, useTheme } from "@mui/material";
+import {
+  FormControl,
+  FormHelperText,
+  MenuItem,
+  Select,
+  useTheme,
+} from "@mui/material";
 import GLOBAL_CONFIG from "../../global-config-app";
 import { getAppShellMarketSelectProps } from "../../Context/appShell";
 import useUsersStore from "../../Zustand/usersStore.js";
@@ -10,7 +16,7 @@ const { DEFAULT_MARKET_OPTION } = GLOBAL_CONFIG;
  * A select component for choosing market locations.
  * Displays available market locations from GLOBAL_CONFIG with error handling.
  * Validates the selected value and falls back to "jita" if invalid.
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} [props.value="jita"] - Currently selected market location ID
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the market option object.
@@ -21,9 +27,9 @@ const { DEFAULT_MARKET_OPTION } = GLOBAL_CONFIG;
  * @param {string} [props.labelText="Market"] - Label text to display in helper text
  * @param {boolean} [props.useAppShellStyling=false] - Outlined control + menu styling from app shell
  * @returns {JSX.Element} Market location select component
- * 
+ *
  * @example
- * <MarketLocationSelect 
+ * <MarketLocationSelect
  *   value="jita"
  *   onChange={(market) => setMarketLocation(market)}
  *   error={{ isError: false, errorText: "" }}
@@ -45,13 +51,17 @@ function MarketLocationSelect({
 }) {
   const theme = useTheme();
   const { MARKET_OPTIONS } = GLOBAL_CONFIG;
-  const appShell = useAppShellStyling ? getAppShellMarketSelectProps(theme) : null;
+  const appShell = useAppShellStyling
+    ? getAppShellMarketSelectProps(theme)
+    : null;
   const resolvedSelectVariant = appShell?.selectVariant ?? selectVariant;
   const resolvedMenuProps = { ...(appShell?.menuProps || {}), ...menuProps };
-  
+
   // Ensure value is valid, fallback to "jita" if not
-  const validValue = MARKET_OPTIONS.find(option => option.id === value) ? value : "jita";
-  
+  const validValue = MARKET_OPTIONS.find((option) => option.id === value)
+    ? value
+    : "jita";
+
   return (
     <FormControl
       sx={{
@@ -85,7 +95,7 @@ function MarketLocationSelect({
             onChange(MARKET_OPTIONS.find((i) => i.id == e.target.value));
           } else {
             console.error(
-              "Market Location Select is missing an onChange Function"
+              "Market Location Select is missing an onChange Function",
             );
           }
         }}
@@ -147,10 +157,9 @@ export function MarketLocationSelectApplicationSettings({
   ...rest
 }) {
   const storeDefault = useUsersStore(
-    (s) => s.applicationSettings.defaultMarketLocation
+    (s) => s.applicationSettings.defaultMarketLocation,
   );
-  const applicationDefault =
-    alternativeDefaultMarketLocation ?? storeDefault;
+  const applicationDefault = alternativeDefaultMarketLocation ?? storeDefault;
   const value =
     overrideMarketLocation ?? applicationDefault ?? DEFAULT_MARKET_OPTION;
 
@@ -163,8 +172,8 @@ export function MarketLocationSelectApplicationSettings({
           normalizedOverrideWhenMatchesDefault(
             location.id,
             applicationDefault,
-            DEFAULT_MARKET_OPTION
-          )
+            DEFAULT_MARKET_OPTION,
+          ),
         )
       }
     />

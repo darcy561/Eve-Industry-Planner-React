@@ -81,9 +81,7 @@ export default function AssetTreeRow({
           </Typography>
           {/* A place holding nothing says so, rather than opening onto nothing. */}
           <Typography variant="caption" color="text.secondary">
-            {row.count > 0
-              ? formatNumberForLocale(row.count, WHOLE)
-              : "Empty"}
+            {row.count > 0 ? formatNumberForLocale(row.count, WHOLE) : "Empty"}
           </Typography>
         </Surface>
       </Row>
@@ -105,8 +103,7 @@ export default function AssetTreeRow({
           paddingY: 0.25,
           borderRadius: 1,
           "&:hover": {
-            backgroundColor: (theme) =>
-              alpha(theme.palette.primary.main, 0.08),
+            backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
           },
         }}
       >

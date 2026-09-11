@@ -62,7 +62,7 @@ describe("useLockSyncHeartbeat", () => {
         collection: "job_documents",
         syncLockFromServer,
         flushExtendLease,
-      })
+      }),
     );
     vi.advanceTimersByTime(LOCK_STATUS_SYNC_INTERVAL_MS * 3);
     expect(syncLockFromServer).not.toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe("useLockSyncHeartbeat", () => {
         collection: "job_documents",
         syncLockFromServer,
         flushExtendLease,
-      })
+      }),
     );
     expect(syncLockFromServer).not.toHaveBeenCalled();
     vi.advanceTimersByTime(LOCK_STATUS_SYNC_INTERVAL_MS);

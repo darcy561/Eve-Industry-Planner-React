@@ -19,7 +19,7 @@ function RightSideMenuContent_JobPlanner(props) {
               state.rightDrawerContentID,
               state.rightDrawerContentID,
               (value) => actions.setExpandRightDrawer(value),
-              state?.pageRequiresDrawerToBeOpen ?? false
+              state?.pageRequiresDrawerToBeOpen ?? false,
             )
           }
           {...props}

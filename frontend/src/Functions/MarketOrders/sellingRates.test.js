@@ -79,31 +79,28 @@ describe("broker fee rate", () => {
     trained();
     standings.data = [];
 
-    expect(await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH))
-      .toBeCloseTo(3);
+    expect(
+      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH),
+    ).toBeCloseTo(3);
   });
 
   it("comes down with Broker Relations and both standings", async () => {
     trained({ brokerRelations: 5 });
-    standings.data = [
-      faction(5),
-      corporation(2.5),
-    ];
+    standings.data = [faction(5), corporation(2.5)];
 
     // 3 − 0.3×5 − 0.03×5 − 0.02×2.5
-    expect(await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH))
-      .toBeCloseTo(1.3);
+    expect(
+      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH),
+    ).toBeCloseTo(1.3);
   });
 
   it("reaches the published 1% floor at maximum skill and standings", async () => {
     trained({ brokerRelations: 5 });
-    standings.data = [
-      faction(10),
-      corporation(10),
-    ];
+    standings.data = [faction(10), corporation(10)];
 
-    expect(await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH))
-      .toBeCloseTo(1);
+    expect(
+      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH),
+    ).toBeCloseTo(1);
   });
 
   it("rises above base when standings are negative", async () => {
@@ -111,7 +108,7 @@ describe("broker fee rate", () => {
     standings.data = [faction(-10)];
 
     expect(
-      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH)
+      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH),
     ).toBeGreaterThan(3);
   });
 
@@ -123,7 +120,7 @@ describe("broker fee rate", () => {
     const rate = await brokerFeeRate(
       resolveSaleLocation(structure.id),
       {},
-      HASH
+      HASH,
     );
 
     expect(rate).toBe(structure.brokerFee);
@@ -133,8 +130,9 @@ describe("broker fee rate", () => {
     trained({ brokerRelations: 5 });
     standings.data = [faction(10)];
 
-    expect(await brokerFeeRate(resolveSaleLocation(null, "jita"), {}, null))
-      .toBeCloseTo(3);
+    expect(
+      await brokerFeeRate(resolveSaleLocation(null, "jita"), {}, null),
+    ).toBeCloseTo(3);
   });
 });
 
@@ -202,7 +200,10 @@ describe("the shape both stages share", () => {
     expect(location.kind).toBe(SALE_LOCATION_KIND.HUB);
 
     const value = 500_000_000;
-    const fee = brokerFeeAmount(await brokerFeeRate(location, client, HASH), value);
+    const fee = brokerFeeAmount(
+      await brokerFeeRate(location, client, HASH),
+      value,
+    );
     const tax = salesTaxAmount(salesTaxWorking(client, HASH).rate, value);
 
     // 1.5% and 3.375% of the sale.
@@ -220,7 +221,7 @@ describe("standings that have not resolved", () => {
     standings.data = undefined;
 
     expect(
-      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH)
+      await brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH),
     ).toBeCloseTo(3);
   });
 });
@@ -236,7 +237,7 @@ describe("a station lookup that fails", () => {
     station = null;
 
     await expect(
-      brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH)
+      brokerFeeRate(resolveSaleLocation(null, "jita"), client, HASH),
     ).rejects.toThrow();
 
     station = stationData;

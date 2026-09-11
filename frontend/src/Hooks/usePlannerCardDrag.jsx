@@ -31,9 +31,7 @@ function groupDraggableId(groupID) {
  * @param {{ disabled?: boolean, uiListSource?: "jobPlannerSnapshots" | "groupJobObjects" }} [opts]
  */
 export function usePlannerJobCardDrag(job, opts = {}) {
-  const disabled =
-    opts.disabled ??
-    Boolean(job?.isLocked);
+  const disabled = opts.disabled ?? Boolean(job?.isLocked);
 
   const uiListSource = opts.uiListSource ?? JobCardUiSource.jobPlannerSnapshots;
 

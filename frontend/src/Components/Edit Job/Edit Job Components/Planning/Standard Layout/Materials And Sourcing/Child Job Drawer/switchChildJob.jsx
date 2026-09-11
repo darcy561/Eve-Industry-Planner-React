@@ -27,8 +27,9 @@ export function ChildJobSwitcher({
           size={10}
           sx={{
             justifyContent: "center",
-            alignItems: "center"
-          }}>
+            alignItems: "center",
+          }}
+        >
           <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
             Toggle Child Jobs
           </Typography>

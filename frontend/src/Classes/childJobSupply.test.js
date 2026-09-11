@@ -16,9 +16,8 @@ vi.mock("../Zustand/usersStore.js", () => ({
   },
 }));
 
-const { childJobSupplyForMaterial } = await import(
-  "../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/functions/childJobSupplyForMaterial.js"
-);
+const { childJobSupplyForMaterial } =
+  await import("../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/functions/childJobSupplyForMaterial.js");
 const { default: Job } = await import("./job.js");
 
 const TRITANIUM = 34;
@@ -36,7 +35,9 @@ function parent(jobID, needs, childIDs = []) {
           id: "setup-1",
           runCount: 1,
           jobCount: 1,
-          materialCount: { [TRITANIUM]: { typeID: TRITANIUM, quantity: needs } },
+          materialCount: {
+            [TRITANIUM]: { typeID: TRITANIUM, quantity: needs },
+          },
         },
       },
       materials: [{ typeID: TRITANIUM, name: "Tritanium" }],

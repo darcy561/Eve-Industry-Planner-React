@@ -15,9 +15,14 @@ export function ChildJobItem({ job, itemToModify, updateItemToModify }) {
       }}
       size={{
         xs: 6,
-        sm: 3
-      }}>
-      <Grid align="center" sx={{ minHeight: "35px", minWidth: "35px" }} size={12}>
+        sm: 3,
+      }}
+    >
+      <Grid
+        align="center"
+        sx={{ minHeight: "35px", minWidth: "35px" }}
+        size={12}
+      >
         <img
           src={`https://images.evetech.net/types/${job.itemID}/icon?size=32`}
           alt=""

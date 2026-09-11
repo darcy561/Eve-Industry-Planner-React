@@ -6,9 +6,12 @@ const useGetCharacterSkills = vi.fn();
 const resolveSellerCharacter = vi.fn();
 const resolveSaleLocation = vi.fn();
 
-vi.mock("../../../../../../Hooks/EveEsi/Character/useGetCharacterSkills", () => ({
-  useGetCharacterSkills: (...args) => useGetCharacterSkills(...args),
-}));
+vi.mock(
+  "../../../../../../Hooks/EveEsi/Character/useGetCharacterSkills",
+  () => ({
+    useGetCharacterSkills: (...args) => useGetCharacterSkills(...args),
+  }),
+);
 
 vi.mock("../../../../../../Functions/MarketOrders/sellerCharacter", () => ({
   resolveSellerCharacter: (...args) => resolveSellerCharacter(...args),
@@ -16,22 +19,28 @@ vi.mock("../../../../../../Functions/MarketOrders/sellerCharacter", () => ({
 
 const useSellingRates = vi.fn(() => ({ data: undefined, isLoading: false }));
 
-vi.mock("../../../../../../Hooks/React Query/Character/useSellingRates", () => ({
-  useSellingRates: (...args) => useSellingRates(...args),
-}));
+vi.mock(
+  "../../../../../../Hooks/React Query/Character/useSellingRates",
+  () => ({
+    useSellingRates: (...args) => useSellingRates(...args),
+  }),
+);
 
 vi.mock("../../../../../../Functions/MarketData/marketPriceForType", () => ({
   getMarketPriceForType: () => 10_000,
 }));
 
-vi.mock("../../../../../../Functions/MarketOrders/saleLocations", async (original) => {
-  const actual = await original();
-  return {
-    ...actual,
-    getDefaultSaleStructure: () => ({ id: "citadel" }),
-    resolveSaleLocation: (...args) => resolveSaleLocation(...args),
-  };
-});
+vi.mock(
+  "../../../../../../Functions/MarketOrders/saleLocations",
+  async (original) => {
+    const actual = await original();
+    return {
+      ...actual,
+      getDefaultSaleStructure: () => ({ id: "citadel" }),
+      resolveSaleLocation: (...args) => resolveSaleLocation(...args),
+    };
+  },
+);
 
 vi.mock("../../../../../../Zustand/usersStore", () => {
   const storeState = {
@@ -52,12 +61,10 @@ const jobsInStore = {};
 
 const { SkillsPanel } = await import("./SkillsPanel");
 const { jobFixture } = await import("../../../../../../tests/jobFixture");
-const { SALE_LOCATION_KIND } = await import(
-  "../../../../../../Functions/MarketOrders/saleLocations"
-);
-const { industrySkillIDs, jobTypes, marketSkillIDs } = await import(
-  "../../../../../../Context/defaultValues"
-);
+const { SALE_LOCATION_KIND } =
+  await import("../../../../../../Functions/MarketOrders/saleLocations");
+const { industrySkillIDs, jobTypes, marketSkillIDs } =
+  await import("../../../../../../Context/defaultValues");
 
 const noParents = { getCurrentParentJobs: () => [] };
 
@@ -158,7 +165,10 @@ describe("the Skills panel", () => {
     render(
       <SkillsPanel
         state={{
-          activeJob: { ...state.activeJob, selectedSetup: { selectedCharacter: null } },
+          activeJob: {
+            ...state.activeJob,
+            selectedSetup: { selectedCharacter: null },
+          },
         }}
         actions={noParents}
       />,
@@ -180,7 +190,9 @@ describe("the Skills panel", () => {
   });
 
   it("does not try to fill a height the Masonry has not decided", () => {
-    const { container } = render(<SkillsPanel state={state} actions={noParents} />);
+    const { container } = render(
+      <SkillsPanel state={state} actions={noParents} />,
+    );
 
     expect(container.querySelector(".MuiPaper-root")).not.toHaveStyle({
       height: "100%",
@@ -194,7 +206,10 @@ describe("the Skills panel", () => {
 describe("a job with nothing to sell", () => {
   it("drops the selling group entirely", () => {
     jobsInStore["parent"] = {
-      build: { materials: [{ typeID: 34, quantity: 10 }], childJobs: { 34: ["job-1"] } },
+      build: {
+        materials: [{ typeID: 34, quantity: 10 }],
+        childJobs: { 34: ["job-1"] },
+      },
     };
 
     render(
@@ -204,13 +219,18 @@ describe("a job with nothing to sell", () => {
       />,
     );
 
-    expect(screen.queryByText("Affects what selling costs")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Affects what selling costs"),
+    ).not.toBeInTheDocument();
     expect(screen.getByText(/Required to build/)).toBeInTheDocument();
   });
 
   it("keeps it where the job makes more than its parents need", () => {
     jobsInStore["parent"] = {
-      build: { materials: [{ typeID: 34, quantity: 4 }], childJobs: { 34: ["job-1"] } },
+      build: {
+        materials: [{ typeID: 34, quantity: 4 }],
+        childJobs: { 34: ["job-1"] },
+      },
     };
 
     render(
@@ -269,11 +289,17 @@ describe("the what-if it carries", () => {
   it("offers nothing to try on a job with nothing to sell", () => {
     useSellingRates.mockReturnValue({ data: rates, isLoading: false });
     jobsInStore["parent"] = {
-      build: { materials: [{ typeID: 34, quantity: 10 }], childJobs: { 34: ["job-1"] } },
+      build: {
+        materials: [{ typeID: 34, quantity: 10 }],
+        childJobs: { 34: ["job-1"] },
+      },
     };
 
     render(
-      <SkillsPanel state={state} actions={{ getCurrentParentJobs: () => ["parent"] }} />,
+      <SkillsPanel
+        state={state}
+        actions={{ getCurrentParentJobs: () => ["parent"] }}
+      />,
     );
 
     expect(screen.queryByText("What selling costs")).not.toBeInTheDocument();
@@ -286,7 +312,9 @@ describe("what a shortfall blocks", () => {
   it("counts how much of the requirement is met", () => {
     render(<SkillsPanel state={state} actions={noParents} />);
 
-    expect(screen.getByText("Required to build — 1 of 2 met")).toBeInTheDocument();
+    expect(
+      screen.getByText("Required to build — 1 of 2 met"),
+    ).toBeInTheDocument();
   });
 
   it("says the job cannot start, and what is short by how much", () => {
@@ -338,10 +366,14 @@ describe("trying a level", () => {
     render(<SkillsPanel state={state} actions={noParents} />);
 
     await userEvent.click(
-      screen.getAllByLabelText("Advanced Small Ship Construction at level 3")[0],
+      screen.getAllByLabelText(
+        "Advanced Small Ship Construction at level 3",
+      )[0],
     );
 
-    expect(screen.getByText("Required to build — 2 of 2 met")).toBeInTheDocument();
+    expect(
+      screen.getByText("Required to build — 2 of 2 met"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Job can be run")).toBeInTheDocument();
   });
 
@@ -370,7 +402,9 @@ describe("what a level does to the job's time", () => {
     const before = screen.getByText("Job time").closest("div").textContent;
 
     await userEvent.click(
-      screen.getAllByLabelText("Advanced Small Ship Construction at level 5")[0],
+      screen.getAllByLabelText(
+        "Advanced Small Ship Construction at level 5",
+      )[0],
     );
 
     expect(screen.getByText("Job time").closest("div").textContent).not.toBe(
@@ -382,7 +416,9 @@ describe("what a level does to the job's time", () => {
     render(<SkillsPanel state={state} actions={noParents} />);
 
     await userEvent.click(
-      screen.getAllByLabelText("Advanced Small Ship Construction at level 5")[0],
+      screen.getAllByLabelText(
+        "Advanced Small Ship Construction at level 5",
+      )[0],
     );
 
     expect(screen.getByText(/shorter/)).toBeInTheDocument();

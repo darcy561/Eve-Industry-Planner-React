@@ -77,10 +77,13 @@ describe("createCollectionCache", () => {
   // start with the same character's rows.
   it("holds an entry for each scope sharing a first source", () => {
     const builds = [];
-    const derive = createCollectionCache((sources) => {
-      builds.push(sources.length);
-      return sources.flat();
-    }, { rows: [] });
+    const derive = createCollectionCache(
+      (sources) => {
+        builds.push(sources.length);
+        return sources.flat();
+      },
+      { rows: [] },
+    );
     const first = [{ id: 1 }];
     const second = [{ id: 2 }];
 

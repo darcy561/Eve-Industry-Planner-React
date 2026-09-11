@@ -50,7 +50,12 @@ export function RankedBarChart({
   const axisProps = chartAxisProps(theme);
   const baseColour =
     colour ??
-    resolveSeriesColour(theme, null, 0, paletteSeed ?? `${categoryKey}:${valueKey}`);
+    resolveSeriesColour(
+      theme,
+      null,
+      0,
+      paletteSeed ?? `${categoryKey}:${valueKey}`,
+    );
   const rowsHeight =
     height ?? Math.min(320, Math.max(160, rows.length * barHeight + 48));
 

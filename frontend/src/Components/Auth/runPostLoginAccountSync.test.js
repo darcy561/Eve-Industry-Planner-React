@@ -51,9 +51,16 @@ describe("post-login account sync", () => {
       { CharacterHash: "b" },
     ]);
 
-    await runPostLoginAccountSync({ queryClient, userDocument: { userCloudAccounts: false } });
+    await runPostLoginAccountSync({
+      queryClient,
+      userDocument: { userCloudAccounts: false },
+    });
 
-    expect(mockPrefetchCollections).toHaveBeenCalledWith(queryClient, ["a", "b"], true);
+    expect(mockPrefetchCollections).toHaveBeenCalledWith(
+      queryClient,
+      ["a", "b"],
+      true,
+    );
   });
 
   // Warming a cache must not hold up the rest of login: a prefetch that never answers would
@@ -63,7 +70,10 @@ describe("post-login account sync", () => {
     mockPrefetchCollections.mockReturnValue(new Promise(() => {}));
 
     await expect(
-      runPostLoginAccountSync({ queryClient, userDocument: { userCloudAccounts: false } })
+      runPostLoginAccountSync({
+        queryClient,
+        userDocument: { userCloudAccounts: false },
+      }),
     ).resolves.toBeUndefined();
     expect(mockRefreshAccountSessionGrants).toHaveBeenCalled();
   });
@@ -74,7 +84,10 @@ describe("post-login account sync", () => {
     mockPrefetchCollections.mockRejectedValue(new Error("esi down"));
 
     await expect(
-      runPostLoginAccountSync({ queryClient, userDocument: { userCloudAccounts: false } })
+      runPostLoginAccountSync({
+        queryClient,
+        userDocument: { userCloudAccounts: false },
+      }),
     ).resolves.toBeUndefined();
     expect(mockRefreshAccountSessionGrants).toHaveBeenCalled();
   });

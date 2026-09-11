@@ -48,7 +48,8 @@ export default function ExtrasEditor({ state, actions }) {
     const n = Number(ExtraCost.categoryOf(categoryId));
     const safeCategoryId = Number.isFinite(n) ? n : 0;
     const category = extrasCategories.find(
-      (cat) => cat.id === safeCategoryId || String(cat.id) === String(categoryId),
+      (cat) =>
+        cat.id === safeCategoryId || String(cat.id) === String(categoryId),
     );
     return category ? category.label : "";
   };

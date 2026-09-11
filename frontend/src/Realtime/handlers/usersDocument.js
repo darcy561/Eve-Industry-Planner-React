@@ -77,7 +77,9 @@ export function handleUsersDocumentUpsert(ctx) {
     snap.linkedCharactersChanged = linkedCharactersChanged;
   }
 
-  useUsersStore.getState().account.actions.applyUserDocumentFromRemote(document);
+  useUsersStore
+    .getState()
+    .account.actions.applyUserDocumentFromRemote(document);
   rs.setCursorMs(docKey, remoteMs);
 
   enqueueReconcile(async () => {

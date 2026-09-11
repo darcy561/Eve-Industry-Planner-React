@@ -1,12 +1,12 @@
 /**
  * Recursively flattens a nested object into a single-level object with dot notation keys.
  * Converts arrays to JSON strings and preserves primitive values.
- * 
+ *
  * @param {Object} obj - The object to flatten
  * @param {string} [parentKey=""] - The parent key for nested objects (used internally)
  * @param {Object} [result={}] - The result object to build (used internally)
  * @returns {Object} Flattened object with dot notation keys
- * 
+ *
  * @example
  * const nested = {
  *   user: {
@@ -36,4 +36,4 @@ function flattenObject(obj, parentKey = "", result = {}) {
   return result;
 }
 
-export default flattenObject
+export default flattenObject;

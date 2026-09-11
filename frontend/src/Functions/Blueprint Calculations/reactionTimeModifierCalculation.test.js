@@ -8,14 +8,15 @@ vi.mock("../Helper/getStructureInfo", () => ({
   getRigInfoFromID: () => ({ time: rigTime.value }),
 }));
 
-const { default: reactionTimeModifierCalculation } = await import(
-  "./reactionTimeModifierCalculation.js"
-);
+const { default: reactionTimeModifierCalculation } =
+  await import("./reactionTimeModifierCalculation.js");
 
 const REACTIONS = 45746;
 
 const skills = (level) =>
-  level === undefined ? {} : { [REACTIONS]: { id: REACTIONS, activeLevel: level } };
+  level === undefined
+    ? {}
+    : { [REACTIONS]: { id: REACTIONS, activeLevel: level } };
 
 function baseline({ structure = 0, rig = 0, level } = {}) {
   structureTime.value = structure;
@@ -47,7 +48,7 @@ describe("reaction time modifier", () => {
     // A reaction has no researchable time efficiency, so the only reductions are
     // the skill, the structure and the rig.
     expect(baseline({ level: 5, structure: 0.2, rig: 0.1 })).toBeCloseTo(
-      0.8 * 0.8 * 0.9
+      0.8 * 0.8 * 0.9,
     );
   });
 

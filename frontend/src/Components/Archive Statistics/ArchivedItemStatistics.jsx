@@ -17,7 +17,10 @@ import {
   toCumulativeRows,
   toQuantityRows,
 } from "./chartAdapters";
-import { formatNumberForLocale, numberToShortText } from "../../Functions/Helper/numberParser";
+import {
+  formatNumberForLocale,
+  numberToShortText,
+} from "../../Functions/Helper/numberParser";
 
 /** Names what the figures beneath it are counting over. */
 function GroupLabel({ children }) {
@@ -154,7 +157,11 @@ export function ArchivedItemStatistics({
             paperSx={{ flex: 1, display: "flex", flexDirection: "column" }}
             contentSx={{ flex: 1, display: "flex", alignItems: "flex-start" }}
           >
-            <Typography variant="body2" color="text.secondary" sx={{ width: "100%" }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ width: "100%" }}
+            >
               {typeID
                 ? `Nothing archived for ${item?.name ?? "this item"} yet.`
                 : "Search for an item to see what it has cost and earned."}
@@ -172,22 +179,34 @@ export function ArchivedItemStatistics({
                 <Box>
                   <GroupLabel>In this period</GroupLabel>
                   <Grid container spacing={2}>
-                    <Figure label="Items produced" value={COUNT(period?.quantityProduced)} />
-                    <Figure label="Items sold" value={COUNT(period?.quantitySold)} />
+                    <Figure
+                      label="Items produced"
+                      value={COUNT(period?.quantityProduced)}
+                    />
+                    <Figure
+                      label="Items sold"
+                      value={COUNT(period?.quantitySold)}
+                    />
                     <Figure
                       label="Job cost"
                       value={ISK(period?.jobCostTotal)}
-                      title={formatNumberForLocale(Number(period?.jobCostTotal ?? 0))}
+                      title={formatNumberForLocale(
+                        Number(period?.jobCostTotal ?? 0),
+                      )}
                     />
                     <Figure
                       label="Sales"
                       value={ISK(period?.salesTotal)}
-                      title={formatNumberForLocale(Number(period?.salesTotal ?? 0))}
+                      title={formatNumberForLocale(
+                        Number(period?.salesTotal ?? 0),
+                      )}
                     />
                     <Figure
                       label="Profit"
                       value={ISK(period?.profitLoss)}
-                      title={formatNumberForLocale(Number(period?.profitLoss ?? 0))}
+                      title={formatNumberForLocale(
+                        Number(period?.profitLoss ?? 0),
+                      )}
                     />
                   </Grid>
                 </Box>
@@ -198,13 +217,21 @@ export function ArchivedItemStatistics({
                   <GroupLabel>All time</GroupLabel>
                   <Grid container spacing={2}>
                     <Figure label="Builds" value={COUNT(row?.totalJobs)} />
-                    <Figure label="Items produced" value={COUNT(row?.itemBuildCount)} />
+                    <Figure
+                      label="Items produced"
+                      value={COUNT(row?.itemBuildCount)}
+                    />
                     <Figure
                       label="Profit"
                       value={ISK(row?.profitLoss)}
-                      title={formatNumberForLocale(Number(row?.profitLoss ?? 0))}
+                      title={formatNumberForLocale(
+                        Number(row?.profitLoss ?? 0),
+                      )}
                     />
-                    <Figure label="First build" value={monthKeyOrDash(history?.firstCostMonth)} />
+                    <Figure
+                      label="First build"
+                      value={monthKeyOrDash(history?.firstCostMonth)}
+                    />
                     <Figure
                       label="Cheapest / item"
                       value={ISK(history?.cheapestCostPerItem)}
@@ -308,7 +335,12 @@ export function ArchivedItemStatistics({
                   formatCategory={monthLabel(cumulative)}
                   rightAxisLabel="Running total"
                   series={[
-                    { key: "profitLoss", label: "Profit", type: "bar", role: "profit" },
+                    {
+                      key: "profitLoss",
+                      label: "Profit",
+                      type: "bar",
+                      role: "profit",
+                    },
                     {
                       key: "cumulativeProfit",
                       label: "Running total",

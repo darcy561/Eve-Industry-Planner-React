@@ -80,11 +80,14 @@ vi.mock("../../../../../../Zustand/usersStore", () => {
 });
 
 const { default: MaterialDrawer } = await import("./materialDrawer");
-const { jobFixture, materialFixture } = await import(
-  "../../../../../../tests/jobFixture"
-);
+const { jobFixture, materialFixture } =
+  await import("../../../../../../tests/jobFixture");
 
-const material = materialFixture({ typeID: 35, name: "Pyerite", quantity: 100 });
+const material = materialFixture({
+  typeID: 35,
+  name: "Pyerite",
+  quantity: 100,
+});
 
 function renderDrawer(overrides = {}) {
   return render(
@@ -136,7 +139,9 @@ describe("the child job drawer", () => {
 
     renderDrawer();
 
-    expect(await screen.findByText("Error Importing Job Data")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Error Importing Job Data"),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("child-materials")).not.toBeInTheDocument();
   });
 

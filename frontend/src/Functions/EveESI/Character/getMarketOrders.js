@@ -16,7 +16,7 @@ async function getCharacterMarketOrders({
   character,
   page = 1,
   existingData = {},
-  config = {}
+  config = {},
 }) {
   try {
     if (!character || !character.CharacterHash || !character.CharacterID) {
@@ -29,13 +29,13 @@ async function getCharacterMarketOrders({
 
     // Enhanced configuration for rate limiting
     const enhancedConfig = {
-      priority: 'normal',
+      priority: "normal",
       batchable: true,
       maxRetries: 3,
       useQueue: true,
-      group: 'character',
+      group: "character",
       characterHash: config.characterHash,
-      ...config
+      ...config,
     };
 
     const response = await fetchWithCustomHeaders(
@@ -46,7 +46,7 @@ async function getCharacterMarketOrders({
           Authorization: `Bearer ${accessToken}`,
         },
       },
-      enhancedConfig
+      enhancedConfig,
     );
 
     // Helper to return default response structure
@@ -75,7 +75,7 @@ async function getCharacterMarketOrders({
       // Permission errors - return empty data gracefully
       if (response.status === 403) {
         console.warn(
-          `Access forbidden for character market orders: ${CharacterID}`
+          `Access forbidden for character market orders: ${CharacterID}`,
         );
         return {
           data: [],
@@ -85,14 +85,14 @@ async function getCharacterMarketOrders({
       }
       // Other client errors - throw
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 
     // Handle server errors (5xx)
     if (response.status >= 500) {
       throw new Error(
-        `API request failed with status ${response.status}: ${response.statusText}`
+        `API request failed with status ${response.status}: ${response.statusText}`,
       );
     }
 

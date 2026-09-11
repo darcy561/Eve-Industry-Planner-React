@@ -113,7 +113,9 @@ describe("the plan chip", () => {
   it("severs a link committed before this session", async () => {
     const linkedJob = { jobID: "linked-34", itemID: 34 };
     const actions = renderChip({
-      state: state({ activeJob: { build: { childJobs: { 34: ["linked-34"] } } } }),
+      state: state({
+        activeJob: { build: { childJobs: { 34: ["linked-34"] } } },
+      }),
       rowJob: linkedJob,
     });
 
@@ -130,7 +132,9 @@ describe("the plan chip", () => {
     useSiblingLinkLock.mockReturnValue({ readOnly: true, reason: "locked" });
 
     renderChip({
-      state: state({ activeJob: { build: { childJobs: { 34: ["linked-34"] } } } }),
+      state: state({
+        activeJob: { build: { childJobs: { 34: ["linked-34"] } } },
+      }),
       rowJob: { jobID: "linked-34", itemID: 34 },
     });
 
@@ -139,7 +143,9 @@ describe("the plan chip", () => {
 
   it("offers no way back when nothing names the linked job", () => {
     renderChip({
-      state: state({ activeJob: { build: { childJobs: { 34: ["linked-34"] } } } }),
+      state: state({
+        activeJob: { build: { childJobs: { 34: ["linked-34"] } } },
+      }),
       rowJob: null,
     });
 
@@ -165,7 +171,13 @@ describe("committing a job built for this row", () => {
 describe("the plan chip inside a group", () => {
   const groupJob = { jobID: "group-34", itemID: 34 };
   const inGroup = () =>
-    state({ activeJob: { groupID: "g1", includedInGroup: true, build: { childJobs: { 34: [] } } } });
+    state({
+      activeJob: {
+        groupID: "g1",
+        includedInGroup: true,
+        build: { childJobs: { 34: [] } },
+      },
+    });
 
   it("offers to build within the group", () => {
     findMaterialJobInGroup.mockReturnValue(groupJob);
@@ -271,7 +283,13 @@ describe("what the row was costed with, once it has been decided", () => {
   it("is dropped when the row links the group's own job", async () => {
     findMaterialJobInGroup.mockReturnValue({ jobID: "group-34", itemID: 34 });
     const actions = renderChip({
-      state: state({ activeJob: { includedInGroup: true, groupID: "g1", build: { childJobs: { 34: [] } } } }),
+      state: state({
+        activeJob: {
+          includedInGroup: true,
+          groupID: "g1",
+          build: { childJobs: { 34: [] } },
+        },
+      }),
     });
 
     await userEvent.click(

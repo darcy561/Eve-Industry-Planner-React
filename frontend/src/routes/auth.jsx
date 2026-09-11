@@ -1,40 +1,46 @@
-import { createFileRoute, redirect, lazyRouteComponent } from '@tanstack/react-router'
-import useUsersStore from '../Zustand/usersStore'
-import { getRedirectPathAfterAuth } from '../utils/routeUtils'
+import {
+  createFileRoute,
+  redirect,
+  lazyRouteComponent,
+} from "@tanstack/react-router";
+import useUsersStore from "../Zustand/usersStore";
+import { getRedirectPathAfterAuth } from "../utils/routeUtils";
 
-const AuthMainUser = lazyRouteComponent(() => import('../Components/Auth/MainUserAuth'))
+const AuthMainUser = lazyRouteComponent(
+  () => import("../Components/Auth/MainUserAuth"),
+);
 
-export const Route = createFileRoute('/auth')({
+export const Route = createFileRoute("/auth")({
   beforeLoad: ({ search }) => {
-    const state = useUsersStore.getState()
-    const isLoggedIn = state.account.isLoggedIn
-    
+    const state = useUsersStore.getState();
+    const isLoggedIn = state.account.isLoggedIn;
+
     // If user is already logged in, redirect them away from auth page
     if (isLoggedIn) {
       const needsFirstLoginFlow =
-        state.account.actions.getRequiresFirstLoginFlow()
+        state.account.actions.getRequiresFirstLoginFlow();
 
       if (needsFirstLoginFlow) {
         throw redirect({
           to: "/first-login",
-        })
+        });
       }
 
       // Get the original path from the state parameter
-      const originalPath = search.state
-      
+      const originalPath = search.state;
+
       // Determine redirect path using the utility function
-      const redirectPath = getRedirectPathAfterAuth(originalPath, "/dashboard")
-      
+      const redirectPath = getRedirectPathAfterAuth(originalPath, "/dashboard");
+
       // Clean up the originalPath from localStorage after determining redirect
       if (originalPath) {
         localStorage.removeItem("originalPath");
       }
-      
+
       throw redirect({
         to: redirectPath,
-      })
+      });
     }
   },
   component: AuthMainUser,
-})
+});

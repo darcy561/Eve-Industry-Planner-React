@@ -13,9 +13,12 @@ vi.mock("./useJobEconomics", () => ({
   useJobEconomics: (...args) => useJobEconomics(...args),
 }));
 
-vi.mock("../../../../../../Hooks/React Query/Backend/statisticsTimeline", () => ({
-  useAccountTimelineQuery: () => ({ data: undefined }),
-}));
+vi.mock(
+  "../../../../../../Hooks/React Query/Backend/statisticsTimeline",
+  () => ({
+    useAccountTimelineQuery: () => ({ data: undefined }),
+  }),
+);
 
 const { default: PlanningEconomics } = await import("./planningEconomics");
 
@@ -237,7 +240,9 @@ describe("the cost over time chart", () => {
 
     render(<PlanningEconomics state={state} actions={{}} />);
 
-    expect(screen.queryByText(/Cost per unit over time/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Cost per unit over time/),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -275,7 +280,9 @@ describe("recording what invention cost", () => {
       },
     };
 
-    render(<PlanningEconomics state={{ ...state, activeJob: job }} actions={{}} />);
+    render(
+      <PlanningEconomics state={{ ...state, activeJob: job }} actions={{}} />,
+    );
 
     expect(screen.getByText(/Invention — 1,/)).toBeInTheDocument();
   });

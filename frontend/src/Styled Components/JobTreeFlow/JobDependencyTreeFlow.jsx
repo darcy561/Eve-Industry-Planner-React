@@ -6,10 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  ReactFlow,
-  ReactFlowProvider,
-} from "@xyflow/react";
+import { ReactFlow, ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Box, Typography, useTheme } from "@mui/material";
 import {
@@ -51,17 +48,17 @@ function JobDependencyTreeFlowInner({
 
   const jobIdSet = useMemo(
     () => new Set(jobs.map((j) => String(j.jobID))),
-    [jobs]
+    [jobs],
   );
 
   const layoutRevision = useMemo(
     () => jobs.map((j) => String(j.jobID)).join("\0"),
-    [jobs]
+    [jobs],
   );
 
   const { nodes: baseNodes, edges: baseEdges } = useMemo(
     () => buildJobDependencyFlowElements(jobs, completeJobIds),
-    [jobs, completeJobIds]
+    [jobs, completeJobIds],
   );
 
   const [hoveredId, setHoveredId] = useState(null);
@@ -129,7 +126,7 @@ function JobDependencyTreeFlowInner({
           ...n.data,
           focused: Boolean(
             inPanelChain ||
-              (selectedJobId != null && String(n.id) === selectedJobId)
+            (selectedJobId != null && String(n.id) === selectedJobId),
           ),
         },
         style: {
@@ -163,7 +160,9 @@ function JobDependencyTreeFlowInner({
         ...e,
         data: { ...e.data, edgeDimmed: !on },
         className: on
-          ? [e.className, "job-dependency-edge--pulse"].filter(Boolean).join(" ")
+          ? [e.className, "job-dependency-edge--pulse"]
+              .filter(Boolean)
+              .join(" ")
           : e.className,
         style: {
           ...e.style,
@@ -185,12 +184,12 @@ function JobDependencyTreeFlowInner({
     (jobID) => {
       (onJobDoubleClick ?? noop)(jobID);
     },
-    [onJobDoubleClick]
+    [onJobDoubleClick],
   );
 
   const interaction = useMemo(
     () => ({ onSelectNode, onOpenNode }),
-    [onSelectNode, onOpenNode]
+    [onSelectNode, onOpenNode],
   );
 
   const onPaneClick = useCallback(() => {
@@ -200,7 +199,9 @@ function JobDependencyTreeFlowInner({
 
   const onNodeMouseEnter = useCallback((_evt, node) => {
     setHoveredId(
-      node != null && node.id != null && node.id !== "" ? String(node.id) : null
+      node != null && node.id != null && node.id !== ""
+        ? String(node.id)
+        : null,
     );
   }, []);
 
@@ -218,10 +219,11 @@ function JobDependencyTreeFlowInner({
 
   const defaultHelp = (
     <Typography variant="subtitle2" color="text.secondary">
-      Built jobs feed <strong>up</strong> the chain; layout is top-down. Lines run from child to
-      parent. <strong>Click</strong> a job to lock highlight for its parents and children;{" "}
-      <strong>double-click</strong> runs your handler when provided. Pan: drag the canvas or
-      two-finger scroll; zoom: toolbar, pinch, or <strong>Ctrl</strong> / <strong>⌘</strong> + scroll.
+      Built jobs feed <strong>up</strong> the chain; layout is top-down. Lines
+      run from child to parent. <strong>Click</strong> a job to lock highlight
+      for its parents and children; <strong>double-click</strong> runs your
+      handler when provided. Pan: drag the canvas or two-finger scroll; zoom:
+      toolbar, pinch, or <strong>Ctrl</strong> / <strong>⌘</strong> + scroll.
     </Typography>
   );
 
@@ -282,11 +284,15 @@ function JobDependencyTreeFlowInner({
             onPaneMouseEnter={onPaneMouseEnter}
             elevateEdgesOnSelect
           >
-            {fitSessionKey ? <FitViewToJobEffect fitSessionKey={fitSessionKey} /> : null}
+            {fitSessionKey ? (
+              <FitViewToJobEffect fitSessionKey={fitSessionKey} />
+            ) : null}
             {fitViewRequestKey !== undefined ? (
               <FitViewToGraphEffect fitViewRequestKey={fitViewRequestKey} />
             ) : null}
-            {!hideControls ? <JobTreeControls onOpenInDialogue={onOpenInDialogue} /> : null}
+            {!hideControls ? (
+              <JobTreeControls onOpenInDialogue={onOpenInDialogue} />
+            ) : null}
           </ReactFlow>
         </Box>
       </Box>

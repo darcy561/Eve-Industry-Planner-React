@@ -90,7 +90,7 @@ export function RangeBar({
           role="img"
           aria-label={label}
           sx={{ position: "relative", height: 22, width: "100%" }}
-          >
+        >
           <Box
             sx={{
               position: "absolute",

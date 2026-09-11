@@ -17,9 +17,7 @@ export default function GroupJobTreeFlow({
   const navigate = useNavigate({ from: "/group/$groupID" });
   const activeGroupID = useUsersStore((s) => s.jobData.activeGroupID);
   const groupArray = useUsersStore((s) => s.jobData.groupArray);
-  const getGroupObject = useUsersStore(
-    (s) => s.jobData.actions.getGroupObject
-  );
+  const getGroupObject = useUsersStore((s) => s.jobData.actions.getGroupObject);
   const groupForEditSearch = routeGroupID || activeGroupID || undefined;
   const jobArray = useUsersStore((s) => s.jobData.jobArray);
 
@@ -37,7 +35,7 @@ export default function GroupJobTreeFlow({
 
   const groupJobIdSet = useMemo(
     () => new Set(groupJobs.map((j) => String(j.jobID))),
-    [groupJobs]
+    [groupJobs],
   );
 
   const panelChainIds = useMemo(() => {
@@ -65,7 +63,7 @@ export default function GroupJobTreeFlow({
         params: { groupID: routeGroupID },
         search: buildGroupSearchAfterEditClose(
           { pageView: editReturnPageView },
-          undefined
+          undefined,
         ),
         replace: true,
       });
@@ -88,7 +86,7 @@ export default function GroupJobTreeFlow({
         navigate({ to: "/editjob/$jobID", params: { jobID } });
       }
     },
-    [navigate, groupForEditSearch, editReturnPageView]
+    [navigate, groupForEditSearch, editReturnPageView],
   );
 
   const focusInGroup =
@@ -129,10 +127,11 @@ export default function GroupJobTreeFlow({
 
   const groupHelpText = (
     <Typography variant="subtitle2" color="text.secondary">
-      Built jobs feed <strong>up</strong> the chain; layout is top-down. Lines run from child to
-      parent. <strong>Click</strong> a job to lock highlight for its parents and children;{" "}
-      <strong>double-click</strong> to edit. Use the right panel <strong>highlight</strong> icon on
-      an output job to dim the tree to that production chain and its connectors. Pan: drag the canvas
+      Built jobs feed <strong>up</strong> the chain; layout is top-down. Lines
+      run from child to parent. <strong>Click</strong> a job to lock highlight
+      for its parents and children; <strong>double-click</strong> to edit. Use
+      the right panel <strong>highlight</strong> icon on an output job to dim
+      the tree to that production chain and its connectors. Pan: drag the canvas
       (including over jobs) or two-finger scroll; zoom: toolbar, pinch, or{" "}
       <strong>Ctrl</strong> / <strong>⌘</strong> + scroll.
     </Typography>

@@ -26,13 +26,17 @@ export const LIBRARY_FILTER = Object.freeze({
  * @param {Array<Object>} [industryJobs] - for the active filter
  * @returns {Array<import("./buildBlueprintRows").BlueprintRow>}
  */
-export default function filterLibraryBlueprints(rows, filter, industryJobs = []) {
+export default function filterLibraryBlueprints(
+  rows,
+  filter,
+  industryJobs = [],
+) {
   switch (filter) {
     case LIBRARY_FILTER.ACTIVE: {
       const running = new Set(
         industryJobs
           .filter((job) => job.status === "active")
-          .map((job) => job.blueprint_id)
+          .map((job) => job.blueprint_id),
       );
       return running.size === 0
         ? []
@@ -47,12 +51,12 @@ export default function filterLibraryBlueprints(rows, filter, industryJobs = [])
 
     case LIBRARY_FILTER.BPO:
       return rows.filter(
-        (row) => !row.isCopy && row.jobType === jobTypes.manufacturing
+        (row) => !row.isCopy && row.jobType === jobTypes.manufacturing,
       );
 
     case LIBRARY_FILTER.BPC:
       return rows.filter(
-        (row) => row.isCopy && row.jobType === jobTypes.manufacturing
+        (row) => row.isCopy && row.jobType === jobTypes.manufacturing,
       );
 
     default:

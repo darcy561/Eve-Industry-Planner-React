@@ -14,7 +14,7 @@ import JobSetupInfoFrame from "./JobSetupInfo/JobSetupInfoFrame";
 export function Purchasing_StandardLayout_EditJob(props) {
   const { state } = props;
   const hideCompleteMaterials = useUsersStore(
-    (state) => state.applicationSettings.hideCompleteMaterials
+    (state) => state.applicationSettings.hideCompleteMaterials,
   );
   const { jobArray } = useUsersStore((state) => state.jobData);
 
@@ -26,7 +26,7 @@ export function Purchasing_StandardLayout_EditJob(props) {
       material.typeID,
       state.activeJob,
       state.temporaryChildJobs,
-      state.parentChildToEdit
+      state.parentChildToEdit,
     );
 
     if (childJobLocation.length > 0) {
@@ -38,7 +38,7 @@ export function Purchasing_StandardLayout_EditJob(props) {
         childJobs = filterJobs(jobArray);
         remainingTotalToBeImported = childJobs.reduce((total, job) => {
           const matchingCostImport = material.purchasing.find(
-            (i) => i.childID === job.jobID
+            (i) => i.childID === job.jobID,
           );
 
           if (!matchingCostImport) {
@@ -53,7 +53,7 @@ export function Purchasing_StandardLayout_EditJob(props) {
         ]);
         remainingTotalToBeImported = childJobs.reduce((total, job) => {
           const matchingCostImport = material.purchasing.find(
-            (i) => i.childID === job.jobID
+            (i) => i.childID === job.jobID,
           );
 
           if (!matchingCostImport) {

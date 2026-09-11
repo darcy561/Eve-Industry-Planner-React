@@ -5,15 +5,15 @@ import { getSystemTypeFromID } from "../../Functions/Helper/getStructureInfo";
 /**
  * A select component for choosing system types based on job type.
  * Displays available system types for the specified job type.
- * 
+ *
  * @param {Object} props - Component props
  * @param {number} [props.value=0] - Currently selected system type ID
  * @param {number} [props.jobType=1] - Job type to determine which system types to show
  * @param {Function} props.onChange - Callback function called when selection changes. Receives the system type info object.
  * @returns {JSX.Element} System type select component
- * 
+ *
  * @example
- * <SystemTypeSelect 
+ * <SystemTypeSelect
  *   value={selectedSystemTypeId}
  *   jobType={1}
  *   onChange={(systemType) => setSystemType(systemType)}

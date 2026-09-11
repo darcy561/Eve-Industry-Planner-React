@@ -110,9 +110,7 @@ export function AccountData() {
         </Grid>
         <Grid container sx={{ marginTop: "5px" }} size={12}>
           {jobStatuses.map((step) => {
-            const jobs = jobArray.filter(
-              (job) => job.jobStatus === step.id
-            );
+            const jobs = jobArray.filter((job) => job.jobStatus === step.id);
             return (
               <Grid key={step.id} container size={12}>
                 <Grid size={10}>

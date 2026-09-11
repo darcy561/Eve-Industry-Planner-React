@@ -1,9 +1,9 @@
-import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
 
 const ArchivedJobs = lazyRouteComponent(
-  () => import('../../Components/Archived Jobs/ArchivedJobsPage'),
-)
+  () => import("../../Components/Archived Jobs/ArchivedJobsPage"),
+);
 
-export const Route = createFileRoute('/_protected/archived-jobs')({
+export const Route = createFileRoute("/_protected/archived-jobs")({
   component: ArchivedJobs,
-})
+});

@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -32,25 +38,33 @@ vi.mock("../../../../../../Functions/EveESI/fetchWithCustomHeaders", () => ({
           { id: 1000086, name: "Emperor Family", category: "corporation" },
         ]
       : url.includes("/standings/")
-      ? [
-          { from_id: 500001, from_type: "faction", standing: 8 },
-          { from_id: 1000035, from_type: "npc_corp", standing: 5 },
-          { from_id: 500003, from_type: "faction", standing: 2 },
-        ]
-      : url.includes("/skills/")
-        ? { skills: [{ skill_id: 3446, active_skill_level: 5, trained_skill_level: 5 }] }
-        : url.includes("/universe/races/")
-          ? [
-          { race_id: 1, alliance_id: 500001, name: "Caldari" },
-          { race_id: 4, alliance_id: 500003, name: "Amarr" },
-        ]
-          : url.includes("/universe/stations/60008494")
-            // Amarr VIII: built by Amarr (race 4), owned by Emperor Family.
-            ? { race_id: 4, owner: 1000086, station_id: 60008494 }
-            : url.includes("/universe/stations/")
-              // Jita 4-4: built by Caldari (race 1), owned by Caldari Navy.
-              ? { race_id: 1, owner: 1000035, station_id: 60003760 }
-              : {};
+        ? [
+            { from_id: 500001, from_type: "faction", standing: 8 },
+            { from_id: 1000035, from_type: "npc_corp", standing: 5 },
+            { from_id: 500003, from_type: "faction", standing: 2 },
+          ]
+        : url.includes("/skills/")
+          ? {
+              skills: [
+                {
+                  skill_id: 3446,
+                  active_skill_level: 5,
+                  trained_skill_level: 5,
+                },
+              ],
+            }
+          : url.includes("/universe/races/")
+            ? [
+                { race_id: 1, alliance_id: 500001, name: "Caldari" },
+                { race_id: 4, alliance_id: 500003, name: "Amarr" },
+              ]
+            : url.includes("/universe/stations/60008494")
+              ? // Amarr VIII: built by Amarr (race 4), owned by Emperor Family.
+                { race_id: 4, owner: 1000086, station_id: 60008494 }
+              : url.includes("/universe/stations/")
+                ? // Jita 4-4: built by Caldari (race 1), owned by Caldari Navy.
+                  { race_id: 1, owner: 1000035, station_id: 60003760 }
+                : {};
 
     return {
       ok: true,
@@ -65,7 +79,11 @@ vi.mock("../../../../../../Functions/Auth/esiCredentials/provider.js", () => ({
   getEsiAccessToken: async () => ({ accessToken: "token" }),
 }));
 
-const SELLER = { CharacterHash: "seller-hash", CharacterID: 90000001, CharacterName: "Market Alt" };
+const SELLER = {
+  CharacterHash: "seller-hash",
+  CharacterID: 90000001,
+  CharacterName: "Market Alt",
+};
 
 vi.mock("../../../../../../Zustand/usersStore", () => {
   const storeState = {
@@ -88,15 +106,12 @@ vi.mock("../../../../../../Zustand/usersStore", () => {
 });
 
 const { queryClient } = await import("../../../../../../queryClient");
-const { TRANQUILITY_SERVER_STATUS_QUERY_KEY } = await import(
-  "../../../../../../Hooks/React Query/tranquilityServerStatus"
-);
-const { useSellingRates } = await import(
-  "../../../../../../Hooks/React Query/Character/useSellingRates"
-);
-const { resolveSaleLocation, getDefaultSaleStructure } = await import(
-  "../../../../../../Functions/MarketOrders/saleLocations"
-);
+const { TRANQUILITY_SERVER_STATUS_QUERY_KEY } =
+  await import("../../../../../../Hooks/React Query/tranquilityServerStatus");
+const { useSellingRates } =
+  await import("../../../../../../Hooks/React Query/Character/useSellingRates");
+const { resolveSaleLocation, getDefaultSaleStructure } =
+  await import("../../../../../../Functions/MarketOrders/saleLocations");
 const { default: SaleLocationRates } = await import("./saleLocationRates");
 
 function Block({ locationID }) {
@@ -111,7 +126,11 @@ function Block({ locationID }) {
       saleLocation={saleLocation}
       rates={rates}
       isLoading={isLoading}
-      seller={{ hash: SELLER.CharacterHash, name: SELLER.CharacterName, isDefault: false }}
+      seller={{
+        hash: SELLER.CharacterHash,
+        name: SELLER.CharacterName,
+        isDefault: false,
+      }}
     />
   );
 }
@@ -160,7 +179,9 @@ describe("a station's broker fee, end to end", () => {
   it("names the standings behind the reduction rather than saying there are none", async () => {
     const block = show("jita");
 
-    expect(await block.findByText("8.00 with Caldari State")).toBeInTheDocument();
+    expect(
+      await block.findByText("8.00 with Caldari State"),
+    ).toBeInTheDocument();
     expect(block.getByText("5.00 with Caldari Navy")).toBeInTheDocument();
     expect(block.queryByText(/could not be read/)).not.toBeInTheDocument();
   });
@@ -218,7 +239,11 @@ describe("switching from the default citadel to an NPC station", () => {
         isLoading={isLoading}
         plan={plan}
         onPlanChange={(next) => setPlan((p) => ({ ...p, ...next }))}
-        seller={{ hash: SELLER.CharacterHash, name: SELLER.CharacterName, isDefault: false }}
+        seller={{
+          hash: SELLER.CharacterHash,
+          name: SELLER.CharacterName,
+          isDefault: false,
+        }}
       />
     );
   }
@@ -236,9 +261,13 @@ describe("switching from the default citadel to an NPC station", () => {
     expect(await block.findByText("1.50%")).toBeInTheDocument();
 
     await userEvent.click(block.getByLabelText("Where this job sells from"));
-    await userEvent.click(within(screen.getByRole("listbox")).getByText("Jita"));
+    await userEvent.click(
+      within(screen.getByRole("listbox")).getByText("Jita"),
+    );
 
-    expect(await block.findByText("8.00 with Caldari State")).toBeInTheDocument();
+    expect(
+      await block.findByText("8.00 with Caldari State"),
+    ).toBeInTheDocument();
     expect(block.getByText("5.00 with Caldari Navy")).toBeInTheDocument();
   });
 });

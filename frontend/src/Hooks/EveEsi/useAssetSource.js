@@ -39,7 +39,7 @@ export default function useAssetSource({
 
   const containerIds = useMemo(
     () => namedContainerIds(collection),
-    [collection]
+    [collection],
   );
   const { names: containerNames } = useAssetContainerNames({
     character: namesCharacter,

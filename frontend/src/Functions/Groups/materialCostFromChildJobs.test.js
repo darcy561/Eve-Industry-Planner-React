@@ -41,7 +41,7 @@ describe("calculateMaterialCostFromChildJobs install rollup", () => {
       [childJob],
       {},
       "jita",
-      "sell"
+      "sell",
     );
 
     // install 200 + extras 0, per unit 20, × material qty 5 = 100

@@ -19,7 +19,12 @@ export function monthLabel(rows = []) {
 /** Empty state, so a panel with no rows says why rather than drawing nothing. */
 export function NoData({ children }) {
   return (
-    <Typography variant="body2" color="text.secondary" sx={{ py: 4 }} align="center">
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{ py: 4 }}
+      align="center"
+    >
       {children}
     </Typography>
   );

@@ -73,37 +73,41 @@ describe("closeActiveGroup", () => {
 
   it("skips API persist when this tab does not hold the group lock", async () => {
     const k = docLockScopeKey(USER_JOB_GROUPS_COLLECTION, "g1");
-    storeHolder.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOB_GROUPS_COLLECTION,
-      "g1",
-      { readOnly: true, lockHeld: false }
-    );
+    storeHolder.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOB_GROUPS_COLLECTION,
+        "g1",
+        { readOnly: true, lockHeld: false },
+      );
 
     await closeActiveGroup([makeJob()]);
 
     expect(flushPendingGroupSave).not.toHaveBeenCalled();
     expect(saveJobsViaApi).not.toHaveBeenCalled();
     expect(
-      storeHolder.current.getState().jobData.actions.clearPendingJobGroupWrites
+      storeHolder.current.getState().jobData.actions.clearPendingJobGroupWrites,
     ).toHaveBeenCalledWith("g1");
     expect(
-      storeHolder.current.getState().jobData.actions.updateModifiedGroups
+      storeHolder.current.getState().jobData.actions.updateModifiedGroups,
     ).toHaveBeenCalledWith(expect.anything(), { queuePersist: false });
   });
 
   it("persists when this tab holds the group lock", async () => {
-    storeHolder.current.getState().documentLock.actions.patchDocumentLockForScope(
-      USER_JOB_GROUPS_COLLECTION,
-      "g1",
-      { readOnly: false, lockHeld: true }
-    );
+    storeHolder.current
+      .getState()
+      .documentLock.actions.patchDocumentLockForScope(
+        USER_JOB_GROUPS_COLLECTION,
+        "g1",
+        { readOnly: false, lockHeld: true },
+      );
 
     await closeActiveGroup([makeJob()]);
 
     expect(flushPendingGroupSave).toHaveBeenCalled();
     expect(saveJobsViaApi).toHaveBeenCalled();
     expect(
-      storeHolder.current.getState().jobData.actions.updateModifiedGroups
+      storeHolder.current.getState().jobData.actions.updateModifiedGroups,
     ).toHaveBeenCalledWith(expect.anything(), { queuePersist: true });
   });
 });

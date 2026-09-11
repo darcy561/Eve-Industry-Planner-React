@@ -26,7 +26,7 @@ export function ImportNewJob_WatchlistDialogue({
     async function findJobToEdit() {
       if (!watchlistItemToEdit) return;
       await importWatchlistItem(
-        userWatchlist.items[watchlistItemToEdit].typeID
+        userWatchlist.items[watchlistItemToEdit].typeID,
       );
       updateGroupSelect(userWatchlist.items[watchlistItemToEdit].group);
     }
@@ -43,7 +43,7 @@ export function ImportNewJob_WatchlistDialogue({
         itemID: requestedID,
         skipJobCreateAnalytics: true,
       },
-      { queryClient }
+      { queryClient },
     );
 
     if (!WatchlistItemJob) {
@@ -64,7 +64,7 @@ export function ImportNewJob_WatchlistDialogue({
         }
         return prev;
       },
-      []
+      [],
     );
 
     const MaterialJobs = await buildJob(materialJobRequests, { queryClient });
@@ -79,7 +79,7 @@ export function ImportNewJob_WatchlistDialogue({
     recalculateInstallCostsWithNewData(
       MaterialJobs,
       requestedMarketData,
-      requestedSystemIndexes
+      requestedSystemIndexes,
     );
 
     useUsersStore

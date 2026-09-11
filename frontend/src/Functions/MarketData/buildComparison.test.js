@@ -72,7 +72,11 @@ describe("compareToHistory", () => {
   // comparison it can make and draws no bar.
   it("compares against a single previous build without drawing a range", () => {
     const got = compareToHistory(
-      history({ buildCount: 1, cheapestCostPerItem: 230, dearestCostPerItem: 230 }),
+      history({
+        buildCount: 1,
+        cheapestCostPerItem: 230,
+        dearestCostPerItem: 230,
+      }),
       240,
     );
 

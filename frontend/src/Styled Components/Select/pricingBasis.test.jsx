@@ -33,7 +33,7 @@ async function open(props = {}) {
       formatValue={formatValue}
       onChange={() => {}}
       {...props}
-    />
+    />,
   );
   await user.click(screen.getByRole("button"));
   return user;
@@ -46,7 +46,7 @@ describe("PricingBasisSelect", () => {
         options={options}
         formatValue={formatValue}
         onChange={() => {}}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Sell Orders");
@@ -60,7 +60,7 @@ describe("PricingBasisSelect", () => {
     options.forEach((option, index) => {
       expect(within(items[index]).getByText(option.label)).toBeInTheDocument();
       expect(
-        within(items[index]).getByText(`${option.total} ISK`)
+        within(items[index]).getByText(`${option.total} ISK`),
       ).toBeInTheDocument();
     });
   });
@@ -112,7 +112,7 @@ describe("PricingBasisSelect", () => {
         options={[]}
         formatValue={formatValue}
         onChange={() => {}}
-      />
+      />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -161,7 +161,10 @@ describe("rows that are not on this basis", () => {
 
   it("offers to put overridden rows back", async () => {
     const onReset = vi.fn();
-    const user = await open({ usage: { overridden: 2, purchased: 0 }, onReset });
+    const user = await open({
+      usage: { overridden: 2, purchased: 0 },
+      onReset,
+    });
 
     await user.click(screen.getByRole("button", { name: /reset overrides/i }));
 
@@ -171,6 +174,8 @@ describe("rows that are not on this basis", () => {
   it("does not offer a reset when nothing is overridden", async () => {
     await open({ usage: { overridden: 0, purchased: 3 }, onReset: () => {} });
 
-    expect(screen.queryByRole("button", { name: /reset overrides/i })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /reset overrides/i }),
+    ).toBeNull();
   });
 });

@@ -9,14 +9,12 @@ vi.mock("@tanstack/react-query", async (importOriginal) => ({
   ...(await importOriginal()),
   useQueryClient: () => null,
 }));
-vi.mock(
-  "../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders",
-  () => ({ getAllCachedCharacterMarketOrders: () => characterOrders }),
-);
-vi.mock(
-  "../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders",
-  () => ({ getAllCachedCorporationMarketOrders: () => corporationOrders }),
-);
+vi.mock("../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders", () => ({
+  getAllCachedCharacterMarketOrders: () => characterOrders,
+}));
+vi.mock("../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders", () => ({
+  getAllCachedCorporationMarketOrders: () => corporationOrders,
+}));
 vi.mock("../Hooks/EveEsi/useGetAllIndustryJobs", () => ({
   getCachedAllIndustryJobs: () => industryJobs,
 }));
@@ -30,9 +28,8 @@ vi.mock("../Zustand/usersStore.js", () => ({
   },
 }));
 
-const { useRefreshLinkedESIData } = await import(
-  "../Components/Edit Job/Hooks/useRefreshLinkedESIData.js"
-);
+const { useRefreshLinkedESIData } =
+  await import("../Components/Edit Job/Hooks/useRefreshLinkedESIData.js");
 const { default: Job } = await import("./job.js");
 
 function jobWithOrder(overrides = {}) {

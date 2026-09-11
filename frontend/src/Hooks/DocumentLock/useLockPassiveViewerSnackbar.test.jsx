@@ -9,7 +9,6 @@ vi.mock("../../Events/snackbarEvents.js", () => ({
 }));
 
 describe("useLockPassiveViewerSnackbar", () => {
-
   function prevRef(sk, viewerCount = 0, lockHeld = true, readOnly = false) {
     return {
       current: {
@@ -54,7 +53,7 @@ describe("useLockPassiveViewerSnackbar", () => {
     expect(showSnackbarInfo).toHaveBeenCalledTimes(1);
     expect(showSnackbarInfo).toHaveBeenCalledWith(
       "Another session is viewing this document — you still hold the edit lock.",
-      5
+      5,
     );
 
     rerender({
@@ -71,7 +70,12 @@ describe("useLockPassiveViewerSnackbar", () => {
   it("does not show when opening scope already has viewers", () => {
     const sk = docLockScopeKey("col", "doc2");
     const prevPassiveViewerRef = {
-      current: { scopeKey: "", viewerCount: 0, lockHeld: false, readOnly: true },
+      current: {
+        scopeKey: "",
+        viewerCount: 0,
+        lockHeld: false,
+        readOnly: true,
+      },
     };
 
     const { rerender } = renderHook((p) => useLockPassiveViewerSnackbar(p), {

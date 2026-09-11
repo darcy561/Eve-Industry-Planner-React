@@ -43,24 +43,33 @@ function useESIRateLimiting(options = {}) {
 
   const getGroupStatus = useCallback(
     (group) => rateLimitStatuses.find((status) => status.group === group),
-    [rateLimitStatuses]
+    [rateLimitStatuses],
   );
 
-  const getQueueStatus = useCallback((group) => queueStatuses[group], [queueStatuses]);
+  const getQueueStatus = useCallback(
+    (group) => queueStatuses[group],
+    [queueStatuses],
+  );
 
-  const isRateLimited = useCallback((group) => {
-    const status = getGroupStatus(group);
-    return status ? status.availableTokens <= 0 : false;
-  }, [getGroupStatus]);
+  const isRateLimited = useCallback(
+    (group) => {
+      const status = getGroupStatus(group);
+      return status ? status.availableTokens <= 0 : false;
+    },
+    [getGroupStatus],
+  );
 
-  const getWaitTime = useCallback((group) => {
-    const status = getGroupStatus(group);
-    if (!status) return 0;
-    const tokensPerMs = status.maxTokens / status.windowSize;
-    const tokensToRecover = status.maxTokens - status.availableTokens;
-    if (tokensToRecover <= 0) return 0;
-    return Math.ceil(tokensToRecover / tokensPerMs);
-  }, [getGroupStatus]);
+  const getWaitTime = useCallback(
+    (group) => {
+      const status = getGroupStatus(group);
+      if (!status) return 0;
+      const tokensPerMs = status.maxTokens / status.windowSize;
+      const tokensToRecover = status.maxTokens - status.availableTokens;
+      if (tokensToRecover <= 0) return 0;
+      return Math.ceil(tokensToRecover / tokensPerMs);
+    },
+    [getGroupStatus],
+  );
 
   const startMonitoring = useCallback(() => {
     if (intervalRef.current) return;
@@ -95,50 +104,62 @@ function useESIRateLimiting(options = {}) {
     };
   }, [stopMonitoring]);
 
-  const getCharacterTokenCount = useCallback((group, characterHash) => {
-    const status = getGroupStatus(group);
-    if (!status) return null;
-    const characterBucket = rateLimitStatuses.find(
-      (s) => s.group === group && s.userID === characterHash
-    );
-    if (characterBucket) {
+  const getCharacterTokenCount = useCallback(
+    (group, characterHash) => {
+      const status = getGroupStatus(group);
+      if (!status) return null;
+      const characterBucket = rateLimitStatuses.find(
+        (s) => s.group === group && s.userID === characterHash,
+      );
+      if (characterBucket) {
+        return {
+          availableTokens: characterBucket.availableTokens,
+          maxTokens: characterBucket.maxTokens,
+          percentage:
+            (characterBucket.availableTokens / characterBucket.maxTokens) * 100,
+          isRateLimited: characterBucket.availableTokens <= 0,
+          waitTime: getWaitTime(group),
+        };
+      }
       return {
-        availableTokens: characterBucket.availableTokens,
-        maxTokens: characterBucket.maxTokens,
-        percentage: (characterBucket.availableTokens / characterBucket.maxTokens) * 100,
-        isRateLimited: characterBucket.availableTokens <= 0,
+        availableTokens: status.availableTokens,
+        maxTokens: status.maxTokens,
+        percentage: (status.availableTokens / status.maxTokens) * 100,
+        isRateLimited: status.availableTokens <= 0,
         waitTime: getWaitTime(group),
       };
-    }
-    return {
-      availableTokens: status.availableTokens,
-      maxTokens: status.maxTokens,
-      percentage: (status.availableTokens / status.maxTokens) * 100,
-      isRateLimited: status.availableTokens <= 0,
-      waitTime: getWaitTime(group),
-    };
-  }, [rateLimitStatuses, getGroupStatus, getWaitTime]);
+    },
+    [rateLimitStatuses, getGroupStatus, getWaitTime],
+  );
 
-  const getAllCharacterTokenCounts = useCallback((characterHash) => {
-    const characterGroups = ["character", "market", "corporation", "universe"];
-    return characterGroups.reduce((acc, group) => {
-      const tokenCount = getCharacterTokenCount(group, characterHash);
-      if (tokenCount) acc[group] = tokenCount;
-      return acc;
-    }, {});
-  }, [getCharacterTokenCount]);
+  const getAllCharacterTokenCounts = useCallback(
+    (characterHash) => {
+      const characterGroups = [
+        "character",
+        "market",
+        "corporation",
+        "universe",
+      ];
+      return characterGroups.reduce((acc, group) => {
+        const tokenCount = getCharacterTokenCount(group, characterHash);
+        if (tokenCount) acc[group] = tokenCount;
+        return acc;
+      }, {});
+    },
+    [getCharacterTokenCount],
+  );
 
   const getStatistics = useCallback(() => {
     const totalPending = Object.values(queueStatuses).reduce(
       (sum, status) => sum + (status.pending || 0),
-      0
+      0,
     );
     const totalProcessing = Object.values(queueStatuses).reduce(
       (sum, status) => sum + (status.processing ? 1 : 0),
-      0
+      0,
     );
     const rateLimitedGroups = rateLimitStatuses.filter(
-      (status) => status.availableTokens <= 0
+      (status) => status.availableTokens <= 0,
     ).length;
     return {
       totalPending,

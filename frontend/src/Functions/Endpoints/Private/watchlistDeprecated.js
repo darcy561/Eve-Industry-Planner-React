@@ -13,19 +13,16 @@ export const USER_WATCHLIST_DEPRECATED_COLLECTION = "watchlist_deprecated";
  * @returns {Promise<void>}
  */
 export async function fetchWatchlistDeprecatedFromApi() {
-  const url = new URL(
-    "/api/v1/user/watchlist",
-    window.location.origin
-  );
+  const url = new URL("/api/v1/user/watchlist", window.location.origin);
   const res = await requestWithPrivateHeaders(
     url.toString(),
     { method: "GET" },
-    { requestName: "getWatchlistDeprecated" }
+    { requestName: "getWatchlistDeprecated" },
   );
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(
-      `GET /api/v1/user/watchlist-deprecated failed: ${res.status} ${text || res.statusText}`
+      `GET /api/v1/user/watchlist-deprecated failed: ${res.status} ${text || res.statusText}`,
     );
   }
   const data = await res.json();
@@ -47,11 +44,11 @@ export async function putWatchlistDeprecatedToApi(groups, items) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ groups, items }),
     },
-    { requestName: "putWatchlistDeprecated" }
+    { requestName: "putWatchlistDeprecated" },
   );
   if (res.status === 204 || res.status === 200) return;
   const text = await res.text().catch(() => "");
   throw new Error(
-    `PUT /api/v1/user/watchlist-deprecated failed: ${res.status} ${text || res.statusText}`
+    `PUT /api/v1/user/watchlist-deprecated failed: ${res.status} ${text || res.statusText}`,
   );
 }

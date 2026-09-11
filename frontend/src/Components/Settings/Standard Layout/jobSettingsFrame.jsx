@@ -1,10 +1,4 @@
-import {
-  Box,
-  FormControlLabel,
-  Grid,
-  Switch,
-  TextField,
-} from "@mui/material";
+import { Box, FormControlLabel, Grid, Switch, TextField } from "@mui/material";
 import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../../Styled Components/Select/marketListing";

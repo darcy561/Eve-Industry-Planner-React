@@ -48,7 +48,7 @@ function ImplantSelect({
             onChange(Implants[jobType][e.target.value]);
           } else {
             console.error(
-              "Implant Type Select is missing an onChange Function"
+              "Implant Type Select is missing an onChange Function",
             );
           }
         }}

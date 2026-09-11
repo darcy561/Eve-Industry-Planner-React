@@ -34,16 +34,14 @@ export default async function closeActiveGroup(groupJobs) {
   activeGroup.updateGroupData(groupJobs);
 
   const groupJobsInStore = jobArray.filter((job) =>
-    groupJobs.some((groupJob) => groupJob.jobID === job.jobID)
+    groupJobs.some((groupJob) => groupJob.jobID === job.jobID),
   );
 
   const updatedGroupJobs = groupJobsInStore.map((job) => {
     if (!activeGroup.includedJobIDs.has(job.jobID)) return job;
 
     job.keepOnlyParentJobs(activeGroup.includedJobIDs);
-    job.keepOnlyChildJobs(
-      activeGroup.includedJobIDs
-    );
+    job.keepOnlyChildJobs(activeGroup.includedJobIDs);
 
     modifiedJobIDsToPersist.add(job.jobID);
     return job;
@@ -66,12 +64,9 @@ export default async function closeActiveGroup(groupJobs) {
 
     if (persistToServer) {
       const updatedJobs = updatedGroupJobs.filter((job) =>
-        modifiedJobIDsToPersist.has(job.jobID)
+        modifiedJobIDsToPersist.has(job.jobID),
       );
-      await Promise.all([
-        flushPendingGroupSave(),
-        saveJobsViaApi(updatedJobs),
-      ]);
+      await Promise.all([flushPendingGroupSave(), saveJobsViaApi(updatedJobs)]);
     } else if (isLoggedIn && groupID) {
       useUsersStore
         .getState()

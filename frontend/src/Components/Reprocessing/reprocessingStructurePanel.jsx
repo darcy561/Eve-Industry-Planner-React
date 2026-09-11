@@ -34,7 +34,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
       if (!pageState.skillsManuallyModified) {
         const { data: userSkills } = getCachedCharacterSkills(
           queryClient,
-          pageState.selectedUser
+          pageState.selectedUser,
         );
 
         if (
@@ -47,7 +47,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
               ...acc,
               [id]: userSkills[id]?.activeLevel ?? 0,
             }),
-            {}
+            {},
           );
 
           pageActions.loadCharacterSkills(characterSkills);
@@ -75,7 +75,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
             onChange={(selectedEntry) => {
               pageState.currentStructure.setStructureType(selectedEntry.id);
               pageActions.setCurrentStructure(
-                new ReprocessingStructure(pageState.currentStructure)
+                new ReprocessingStructure(pageState.currentStructure),
               );
             }}
           />
@@ -87,7 +87,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
             onChange={(selectedEntry) => {
               pageState.currentStructure.setSystemType(selectedEntry.id);
               pageActions.setCurrentStructure(
-                new ReprocessingStructure(pageState.currentStructure)
+                new ReprocessingStructure(pageState.currentStructure),
               );
             }}
           />
@@ -103,7 +103,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
               if (selectedEntry.id === 0) {
                 pageState.currentStructure.setRigSlot1(0);
                 pageActions.setCurrentStructure(
-                  new ReprocessingStructure(pageState.currentStructure)
+                  new ReprocessingStructure(pageState.currentStructure),
                 );
                 pageActions.setRigSlotErrors({ slot1: false, slot2: false });
                 return;
@@ -112,19 +112,19 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
               if (
                 pageState.currentStructure.rigSlot2 === selectedEntry.id ||
                 selectedEntry.relatedTo.includes(
-                  pageState.currentStructure.rigSlot2
+                  pageState.currentStructure.rigSlot2,
                 )
               ) {
                 pageState.currentStructure.setRigSlot1(0);
                 pageActions.setCurrentStructure(
-                  new ReprocessingStructure(pageState.currentStructure)
+                  new ReprocessingStructure(pageState.currentStructure),
                 );
                 pageActions.setRigSlotErrors({ slot1: true, slot2: false });
                 return;
               }
               pageState.currentStructure.setRigSlot1(selectedEntry.id);
               pageActions.setCurrentStructure(
-                new ReprocessingStructure(pageState.currentStructure)
+                new ReprocessingStructure(pageState.currentStructure),
               );
               pageActions.setRigSlotErrors({ slot1: false, slot2: false });
             }}
@@ -139,7 +139,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
               if (selectedEntry.id === 0) {
                 pageState.currentStructure.setRigSlot2(0);
                 pageActions.setCurrentStructure(
-                  new ReprocessingStructure(pageState.currentStructure)
+                  new ReprocessingStructure(pageState.currentStructure),
                 );
                 pageActions.setRigSlotErrors({ slot1: false, slot2: false });
                 return;
@@ -147,19 +147,19 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
               if (
                 pageState.currentStructure.rigSlot1 == selectedEntry.id ||
                 selectedEntry.relatedTo.includes(
-                  pageState.currentStructure.rigSlot1
+                  pageState.currentStructure.rigSlot1,
                 )
               ) {
                 pageState.currentStructure.setRigSlot2(0);
                 pageActions.setCurrentStructure(
-                  new ReprocessingStructure(pageState.currentStructure)
+                  new ReprocessingStructure(pageState.currentStructure),
                 );
                 pageActions.setRigSlotErrors({ slot1: false, slot2: true });
                 return;
               }
               pageState.currentStructure.setRigSlot2(selectedEntry.id);
               pageActions.setCurrentStructure(
-                new ReprocessingStructure(pageState.currentStructure)
+                new ReprocessingStructure(pageState.currentStructure),
               );
               pageActions.setRigSlotErrors({ slot1: false, slot2: false });
             }}
@@ -174,7 +174,7 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
             onChange={(selectedEntry) => {
               pageState.currentStructure.setImplant(selectedEntry.id);
               pageActions.setCurrentStructure(
-                new ReprocessingStructure(pageState.currentStructure)
+                new ReprocessingStructure(pageState.currentStructure),
               );
             }}
           />
@@ -196,10 +196,10 @@ function ReprocessingStructurePanel({ pageState, pageActions }) {
                     const matchedStructure = useUsersStore
                       .getState()
                       .applicationSettings.actions.getCustomStructureWithID(
-                        selectedEntry
+                        selectedEntry,
                       );
                     pageActions.setCurrentStructure(
-                      new ReprocessingStructure(matchedStructure)
+                      new ReprocessingStructure(matchedStructure),
                     );
                   }}
                 />

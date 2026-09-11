@@ -8,7 +8,10 @@ import {
   requestDocumentLockAccess,
 } from "../Functions/Endpoints/Private/documentLockClient.js";
 import { suppressDocumentLockVacancyNotice } from "../Functions/DocumentLock/documentLockAcquireFeedback.js";
-import { showSnackbarSuccess, showSnackbarWarning } from "../Events/snackbarEvents.js";
+import {
+  showSnackbarSuccess,
+  showSnackbarWarning,
+} from "../Events/snackbarEvents.js";
 import { requestEditJobReleaseConfirmation } from "../Events/editJobReleaseRequestEvents.js";
 import {
   docLockScopeKey,
@@ -56,7 +59,7 @@ const documentLockSlice = (set, get) => ({
             },
           }),
           false,
-          "documentLock/resetAll"
+          "documentLock/resetAll",
         ),
 
       /**
@@ -100,7 +103,7 @@ const documentLockSlice = (set, get) => ({
             };
           },
           false,
-          "documentLock/patchManyScopes"
+          "documentLock/patchManyScopes",
         );
       },
 
@@ -129,7 +132,7 @@ const documentLockSlice = (set, get) => ({
             };
           },
           false,
-          "documentLock/patchScope"
+          "documentLock/patchScope",
         );
       },
 
@@ -154,7 +157,7 @@ const documentLockSlice = (set, get) => ({
             };
           },
           false,
-          "documentLock/resetScope"
+          "documentLock/resetScope",
         );
       },
 
@@ -165,7 +168,7 @@ const documentLockSlice = (set, get) => ({
         try {
           const res = await requestDocumentLockAccess(
             target.collection,
-            target.docID
+            target.docID,
           );
           const data = await res.json().catch(() => ({}));
           if (res.status === 201) {
@@ -173,17 +176,21 @@ const documentLockSlice = (set, get) => ({
             patchDocumentLockForScope(
               target.collection,
               target.docID,
-              buildGrantedHolderPatch(data)
+              buildGrantedHolderPatch(data),
             );
             showSnackbarSuccess("Edit access granted.", 3);
             return;
           }
-          if (res.status === 200 && data.acquired === true && data.held === true) {
+          if (
+            res.status === 200 &&
+            data.acquired === true &&
+            data.held === true
+          ) {
             suppressDocumentLockVacancyNotice();
             patchDocumentLockForScope(
               target.collection,
               target.docID,
-              buildGrantedHolderPatch(data)
+              buildGrantedHolderPatch(data),
             );
             showSnackbarSuccess("Edit access granted.", 3);
             return;
@@ -213,13 +220,13 @@ const documentLockSlice = (set, get) => ({
         const ok = window.confirm(
           "Remove the edit lock from the other tab on this account? " +
             "Only use if you are stuck (e.g. crashed editor). " +
-            "An active session may lose unsaved work."
+            "An active session may lose unsaved work.",
         );
         if (!ok) return;
         try {
           const res = await forceReleaseDocumentLockSameAccount(
             target.collection,
-            target.docID
+            target.docID,
           );
           let data = {};
           if (typeof res.json === "function") {
@@ -230,9 +237,12 @@ const documentLockSlice = (set, get) => ({
             patchDocumentLockForScope(
               target.collection,
               target.docID,
-              buildGrantedHolderPatch(data, { withClearedHandoff: true })
+              buildGrantedHolderPatch(data, { withClearedHandoff: true }),
             );
-            showSnackbarSuccess("Edit lock cleared — you now hold the lock.", 3);
+            showSnackbarSuccess(
+              "Edit lock cleared — you now hold the lock.",
+              3,
+            );
             return;
           }
           if (res.status === 404) {
@@ -242,7 +252,7 @@ const documentLockSlice = (set, get) => ({
           if (res.status === 400) {
             showSnackbarWarning(
               "You already hold this lock — leave read-only or use the editor's release flow.",
-              4
+              4,
             );
             return;
           }
@@ -253,7 +263,8 @@ const documentLockSlice = (set, get) => ({
 
       pulseWaitlist: async (collection, docID) => {
         if (!collection || !docID) return;
-        const dl = get().documentLock.scopes[docLockScopeKey(collection, docID)];
+        const dl =
+          get().documentLock.scopes[docLockScopeKey(collection, docID)];
         const waiting =
           dl?.waitingInHandoffQueue ??
           initialScopedDocumentLockState().waitingInHandoffQueue;
@@ -285,7 +296,7 @@ const documentLockSlice = (set, get) => ({
             };
           },
           false,
-          "documentLock/clearPending"
+          "documentLock/clearPending",
         ),
 
       /**
@@ -311,7 +322,7 @@ const documentLockSlice = (set, get) => ({
         if (outcome === "cancelled") {
           get().documentLock.actions.clearPendingAccessNotice(
             target.collection,
-            target.docID
+            target.docID,
           );
           return;
         }
@@ -324,7 +335,7 @@ const documentLockSlice = (set, get) => ({
         // the holder has no unsaved changes; just complete the hand-over.
         await get().documentLock.actions.handOverEditAccess(
           target.collection,
-          target.docID
+          target.docID,
         );
       },
 
@@ -384,7 +395,7 @@ const documentLockSlice = (set, get) => ({
                 patchDocumentLockForScope(
                   collection,
                   docID,
-                  formerHolderReadOnlyPatch
+                  formerHolderReadOnlyPatch,
                 );
                 return;
               }
@@ -392,14 +403,18 @@ const documentLockSlice = (set, get) => ({
                 patchDocumentLockForScope(
                   collection,
                   docID,
-                  releasedNeutralPatch
+                  releasedNeutralPatch,
                 );
                 return;
               }
             }
             const rel = await releaseDocumentLock(collection, docID);
             if (rel.ok) {
-              patchDocumentLockForScope(collection, docID, releasedNeutralPatch);
+              patchDocumentLockForScope(
+                collection,
+                docID,
+                releasedNeutralPatch,
+              );
             }
           } catch {
             /* ignore */
@@ -461,13 +476,13 @@ const documentLockSlice = (set, get) => ({
         try {
           const res = await handOverDocumentLock(
             target.collection,
-            target.docID
+            target.docID,
           );
           if (res.ok && res.status === 200) {
             patchDocumentLockForScope(
               target.collection,
               target.docID,
-              readOnlyFormerHolderPatch
+              readOnlyFormerHolderPatch,
             );
             return;
           }
@@ -475,30 +490,30 @@ const documentLockSlice = (set, get) => ({
             patchDocumentLockForScope(
               target.collection,
               target.docID,
-              releasedNoQueuePatch
+              releasedNoQueuePatch,
             );
             showSnackbarWarning(
               "The other session is no longer waiting — the edit lock was released.",
-              5
+              5,
             );
             return;
           }
           if (res.status === 409) {
             showSnackbarWarning(
               "Could not hand over from this tab (lock state changed). Refresh or try Request access on the other tab.",
-              6
+              6,
             );
             return;
           }
           const errText = (await res.text().catch(() => "")).trim();
           showSnackbarWarning(
             errText || `Hand over failed (${res.status}). Try again.`,
-            5
+            5,
           );
         } catch {
           showSnackbarWarning(
             "Hand over failed (network). Check your connection and try again.",
-            5
+            5,
           );
         }
       },
@@ -515,7 +530,7 @@ const documentLockSlice = (set, get) => ({
             patchDocumentLockForScope(
               collection,
               docID,
-              buildGrantedHolderPatch(data, { withClearedHandoff: true })
+              buildGrantedHolderPatch(data, { withClearedHandoff: true }),
             );
             showSnackbarSuccess("Edit access granted.", 3);
           }

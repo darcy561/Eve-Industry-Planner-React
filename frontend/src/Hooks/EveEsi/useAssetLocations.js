@@ -27,7 +27,7 @@ export default function useAssetLocations({
 
   const locationIds = useMemo(
     () => (enabled ? assetLocationIds(collection) : []),
-    [collection, enabled]
+    [collection, enabled],
   );
 
   const {
@@ -48,7 +48,7 @@ export default function useAssetLocations({
           name: names[locationId].name ?? "",
         }))
         .sort((a, b) => a.name.localeCompare(b.name)),
-    [locationIds, names]
+    [locationIds, names],
   );
 
   return {

@@ -27,7 +27,10 @@ import {
 import { useGetAllCharacterJournal } from "../../../Hooks/EveEsi/Character/useGetAllCharacterJournal";
 import { useGetAllCorporationJournal } from "../../../Hooks/EveEsi/Corporation/useGetAllCorporationJournal";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
-import { formatDateForLocale, formatNumberForLocale } from "../../../Functions/Helper/numberParser";
+import {
+  formatDateForLocale,
+  formatNumberForLocale,
+} from "../../../Functions/Helper/numberParser";
 import { LAST_JOB_STATUS_ID } from "../../../Context/defaultValues";
 import Transaction from "../../../Classes/transaction";
 
@@ -94,7 +97,7 @@ export function NewTransactions() {
 
       // Get filtered jobs
       const filteredJobs = jobArray.filter(
-        (job) => job?.jobStatus === LAST_JOB_STATUS_ID
+        (job) => job?.jobStatus === LAST_JOB_STATUS_ID,
       );
 
       if (filteredJobs.length === 0) {
@@ -118,7 +121,7 @@ export function NewTransactions() {
         if (!order?.type_id || !order?.order_id) return false;
 
         const correctItemType = filteredJobs.some(
-          (job) => job?.itemID === order.type_id
+          (job) => job?.itemID === order.type_id,
         );
         const linkedToJoborGroup = linkedOrders.has(order.order_id);
         const isAlreadyIncluded = includedOrderIDs.has(order.order_id);
@@ -135,7 +138,7 @@ export function NewTransactions() {
           const itemTrans = findTransactionsForMarketOrders(
             order,
             queryClient,
-            matchedTransactionIDs
+            matchedTransactionIDs,
           );
 
           itemTrans?.forEach((trans) => {
@@ -155,7 +158,7 @@ export function NewTransactions() {
                     description: journalEntry.description
                       .replace("Market: ", "")
                       .split(" bought")[0],
-                  })
+                  }),
                 );
                 matchedTransactionIDs.add(trans.transaction_id);
               }
@@ -174,13 +177,7 @@ export function NewTransactions() {
       console.error("Error processing transaction data:", error);
       return [];
     }
-  }, [
-    isLoading,
-    isError,
-    jobArray,
-    linkedOrders,
-    queryClient,
-  ]);
+  }, [isLoading, isError, jobArray, linkedOrders, queryClient]);
 
   return (
     <ContentPanel
@@ -197,13 +194,19 @@ export function NewTransactions() {
             overflowY: "auto",
             maxHeight: { xs: "320px", md: "750px" },
           }}
-          size={12}>
+          size={12}
+        >
           {transactionData.map((trans) => {
             const itemName = itemData?.find((i) => i.itemID === trans.type_id);
             if (!itemName) return null;
 
             return (
-              <Grid key={trans.transaction_id} container sixe={12} sx={{ marginBottom: "5px", width: "100%" }}>
+              <Grid
+                key={trans.transaction_id}
+                container
+                sixe={12}
+                sx={{ marginBottom: "5px", width: "100%" }}
+              >
                 <Grid size={3}>
                   <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                     {formatDateForLocale(trans.date)}

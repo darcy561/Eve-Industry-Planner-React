@@ -9,7 +9,11 @@ import { eventEmitter } from "../utils/EventSystem";
  * @param {number} [totalItems=0] - Total number of material jobs/items in this build step
  * @returns {void}
  */
-export function showMassBuildFeedback(currentJob = 0, totalJob = 0, totalItems = 0) {
+export function showMassBuildFeedback(
+  currentJob = 0,
+  totalJob = 0,
+  totalItems = 0,
+) {
   eventEmitter.emit("massBuildFeedback", {
     open: true,
     currentJob,
@@ -31,4 +35,4 @@ export function hideMassBuildFeedback() {
     totalJob: 0,
     totalItems: 0,
   });
-} 
+}

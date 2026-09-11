@@ -29,8 +29,7 @@ function BlueprintArchiveDialogue() {
   const analyticsLoggedRef = useRef(false);
 
   const { data, isLoading, error } = useAccountTotalsQuery(typeId, {
-    enabled:
-      messageData.isOpen && !!normalizedId && isLoggedIn,
+    enabled: messageData.isOpen && !!normalizedId && isLoggedIn,
   });
 
   // Derived rather than fetched: the breakdown is a reshaping of the row already

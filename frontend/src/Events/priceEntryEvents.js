@@ -1,4 +1,4 @@
-import { eventEmitter } from '../utils/EventSystem';
+import { eventEmitter } from "../utils/EventSystem";
 
 /**
  * Shows the price entry dialogue for specified job IDs with market and order display options.
@@ -9,12 +9,16 @@ import { eventEmitter } from '../utils/EventSystem';
  * @param {string|null} [displayOrder=null] - Order type to display ("buy" or "sell")
  * @returns {void}
  */
-export function showPriceEntryDialogue(jobIDs, displayMarket = null, displayOrder = null) {
+export function showPriceEntryDialogue(
+  jobIDs,
+  displayMarket = null,
+  displayOrder = null,
+) {
   eventEmitter.emit("priceEntry", {
     isOpen: true,
     jobIDs,
     displayMarket,
-    displayOrder
+    displayOrder,
   });
 }
 
@@ -29,6 +33,6 @@ export function hidePriceEntryDialogue() {
     isOpen: false,
     jobIDs: [],
     displayMarket: null,
-    displayOrder: null
+    displayOrder: null,
   });
-} 
+}

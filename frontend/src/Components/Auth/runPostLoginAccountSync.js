@@ -65,7 +65,9 @@ export async function runPostLoginAccountSync({
     !!useUsersStore.getState().account.linkedBootstrapHydrationPending;
 
   if (!userDocument) {
-    useUsersStore.getState().account.actions.clearLinkedBootstrapHydrationPending();
+    useUsersStore
+      .getState()
+      .account.actions.clearLinkedBootstrapHydrationPending();
     emitLoginStepComplete(LOGIN_STEPS.CHARACTER_DATA);
     return;
   }
@@ -83,7 +85,7 @@ export async function runPostLoginAccountSync({
       linkedCharacters.length > 0
     ) {
       const mainCanon = canonicalCharacterHashKey(
-        useUsersStore.getState().account.mainCharacterHash
+        useUsersStore.getState().account.mainCharacterHash,
       );
       if (mainCanon) {
         linkedSessionsForHydrate = linkedCharacters.filter((s) => {
@@ -93,26 +95,28 @@ export async function runPostLoginAccountSync({
       }
     }
     const newUserArray =
-      cloudNow &&
-      Array.isArray(linkedCharacters) &&
-      linkedCharacters.length > 0
+      cloudNow && Array.isArray(linkedCharacters) && linkedCharacters.length > 0
         ? await hydrateLinkedCharactersFromAccessSessions(
-            linkedSessionsForHydrate
+            linkedSessionsForHydrate,
           )
         : await buildUsersFromRefreshTokens(userData);
 
     const systemIndexResults = await getSystemIndexDataFromUserStructures(
-      userData.settings
+      userData.settings,
     );
     if (Object.keys(systemIndexResults).length > 0) {
-      useUsersStore.getState().worldData.actions.addSystemIndex(systemIndexResults);
+      useUsersStore
+        .getState()
+        .worldData.actions.addSystemIndex(systemIndexResults);
     }
 
     useUsersStore.getState().account.actions.addCharacters(newUserArray);
 
     clearQueryTimings();
 
-    const characterHashes = newUserArray.map(({ CharacterHash }) => CharacterHash);
+    const characterHashes = newUserArray.map(
+      ({ CharacterHash }) => CharacterHash,
+    );
     prefetchCollections(queryClient, characterHashes, true).catch((error) => {
       console.error("Error during character data prefetch:", error);
     });
@@ -124,7 +128,9 @@ export async function runPostLoginAccountSync({
     emitLoginError(LOGIN_STEPS.CHARACTER_DATA, err);
     console.error(err);
   } finally {
-    useUsersStore.getState().account.actions.clearLinkedBootstrapHydrationPending();
+    useUsersStore
+      .getState()
+      .account.actions.clearLinkedBootstrapHydrationPending();
     if (cloudHydrationQueued) {
       enqueueReconcile(async () => {
         await reconcileAfterRemoteUserDoc(
@@ -133,7 +139,7 @@ export async function runPostLoginAccountSync({
             refreshTokensChanged: true,
             linkedCharactersChanged: true,
           },
-          {}
+          {},
         );
       });
     }

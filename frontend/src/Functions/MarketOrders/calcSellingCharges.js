@@ -33,7 +33,7 @@ import { ensureSellingRateInputs } from "../../Hooks/React Query/Character/useSe
 export default async function calcSellingCharges(
   marketOrder,
   queryClient,
-  citadelBrokersFee
+  citadelBrokersFee,
 ) {
   const atStation =
     marketOrder.location_id >= STATIONID_RANGE.low &&
@@ -68,14 +68,14 @@ export default async function calcSellingCharges(
   const rate = await brokerFeeRate(
     saleLocation,
     queryClient,
-    marketOrder.CharacterHash
+    marketOrder.CharacterHash,
   );
 
   return {
     brokerFee: brokerFeeAmount(rate, value),
     salesTax: salesTaxAmount(
       salesTaxWorking(queryClient, marketOrder.CharacterHash).rate,
-      value
+      value,
     ),
   };
 }

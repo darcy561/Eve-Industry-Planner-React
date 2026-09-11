@@ -38,7 +38,7 @@ export function AdvancedMineralOutput(props) {
   const findMarketData =
     useUsersStore.getState().worldData.actions.findMarketData;
   const { data: fullItemList, isLoading } = useCachedData(
-    CACHED_DATA_FILES.FULL_ITEM_LIST
+    CACHED_DATA_FILES.FULL_ITEM_LIST,
   );
 
   // Check clipboard permissions
@@ -120,7 +120,7 @@ export function AdvancedMineralOutput(props) {
         if (item.batchSize > item.totalQuantity) return acc;
         let itemTotal = 0;
         for (const [mineralId, quantity] of Object.entries(
-          item.reprocessedMaterials
+          item.reprocessedMaterials,
         )) {
           const itemPriceObject = findMarketData(mineralId);
           const unitPrice =
@@ -175,7 +175,7 @@ export function AdvancedMineralOutput(props) {
       let itemExcessValue = 0;
 
       for (const [mineralId, quantity] of Object.entries(
-        item.reprocessedMaterials
+        item.reprocessedMaterials,
       )) {
         // Check if this mineral is excess (not requested)
         const isRequestedMineral =
@@ -241,7 +241,7 @@ export function AdvancedMineralOutput(props) {
 
         reprocessedQuantities[mineralId] = reprocessedQuantity;
         totalReprocessedQuantity += reprocessedQuantity;
-      }
+      },
     );
 
     // Calculate market values for each mineral
@@ -262,7 +262,7 @@ export function AdvancedMineralOutput(props) {
           marketValue,
         };
         totalMarketValue += marketValue;
-      }
+      },
     );
 
     // Allocate ore cost based on market value proportion
@@ -292,13 +292,15 @@ export function AdvancedMineralOutput(props) {
         sx={{
           alignItems: "center",
           marginTop: 2,
-          marginBottom: 4
-        }}>
+          marginBottom: 4,
+        }}
+      >
         <Grid
           size={{
             xs: netCost !== null ? 4 : 6,
-            md: netCost !== null ? 4 : 6
-          }}>
+            md: netCost !== null ? 4 : 6,
+          }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
               {pageState.toMinerals
@@ -314,9 +316,12 @@ export function AdvancedMineralOutput(props) {
             </Fade>
           </Box>
           <Box sx={{ textAlign: "center", mt: 0.5 }}>
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {pageState.toMinerals
                 ? "Market value of input ores"
                 : "Market value of ores to be reprocessed"}
@@ -327,8 +332,9 @@ export function AdvancedMineralOutput(props) {
         <Grid
           size={{
             xs: netCost !== null ? 4 : 6,
-            md: netCost !== null ? 4 : 6
-          }}>
+            md: netCost !== null ? 4 : 6,
+          }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
               {pageState.toMinerals
@@ -344,9 +350,12 @@ export function AdvancedMineralOutput(props) {
             </Fade>
           </Box>
           <Box sx={{ textAlign: "center", mt: 0.5 }}>
-            <Typography variant="caption" sx={{
-              color: "text.secondary"
-            }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {pageState.toMinerals
                 ? "Market value of processed minerals"
                 : "Market value of all minerals produced"}
@@ -359,8 +368,9 @@ export function AdvancedMineralOutput(props) {
           <Grid
             size={{
               xs: 4,
-              md: 4
-            }}>
+              md: 4,
+            }}
+          >
             <Box sx={{ textAlign: "center" }}>
               <Typography sx={{ typography: LARGE_TEXT_FORMAT }}>
                 Net Cost (After Sales):
@@ -379,9 +389,12 @@ export function AdvancedMineralOutput(props) {
               </Fade>
             </Box>
             <Box sx={{ textAlign: "center", mt: 0.5 }}>
-              <Typography variant="caption" sx={{
-                color: "text.secondary"
-              }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 (Ore Value - Excess Minerals Value)
               </Typography>
             </Box>
@@ -433,27 +446,31 @@ export function AdvancedMineralOutput(props) {
             spacing={isMobile ? 0.5 : 2}
             sx={{
               alignItems: "center",
-              marginBottom: 2
-            }}>
+              marginBottom: 2,
+            }}
+          >
             <Grid
               sx={{ display: { xs: "none", md: "block" } }}
               size={{
                 xs: 0,
-                md: 1
-              }} />
+                md: 1,
+              }}
+            />
             <Grid
               sx={{ minWidth: { xs: "150px", md: "auto" } }}
               size={{
                 xs: 3,
-                md: 3
-              }}>
+                md: 3,
+              }}
+            >
               <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
                 Item Name
               </Typography>
             </Grid>
             <Grid
               sx={{ textAlign: "center", minWidth: { xs: "80px", md: "auto" } }}
-              size={2}>
+              size={2}
+            >
               <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
                 Quantity
               </Typography>
@@ -465,8 +482,9 @@ export function AdvancedMineralOutput(props) {
               }}
               size={{
                 xs: 2,
-                md: 2
-              }}>
+                md: 2,
+              }}
+            >
               <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
                 Unit Price
               </Typography>
@@ -478,8 +496,9 @@ export function AdvancedMineralOutput(props) {
               }}
               size={{
                 xs: 2,
-                md: 2
-              }}>
+                md: 2,
+              }}
+            >
               <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
                 Total Value
               </Typography>
@@ -488,8 +507,9 @@ export function AdvancedMineralOutput(props) {
               sx={{ textAlign: "center", minWidth: { xs: "80px", md: "auto" } }}
               size={{
                 xs: 2,
-                md: 1
-              }}>
+                md: 1,
+              }}
+            >
               <Typography sx={{ typography: LARGE_TEXT_FORMAT }} align="center">
                 Yield
               </Typography>
@@ -500,7 +520,8 @@ export function AdvancedMineralOutput(props) {
                   textAlign: "center",
                   minWidth: { xs: "40px", md: "auto" },
                 }}
-                size={1}>
+                size={1}
+              >
                 <Typography
                   sx={{ typography: LARGE_TEXT_FORMAT }}
                   align="center"
@@ -534,8 +555,9 @@ export function AdvancedMineralOutput(props) {
                     sx={{
                       alignItems: "center",
                       paddingBottom: 2,
-                      mb: 2
-                    }}>
+                      mb: 2,
+                    }}
+                  >
                     <Grid
                       sx={{
                         textAlign: "center",
@@ -543,8 +565,9 @@ export function AdvancedMineralOutput(props) {
                       }}
                       size={{
                         xs: 0,
-                        md: 1
-                      }}>
+                        md: 1,
+                      }}
+                    >
                       <Avatar
                         src={`https://images.evetech.net/types/${item.id}/icon?size=32`}
                         alt={matchedName}
@@ -557,8 +580,9 @@ export function AdvancedMineralOutput(props) {
                       align="center"
                       size={{
                         xs: 3,
-                        md: 3
-                      }}>
+                        md: 3,
+                      }}
+                    >
                       <MaterialPopoverIconButtons
                         typeID={item.id}
                         regionID={pageState.marketLocation}
@@ -583,7 +607,8 @@ export function AdvancedMineralOutput(props) {
                         textAlign: "center",
                         minWidth: { xs: "80px", md: "auto" },
                       }}
-                      size={2}>
+                      size={2}
+                    >
                       <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {formatNumberForLocale(item.totalQuantity, { max: 0 })}
                       </Typography>
@@ -596,8 +621,9 @@ export function AdvancedMineralOutput(props) {
                       }}
                       size={{
                         xs: 2,
-                        md: 2
-                      }}>
+                        md: 2,
+                      }}
+                    >
                       <Fade in key={`${unitPrice}`} timeout={500}>
                         <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                           {formatNumberForLocale(unitPrice)}
@@ -612,8 +638,9 @@ export function AdvancedMineralOutput(props) {
                       }}
                       size={{
                         xs: 2,
-                        md: 2
-                      }}>
+                        md: 2,
+                      }}
+                    >
                       <Fade in key={`${totalValue}`} timeout={500}>
                         <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                           {formatNumberForLocale(totalValue)}
@@ -628,8 +655,9 @@ export function AdvancedMineralOutput(props) {
                       }}
                       size={{
                         xs: 2,
-                        md: 1
-                      }}>
+                        md: 1,
+                      }}
+                    >
                       <Typography sx={{ typography: STANDARD_TEXT_FORMAT }}>
                         {formatNumberForLocale(item.percentageYield)}%
                       </Typography>
@@ -640,7 +668,8 @@ export function AdvancedMineralOutput(props) {
                           textAlign: "center",
                           minWidth: { xs: "40px", md: "auto" },
                         }}
-                        size={1}>
+                        size={1}
+                      >
                         <Tooltip title="More options" arrow placement="top">
                           <IconButton
                             onClick={(event) => handleMenuClick(event, item.id)}
@@ -653,9 +682,14 @@ export function AdvancedMineralOutput(props) {
                       </Grid>
                     )}
                   </Grid>
-                  <Grid container spacing={isMobile ? 0.5 : 2} size={12} sx={{
-                    alignItems: "center"
-                  }}>
+                  <Grid
+                    container
+                    spacing={isMobile ? 0.5 : 2}
+                    size={12}
+                    sx={{
+                      alignItems: "center",
+                    }}
+                  >
                     {Object.entries(item.reprocessedMaterials).map(
                       ([key, quantity]) => {
                         const matchedName =
@@ -705,7 +739,8 @@ export function AdvancedMineralOutput(props) {
                               width: isMobile ? "100%" : "auto",
                               maxWidth: isMobile ? "100%" : "none",
                             }}
-                            size={isMobile ? 12 : 2}>
+                            size={isMobile ? 12 : 2}
+                          >
                             <MineralCard
                               mineralKey={key}
                               matchedName={matchedName}
@@ -720,7 +755,7 @@ export function AdvancedMineralOutput(props) {
                             />
                           </Grid>
                         );
-                      }
+                      },
                     )}
                   </Grid>
                   {!pageState.toMinerals && (
@@ -732,7 +767,7 @@ export function AdvancedMineralOutput(props) {
                       slotProps={{
                         list: {
                           "aria-labelledby": `reprocessing-menu-button-${item.id}`,
-                        }
+                        },
                       }}
                     >
                       <MenuItem onClick={() => handleExcludeOre(item.id)}>

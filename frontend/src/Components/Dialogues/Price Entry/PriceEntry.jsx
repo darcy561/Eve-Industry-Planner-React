@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { PriceEntryContent } from "./DataProviders";
 import usePriceEntryReducer from "./Hooks/usePriceEntryReducer";
 import { useSyncedDialogueEventState } from "../../../Styled Components/Dialogue/ContentDialogue";
@@ -14,8 +13,6 @@ function serializePriceEntryEvent(messageData) {
 
 export function PriceEntryDialogue() {
   const { state, actions } = usePriceEntryReducer();
-  const stateRef = useRef(state);
-  stateRef.current = state;
 
   useSyncedDialogueEventState(
     "priceEntry",
@@ -35,7 +32,7 @@ export function PriceEntryDialogue() {
         if (msg.displayOrder) {
           actions.setDisplayOrder(msg.displayOrder);
         }
-        if (!stateRef.current.isOpen) {
+        if (!state.isOpen) {
           actions.toggleIsOpen();
         }
       } else {

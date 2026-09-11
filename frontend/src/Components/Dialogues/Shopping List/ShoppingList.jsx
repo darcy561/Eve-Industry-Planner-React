@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { ShoppingListContent } from "./DataProviders";
 import useShoppingListReducer from "./Hooks/useShoppingListReducer";
 import { useSyncedDialogueEventState } from "../../../Styled Components/Dialogue/ContentDialogue";
@@ -12,8 +11,6 @@ function serializeShoppingListEvent(messageData) {
 
 export function ShoppingListDialogue() {
   const { state, actions } = useShoppingListReducer();
-  const stateRef = useRef(state);
-  stateRef.current = state;
 
   useSyncedDialogueEventState(
     "shoppingList",
@@ -25,7 +22,7 @@ export function ShoppingListDialogue() {
     (msg) => {
       if (msg.isOpen) {
         actions.setRequestedJobIDs(msg.jobIDs ?? []);
-        if (!stateRef.current.isOpen) {
+        if (!state.isOpen) {
           actions.toggleIsOpen();
         }
       } else {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { subscribeToEvent } from "../../utils/EventSystem";
 
 /**
@@ -12,8 +12,11 @@ import { subscribeToEvent } from "../../utils/EventSystem";
  * @returns {[T, React.Dispatch<React.SetStateAction<T>>, () => void]} state, setState, reset
  */
 export function useDialogueEventState(eventName, getInitialState) {
-  const initialRef = useRef(getInitialState());
-  const [state, setState] = useState(() => initialRef.current);
+  // Held rather than called again: `reset` has to hand back what the dialogue
+  // opened with, and a factory called on every render would build a new object
+  // each time for a value only the first render keeps.
+  const [initial] = useState(getInitialState);
+  const [state, setState] = useState(initial);
 
   useEffect(() => {
     return subscribeToEvent(eventName, (data) => {
@@ -32,8 +35,8 @@ export function useDialogueEventState(eventName, getInitialState) {
   }, [eventName]);
 
   const reset = useCallback(() => {
-    setState({ ...initialRef.current });
-  }, []);
+    setState({ ...initial });
+  }, [initial]);
 
   return [state, setState, reset];
 }

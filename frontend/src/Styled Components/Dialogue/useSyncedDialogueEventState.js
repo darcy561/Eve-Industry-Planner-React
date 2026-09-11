@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { useDialogueEventState } from "./useDialogueEventState";
 
 /**
@@ -25,23 +25,25 @@ export function useSyncedDialogueEventState(
   const messageData = tuple[0];
   const lastSerialized = useRef(null);
 
-  const serializeRef = useRef(serialize);
-  const applyPayloadRef = useRef(applyPayload);
-  serializeRef.current = serialize;
-  applyPayloadRef.current = applyPayload;
+  // Both callbacks are rebuilt every render, closing over the state they read.
+  // As an effect event this always runs the latest pair without the snapshot
+  // itself counting as a change, which is what decides when the sync runs.
+  const syncSnapshot = useEffectEvent((data) => {
+    const serialized = serialize(data);
+    if (lastSerialized.current === serialized) {
+      return;
+    }
+    if (lastSerialized.current !== null) {
+      applyPayload(data);
+    }
+    lastSerialized.current = serialized;
+  });
 
   useEffect(() => {
     if (!enabled) {
       return;
     }
-    const serialized = serializeRef.current(messageData);
-    if (lastSerialized.current === serialized) {
-      return;
-    }
-    if (lastSerialized.current !== null) {
-      applyPayloadRef.current(messageData);
-    }
-    lastSerialized.current = serialized;
+    syncSnapshot(messageData);
   }, [enabled, messageData]);
 
   return tuple;

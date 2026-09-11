@@ -12,10 +12,6 @@ vi.mock("../Helpers/childJobBuildPipeline", () => ({
   asJobArray: (jobs) => (Array.isArray(jobs) ? jobs : [jobs]),
 }));
 
-vi.mock("../Helpers/finaliseCreatedChildJobs", () => ({
-  finaliseCreatedChildJobs: vi.fn(),
-}));
-
 const findMaterialJobInGroup = vi.fn(() => null);
 
 vi.mock(

@@ -1,13 +1,13 @@
 import { useMemo } from "react";
-import { Avatar, Badge, Tooltip, Typography, Grid } from "@mui/material";
+import { Badge, Tooltip, Typography, Grid } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 
-import useUsersStore from "../../../../../../Zustand/usersStore";
 import { red, yellow } from "@mui/material/colors";
 import useBlueprintIndex, {
   BLUEPRINT_SCOPE,
 } from "../../../../../../Hooks/EveEsi/useBlueprintIndex";
-import { BLUEPRINT_OWNER } from "../../../../../../Functions/Blueprints/buildBlueprintRows";
+import { blueprintOwner } from "../../../../../../Functions/Blueprints/blueprintHolderLabel";
+import OwnerAvatar from "../../../../../../Styled Components/Avatar/OwnerAvatar";
 import useGetAllIndustryJobs from "../../../../../../Hooks/EveEsi/useGetAllIndustryJobs";
 import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
 import recalculateJobFromSetup from "../../../../../../Functions/JobPlanner/recalculateJobFromSetup";
@@ -15,7 +15,7 @@ const inUse = yellow[800];
 const expiring = red[600];
 
 // Extracted component for individual blueprint item
-const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
+const BlueprintItem = ({ print, esiJob, state, actions }) => {
   const queryClient = useQueryClient();
 
   const blueprintType = print.isCopy ? "copy" : "original";
@@ -75,18 +75,7 @@ const BlueprintItem = ({ print, esiJob, blueprintOwner, state, actions }) => {
               horizontal: "right",
             }}
             badgeContent={
-              <Avatar
-                src={
-                  print.ownerType === BLUEPRINT_OWNER.CORPORATION
-                    ? `https://images.evetech.net/corporations/${print.ownerId}/logo`
-                    : `https://images.evetech.net/characters/${blueprintOwner.CharacterID}/portrait`
-                }
-                variant="circular"
-                sx={{
-                  height: "18px",
-                  width: "18px",
-                }}
-              />
+              <OwnerAvatar owner={blueprintOwner(print)} size={18} />
             }
           >
             <picture>
@@ -251,16 +240,12 @@ export function ManufacturingLayout_BlueprintPanel({ state, actions }) {
       >
         {blueprintOptions.map((print) => {
           const esiJob = jobLookupMap.get(print.itemId);
-          const blueprintOwner = useUsersStore
-            .getState()
-            .account.actions.findCharacterByHash(print.ownerId);
 
           return (
             <BlueprintItem
               key={print.itemId}
               print={print}
               esiJob={esiJob}
-              blueprintOwner={blueprintOwner}
               state={state}
               actions={actions}
             />

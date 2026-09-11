@@ -1,11 +1,10 @@
 import { useMemo } from "react";
-import useUsersStore from "../../../../../../Zustand/usersStore";
-import { Avatar, Badge, Typography, Grid } from "@mui/material";
+import { Badge, Typography, Grid } from "@mui/material";
 
 import useBlueprintIndex, {
   BLUEPRINT_SCOPE,
 } from "../../../../../../Hooks/EveEsi/useBlueprintIndex";
-import { BLUEPRINT_OWNER } from "../../../../../../Functions/Blueprints/buildBlueprintRows";
+import OwnerAvatar from "../../../../../../Styled Components/Avatar/OwnerAvatar";
 import useGetAllIndustryJobs from "../../../../../../Hooks/EveEsi/useGetAllIndustryJobs";
 
 export function ReactionLayout_BlueprintOptions({ state }) {
@@ -19,10 +18,6 @@ export function ReactionLayout_BlueprintOptions({ state }) {
     isLoading: isLoadingIndustryJobs,
     error: industryJobsError,
   } = useGetAllIndustryJobs();
-
-  const findCharacterByHash = useUsersStore(
-    (store) => store.account.actions.findCharacterByHash
-  );
 
   const blueprintOptions = useMemo(() => {
     const rows = blueprints.byTypeId.get(state.activeJob.blueprintTypeID) ?? [];
@@ -44,14 +39,10 @@ export function ReactionLayout_BlueprintOptions({ state }) {
         continue;
       }
 
-      const isCorporation = row.ownerType === BLUEPRINT_OWNER.CORPORATION;
       byOwner.set(row.ownerId, {
-        // A character row is owned by a hash; the portrait is addressed by the character's id.
-        ownerID: isCorporation
-          ? null
-          : findCharacterByHash(row.ownerId)?.CharacterID ?? null,
-        corporation_id: isCorporation ? row.ownerId : null,
-        is_corporation: isCorporation,
+        // The portrait is addressed by the character's own id rather than the hash a row is owned
+        // by; the shared avatar does that lookup, so the group carries the owner as it stands.
+        owner: { kind: row.ownerType, id: row.ownerId },
         blueprints: [row],
       });
     }
@@ -73,12 +64,7 @@ export function ReactionLayout_BlueprintOptions({ state }) {
           b.blueprints[0].me - a.blueprints[0].me ||
           b.blueprints[0].te - a.blueprints[0].te
       );
-  }, [
-    blueprints,
-    industryJobs,
-    state.activeJob.blueprintTypeID,
-    findCharacterByHash,
-  ]);
+  }, [blueprints, industryJobs, state.activeJob.blueprintTypeID]);
 
   // Loading state
   if (
@@ -132,7 +118,7 @@ export function ReactionLayout_BlueprintOptions({ state }) {
 
         return (
           <Grid
-            key={charBP.is_corporation ? charBP.corporation_id : charBP.ownerID}
+            key={charBP.owner.id}
             container
             size={{
               xs: 6,
@@ -157,18 +143,7 @@ export function ReactionLayout_BlueprintOptions({ state }) {
                 overlap="circular"
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
                 badgeContent={
-                  <Avatar
-                    src={
-                      charBP.is_corporation
-                        ? `https://images.evetech.net/corporations/${charBP.corporation_id}/logo`
-                        : `https://images.evetech.net/characters/${charBP.ownerID}/portrait`
-                    }
-                    variant="circular"
-                    sx={{
-                      height: "24px",
-                      width: "24px",
-                    }}
-                  />
+                  <OwnerAvatar owner={charBP.owner} size={24} />
                 }
               >
                 <picture>

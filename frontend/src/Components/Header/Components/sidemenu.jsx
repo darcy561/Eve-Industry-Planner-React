@@ -8,10 +8,23 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import {
+  RouterListItemButton,
+  whenFollowed,
+} from "../../../Styled Components/Navigation/routerControls.jsx";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useTranquilityServerStatusQuery } from "../../../Hooks/React Query/tranquilityServerStatus.js";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
 import { PlannerSwitcher } from "./plannerSwitcher.jsx";
+
+/** One destination in the menu: a real link, so it can be opened in a new tab. */
+function NavItem({ to, primary, onNavigated }) {
+  return (
+    <RouterListItemButton to={to} onClick={whenFollowed(onNavigated)}>
+      <ListItemText primary={primary} />
+    </RouterListItemButton>
+  );
+}
 
 export function SideMenu({ open, setOpen }) {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
@@ -19,6 +32,7 @@ export function SideMenu({ open, setOpen }) {
   const eveServerStatus = tranquilityStatus?.online ?? false;
   const evePlayerCount = tranquilityStatus?.playerCount ?? 0;
   const navigate = useNavigate();
+  const close = () => setOpen(false);
 
   return (
     <Drawer
@@ -58,18 +72,11 @@ export function SideMenu({ open, setOpen }) {
         <Box sx={{ width: "250px" }}>
           <List>
             <Divider />
-            <ListItemButton
-              onClick={() => {
-                navigate({ to: isLoggedIn ? "/dashboard" : "/" });
-                setOpen(false);
-              }}
-            >
-              {isLoggedIn ? (
-                <ListItemText primary={"Dashboard"} />
-              ) : (
-                <ListItemText primary={"Home"} />
-              )}
-            </ListItemButton>
+            <NavItem
+              to={isLoggedIn ? "/dashboard" : "/"}
+              primary={isLoggedIn ? "Dashboard" : "Home"}
+              onNavigated={close}
+            />
 
             <Divider />
             {isLoggedIn && (
@@ -80,66 +87,44 @@ export function SideMenu({ open, setOpen }) {
                     connection somewhere else without moving the data. */}
                 <PlannerSwitcher />
                 <Divider />
-                <ListItemButton
-                  onClick={() => {
-                    navigate({ to: "/asset-library" });
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Asset Library"} />
-                </ListItemButton>
+                <NavItem
+                  to="/asset-library"
+                  primary="Asset Library"
+                  onNavigated={close}
+                />
               </>
             )}
             <Divider />
             {isLoggedIn && (
               <>
-                <ListItemButton
-                  onClick={() => {
-                    navigate({ to: "/blueprint-library" });
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Blueprint Library"} />
-                </ListItemButton>
+                <NavItem
+                  to="/blueprint-library"
+                  primary="Blueprint Library"
+                  onNavigated={close}
+                />
                 <Divider />
-                <ListItemButton
-                  onClick={() => {
-                    navigate({ to: "/archived-jobs" });
-                    setOpen(false);
-                  }}
-                >
-                  <ListItemText primary={"Archived Jobs"} />
-                </ListItemButton>
+                <NavItem
+                  to="/archived-jobs"
+                  primary="Archived Jobs"
+                  onNavigated={close}
+                />
                 <Divider />
               </>
             )}
 
-            <ListItemButton
-              onClick={() => {
-                navigate({ to: "/jobplanner" });
-                setOpen(false);
-              }}
-            >
-              <ListItemText primary={"Job Planner"} />
-            </ListItemButton>
+            <NavItem
+              to="/jobplanner"
+              primary="Job Planner"
+              onNavigated={close}
+            />
             <Divider />
-            <ListItemButton
-              onClick={() => {
-                navigate({ to: "/reprocessing" });
-                setOpen(false);
-              }}
-            >
-              <ListItemText primary={"Reprocessing Calculator"} />
-            </ListItemButton>
+            <NavItem
+              to="/reprocessing"
+              primary="Reprocessing Calculator"
+              onNavigated={close}
+            />
             <Divider />
-            <ListItemButton
-              onClick={() => {
-                navigate({ to: "/itemtrees" });
-                setOpen(false);
-              }}
-            >
-              <ListItemText primary={"Item Tree"} />
-            </ListItemButton>
+            <NavItem to="/itemtrees" primary="Item Tree" onNavigated={close} />
             <Divider />
             <Divider />
           </List>
@@ -157,28 +142,16 @@ export function SideMenu({ open, setOpen }) {
         >
           <List sx={{ display: "flex", flexDirection: "column" }}>
             <Divider />
-            <ListItemButton
-              onClick={() => {
-                navigate({ to: "/accounts" });
-                setOpen(false);
-              }}
-            >
-              <ListItemText primary={"Accounts"} />
-            </ListItemButton>
+            <NavItem to="/accounts" primary="Accounts" onNavigated={close} />
             <Divider />
-            <ListItemButton
-              onClick={() => {
-                navigate({ to: "/settings" });
-                setOpen(false);
-              }}
-            >
-              <ListItemText primary={"Settings"} />
-            </ListItemButton>
+            <NavItem to="/settings" primary="Settings" onNavigated={close} />
             <Divider />
+            {/* Not a link: the route tears the session down in `beforeLoad`, and the
+                router preloads on intent — so hovering a link here would sign out. */}
             <ListItemButton
               onClick={() => {
                 navigate({ to: "/signout" });
-                setOpen(false);
+                close();
               }}
               sx={{
                 "& .MuiListItemText-primary": {

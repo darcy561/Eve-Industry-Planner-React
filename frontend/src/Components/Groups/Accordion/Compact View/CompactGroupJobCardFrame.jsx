@@ -8,7 +8,6 @@ import { jobTypes } from "../../../../Context/defaultValues";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
-  Button,
   Card,
   Checkbox,
   Grid,
@@ -20,7 +19,7 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import { grey } from "@mui/material/colors";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../../Styled Components/Navigation/routerControls.jsx";
 import getTooltipContent from "./jobCardTooltips";
 import { useCurrentTime } from "../../../../Hooks/useCurrentTime";
 import useUsersStore from "../../../../Zustand/usersStore";
@@ -75,8 +74,6 @@ export function CompactGroupJobCardFrame({
   const now = useCurrentTime();
   const tooltipContent = getTooltipContent(job, now);
 
-  const navigate = useNavigate();
-
   function getCardColor(theme, jobType) {
     switch (jobType) {
       case jobTypes.manufacturing:
@@ -91,16 +88,10 @@ export function CompactGroupJobCardFrame({
     }
   }
 
-  function onJobClick() {
-    navigate({
-      to: "/editjob/$jobID",
-      params: { jobID: job.jobID },
-      search: {
-        activeGroup: activeGroupID,
-        ...(editReturnPageView ? { pageView: editReturnPageView } : {}),
-      },
-    });
-  }
+  const editJobSearch = {
+    activeGroup: activeGroupID,
+    ...(editReturnPageView ? { pageView: editReturnPageView } : {}),
+  };
 
   return (
     <Card
@@ -209,12 +200,14 @@ export function CompactGroupJobCardFrame({
             arrow
             disableHoverListener={!cardLocked}
           >
-            <Button
+            <RouterButton
+              to="/editjob/$jobID"
+              params={{ jobID: job.jobID }}
+              search={editJobSearch}
               color={cardLocked ? "warning" : "primary"}
-              onClick={onJobClick}
             >
               {cardLocked ? "View" : "Edit"}
-            </Button>
+            </RouterButton>
           </Tooltip>
         </Grid>
         {!isMobile && (

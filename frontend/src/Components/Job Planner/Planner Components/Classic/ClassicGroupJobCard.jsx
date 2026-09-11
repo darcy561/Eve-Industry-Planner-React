@@ -2,7 +2,6 @@ import {
   Avatar,
   AvatarGroup,
   Box,
-  Button,
   Checkbox,
   Grid,
   IconButton,
@@ -19,7 +18,7 @@ import {
   usePlannerGroupCardDrag,
 } from "../../Hooks/useDnD";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../../Styled Components/Navigation/routerControls.jsx";
 import useUsersStore from "../../../../Zustand/usersStore";
 import { STANDARD_TEXT_FORMAT } from "../../../../Context/defaultValues";
 import ContentPanel from "../../../../Styled Components/Paper/ContentPanel";
@@ -45,7 +44,6 @@ export function ClassicGroupJobCard({ group }) {
   let groupCardChecked = useMemo(() => {
     return multiSelect.some((i) => i == group.groupID);
   }, [multiSelect]);
-  const navigate = useNavigate({ from: "/jobplanner" });
 
   const paperSxStyles = useMemo(() => {
     const isDarkMode = theme.palette.mode === PRIMARY_THEME;
@@ -227,19 +225,15 @@ export function ClassicGroupJobCard({ group }) {
                 arrow
                 disableHoverListener={!groupLockReadOnly}
               >
-                <Button
+                <RouterButton
+                  to="/group/$groupID"
+                  params={{ groupID: group.groupID }}
                   variant="outlined"
                   color={groupLockReadOnly ? "warning" : "primary"}
-                  onClick={() =>
-                    navigate({
-                      to: "/group/$groupID",
-                      params: { groupID: group.groupID },
-                    })
-                  }
                   sx={{ height: "25px", width: "100px" }}
                 >
                   View
-                </Button>
+                </RouterButton>
               </Tooltip>
             </Box>
             <Box

@@ -3,7 +3,6 @@ import {
   usePlannerGroupCardDrag,
 } from "../../Hooks/useDnD";
 import {
-  Button,
   Card,
   Checkbox,
   Grid,
@@ -16,7 +15,7 @@ import { useMemo } from "react";
 import { grey, yellow } from "@mui/material/colors";
 import { deleteGroupWithoutJobs } from "../../../../Functions/Groups/deleteGroupWithoutJobs.js";
 import GLOBAL_CONFIG from "../../../../global-config-app";
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../../Styled Components/Navigation/routerControls.jsx";
 import { useMediaQuery } from "@mui/material";
 import useUsersStore from "../../../../Zustand/usersStore";
 import { STANDARD_TEXT_FORMAT } from "../../../../Context/defaultValues";
@@ -36,7 +35,6 @@ export function CompactGroupJobCard({ group }) {
     isDragging,
     style: dragStyle,
   } = usePlannerGroupCardDrag(group);
-  const navigate = useNavigate({ from: "/jobplanner" });
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -152,17 +150,13 @@ export function CompactGroupJobCard({ group }) {
             arrow
             disableHoverListener={!groupLockReadOnly}
           >
-            <Button
+            <RouterButton
+              to="/group/$groupID"
+              params={{ groupID: group.groupID }}
               color={groupLockReadOnly ? "warning" : "primary"}
-              onClick={() =>
-                navigate({
-                  to: "/group/$groupID",
-                  params: { groupID: group.groupID },
-                })
-              }
             >
               View
-            </Button>
+            </RouterButton>
           </Tooltip>
         </Grid>
         {!isMobile && (

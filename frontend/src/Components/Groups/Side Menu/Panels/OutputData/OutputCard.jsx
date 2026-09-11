@@ -2,7 +2,6 @@ import HighlightIcon from "@mui/icons-material/Highlight";
 import {
   Avatar,
   Card,
-  CardActionArea,
   CardActions,
   CardContent,
   Grid,
@@ -11,9 +10,9 @@ import {
   Typography,
 } from "@mui/material";
 import { calculateCurrentJobBuildCostFromChildren } from "../../../../../Functions/Groups/calculateJobBuildCostFromChildren.js";
-import { useNavigate } from "@tanstack/react-router";
 import findJobsToHighlight from "./findJobsToHighlight";
 import useUsersStore from "../../../../../Zustand/usersStore";
+import { RouterCardActionArea } from "../../../../../Styled Components/Navigation/routerControls.jsx";
 import MarketHistoryIconButton from "../../../../../Styled Components/IconButton/marketHistory";
 import MarketDataIconButton from "../../../../../Styled Components/IconButton/marketData";
 import { formatNumberForLocale } from "../../../../../Functions/Helper/numberParser";
@@ -26,8 +25,6 @@ function OutputJobCard({ inputJob, state, actions }) {
   const defaultOrders = useUsersStore(
     (state) => state.applicationSettings.defaultOrderType,
   );
-
-  const navigate = useNavigate();
 
   const CurrentBuildCost =
     calculateCurrentJobBuildCostFromChildren(inputJob, {
@@ -43,16 +40,12 @@ function OutputJobCard({ inputJob, state, actions }) {
 
   return (
     <Card variant="elevation" square sx={{ marginBottom: "5px" }}>
-      <CardActionArea
-        onClick={() => {
-          navigate({
-            to: "/editjob/$jobID",
-            params: { jobID: inputJob.jobID },
-            search: {
-              activeGroup: activeGroupID,
-              ...(state.pageView ? { pageView: state.pageView } : {}),
-            },
-          });
+      <RouterCardActionArea
+        to="/editjob/$jobID"
+        params={{ jobID: inputJob.jobID }}
+        search={{
+          activeGroup: activeGroupID,
+          ...(state.pageView ? { pageView: state.pageView } : {}),
         }}
       >
         <CardContent>
@@ -96,7 +89,7 @@ function OutputJobCard({ inputJob, state, actions }) {
             </Grid>
           </Grid>
         </CardContent>
-      </CardActionArea>
+      </RouterCardActionArea>
       <CardActions sx={{ justifyContent: "flex-end" }}>
         <Tooltip
           title="Highlight jobs within the production chain."

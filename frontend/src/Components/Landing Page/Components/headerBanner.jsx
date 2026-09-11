@@ -1,9 +1,8 @@
-import { Box, Button, Typography, Grid, Stack } from "@mui/material";
+import { Box, Typography, Grid, Stack } from "@mui/material";
 
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../Styled Components/Navigation/routerControls.jsx";
 
 export function HeaderBanner() {
-  const navigate = useNavigate();
   return (
     <Grid
       container
@@ -37,14 +36,14 @@ export function HeaderBanner() {
         >
           Making the spreadsheet so you dont have to!
         </Typography>
-        <Button
+        <RouterButton
+          to="/jobplanner"
           variant="outlined"
           color="primary"
           size="large"
-          onClick={() => navigate({ to: "/jobplanner" })}
         >
           Give it a try!
-        </Button>
+        </RouterButton>
       </Stack>
       <Box
         sx={{

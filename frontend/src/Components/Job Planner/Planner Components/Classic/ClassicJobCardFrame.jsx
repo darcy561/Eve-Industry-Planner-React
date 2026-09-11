@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import {
   Avatar,
   Box,
-  Button,
   Checkbox,
   Grid,
   IconButton,
@@ -22,7 +21,7 @@ import {
   plannerDragPassThroughSx,
   usePlannerJobCardDrag,
 } from "../../Hooks/useDnD";
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../../Styled Components/Navigation/routerControls.jsx";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import deleteJobsFromPlanner from "../../../../Functions/JobPlanner/deleteMultipleJobs";
 import useUsersStore from "../../../../Zustand/usersStore";
@@ -61,7 +60,6 @@ export function JobCardFrame({ job, previewStandalone = false }) {
     isDragging,
     style: dragStyle,
   } = usePlannerJobCardDrag(job);
-  const navigate = useNavigate({ from: "/jobplanner" });
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
   const theme = useTheme();
 
@@ -223,19 +221,15 @@ export function JobCardFrame({ job, previewStandalone = false }) {
                 arrow
                 disableHoverListener={!jobLockReadOnly}
               >
-                <Button
+                <RouterButton
+                  to="/editjob/$jobID"
+                  params={{ jobID: job.jobID }}
                   variant="outlined"
                   color={jobLockReadOnly ? "warning" : "primary"}
-                  onClick={() => {
-                    navigate({
-                      to: "/editjob/$jobID",
-                      params: { jobID: job.jobID },
-                    });
-                  }}
                   sx={{ height: 25, width: 100 }}
                 >
                   {jobLockReadOnly ? "View" : "Edit"}
-                </Button>
+                </RouterButton>
               </Tooltip>
             </Box>
             <Box

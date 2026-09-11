@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import {
   Avatar,
   Box,
-  Button,
   Checkbox,
   Grid,
   Grow,
@@ -28,7 +27,7 @@ import {
 } from "../../../Job Planner/Hooks/useDnD";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import GroupStep1JobCard from "./JobCards/groupStep1";
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../../Styled Components/Navigation/routerControls.jsx";
 import useUsersStore from "../../../../Zustand/usersStore";
 import deleteJobsFromPlanner from "../../../../Functions/JobPlanner/deleteMultipleJobs";
 import ContentPanel from "../../../../Styled Components/Paper/ContentPanel";
@@ -103,18 +102,10 @@ export function ClassicGroupJobCardFrame({
     return activeGroupObject?.areComplete.has(job.jobID);
   }, [activeGroupObject]);
 
-  const navigate = useNavigate();
-
-  function onJobClick() {
-    navigate({
-      to: "/editjob/$jobID",
-      params: { jobID: job.jobID },
-      search: {
-        activeGroup: activeGroupID,
-        ...(editReturnPageView ? { pageView: editReturnPageView } : {}),
-      },
-    });
-  }
+  const editJobSearch = {
+    activeGroup: activeGroupID,
+    ...(editReturnPageView ? { pageView: editReturnPageView } : {}),
+  };
 
   const paperSxStyles = useMemo(() => {
     const isDarkMode = theme.palette.mode === PRIMARY_THEME;
@@ -281,14 +272,16 @@ export function ClassicGroupJobCardFrame({
                   arrow
                   disableHoverListener={!cardLocked}
                 >
-                  <Button
+                  <RouterButton
+                    to="/editjob/$jobID"
+                    params={{ jobID: job.jobID }}
+                    search={editJobSearch}
                     variant="outlined"
                     color={cardLocked ? "warning" : "primary"}
-                    onClick={onJobClick}
                     sx={{ height: 25, width: 100 }}
                   >
                     {cardLocked ? "View" : "Edit"}
-                  </Button>
+                  </RouterButton>
                 </Tooltip>
               </Box>
               <Box

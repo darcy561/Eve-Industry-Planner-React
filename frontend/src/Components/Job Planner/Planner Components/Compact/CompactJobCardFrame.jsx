@@ -12,7 +12,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { grey } from "@mui/material/colors";
 import {
   Box,
-  Button,
   Card,
   Checkbox,
   Grid,
@@ -20,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "@tanstack/react-router";
+import { RouterButton } from "../../../../Styled Components/Navigation/routerControls.jsx";
 import GLOBAL_CONFIG from "../../../../global-config-app";
 import getTooltipContent from "./tooltipContent";
 import deleteJobsFromPlanner from "../../../../Functions/JobPlanner/deleteMultipleJobs";
@@ -51,7 +50,6 @@ export function CompactJobCardFrame({ job }) {
     () => multiSelect.some((i) => i === job.jobID),
     [multiSelect],
   );
-  const navigate = useNavigate({ from: "/jobplanner" });
 
   function getCardColor(theme, jobType) {
     switch (jobType) {
@@ -174,17 +172,13 @@ export function CompactJobCardFrame({ job }) {
             arrow
             disableHoverListener={!jobLockReadOnly}
           >
-            <Button
+            <RouterButton
+              to="/editjob/$jobID"
+              params={{ jobID: job.jobID }}
               color={jobLockReadOnly ? "warning" : "primary"}
-              onClick={() => {
-                navigate({
-                  to: "/editjob/$jobID",
-                  params: { jobID: job.jobID },
-                });
-              }}
             >
               {jobLockReadOnly ? "View" : "Edit"}
-            </Button>
+            </RouterButton>
           </Tooltip>
         </Grid>
         {!isMobile && (

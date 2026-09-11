@@ -88,8 +88,8 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
     });
     const afterViewer = acquireDocumentLock.mock.calls.length;
 
+    rerender({ lockHeld: false, readOnly: false });
     await act(async () => {
-      rerender({ lockHeld: false, readOnly: false });
       await Promise.resolve();
     });
 
@@ -167,8 +167,8 @@ describe("useLockAcquireRelease (#21 vacancy self-heal)", () => {
     });
     const afterMount = acquireDocumentLock.mock.calls.length;
 
+    rerender({ lockHeld: false, readOnly: false });
     await act(async () => {
-      rerender({ lockHeld: false, readOnly: false });
       await Promise.resolve();
     });
 

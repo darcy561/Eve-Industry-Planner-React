@@ -1,11 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  cleanup,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -135,6 +129,8 @@ function Block({ locationID }) {
   );
 }
 
+/* eslint-disable testing-library/prefer-screen-queries -- see below: these
+   queries are scoped on purpose, and `screen` is the thing being avoided. */
 // Scoped to its own container: two renders in one file otherwise both answer a
 // document-wide query, and a figure from the previous case reads as this one's.
 const show = (locationID) =>
@@ -147,7 +143,6 @@ const show = (locationID) =>
   );
 
 beforeEach(() => {
-  cleanup();
   fetched.length = 0;
   queryClient.clear();
   // The gate every ESI query passes: signed in, and Tranquility known to be up.

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { render, cleanup } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
 const refreshAppConfig = vi.fn(async () => {});
 vi.mock("./Functions/Endpoints/Public/appConfig.js", () => ({
@@ -20,7 +20,6 @@ describe("the banner polls app-config while shown", () => {
   });
 
   afterEach(() => {
-    cleanup();
     vi.useRealTimers();
   });
 

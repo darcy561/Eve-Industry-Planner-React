@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { useEffect } from "react";
 import PageTransition, { usePageKey } from "./pageTransition";
 
@@ -10,7 +10,6 @@ function view(key, body) {
 describe("swapping full-page content", () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => {
-    cleanup();
     vi.useRealTimers();
   });
 
@@ -73,8 +72,6 @@ describe("the page key", () => {
     render(<Probe />);
     return seen;
   }
-
-  afterEach(cleanup);
 
   // Opening a child job from an open one changes the path but not the page.
   test("is the route pattern, so a param change is not a page change", () => {

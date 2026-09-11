@@ -153,8 +153,8 @@ describe("ArchivedItemStatistics", () => {
   // Choosing from the search is what selects the item; the tab holds no list of
   // its own to fall out of step with it.
   it("reports the item the search hands back", async () => {
-    const { getByText } = renderTab({ item: null });
-    getByText("pick an item").click();
+    renderTab({ item: null });
+    screen.getByText("pick an item").click();
 
     expect(onSelect).toHaveBeenCalledWith({ typeID: 34, name: "Tritanium" });
   });

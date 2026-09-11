@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import useAssetSource from "./useAssetSource";
 import useLocationNames from "./useLocationNames";
 import assetsOfType from "../../Functions/Assets/assetsOfType";
+import { unnameableLocationIds } from "../../Functions/Assets/assetLocationIds";
 import { orderLocations } from "../../Functions/Assets/assetTree";
 
 const EMPTY_LOCATIONS = [];
@@ -39,7 +40,15 @@ export default function useAssetsOfType({
     [enabled, collection, typeId],
   );
 
-  const locationIds = useMemo(() => [...byLocation.keys()], [byLocation]);
+  const shipIds = useMemo(
+    () => unnameableLocationIds(collection),
+    [collection],
+  );
+
+  const locationIds = useMemo(
+    () => [...byLocation.keys()].filter((id) => !shipIds.has(id)),
+    [byLocation, shipIds],
+  );
   const { names: locationNames, isLoading: namesLoading } =
     useLocationNames(locationIds);
 

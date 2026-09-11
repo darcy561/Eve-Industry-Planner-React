@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import useAssetSource from "./useAssetSource";
 import useBlueprintIndex from "./useBlueprintIndex";
 import useLocationNames from "./useLocationNames";
+import { unnameableLocationIds } from "../../Functions/Assets/assetLocationIds";
 import {
   assetRowsByLocation,
   orderLocations,
@@ -91,9 +92,14 @@ export default function useAssetTree({
     [collection, rootFlags, excludeRootFlags, includeLocations, hidden],
   );
 
+  const shipIds = useMemo(
+    () => unnameableLocationIds(collection),
+    [collection],
+  );
+
   const locationIds = useMemo(
-    () => [...rowsByLocation.keys()],
-    [rowsByLocation],
+    () => [...rowsByLocation.keys()].filter((id) => !shipIds.has(id)),
+    [rowsByLocation, shipIds],
   );
   const { names: locationNames, isLoading: namesLoading } =
     useLocationNames(locationIds);

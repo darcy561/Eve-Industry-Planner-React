@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import buildAssetNodes from "./buildAssetNodes";
+import { LOCATION_KIND } from "./assetLocationConstants";
 import {
   ASSET_SAFETY_ID,
   characterAssetRows,
@@ -126,6 +127,59 @@ describe("buildAssetNodes", () => {
       rootFlag: "LoSlot0",
       depth: 0,
     });
+  });
+
+  // The ship's own item id sits in the same range a structure's does, so the id alone reads as a
+  // place. Asked of ESI as one, it is refused for every character every time — and a refusal costs
+  // five times what an answer does against the error budget.
+  it("calls the ship holding it a ship rather than a structure", () => {
+    const collection = buildAssetNodes(characterAssetRows);
+
+    expect(nodeFor(collection, 1010).locationKind).toBe(LOCATION_KIND.SHIP);
+  });
+
+  // A hauler with nothing fitted is still a ship: its hold says so where a slot would have.
+  it("calls a ship carrying only cargo a ship", () => {
+    const collection = buildAssetNodes([
+      {
+        item_id: 5001,
+        type_id: 34,
+        quantity: 500,
+        location_flag: "Cargo",
+        location_id: 1099999999998,
+        location_type: "item",
+      },
+    ]);
+
+    expect(nodeFor(collection, 5001).locationKind).toBe(LOCATION_KIND.SHIP);
+  });
+
+  // Our own items sitting in someone else's structure carry the same flag a hangar always does, and
+  // that structure has a name the account can read. Calling it a ship would lose it.
+  it("still calls a hangar in an unseen structure a structure", () => {
+    const collection = buildAssetNodes([
+      {
+        item_id: 5002,
+        type_id: 34,
+        quantity: 10,
+        location_flag: "Hangar",
+        location_id: 1035466617946,
+        location_type: "item",
+      },
+    ]);
+
+    expect(nodeFor(collection, 5002).locationKind).toBe(
+      LOCATION_KIND.STRUCTURE,
+    );
+  });
+
+  // The same id range, told apart only by what the thing inside it is filed in.
+  it("still calls a structure a structure", () => {
+    const collection = buildAssetNodes(characterAssetRows);
+
+    expect(nodeFor(collection, 1011).locationKind).toBe(
+      LOCATION_KIND.STRUCTURE,
+    );
   });
 
   it("reads an office folder's divisions as the compartment", () => {

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import useAssetIndex, { ASSET_SCOPE } from "./useAssetIndex";
 import useLocationNames from "./useLocationNames";
 import blueprintLocations from "../../Functions/Blueprints/blueprintLocations";
+import { unnameableLocationIds } from "../../Functions/Assets/assetLocationIds";
 
 const EMPTY_NAMES = new Map();
 
@@ -28,10 +29,11 @@ export default function useBlueprintLocations(blueprints) {
     [blueprints, assets],
   );
 
-  const requested = useMemo(
-    () => [...new Set(locationIds.values())],
-    [locationIds],
-  );
+  // A blueprint aboard a ship in space holds the ship's item id, which no lookup will ever name.
+  const requested = useMemo(() => {
+    const ships = unnameableLocationIds(assets);
+    return [...new Set(locationIds.values())].filter((id) => !ships.has(id));
+  }, [locationIds, assets]);
   const {
     names,
     isLoading: namesLoading,

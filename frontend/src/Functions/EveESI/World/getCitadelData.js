@@ -8,6 +8,10 @@ import {
 } from "../../Endpoints/Private/citadelNames";
 import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 import {
+  STRUCTURE_SCOPE,
+  tokenHasScope,
+} from "../../Auth/esiCredentials/tokenScopes.js";
+import {
   LOCATION_OUTCOME,
   LocationResolutionError,
   isRefusalStatus,
@@ -53,6 +57,21 @@ export async function fetchStructureName(citadelID, character, config = {}) {
       locationId: citadelID,
       cause: err,
     });
+  }
+
+  if (!tokenHasScope(accessToken, STRUCTURE_SCOPE)) {
+    // Asking anyway would spend a 403 to be told what the token already says, and ESI charges a
+    // 4xx five times what it charges a hit. It is also indistinguishable from a docking refusal
+    // once it arrives, which is how a character that simply needs re-authorising ends up looking
+    // like one that cannot dock.
+    throw new LocationResolutionError(
+      `citadel lookup: token lacks ${STRUCTURE_SCOPE}`,
+      {
+        locationId: citadelID,
+        characterHash: character.CharacterHash,
+        needsReauthorisation: true,
+      },
+    );
   }
 
   // Enhanced configuration for rate limiting

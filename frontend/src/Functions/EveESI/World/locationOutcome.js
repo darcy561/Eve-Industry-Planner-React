@@ -40,13 +40,21 @@ export const LOCATION_OUTCOME = Object.freeze({
 export class LocationResolutionError extends Error {
   /**
    * @param {string} message
-   * @param {{locationId?: number, status?: number, cause?: unknown}} [detail]
+   * @param {{locationId?: number, status?: number, characterHash?: string, needsReauthorisation?: boolean, cause?: unknown}} [detail]
    */
-  constructor(message, { locationId, status, cause } = {}) {
+  constructor(
+    message,
+    { locationId, status, characterHash, needsReauthorisation, cause } = {},
+  ) {
     super(message, { cause });
     this.name = "LocationResolutionError";
     this.locationId = locationId;
     this.status = status;
+    this.characterHash = characterHash;
+    // A character whose token was never granted the scope cannot answer for this location and never
+    // will, however many times it is asked — but it has established nothing about the account, so
+    // this is not a refusal.
+    this.needsReauthorisation = Boolean(needsReauthorisation);
   }
 }
 

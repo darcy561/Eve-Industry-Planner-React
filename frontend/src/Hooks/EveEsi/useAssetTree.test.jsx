@@ -3,13 +3,14 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { store, characterRows, containerNameCalls } = vi.hoisted(() => ({
+const { store, characterRows, containerNameCalls, nameAsks } = vi.hoisted(() => ({
   store: {
     account: { characters: [], corporations: [] },
     worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
   },
   characterRows: new Map(),
   containerNameCalls: [],
+  nameAsks: [],
 }));
 
 vi.mock("../../Zustand/usersStore", () => ({
@@ -64,7 +65,10 @@ vi.mock("../App/useCachedData", () => ({
 vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
   // Anything these tests do not seed into the store is a location ESI has no name for, which is a
   // settled answer rather than a failure to retry.
-  requestLocationName: async (id) => ({ id, resolutionStatus: "unnamed" }),
+  requestLocationName: async (id) => {
+    nameAsks.push(id);
+    return { id, resolutionStatus: "unnamed" };
+  },
 }));
 
 vi.mock("../../Functions/EveESI/World/getAssetLocationNames", () => ({
@@ -114,6 +118,7 @@ beforeEach(() => {
   characterRows.clear();
   characterRows.set("hash-a", characterAssetRows);
   containerNameCalls.length = 0;
+  nameAsks.length = 0;
 });
 
 describe("the tree one asset view renders", () => {
@@ -174,5 +179,19 @@ describe("the tree one asset view renders", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.locations).toEqual([]);
     expect(containerNameCalls).toHaveLength(0);
+  });
+
+  // A ship in space holds its fittings at its own item id. ESI names that for nobody, so asking is
+  // a refusal spent to learn nothing — four of them on an account with four characters.
+  it("never asks ESI to name a ship that is in space", async () => {
+    const { result } = render({
+      assets: ASSETS,
+      blueprints: BLUEPRINTS,
+      namesCharacter: CHARACTER,
+      excludeRootFlags: OTHER_TABS,
+    });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(nameAsks).not.toContain(1099999999999);
   });
 });

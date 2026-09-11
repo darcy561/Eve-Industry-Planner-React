@@ -27,6 +27,14 @@ vi.mock("../../Auth/esiCredentials/provider.js", () => ({
   getEsiAccessToken: (...args) => tokenMock(...args),
 }));
 
+/** A token carrying exactly the scopes named. */
+function tokenWith(scopes) {
+  const payload = btoa(JSON.stringify({ scp: scopes }))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+  return `header.${payload}.signature`;
+}
+
 import { fetchStructureName, communityNameOrRefusal } from "./getCitadelData";
 import { LocationResolutionError } from "./locationOutcome";
 import { LOCATION_RESOLUTION_STATUS } from "../../Assets/assetLocationConstants";
@@ -97,6 +105,31 @@ describe("fetchStructureName", () => {
       LocationResolutionError,
     );
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  // A token issued before the app asked for structure access can never answer, and asking anyway
+  // spends a 403 to learn what the token already says — at five times a hit's cost against ESI's
+  // error budget, and coming back indistinguishable from a docking refusal.
+  it("does not ask at all when the token was never granted the scope", async () => {
+    tokenMock.mockResolvedValue({
+      accessToken: tokenWith(["esi-assets.read_assets.v1"]),
+    });
+
+    await expect(fetchStructureName(RAITARU, character)).rejects.toMatchObject({
+      needsReauthorisation: true,
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("asks when the token carries the scope", async () => {
+    tokenMock.mockResolvedValue({
+      accessToken: tokenWith(["esi-universe.read_structures.v1"]),
+    });
+    fetchMock.mockResolvedValue(esiResponse(200, { name: "Home Raitaru" }));
+
+    const answer = await fetchStructureName(RAITARU, character);
+
+    expect(answer.name.name).toBe("Home Raitaru");
   });
 
   it("throws when the request itself fails", async () => {

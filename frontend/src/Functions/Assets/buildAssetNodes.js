@@ -1,4 +1,8 @@
-import { resolveLocationKind } from "./assetLocationConstants";
+import {
+  isShipHoldFlag,
+  LOCATION_KIND,
+  resolveLocationKind,
+} from "./assetLocationConstants";
 
 /**
  * The wrapper ESI puts between a station and a corporation's hangar divisions.
@@ -110,7 +114,14 @@ export function buildAssetCollection(sources = [], owners = []) {
     // than an error — a corporation member sees only the offices their roles reach, and a ship
     // flying in space is absent from the set while its fitted modules are not.
     const holder = byItemId.get(node.locationId);
-    if (!holder || holder === node) continue;
+    if (!holder || holder === node) {
+      // A ship's item id and a structure's id share a range, so the id alone reads as a structure.
+      // What the module is filed in tells them apart: only a ship has fitting slots and bays. Left
+      // as a structure, this id is asked of ESI as a place — a lookup that is refused for every
+      // character, every time, and spends five times a hit's cost against the error budget doing it.
+      if (isShipHoldFlag(node.flag)) node.locationKind = LOCATION_KIND.SHIP;
+      continue;
+    }
     // A holder the set does contain is still the answer when the flag says the node sits at a
     // place: that holder is the station or structure, and it has a location of its own.
     if (PLACE_FLAGS.has(node.flag)) continue;

@@ -33,3 +33,27 @@ export default function assetLocationIds(collection) {
 
   return [...ids].sort((a, b) => a - b);
 }
+
+/**
+ * The ids among these that ESI will never name.
+ *
+ * A ship flying in space is absent from the asset set while the things aboard it are not, so each
+ * of them holds the ship's own item id as its location — an id in the same range a structure's sits
+ * in. Asked of ESI as a place it is refused, for every character, on every ask, and a refusal costs
+ * five times what an answer does against the error budget.
+ *
+ * Every surface that hands location ids to `useLocationNames` filters through this, so a new one
+ * cannot quietly reintroduce the storm.
+ *
+ * @param {import("./buildAssetNodes").AssetCollection} collection
+ * @returns {Set<number>}
+ */
+export function unnameableLocationIds(collection) {
+  const ids = new Set();
+
+  for (const node of collection?.nodes ?? []) {
+    if (node.locationKind === LOCATION_KIND.SHIP) ids.add(node.locationId);
+  }
+
+  return ids;
+}

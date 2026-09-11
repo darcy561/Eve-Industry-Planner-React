@@ -46,12 +46,61 @@ export function isNoAccessLocation(location) {
 export const ASSET_SAFETY_LOCATION_ID = 2004;
 
 /**
+ * Location flags only a ship files things in.
+ *
+ * Fitting slots and bays, and the holds a hull carries — cargo included. A structure's own modules
+ * carry the `Structure` prefix and are excluded, and so is `RigSlot`, which an Upwell structure has
+ * as well as a ship. Nothing here is a flag a station, a structure or a container uses.
+ *
+ * Deliberately not the list `assembledShipIds` keeps: that one answers "is this item an assembled
+ * ship", and admitting `Cargo` to it would take containers with it. This one answers "is the thing
+ * holding this a ship", which is asked only of a holder the asset set does not contain.
+ *
+ * @type {string[]}
+ */
+const SHIP_HOLD_PREFIXES = [
+  "HiSlot",
+  "MedSlot",
+  "LoSlot",
+  "SubSystemSlot",
+  "SubSystemBay",
+  "DroneBay",
+  "FighterBay",
+  "FighterTube",
+  "FrigateEscapeBay",
+  "Specialized",
+  "Cargo",
+  "FleetHangar",
+  "ShipHangar",
+  "BoosterBay",
+  "ExpeditionHold",
+  "MobileDepotHold",
+  "MoonMaterialBay",
+  "QuafeBay",
+  "Wardrobe",
+  "AutoFit",
+  "HiddenModifiers",
+];
+
+/**
+ * Whether a flag says the thing holding this is a ship.
+ *
+ * @param {string} [flag]
+ * @returns {boolean}
+ */
+export function isShipHoldFlag(flag = "") {
+  if (flag.startsWith("Structure")) return false;
+  return SHIP_HOLD_PREFIXES.some((prefix) => flag.startsWith(prefix));
+}
+
+/**
  * What a resolved `location_id` refers to.
  *
  * @type {Readonly<Record<string, string>>}
  */
 export const LOCATION_KIND = Object.freeze({
   ASSET_SAFETY: "assetSafety",
+  SHIP: "ship",
   REGION: "region",
   CONSTELLATION: "constellation",
   SYSTEM: "system",
@@ -72,6 +121,9 @@ export const LOCATION_KIND = Object.freeze({
  * Regions and constellations never arrive as an asset's location, but they do reach name
  * resolution — a market history reads a region. They are classified here rather than falling to the
  * `STRUCTURE` default, which would send them to an endpoint that answers for neither.
+ *
+ * `SHIP` is not decided here: a ship's item id sits in the same range as a structure's, and only the
+ * flag of the thing filed inside it tells the two apart. {@link buildAssetNodes} settles that.
  *
  * @param {number} locationId
  * @returns {string} one of {@link LOCATION_KIND}

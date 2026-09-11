@@ -169,6 +169,40 @@ describe("requestLocationName", () => {
     expect(outcome.name).toBe("The Forge");
   });
 
+  // The account has established nothing about the structure if nobody was in a position to ask.
+  it("does not settle as no access when no character may read structures", async () => {
+    structureMock.mockImplementation(async () => {
+      const err = new LocationResolutionError("token lacks the scope");
+      err.needsReauthorisation = true;
+      throw err;
+    });
+
+    await expect(
+      requestLocationName(RAITARU, characters),
+    ).rejects.toMatchObject({ needsReauthorisation: true });
+    expect(communityMock).not.toHaveBeenCalled();
+  });
+
+  it("still settles on a refusal when one character could ask and was refused", async () => {
+    structureMock.mockImplementation(async (id, character) => {
+      if (character === main) {
+        const err = new LocationResolutionError("token lacks the scope");
+        err.needsReauthorisation = true;
+        throw err;
+      }
+      return { refused: true };
+    });
+    communityMock.mockResolvedValue({
+      id: RAITARU,
+      name: "Someone Else's Raitaru",
+      resolutionStatus: LOCATION_OUTCOME.COMMUNITY,
+    });
+
+    const outcome = await requestLocationName(RAITARU, characters);
+
+    expect(outcome.resolutionStatus).toBe(LOCATION_OUTCOME.COMMUNITY);
+  });
+
   it("fails an id it has no character to ask with", async () => {
     await expect(requestLocationName(RAITARU, [])).rejects.toBeInstanceOf(
       LocationResolutionError,

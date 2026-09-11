@@ -290,8 +290,11 @@ describe("a character's assets", () => {
     renderPage({ search: "pyerite" });
 
     expect(await screen.findByText("Pyerite")).toBeTruthy();
-    // Pyerite is inside the container, which is kept so its holder can be seen.
-    expect(screen.getByText("Large Secure Container - Ore Crate")).toBeTruthy();
+    // Pyerite is inside the container, which is kept so its holder can be seen. The player's own
+    // name for it arrives separately from the rows, so it is waited for rather than assumed.
+    expect(
+      await screen.findByText("Large Secure Container - Ore Crate"),
+    ).toBeTruthy();
     expect(screen.queryByText("Tritanium")).toBeNull();
     expect(screen.queryByText("Abbey Raitaru")).toBeNull();
   });

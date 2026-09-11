@@ -1,0 +1,9 @@
+# Commits that changed formatting only. `git blame` skips these so a line's
+# history points at whoever last changed its meaning.
+#
+# Local clones need this pointed at once:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub reads the file without any configuration.
+
+# Format the SPA with Prettier
+824b79ae72578e3c73b7302964aac54f82b24600

@@ -18,10 +18,8 @@ import GLOBAL_CONFIG from "../../../../global-config-app";
 export function WatchlistGroup({
   group,
   index,
-  updateGroupSettingsTrigger,
-  updateGroupSettingsContent,
-  setOpenDialogue,
-  updateWatchlistItemToEdit,
+  onOpenGroupSettings,
+  onEditWatchlistItem,
 }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
   const { setUserWatchlistGroups } = useUsersStore.getState().jobData.actions;
@@ -78,10 +76,9 @@ export function WatchlistGroup({
                 <IconButton
                   component="span"
                   color="secondary"
-                  onClick={() => {
-                    updateGroupSettingsContent(userWatchlist.groups[index]);
-                    updateGroupSettingsTrigger((prev) => !prev);
-                  }}
+                  onClick={() =>
+                    onOpenGroupSettings(userWatchlist.groups[index])
+                  }
                 >
                   <SettingsIcon fontSize="small" />
                 </IconButton>
@@ -97,8 +94,7 @@ export function WatchlistGroup({
                   key={item.id}
                   item={item}
                   index={index}
-                  setOpenDialogue={setOpenDialogue}
-                  updateWatchlistItemToEdit={updateWatchlistItemToEdit}
+                  onEditWatchlistItem={onEditWatchlistItem}
                 />
               );
             } else return null;

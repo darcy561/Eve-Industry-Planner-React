@@ -204,9 +204,9 @@ export function PurchasingDataPanel_EditJob(props) {
                   state.activeJob.layout.localMarketDisplay ?? undefined
                 }
                 onMarketLocationCommit={(id) => {
-                  state.activeJob.layout.localMarketDisplay =
-                    id === undefined ? null : id;
-                  actions.updateActiveJob(state.activeJob);
+                  actions.updateActiveJobLayout({
+                    localMarketDisplay: id === undefined ? null : id,
+                  });
                 }}
                 customFormStyling={{
                   width: "90px",
@@ -220,9 +220,9 @@ export function PurchasingDataPanel_EditJob(props) {
                   state.activeJob.layout.localOrderDisplay ?? undefined
                 }
                 onOrderTypeCommit={(id) => {
-                  state.activeJob.layout.localOrderDisplay =
-                    id === undefined ? null : id;
-                  actions.updateActiveJob(state.activeJob);
+                  actions.updateActiveJobLayout({
+                    localOrderDisplay: id === undefined ? null : id,
+                  });
                 }}
                 customFormStyling={{
                   width: "120px",

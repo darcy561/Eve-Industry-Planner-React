@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Typography } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
@@ -47,13 +47,6 @@ export default function GroupJobTreeFlow({
     }
     return out.size > 0 ? out : null;
   }, [highlightedItems, groupJobIdSet]);
-
-  /** Bumps when `focusJobId` appears so fitView runs even if the job id repeats. */
-  const [focusSession, setFocusSession] = useState(0);
-  useEffect(() => {
-    if (!focusJobId) return;
-    setFocusSession((n) => n + 1);
-  }, [focusJobId]);
 
   useEffect(() => {
     if (!focusJobId || !routeGroupID) return;
@@ -170,8 +163,7 @@ export default function GroupJobTreeFlow({
         helpText={groupHelpText}
         onOpenInDialogue={openTreeDialogue}
         interactionResetKey={routeGroupID}
-        initialFocusJobId={focusInGroup}
-        focusRequestKey={focusInGroup ? focusSession : undefined}
+        focusRequest={focusInGroup ? { jobID: focusInGroup } : null}
         sx={{ flex: 1, minHeight: 0, height: "100%" }}
       />
     </ContentPanel>

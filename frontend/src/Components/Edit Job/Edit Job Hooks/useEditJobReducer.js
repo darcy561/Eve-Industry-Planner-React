@@ -21,26 +21,8 @@ import { buildSetIsLoadingActionPayload } from "../../../Functions/Helper/setIsL
  * @returns {Object} returns.state.esiDataToLink - ESI data to be linked to the job
  * @returns {Object} returns.state.parentChildToEdit - Parent-child job relationship changes
  * @returns {boolean} returns.state.isLoading - Loading state
- * @returns {Object} returns.actions - Action dispatchers
- * @returns {Function} returns.actions.setActiveJob - Set the active job
- * @returns {Function} returns.actions.updateActiveJob - Update the active job
- * @returns {Function} returns.actions.stepActiveJobForward - Move job status forward
- * @returns {Function} returns.actions.stepActiveJobBackward - Move job status backward
- * @returns {Function} returns.actions.markJobAsModified - Mark job as modified
- * @returns {Function} returns.actions.setTemporaryChildJobs - Set temporary child jobs
- * @returns {Function} returns.actions.getCurrentParentJobs - Get current parent jobs
- * @returns {Function} returns.actions.getCurrentMaterialChildJobs - Get child jobs for material
- * @returns {Function} returns.actions.markParentJobForAddition - Mark parent job for addition
- * @returns {Function} returns.actions.markParentJobForRemoval - Mark parent job for removal
- * @returns {Function} returns.actions.markChildJobsForAddition - Mark child jobs for addition
- * @returns {Function} returns.actions.markChildJobsForRemoval - Mark child jobs for removal
- * @returns {Function} returns.actions.setIsLoading - Set loading state
- * @returns {Function} returns.actions.addIndustryESIJobsForAddition - Add ESI industry jobs
- * @returns {Function} returns.actions.addIndustryESIJobsForRemoval - Remove ESI industry jobs
- * @returns {Function} returns.actions.addMarketOrdersForAddition - Add market orders
- * @returns {Function} returns.actions.addMarketOrdersForRemoval - Remove market orders
- * @returns {Function} returns.actions.addTransactionsForAddition - Add transactions
- * @returns {Function} returns.actions.addTransactionsForRemoval - Remove transactions
+ * @returns {Object} returns.actions - Action dispatchers, each documented where
+ *   it is defined. Listing them here as well went out of step twice.
  */
 export default function useEditJobReducer() {
   const initialState = {
@@ -219,6 +201,34 @@ export default function useEditJobReducer() {
       dispatch({
         type: EDIT_JOB_ACTION_TYPES.MARK_PARENT_JOB_FOR_REMOVAL,
         payload: parentJobID,
+      });
+    },
+    /**
+     * Records a change to the reader's layout choices for the active job.
+     *
+     * @param {Object} layoutPatch - The layout fields that changed.
+     */
+    updateActiveJobLayout: (layoutPatch) => {
+      dispatch({
+        type: EDIT_JOB_ACTION_TYPES.UPDATE_ACTIVE_JOB_LAYOUT,
+        payload: layoutPatch,
+      });
+    },
+    /**
+     * Records a sale the reader entered by hand.
+     *
+     * @param {Object} transaction - The transaction as the form built it.
+     */
+    addCustomTransaction: (transaction) => {
+      dispatch({
+        type: EDIT_JOB_ACTION_TYPES.ADD_CUSTOM_TRANSACTION,
+        payload: transaction,
+      });
+    },
+    /** Marks a grouped job ready for sale, or takes that back. */
+    toggleActiveJobReadyForSale: () => {
+      dispatch({
+        type: EDIT_JOB_ACTION_TYPES.TOGGLE_ACTIVE_JOB_READY_FOR_SALE,
       });
     },
     /**

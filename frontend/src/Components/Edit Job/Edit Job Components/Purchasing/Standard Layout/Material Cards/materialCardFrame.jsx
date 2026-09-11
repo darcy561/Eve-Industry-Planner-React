@@ -1,7 +1,10 @@
 import { Avatar, Typography, Grid, Box } from "@mui/material";
 import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel";
-import { ChildJobDialogue } from "../Child Job Dialogue/childJobDialogue";
-import { useState } from "react";
+import { ChildJobLinks } from "../Child Job Dialogue/childJobLinks";
+import ContentDialogue, {
+  DialogueCloseAction,
+  useDialogueTrigger,
+} from "../../../../../../Styled Components/Dialogue/ContentDialogue";
 import { ChildJobsAvatar_Purchasing } from "./childJobsAvatar";
 import { TotalCost_Purchasing } from "./totalMaterialCost";
 import { MaterialCostsFrame_Purchasing } from "./materialCostsFrame";
@@ -21,7 +24,7 @@ export function MaterialCardFrame_Purchasing(props) {
   const { state, material } = props;
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
   const { jobArray } = useUsersStore((state) => state.jobData);
-  const [childDialogueTrigger, updateChildDialogueTrigger] = useState(false);
+  const childJobDialogue = useDialogueTrigger();
 
   function calculateChildJobData() {
     let childJobs = [];
@@ -198,7 +201,7 @@ export function MaterialCardFrame_Purchasing(props) {
             )}
             <ChildJobsAvatar_Purchasing
               {...props}
-              updateChildDialogueTrigger={updateChildDialogueTrigger}
+              onOpen={childJobDialogue.open}
               childJobs={childJobs}
             />
           </Box>
@@ -285,11 +288,16 @@ export function MaterialCardFrame_Purchasing(props) {
             />
           </Box>
         </Box>
-        <ChildJobDialogue
-          {...props}
-          childDialogueTrigger={childDialogueTrigger}
-          updateChildDialogueTrigger={updateChildDialogueTrigger}
-        />
+        <ContentDialogue
+          {...childJobDialogue.dialogueProps}
+          title="Available Child Jobs"
+          componentName="Child Job Links"
+          dialogueTitleProps={{ align: "center", color: "primary" }}
+          fullWidth
+          actions={<DialogueCloseAction onClose={childJobDialogue.close} />}
+        >
+          <ChildJobLinks {...props} />
+        </ContentDialogue>
       </ContentPanel>
     </Grid>
   );

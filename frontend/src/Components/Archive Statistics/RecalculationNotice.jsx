@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Collapse } from "@mui/material";
 import { useArchiveTimeline } from "./useArchiveTimeline";
+import { useHasChanged } from "../../Hooks/useHasChanged";
 
 /** A state with no entry here says nothing, rather than an alert with no words in it. */
 const NOTICES = {
@@ -24,8 +25,8 @@ export function RecalculationNotice({ from, to, range }) {
   const { recalculation } = useArchiveTimeline({ from, to, range });
   const notice = (recalculation && NOTICES[recalculation]) || null;
   // Held so the alert still reads while it collapses away.
-  const [last, setLast] = useState(null);
-  if (notice && notice !== last) {
+  const [last, setLast] = useState(notice);
+  if (useHasChanged(notice) && notice) {
     setLast(notice);
   }
   const shown = notice ?? last;

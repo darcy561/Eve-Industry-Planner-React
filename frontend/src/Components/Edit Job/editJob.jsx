@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useParams } from "@tanstack/react-router";
 import {
   Avatar,
@@ -22,6 +22,7 @@ import SchemaIcon from "@mui/icons-material/Schema";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { ShoppingListDialogue } from "../Dialogues/Shopping List/ShoppingList";
 import useWarnBeforeUnload from "../../Hooks/GeneralHooks/useWarnBeforeUnload";
+import { useIsScrolledOutOfView } from "../../Hooks/GeneralHooks/useIsScrolledOutOfView";
 import StepErrorBoundary from "./StepErrorBoundary";
 import PriceHistoryDialogue from "../Dialogues/Price History/dialogueFrame";
 import MarketDataDialogue from "../Dialogues/Market Data/dialogueFrame";
@@ -53,14 +54,12 @@ export default function EditJob_New() {
   const params = useParams({ from: "/editjob/$jobID" });
   const { jobID } = params;
   let backupJob = useRef(null);
-  const prevStepButtonContainerRef = useRef(null);
-  const nextStepButtonContainerRef = useRef(null);
-  const [showFloatingPrevStep, setShowFloatingPrevStep] = useState(false);
-  const [showFloatingNextStep, setShowFloatingNextStep] = useState(false);
+  const [prevStepButtonOutOfView, prevStepButtonRef] = useIsScrolledOutOfView();
+  const [nextStepButtonOutOfView, nextStepButtonRef] = useIsScrolledOutOfView();
 
   useStripRedundantJobMarketHubOverrides(
     state.activeJob,
-    actions.updateActiveJob,
+    actions.updateActiveJobLayout,
   );
   useRefreshLinkedESIData(state.activeJob, actions.updateActiveJob);
   useEditJobDocumentLocks({
@@ -95,6 +94,8 @@ export default function EditJob_New() {
     lastStepIndex,
     lockFinalStep: finalStepGateActive,
   });
+  const showFloatingPrevStep = canMoveBackward && prevStepButtonOutOfView;
+  const showFloatingNextStep = canMoveForward && nextStepButtonOutOfView;
 
   function jumpToJobStep(targetStep) {
     if (
@@ -111,48 +112,6 @@ export default function EditJob_New() {
       jobStatus: targetStep,
     });
   }
-
-  useEffect(() => {
-    if (!canMoveBackward) {
-      setShowFloatingPrevStep(false);
-      return;
-    }
-
-    const element = prevStepButtonContainerRef.current;
-    if (!element) {
-      setShowFloatingPrevStep(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowFloatingPrevStep(!entry.isIntersecting),
-      { threshold: 0.15 },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [canMoveBackward, state.activeJob?.jobStatus]);
-
-  useEffect(() => {
-    if (!canMoveForward) {
-      setShowFloatingNextStep(false);
-      return;
-    }
-
-    const element = nextStepButtonContainerRef.current;
-    if (!element) {
-      setShowFloatingNextStep(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowFloatingNextStep(!entry.isIntersecting),
-      { threshold: 0.15 },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [canMoveForward, state.activeJob?.jobStatus]);
 
   return (
     <>
@@ -384,7 +343,7 @@ export default function EditJob_New() {
                           <Grid
                             align="center"
                             size={12}
-                            ref={prevStepButtonContainerRef}
+                            ref={prevStepButtonRef}
                           >
                             <Tooltip
                               title="Move to previous step"
@@ -419,7 +378,7 @@ export default function EditJob_New() {
                           <Grid
                             align="center"
                             size={12}
-                            ref={nextStepButtonContainerRef}
+                            ref={nextStepButtonRef}
                           >
                             <Tooltip
                               title="Move to next step"

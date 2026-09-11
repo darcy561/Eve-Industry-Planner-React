@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Grid,
   IconButton,
@@ -13,6 +13,7 @@ import useUsersStore from "../../../Zustand/usersStore";
 import ContentPanel from "../../../Styled Components/Paper/ContentPanel";
 import { flushPendingGroupSave } from "../../../Functions/Debounce/jobGroupsPersistSchedule.js";
 import { useActiveGroupCanEdit } from "../../../Hooks/DocumentLock/useDocumentLockState";
+import { useHasChanged } from "../../../Hooks/useHasChanged";
 
 function GroupNameFrame() {
   const canEdit = useActiveGroupCanEdit();
@@ -21,39 +22,38 @@ function GroupNameFrame() {
   const [allowEditGroupName, updateAllowEditGroupName] = useState(false);
   const [editGroupNameText, updateEditGroupNameText] = useState("");
 
+  /* Losing the lock shuts the editor for good rather than hiding it, so the
+   * lock returning cannot reopen it on text seeded before whatever took it. */
+  if (useHasChanged(canEdit) && !canEdit) {
+    updateAllowEditGroupName(false);
+  }
+
   const selectedGroup = getActiveGroupObject();
-
-  useEffect(() => {
-    if (!canEdit) {
-      updateAllowEditGroupName(false);
-    }
-  }, [canEdit]);
-
-  useEffect(() => {
-    if (selectedGroup) {
-      updateEditGroupNameText(selectedGroup.groupName);
-    }
-  }, [selectedGroup]);
+  const editing = allowEditGroupName && canEdit;
 
   if (!selectedGroup) return null;
+
+  function handleOpen() {
+    updateEditGroupNameText(selectedGroup.groupName);
+    updateAllowEditGroupName(true);
+  }
 
   async function handleSave() {
     selectedGroup.setGroupName(editGroupNameText);
     updateModifiedGroups(selectedGroup);
-    updateAllowEditGroupName((prev) => !prev);
+    updateAllowEditGroupName(false);
     /* Same as new group flow: PUT must reach Mongo promptly or changestream/WS never
      * notifies other tabs — `updateModifiedGroups` alone only schedules a 2s debounced save. */
     await flushPendingGroupSave();
   }
 
   function handleClose() {
-    updateEditGroupNameText(selectedGroup.groupName);
     updateAllowEditGroupName(false);
   }
 
   return (
     <ContentPanel componentName="Group Name Frame">
-      {!allowEditGroupName ? (
+      {!editing ? (
         <Grid container sx={{ width: "100%" }}>
           <Grid size={11}>
             <Typography variant="h5" align="left" color="primary">
@@ -66,7 +66,7 @@ function GroupNameFrame() {
                 <IconButton
                   size="small"
                   disabled={!canEdit}
-                  onClick={() => updateAllowEditGroupName((prev) => !prev)}
+                  onClick={handleOpen}
                 >
                   <EditIcon color="primary" />
                 </IconButton>

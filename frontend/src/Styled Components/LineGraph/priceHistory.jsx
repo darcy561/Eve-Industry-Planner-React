@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import GLOBAL_CONFIG from "../../global-config-app";
 import {
   appShellInsetSurfaceSx,
@@ -16,6 +16,7 @@ import {
   MARKET_HUB_HISTORY_HELPER_TEXT,
 } from "../../Context/appShell";
 import { normalizeLocaleForIntl } from "../../Functions/Helper/localeDetection";
+import { useHasChanged } from "../../Hooks/useHasChanged";
 import { useItemNames } from "../../Hooks/useItemNames";
 import useUsersStore from "../../Zustand/usersStore";
 import { ChartRangeSlider, TimeSeriesChart, trailingRange } from "../Charts";
@@ -51,22 +52,26 @@ function PriceHistoryLineGraph({
   const theme = useTheme();
   const regionSelectShell = getAppShellMarketSelectProps(theme);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  /** Inclusive `[oldestIdx, newestIdx]` into graphData, matching the X axis. */
-  const [visibleIndexRange, setVisibleIndexRange] = useState([0, 0]);
   const userLocale = normalizeLocaleForIntl(
     navigator.language || GLOBAL_CONFIG.DEFAULT_LOCALE,
   );
 
   const rowCount = graphData?.length ?? 0;
-  // Reset the window when the series itself changes, or it would point into
-  // rows belonging to a different item or region.
+  const windowSize = isMobile ? 7 : 30;
+  /** Inclusive `[oldestIdx, newestIdx]` into graphData, matching the X axis. */
+  const [visibleIndexRange, setVisibleIndexRange] = useState(() =>
+    trailingRange(rowCount, windowSize),
+  );
+
   const seriesIdentity =
     rowCount > 0
       ? `${rowCount}:${String(graphData[0]?.date)}:${String(graphData[rowCount - 1]?.date)}`
       : "";
-  useLayoutEffect(() => {
-    setVisibleIndexRange(trailingRange(rowCount, isMobile ? 7 : 30));
-  }, [seriesIdentity, rowCount, isMobile]);
+  // Go back to the trailing window when the series itself changes, or it would
+  // point into rows belonging to a different item or region.
+  if (useHasChanged(`${seriesIdentity}:${windowSize}`)) {
+    setVisibleIndexRange(trailingRange(rowCount, windowSize));
+  }
 
   const regionName =
     useUsersStore

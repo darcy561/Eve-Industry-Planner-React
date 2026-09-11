@@ -43,7 +43,6 @@ export default function usePriceEntryReducer() {
     displayOrder:
       useUsersStore.getState().applicationSettings.defaultOrderType ??
       DEFAULT_ORDER_OPTION,
-    clearUnconfirmedTrigger: 0,
   });
 
   const initialState = createInitialState();
@@ -109,12 +108,6 @@ export default function usePriceEntryReducer() {
         dispatch({
           type: PRICE_ENTRY_ACTION_TYPES.SET_DISPLAY_ORDER,
           payload: order,
-        });
-      },
-      setClearUnconfirmedTrigger: (value) => {
-        dispatch({
-          type: PRICE_ENTRY_ACTION_TYPES.SET_CLEAR_UNCONFIRMED_TRIGGER,
-          payload: value,
         });
       },
       resetState: () => {

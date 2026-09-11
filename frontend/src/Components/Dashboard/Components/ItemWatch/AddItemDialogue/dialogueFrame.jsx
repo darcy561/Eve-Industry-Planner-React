@@ -1,10 +1,5 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Grid,
-} from "@mui/material";
+import { Button, Grid } from "@mui/material";
+import ContentDialogue from "../../../../../Styled Components/Dialogue/ContentDialogue";
 import { useState } from "react";
 import { putWatchlistDeprecatedToApi } from "../../../../../Functions/Endpoints/Private/watchlistDeprecated.js";
 import { AppEvent } from "../../../../../analytics/appEventNames";
@@ -16,12 +11,15 @@ import { EditItemDisplay_WatchlistDialogue } from "./mainDisplay";
 import { showSnackbarSuccess } from "../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../Zustand/usersStore";
 
-export function AddWatchItemDialogue({
-  openDialogue,
-  setOpenDialogue,
-  watchlistItemToEdit,
-  updateWatchlistItemToEdit,
-}) {
+/**
+ * Adds a watchlist item, or edits the one at `watchlistItemToEdit`. Mounted only
+ * while it is open, so everything it works out along the way goes when it shuts.
+ *
+ * @param {Object} props
+ * @param {number|null} props.watchlistItemToEdit - Index of the item being edited
+ * @param {Function} props.onClose
+ */
+export function AddWatchItemDialogue({ watchlistItemToEdit, onClose }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
   const { setUserWatchlistItems } = useUsersStore.getState().jobData.actions;
   const [loadingState, changeLoadingState] = useState(false);
@@ -32,15 +30,9 @@ export function AddWatchItemDialogue({
   const [saveReady, updateSaveReady] = useState(false);
   const [groupSelect, updateGroupSelect] = useState(0);
 
-  const handleClose = () => {
-    setOpenDialogue(false);
-    changeLoadingState(false);
-    setFailedImport(false);
-    setMaterialJobs(null);
-    updateSaveReady(false);
-    updateGroupSelect(0);
-    updateWatchlistItemToEdit(null);
-  };
+  /* Everything this dialogue works out is local state, and it is unmounted on
+   * close, so there is nothing to put back. */
+  const handleClose = onClose;
 
   async function handleSave() {
     let newUserWatchlistItems = [...userWatchlist.items];
@@ -118,41 +110,47 @@ export function AddWatchItemDialogue({
   }
 
   return (
-    <Dialog open={openDialogue} onClose={handleClose} sx={{ padding: "20px" }}>
-      <DialogContent>
-        <Grid container>
-          <DialogueDisplayLogic
-            loadingState={loadingState}
-            changeLoadingState={changeLoadingState}
-            loadingText={loadingText}
-            changeLoadingText={changeLoadingText}
-            failedImport={failedImport}
-            setFailedImport={setFailedImport}
-            watchlistItemRequest={watchlistItemRequest}
-            updateWatchlistItemRequest={updateWatchlistItemRequest}
-            materialJobs={materialJobs}
-            setMaterialJobs={setMaterialJobs}
-            updateSaveReady={updateSaveReady}
-            groupSelect={groupSelect}
-            updateGroupSelect={updateGroupSelect}
-            watchlistItemToEdit={watchlistItemToEdit}
-          />
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button variant="outlined" size="small" onClick={handleClose}>
-          Close
-        </Button>
-        <Button
-          disabled={!saveReady}
-          variant="contained"
-          size="small"
-          onClick={handleSave}
-        >
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <ContentDialogue
+      open
+      onClose={handleClose}
+      title="Watchlist Item"
+      componentName="AddWatchItemDialogue"
+      useAppShellDesign
+      actions={
+        <>
+          <Button variant="outlined" size="small" onClick={handleClose}>
+            Close
+          </Button>
+          <Button
+            disabled={!saveReady}
+            variant="contained"
+            size="small"
+            onClick={handleSave}
+          >
+            Save
+          </Button>
+        </>
+      }
+    >
+      <Grid container>
+        <DialogueDisplayLogic
+          loadingState={loadingState}
+          changeLoadingState={changeLoadingState}
+          loadingText={loadingText}
+          changeLoadingText={changeLoadingText}
+          failedImport={failedImport}
+          setFailedImport={setFailedImport}
+          watchlistItemRequest={watchlistItemRequest}
+          updateWatchlistItemRequest={updateWatchlistItemRequest}
+          materialJobs={materialJobs}
+          setMaterialJobs={setMaterialJobs}
+          updateSaveReady={updateSaveReady}
+          groupSelect={groupSelect}
+          updateGroupSelect={updateGroupSelect}
+          watchlistItemToEdit={watchlistItemToEdit}
+        />
+      </Grid>
+    </ContentDialogue>
   );
 }
 

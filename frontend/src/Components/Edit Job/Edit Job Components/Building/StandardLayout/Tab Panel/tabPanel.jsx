@@ -22,8 +22,7 @@ export function TabPanel_Building(props) {
   }
   const handleChange = (event, newValue) => {
     updateTab(newValue);
-    state.activeJob.layout.esiJobTab = newValue;
-    actions.updateActiveJob(state.activeJob);
+    actions.updateActiveJobLayout({ esiJobTab: newValue });
   };
 
   return (

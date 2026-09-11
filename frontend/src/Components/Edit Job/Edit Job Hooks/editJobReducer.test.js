@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { editJobReducer, EDIT_JOB_ACTION_TYPES } from "./editJobReducer";
+import Job from "../../../Classes/job";
 
 const record = (jobs) => ({
   type: EDIT_JOB_ACTION_TYPES.RECORD_SPECULATIVE_CHILD_JOBS,
@@ -113,5 +114,205 @@ describe("the rows that have been costed", () => {
     );
 
     expect(next.temporaryChildJobs).toEqual({ 35: jobB });
+  });
+});
+
+// The reader's choices about the job's own screens — which tab, which setup is
+// open, which market this job is priced against — are kept on the job. A
+// component must not write them into the job it was handed, so it says what
+// changed and this works out the rest.
+describe("the reader's layout choices for the job being edited", () => {
+  const patch = (layoutPatch) => ({
+    type: EDIT_JOB_ACTION_TYPES.UPDATE_ACTIVE_JOB_LAYOUT,
+    payload: layoutPatch,
+  });
+
+  function editing(layout = {}) {
+    return {
+      jobModified: false,
+      activeJob: new Job({
+        jobID: "job-1",
+        itemID: 587,
+        jobType: 1,
+        layout,
+      }),
+    };
+  }
+
+  it("records what changed", () => {
+    const next = editJobReducer(editing(), patch({ esiJobTab: "orders" }));
+
+    expect(next.activeJob.layout.esiJobTab).toBe("orders");
+  });
+
+  it("leaves the choices it was not told about", () => {
+    const state = editing({ setupToEdit: "setup-1" });
+
+    const next = editJobReducer(state, patch({ esiJobTab: "orders" }));
+
+    expect(next.activeJob.layout.setupToEdit).toBe("setup-1");
+  });
+
+  it("takes a choice back off the job", () => {
+    const state = editing({ localMarketDisplay: 60003760 });
+
+    const next = editJobReducer(state, patch({ localMarketDisplay: null }));
+
+    expect(next.activeJob.layout.localMarketDisplay).toBeNull();
+  });
+
+  // The job the component was handed must come out of this untouched: anything
+  // still rendering from it is entitled to the value it read.
+  it("does not write into the job it was given", () => {
+    const state = editing({ esiJobTab: "jobs" });
+    const before = state.activeJob;
+
+    const next = editJobReducer(state, patch({ esiJobTab: "orders" }));
+
+    expect(before.layout.esiJobTab).toBe("jobs");
+    expect(next.activeJob).not.toBe(before);
+  });
+
+  it("hands back a job, not a plain object", () => {
+    const next = editJobReducer(editing(), patch({ esiJobTab: "orders" }));
+
+    expect(next.activeJob).toBeInstanceOf(Job);
+  });
+
+  it("marks the job as having unsaved changes", () => {
+    const next = editJobReducer(editing(), patch({ esiJobTab: "orders" }));
+
+    expect(next.jobModified).toBe(true);
+  });
+
+  it("does nothing when no job is open", () => {
+    const state = { jobModified: false, activeJob: null };
+
+    expect(editJobReducer(state, patch({ esiJobTab: "orders" }))).toBe(state);
+  });
+});
+
+describe("marking a grouped job ready for sale", () => {
+  const toggle = () => ({
+    type: EDIT_JOB_ACTION_TYPES.TOGGLE_ACTIVE_JOB_READY_FOR_SALE,
+  });
+
+  function building(isReadyToSell, jobStatus) {
+    return {
+      jobModified: false,
+      activeJob: new Job({
+        jobID: "job-1",
+        itemID: 587,
+        jobType: 1,
+        jobStatus,
+        isReadyToSell,
+      }),
+    };
+  }
+
+  it("moves the job on a step when it was not ready", () => {
+    const next = editJobReducer(building(false, 3), toggle());
+
+    expect(next.activeJob.jobStatus).toBe(4);
+    expect(next.activeJob.isReadyToSell).toBe(true);
+  });
+
+  it("leaves the step alone when it was already ready", () => {
+    const next = editJobReducer(building(true, 4), toggle());
+
+    expect(next.activeJob.jobStatus).toBe(4);
+    expect(next.activeJob.isReadyToSell).toBe(false);
+  });
+
+  it("does not write into the job it was given", () => {
+    const state = building(false, 3);
+    const before = state.activeJob;
+
+    editJobReducer(state, toggle());
+
+    expect(before.jobStatus).toBe(3);
+    expect(before.isReadyToSell).toBe(false);
+  });
+
+  it("does nothing when no job is open", () => {
+    const state = { jobModified: false, activeJob: null };
+
+    expect(editJobReducer(state, toggle())).toBe(state);
+  });
+});
+
+// A sale entered by hand, for stock sold outside anything ESI reported.
+describe("recording a sale the reader entered", () => {
+  const add = (transaction) => ({
+    type: EDIT_JOB_ACTION_TYPES.ADD_CUSTOM_TRANSACTION,
+    payload: transaction,
+  });
+
+  const sale = {
+    transaction_id: "custom-1",
+    type_id: 587,
+    quantity: 5,
+    unit_price: 100,
+    date: "2026-01-01T00:00:00Z",
+  };
+
+  function selling(transactions = []) {
+    return {
+      jobModified: false,
+      activeJob: new Job({
+        jobID: "job-1",
+        itemID: 587,
+        jobType: 1,
+        build: { sale: { transactions } },
+      }),
+    };
+  }
+
+  it("puts the sale on the job", () => {
+    const next = editJobReducer(selling(), add(sale));
+
+    expect(next.activeJob.build.sale.transactions).toHaveLength(1);
+    expect(next.activeJob.build.sale.transactions[0].transaction_id).toBe(
+      "custom-1",
+    );
+  });
+
+  it("keeps the sales already recorded", () => {
+    const state = selling([{ transaction_id: "esi-1", type_id: 587 }]);
+
+    const next = editJobReducer(state, add(sale));
+
+    expect(
+      next.activeJob.build.sale.transactions.map((t) => t.transaction_id),
+    ).toEqual(["esi-1", "custom-1"]);
+  });
+
+  // A sale entered by hand belongs to no market order, and must not be given
+  // one — that is the difference between it and a sale ESI reported.
+  it("leaves it belonging to no market order", () => {
+    const next = editJobReducer(selling(), add(sale));
+
+    expect(
+      next.activeJob.build.sale.transactions[0].order_id ?? null,
+    ).toBeNull();
+  });
+
+  it("does not write into the job it was given", () => {
+    const state = selling();
+    const before = state.activeJob;
+
+    editJobReducer(state, add(sale));
+
+    expect(before.build.sale.transactions).toHaveLength(0);
+  });
+
+  it("marks the job as having unsaved changes", () => {
+    expect(editJobReducer(selling(), add(sale)).jobModified).toBe(true);
+  });
+
+  it("does nothing without a sale to record", () => {
+    const state = selling();
+
+    expect(editJobReducer(state, add(null))).toBe(state);
   });
 });

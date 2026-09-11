@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import GLOBAL_CONFIG from "../../../global-config-app";
 import useUsersStore from "../../../Zustand/usersStore";
+import { useHasChanged } from "../../../Hooks/useHasChanged";
 import {
   numberToShortText,
   formatNumberForLocale,
@@ -26,7 +27,6 @@ export function ItemPriceRow({
   displayMarket,
   priceEntryListData,
   setPriceEntryListData,
-  clearUnconfirmedTrigger,
 }) {
   const marketData = useUsersStore((state) => state.worldData.marketData);
   const { findMarketData } = useUsersStore.getState().worldData.actions;
@@ -66,6 +66,27 @@ export function ItemPriceRow({
   const [unconfirmedEntries, setUnconfirmedEntries] = useState(
     getInitialUnconfirmedEntries(),
   );
+
+  const confirmedQuantity = confirmedEntries.reduce(
+    (sum, e) => sum + (e.itemCount || 0),
+    0,
+  );
+  const remainingQuantity = item.remainingQuantity - confirmedQuantity;
+
+  /* What is left to price can change from outside this row — another row's
+   * confirmation, Confirm All, or prices pasted in — and the row it offers
+   * follows. Brought into step while rendering so the row is right on the frame
+   * the change arrives, and only when the figure itself moves, so what the
+   * reader is typing is left alone. */
+  if (useHasChanged(remainingQuantity)) {
+    if (remainingQuantity > 0 && unconfirmedEntries.length === 0) {
+      setUnconfirmedEntries([
+        itemPriceEntryFactory(item.typeID, remainingQuantity, defaultPrice),
+      ]);
+    } else if (remainingQuantity <= 0 && unconfirmedEntries.length > 0) {
+      setUnconfirmedEntries([]);
+    }
+  }
 
   // Sync unconfirmed row prices when hub/listing changes, or when market data fills in / updates
   // (without clobbering a value the user edited away from the last synced default).
@@ -117,61 +138,6 @@ export function ItemPriceRow({
 
     lastSyncedDefaultRef.current = nextDefault;
   }, [marketData, displayMarket, displayOrder, item.typeID]);
-
-  useEffect(() => {
-    // When confirmed entries change externally, update unconfirmed if needed
-    const confirmedQty = (item.priceEntries || []).reduce(
-      (sum, e) => sum + (e.itemCount || 0),
-      0,
-    );
-    const remainingQty = item.remainingQuantity - confirmedQty;
-
-    // If we have remaining quantity but no unconfirmed entries, create one
-    if (remainingQty > 0 && unconfirmedEntries.length === 0) {
-      const initialEntry = itemPriceEntryFactory(
-        item.typeID,
-        remainingQty,
-        defaultPrice,
-      );
-      setUnconfirmedEntries([initialEntry]);
-    } else if (remainingQty <= 0 && unconfirmedEntries.length > 0) {
-      // If no remaining quantity, clear unconfirmed entries
-      setUnconfirmedEntries([]);
-    }
-  }, [item.priceEntries, item.remainingQuantity]);
-
-  // Clear unconfirmed entries when Confirm All is triggered
-  useEffect(() => {
-    if (clearUnconfirmedTrigger > 0) {
-      const confirmedQty = (item.priceEntries || []).reduce(
-        (sum, e) => sum + (e.itemCount || 0),
-        0,
-      );
-      const remainingQty = item.remainingQuantity - confirmedQty;
-
-      // Clear unconfirmed entries since Confirm All creates new confirmed entries
-      if (remainingQty <= 0) {
-        setUnconfirmedEntries([]);
-      } else {
-        // If there's still remaining quantity, replace unconfirmed with a new entry for remaining
-        const newEntry = itemPriceEntryFactory(
-          item.typeID,
-          remainingQty,
-          defaultPrice,
-        );
-        setUnconfirmedEntries([newEntry]);
-      }
-    }
-  }, [
-    clearUnconfirmedTrigger,
-    item.priceEntries,
-    item.remainingQuantity,
-    item.typeID,
-    defaultPrice,
-  ]);
-
-  // Clipboard import is now handled in parent component and added directly to confirmed entries
-  // No need for this useEffect anymore
 
   const updateConfirmedEntries = (newConfirmedEntries) => {
     let newList = [...priceEntryListData.list];
@@ -248,13 +214,6 @@ export function ItemPriceRow({
     const newConfirmed = confirmedEntries.filter((e) => e.id !== entryId);
     updateConfirmedEntries(newConfirmed);
   };
-
-  // Calculate remaining quantity (only counting confirmed entries)
-  const confirmedQuantity = confirmedEntries.reduce(
-    (sum, e) => sum + (e.itemCount || 0),
-    0,
-  );
-  const remainingQuantity = item.remainingQuantity - confirmedQuantity;
 
   return (
     <Grid

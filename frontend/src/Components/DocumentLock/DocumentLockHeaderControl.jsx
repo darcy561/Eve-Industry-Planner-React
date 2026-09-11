@@ -25,6 +25,7 @@ import {
   selectActiveDlLockTtlSeconds,
   selectActiveDlPendingAccessRequest,
   selectActiveDlReadOnly,
+  selectActiveDlScopeKey,
   selectActiveDlViewerCount,
   selectActiveDlWaitlistLen,
   selectActiveDlWaitingInHandoffQueue,
@@ -104,7 +105,9 @@ export default function DocumentLockHeaderControl() {
   const [tick, setTick] = useState(0);
   const prevExpiresRef = useRef(null);
   const [extendAck, setExtendAck] = useState(false);
-  const [passiveViewerFlash, setPassiveViewerFlash] = useState(false);
+  /* The scope the flash was raised for, so one raised on another document cannot
+   * be read as this one's. */
+  const [viewerFlashScopeKey, setViewerFlashScopeKey] = useState(null);
   const prevPassiveViewerTrackRef = useRef({ scopeKey: "", count: 0 });
   const [requestAccessPending, startRequestAccess] = useTransition();
 
@@ -129,6 +132,7 @@ export default function DocumentLockHeaderControl() {
     selectActiveDlLockScopeBootstrapped,
   );
   const viewerCount = useUsersStore(selectActiveDlViewerCount);
+  const activeScopeKey = useUsersStore(selectActiveDlScopeKey);
   const secondaryContended = useUsersStore(
     selectSecondaryDocumentLockContended,
   );
@@ -166,7 +170,6 @@ export default function DocumentLockHeaderControl() {
     const p = primaryHeaderRegistration(useUsersStore.getState());
     if (!active || !p?.collection || !p?.docID || !lockScopeBootstrapped) {
       prevPassiveViewerTrackRef.current = { scopeKey: "", count: 0 };
-      setPassiveViewerFlash(false);
       return undefined;
     }
 
@@ -180,25 +183,21 @@ export default function DocumentLockHeaderControl() {
 
     if (prev.scopeKey !== scopeKey) {
       prevPassiveViewerTrackRef.current = { scopeKey, count };
-      setPassiveViewerFlash(false);
       return undefined;
     }
 
     const prevCount = prev.count;
     if (isHolder && prevCount === 0 && count > 0) {
-      setPassiveViewerFlash(true);
+      setViewerFlashScopeKey(scopeKey);
       prevPassiveViewerTrackRef.current = { scopeKey, count };
       const t = window.setTimeout(
-        () => setPassiveViewerFlash(false),
+        () => setViewerFlashScopeKey(null),
         LOCK_PASSIVE_VIEWER_FLASH_MS,
       );
       return () => window.clearTimeout(t);
     }
 
     prevPassiveViewerTrackRef.current = { scopeKey, count };
-    if (count === 0) {
-      setPassiveViewerFlash(false);
-    }
     return undefined;
   }, [active, lockHeld, readOnly, viewerCount, lockScopeBootstrapped]);
 
@@ -350,6 +349,15 @@ export default function DocumentLockHeaderControl() {
 
   const shouldFlashLowTime =
     active && lowTimeRemaining && !extendAck && (lockHeld || viewerReadOnly);
+
+  /* The flash is over as soon as any of what raised it stops being true — the
+   * viewer leaving, the lock changing hands, or the header moving document. */
+  const passiveViewerFlash =
+    viewerFlashScopeKey != null &&
+    viewerFlashScopeKey === activeScopeKey &&
+    lockHeld &&
+    !readOnly &&
+    viewerCount > 0;
 
   const shouldPulseIcon =
     active && !extendAck && (shouldFlashLowTime || passiveViewerFlash);

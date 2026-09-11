@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Grid } from "@mui/material";
 import { AccountData } from "./Components/AccountData";
 import { NewTransactions } from "./Components/NewTransactions";
@@ -12,6 +12,7 @@ import MarketDataDialogue from "../Dialogues/Market Data/dialogueFrame";
 import AssetsDialogue from "../Dialogues/Assets/dialogueFrame";
 import TutorialTemplate from "../Tutorials/tutorialTemplate";
 import useUsersStore from "../../Zustand/usersStore";
+import { useHasChanged } from "../../Hooks/useHasChanged";
 
 function Dashboard() {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
@@ -21,12 +22,11 @@ function Dashboard() {
   const shouldShowTutorial = !isLoggedIn || displayHelpCards;
   const [showTutorialGrid, setShowTutorialGrid] = useState(shouldShowTutorial);
 
-  useEffect(() => {
-    // Show the Grid when tutorials should be visible again
-    if (shouldShowTutorial && !showTutorialGrid) {
-      setShowTutorialGrid(true);
-    }
-  }, [shouldShowTutorial, showTutorialGrid]);
+  /* The row outlives the card it holds — the card gives it up once its fade has
+   * finished — so it is taken back when help is wanted again, not while it is. */
+  if (useHasChanged(shouldShowTutorial) && shouldShowTutorial) {
+    setShowTutorialGrid(true);
+  }
 
   return (
     <>

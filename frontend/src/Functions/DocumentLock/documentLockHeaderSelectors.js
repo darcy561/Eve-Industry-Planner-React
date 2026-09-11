@@ -1,5 +1,6 @@
 import { selectScopedDocumentLock } from "./documentLockSelectors.js";
 import {
+  docLockScopeKey,
   mergeScopedDocumentLockState,
   scopeHasOtherSessionContention,
 } from "./documentLockScope.js";
@@ -145,6 +146,18 @@ export function selectActiveDlViewerCount(s) {
   if (!p?.collection || !p?.docID) return 0;
   const v = selectScopedDocumentLock(s, p.collection, p.docID).viewerCount;
   return typeof v === "number" ? v : 0;
+}
+
+/**
+ * Scope key of the document the header is showing, or `""` when it is showing
+ * none. A string so the `useSyncExternalStore` snapshot stays stable.
+ *
+ * @param {*} s
+ */
+export function selectActiveDlScopeKey(s) {
+  const p = primaryHeaderRegistration(s);
+  if (!p?.collection || !p?.docID) return "";
+  return docLockScopeKey(p.collection, p.docID);
 }
 
 /** @param {*} s */

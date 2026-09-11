@@ -7,7 +7,7 @@ import { InventionCostsCard } from "./Invention Costs/inventionCostsCard";
 import { MaterialCardFrame_Purchasing } from "./Material Cards/materialCardFrame";
 import useUsersStore from "../../../../../Zustand/usersStore";
 import TutorialTemplate from "../../../../Tutorials/tutorialTemplate";
-import getCurrentLinkedChildJobIDsForMaterial from "./Material Cards/functions/getCurrentLinkedChildJobIDsForMaterial.js.js";
+import getCurrentLinkedChildJobIDsForMaterial from "./Material Cards/functions/getCurrentLinkedChildJobIDsForMaterial.js";
 import { childJobSupplyForMaterial } from "./Material Cards/functions/childJobSupplyForMaterial.js";
 import JobSetupInfoFrame from "./JobSetupInfo/JobSetupInfoFrame";
 

@@ -5,6 +5,7 @@ import {
   readJobStatusExpandedMap,
   writeJobStatusExpandedMap,
 } from "../Functions/Helper/jobStatuses";
+import { useHasChanged } from "./useHasChanged";
 
 /**
  * Planner job workflow stages: fixed ids/order, labels from application settings,
@@ -26,9 +27,7 @@ export function useJobStatuses() {
   );
   // The planner stays mounted across a sign-out, so the stages follow the
   // account rather than keeping the previous reader's.
-  const [readFor, setReadFor] = useState(accountId);
-  if (accountId !== readFor) {
-    setReadFor(accountId);
+  if (useHasChanged(accountId)) {
     setExpandedMap(readJobStatusExpandedMap(accountId));
   }
 

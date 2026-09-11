@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Avatar,
   Box,
@@ -10,7 +9,11 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
-import { ParentJobDialogue } from "./parentJobDialogue";
+import { ParentJobOptions } from "./parentJobOptions";
+import ContentDialogue, {
+  DialogueCloseAction,
+  useDialogueTrigger,
+} from "../../Styled Components/Dialogue/ContentDialogue";
 import useUsersStore from "../../Zustand/usersStore";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { showSnackbarError } from "../../Events/snackbarEvents";
@@ -20,7 +23,7 @@ import { useActiveJobReadOnly } from "./Edit Job Hooks/useActiveJobDocumentLock"
 export function LinkedJobBadge(props) {
   const { state, actions } = props;
   const { findJobInJobArray } = useUsersStore.getState().jobData.actions;
-  const [dialogueTrigger, updateDialogueTrigger] = useState(false);
+  const linkParent = useDialogueTrigger();
   const navigate = useNavigate({ from: "/editjob/$jobID" });
   const search = useSearch({ from: "/editjob/$jobID" });
   const jobLockReadOnly = useActiveJobReadOnly(state);
@@ -29,11 +32,15 @@ export function LinkedJobBadge(props) {
 
   return (
     <>
-      <ParentJobDialogue
-        {...props}
-        dialogueTrigger={dialogueTrigger}
-        updateDialogueTrigger={updateDialogueTrigger}
-      />
+      <ContentDialogue
+        {...linkParent.dialogueProps}
+        title="Link Parent Job"
+        componentName="Link Parent Job"
+        dialogueTitleProps={{ align: "center", color: "primary" }}
+        actions={<DialogueCloseAction onClose={linkParent.close} />}
+      >
+        <ParentJobOptions {...props} onLinked={linkParent.close} />
+      </ContentDialogue>
       <Stack
         direction="row"
         sx={{ marginBottom: { xs: "10px", sm: "0px" }, position: "relative" }}
@@ -53,9 +60,7 @@ export function LinkedJobBadge(props) {
               size="small"
               color="primary"
               sx={{ position: "absolute", top: "0px", right: "40px" }}
-              onClick={() => {
-                updateDialogueTrigger(true);
-              }}
+              onClick={linkParent.open}
             >
               <AddIcon />
             </IconButton>

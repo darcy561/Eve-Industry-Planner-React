@@ -2,16 +2,20 @@ import { useEffect } from "react";
 import { useReactFlow } from "@xyflow/react";
 
 /**
- * Fits the viewport to the job encoded in `fitSessionKey` (`jobId::focusRequestKey::layoutRevision`).
+ * Fits the viewport to one job.
+ *
+ * @param {Object} props
+ * @param {string} props.jobID - The job to fit to.
+ * @param {string} props.fitKey - Changes when the view should be fitted again: a
+ *   fresh request for the same job, or the same request over a new layout.
  */
-export default function FitViewToJobEffect({ fitSessionKey }) {
+export default function FitViewToJobEffect({ jobID, fitKey }) {
   const { fitView, getNode } = useReactFlow();
 
   useEffect(() => {
-    if (!fitSessionKey) return;
-    const id = String(fitSessionKey.split("::")[0]);
+    if (!jobID) return;
     const t = window.setTimeout(() => {
-      const n = getNode(id);
+      const n = getNode(jobID);
       if (!n) return;
       fitView({
         nodes: [n],
@@ -21,7 +25,8 @@ export default function FitViewToJobEffect({ fitSessionKey }) {
       });
     }, 80);
     return () => window.clearTimeout(t);
-  }, [fitSessionKey, fitView, getNode]);
+    // `fitKey` is here as the reason to run, not as something the run reads.
+  }, [fitKey, jobID, fitView, getNode]);
 
   return null;
 }

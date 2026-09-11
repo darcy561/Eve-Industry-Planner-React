@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { TRITANIUM } from "../tests/editJobFixtures.js";
 
 const store = {
   account: {
@@ -34,9 +35,7 @@ const { MaterialCardFrame_Purchasing } =
   await import("../Components/Edit Job/Edit Job Components/Purchasing/Standard Layout/Material Cards/materialCardFrame.jsx");
 const { default: Job } = await import("./job.js");
 
-const TRITANIUM = 34;
-
-function jobNeeding(quantity) {
+function jobNeeding(quantity, { materialJobType = 0 } = {}) {
   return new Job({
     jobID: "job-1",
     itemID: 587,
@@ -51,7 +50,9 @@ function jobNeeding(quantity) {
           materialCount: { [TRITANIUM]: { typeID: TRITANIUM, quantity } },
         },
       },
-      materials: [{ typeID: TRITANIUM, name: "Tritanium", jobType: 0 }],
+      materials: [
+        { typeID: TRITANIUM, name: "Tritanium", jobType: materialJobType },
+      ],
       childJobs: { [TRITANIUM]: [] },
     },
   });
@@ -77,6 +78,20 @@ describe("a material card", () => {
     renderCard(jobNeeding(100));
 
     expect(screen.getByText(/Total Needed: 100/)).toBeInTheDocument();
+  });
+
+  // The dialogue behind the child-jobs count reads every job on the planner,
+  // and a job carries one card per material, so it is not built until a reader
+  // opens it.
+  it("does not build the child jobs dialogue until it is opened", () => {
+    renderCard(jobNeeding(100, { materialJobType: 1 }));
+    expect(screen.queryByText("Available Child Jobs")).toBeNull();
+
+    fireEvent.click(
+      screen.getByLabelText(/number of child jobs linked/i).firstChild,
+    );
+
+    expect(screen.getByText("Available Child Jobs")).toBeInTheDocument();
   });
 
   it("says how many were bought beyond the requirement", () => {

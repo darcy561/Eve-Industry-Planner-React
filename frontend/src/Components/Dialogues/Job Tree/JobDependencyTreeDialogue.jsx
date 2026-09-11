@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Box, Typography } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import ContentDialogue, {
@@ -169,20 +169,15 @@ export default function JobDependencyTreeDialogue() {
     editPageView,
   } = view;
 
-  const [fitSession, setFitSession] = useState(0);
-  const [trackedOpenSession, setTrackedOpenSession] = useState(null);
+  /* Which opening has been reported. A ref rather than state: nothing draws it,
+   * and it must not cause a render of its own. */
+  const reportedOpenSession = useRef(null);
   useEffect(() => {
     if (!messageData.isOpen) return;
-    if (trackedOpenSession === messageData.openSession) return;
-    setTrackedOpenSession(messageData.openSession);
+    if (reportedOpenSession.current === messageData.openSession) return;
+    reportedOpenSession.current = messageData.openSession;
     trackAppEvent(AppEvent.VIEW_JOB_TREE_DIALOGUE);
-  }, [messageData.isOpen, messageData.openSession, trackedOpenSession]);
-
-  useEffect(() => {
-    if (!messageData.isOpen) return;
-    if (!focusInTree) return;
-    setFitSession((n) => n + 1);
-  }, [messageData.isOpen, focusInTree, messageData.openSession]);
+  }, [messageData.isOpen, messageData.openSession]);
 
   const onJobDoubleClick = useCallback(
     async (jobID) => {
@@ -275,8 +270,11 @@ export default function JobDependencyTreeDialogue() {
           showHelpText={messageData.showHelpText}
           helpText={messageData.showHelpText ? helpText : undefined}
           interactionResetKey={messageData.openSession}
-          initialFocusJobId={focusInTree}
-          focusRequestKey={focusInTree != null ? fitSession : undefined}
+          focusRequest={
+            focusInTree != null
+              ? { jobID: focusInTree, at: messageData.openSession }
+              : null
+          }
           minHeight={420}
           sx={{ flex: 1, minHeight: 0, height: "100%", width: "100%" }}
         />

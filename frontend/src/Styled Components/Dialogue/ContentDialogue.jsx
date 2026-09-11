@@ -40,8 +40,12 @@ function DefaultDialogueLoadingSkeleton({ loadingVariant = "default" }) {
  * (e.g. `action` for React 19 / `useFormStatus`). Pass `formKey` to remount the form. Omit `formProps`
  * for the default layout: title → helper → content → actions as separate MUI sections.
  *
+ * Nothing is rendered until `open` is true, so a dialogue's body — and whatever it
+ * derives — costs nothing while nobody is looking at it. The price is that it closes
+ * at once rather than fading out.
+ *
  * @param {Object} props
- * @param {boolean} props.open
+ * @param {boolean} props.open - Drive it with `useDialogueTrigger` (the owning component) or `useDialogueEventState` (an app event)
  * @param {(event: object, reason: string) => void} props.onClose - Passed to MUI `Dialog`
  * @param {React.ReactNode} props.children - Main body (inside `ContentErrorBoundary` within `DialogContent`)
  * @param {React.ReactNode} [props.title] - Renders `DialogTitle` when truthy
@@ -99,6 +103,8 @@ export default function ContentDialogue({
   dialogueContentSx,
   ...rest
 }) {
+  if (!open) return null;
+
   const resolvedIsLoading = asyncState?.isLoading ?? isLoading;
   const resolvedIsError = asyncState?.isError ?? isError;
   const resolvedError = asyncState?.error ?? error;
@@ -375,6 +381,7 @@ export default function ContentDialogue({
 }
 
 export { useDialogueEventState } from "./useDialogueEventState";
+export { useDialogueTrigger } from "./useDialogueTrigger";
 export { useSyncedDialogueEventState } from "./useSyncedDialogueEventState";
 export { DialogueCloseAction } from "./DialogueCloseAction";
 export { useDialogueCloseReset } from "./useDialogueCloseReset";

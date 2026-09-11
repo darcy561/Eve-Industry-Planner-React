@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useDialogueTrigger } from "../../../../../../Styled Components/Dialogue/ContentDialogue";
 import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { AddCustomTransactionDialogue } from "./addCustomTransaction";
@@ -15,7 +15,7 @@ import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 
 export function LinkedTransactionPanel(props) {
   const { state, actions, activeOrder } = props;
-  const [newTransactionTrigger, updateNewTransactionTrigger] = useState(false);
+  const newTransactionDialogue = useDialogueTrigger();
   const getCorporation =
     useUsersStore.getState().account.actions.getCorporation;
   const jobLockReadOnly = useActiveJobReadOnly(state);
@@ -33,7 +33,7 @@ export function LinkedTransactionPanel(props) {
             : "Add Manual Transaction",
           onClick: () => {
             if (jobLockReadOnly) return;
-            updateNewTransactionTrigger(true);
+            newTransactionDialogue.open();
           },
           disabled: jobLockReadOnly,
         },
@@ -69,7 +69,12 @@ export function LinkedTransactionPanel(props) {
 
               const corpData = getCorporation(charData?.corporation_id);
 
-              if (!activeOrder.some((t) => t !== tData.location_id)) {
+              /* No filter means every sale; otherwise the sale shows if it was
+               * made at any of the locations being filtered on. */
+              if (
+                activeOrder.length === 0 ||
+                activeOrder.includes(tData.location_id)
+              ) {
                 return (
                   <Grid
                     key={tData.transaction_id}
@@ -216,11 +221,12 @@ export function LinkedTransactionPanel(props) {
           )}
         </Grid>
       </Grid>
-      <AddCustomTransactionDialogue
-        {...props}
-        newTransactionTrigger={newTransactionTrigger}
-        updateNewTransactionTrigger={updateNewTransactionTrigger}
-      />
+      {newTransactionDialogue.isOpen && (
+        <AddCustomTransactionDialogue
+          {...props}
+          onClose={newTransactionDialogue.close}
+        />
+      )}
     </ContentPanel>
   );
 }

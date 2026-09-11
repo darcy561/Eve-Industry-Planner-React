@@ -9,11 +9,7 @@ export function SellGroupJobButton({ state, actions }) {
 
   const toggleMarkForSell = () => {
     if (jobLockReadOnly) return;
-    if (!state.activeJob.isReadyToSell) {
-      state.activeJob.jobStatus += 1;
-    }
-    state.activeJob.toggleGroupJobReadyForSale();
-    actions.updateActiveJob(state.activeJob);
+    actions.toggleActiveJobReadyForSale();
   };
 
   if (!activeGroupID || state.activeJob.parentJobs.length !== 0) {

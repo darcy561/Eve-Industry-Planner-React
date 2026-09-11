@@ -29,12 +29,7 @@ import { formatNumberForLocale } from "../../../../Functions/Helper/numberParser
 import { calculateInstallCostfromSetup } from "../../../../Functions/Installation Costs/installCosts";
 import addNewJobsToPlanner from "../../../../Functions/JobPlanner/addNewJobsToPlanner";
 
-export function WatchListRow({
-  item,
-  index,
-  setOpenDialogue,
-  updateWatchlistItemToEdit,
-}) {
+export function WatchListRow({ item, index, onEditWatchlistItem }) {
   const [expanded, setExpanded] = useState(false);
   const { userWatchlist } = useUsersStore((state) => state.jobData);
   const { setUserWatchlistItems } = useUsersStore.getState().jobData.actions;
@@ -477,10 +472,7 @@ export function WatchListRow({
                   <Tooltip title="Edit Watchlist Item" arrow placement="bottom">
                     <IconButton
                       color="primary"
-                      onClick={() => {
-                        setOpenDialogue(true);
-                        updateWatchlistItemToEdit(index);
-                      }}
+                      onClick={() => onEditWatchlistItem(index)}
                     >
                       <EditIcon />
                     </IconButton>

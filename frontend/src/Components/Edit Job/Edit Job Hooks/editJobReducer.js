@@ -3,33 +3,21 @@
  */
 
 import Job from "../../../Classes/job";
+import Transaction from "../../../Classes/transaction";
 import { normalizeSetIsLoadingPayload } from "../../../Functions/Helper/setIsLoadingAction";
 
 /**
- * Action types for the edit job reducer.
+ * Action types for the edit job reducer. Each names itself, and what it does to
+ * the state is at its own `case` below; a second list here only went out of date.
  *
  * @constant {Object} EDIT_JOB_ACTION_TYPES
- * @property {string} SET_ACTIVE_JOB - Set the active job being edited
- * @property {string} UPDATE_ACTIVE_JOB - Update the active job with new data
- * @property {string} STEP_ACTIVE_JOB_FORWARD - Move job status forward
- * @property {string} STEP_ACTIVE_JOB_BACKWARD - Move job status backward
- * @property {string} MARK_JOB_AS_MODIFIED - Mark job as having unsaved changes
- * @property {string} SET_TEMPORARY_CHILD_JOBS - Set temporary child jobs data
- * @property {string} SET_IS_LOADING - Set loading state
- * @property {string} MARK_PARENT_JOB_FOR_REMOVAL - Mark parent job for removal
- * @property {string} MARK_PARENT_JOB_FOR_ADDITION - Mark parent job for addition
- * @property {string} MARK_CHILD_JOBS_FOR_ADDITION - Mark child jobs for addition
- * @property {string} MARK_CHILD_JOBS_FOR_REMOVAL - Mark child jobs for removal
- * @property {string} ADD_INDUSTRY_ESI_JOBS_FOR_ADDITION - Add ESI industry jobs for linking
- * @property {string} ADD_INDUSTRY_ESI_JOBS_FOR_REMOVAL - Remove ESI industry jobs from linking
- * @property {string} ADD_MARKET_ORDERS_FOR_ADDITION - Add market orders for linking
- * @property {string} ADD_MARKET_ORDERS_FOR_REMOVAL - Remove market orders from linking
- * @property {string} ADD_TRANSACTIONS_FOR_ADDITION - Add transactions for linking
- * @property {string} ADD_TRANSACTIONS_FOR_REMOVAL - Remove transactions from linking
  */
 export const EDIT_JOB_ACTION_TYPES = {
   SET_ACTIVE_JOB: "SET_ACTIVE_JOB",
   UPDATE_ACTIVE_JOB: "UPDATE_ACTIVE_JOB",
+  UPDATE_ACTIVE_JOB_LAYOUT: "UPDATE_ACTIVE_JOB_LAYOUT",
+  TOGGLE_ACTIVE_JOB_READY_FOR_SALE: "TOGGLE_ACTIVE_JOB_READY_FOR_SALE",
+  ADD_CUSTOM_TRANSACTION: "ADD_CUSTOM_TRANSACTION",
   STEP_ACTIVE_JOB_FORWARD: "STEP_ACTIVE_JOB_FORWARD",
   STEP_ACTIVE_JOB_BACKWARD: "STEP_ACTIVE_JOB_BACKWARD",
   MARK_JOB_AS_MODIFIED: "MARK_JOB_AS_MODIFIED",
@@ -79,6 +67,40 @@ export function editJobReducer(state, action) {
         jobModified: true,
         activeJob: new Job(action.payload),
       };
+    /* Where the reader's choices about the job's own screens are kept. The patch
+     * comes from a component, which must not write into the job it was handed. */
+    case EDIT_JOB_ACTION_TYPES.UPDATE_ACTIVE_JOB_LAYOUT: {
+      if (!state.activeJob) return state;
+      return {
+        ...state,
+        jobModified: true,
+        activeJob: new Job({
+          ...state.activeJob,
+          layout: { ...state.activeJob.layout, ...action.payload },
+        }),
+      };
+    }
+    /* A sale the reader entered by hand. `Job.addTransaction` is for transactions
+     * that came from an ESI order and stamps one onto them, which a manual sale
+     * has none of. */
+    case EDIT_JOB_ACTION_TYPES.ADD_CUSTOM_TRANSACTION: {
+      if (!state.activeJob || !action.payload) return state;
+      const next = new Job(state.activeJob);
+      next.build.sale.transactions = [
+        ...next.build.sale.transactions,
+        new Transaction(action.payload),
+      ];
+      return { ...state, jobModified: true, activeJob: next };
+    }
+    case EDIT_JOB_ACTION_TYPES.TOGGLE_ACTIVE_JOB_READY_FOR_SALE: {
+      if (!state.activeJob) return state;
+      const next = new Job(state.activeJob);
+      if (!next.isReadyToSell) {
+        next.jobStatus += 1;
+      }
+      next.toggleGroupJobReadyForSale();
+      return { ...state, jobModified: true, activeJob: next };
+    }
     case EDIT_JOB_ACTION_TYPES.STEP_ACTIVE_JOB_FORWARD:
       state.jobModified = true;
       state.activeJob.stepForward();

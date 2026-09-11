@@ -1,11 +1,7 @@
 import { Avatar, Tooltip } from "@mui/material";
 import checkJobTypeIsBuildable from "../../../../../../Functions/Helper/checkJobTypeIsBuildable";
 
-export function ChildJobsAvatar_Purchasing({
-  material,
-  updateChildDialogueTrigger,
-  childJobs,
-}) {
+export function ChildJobsAvatar_Purchasing({ material, onOpen, childJobs }) {
   const displayItem = checkJobTypeIsBuildable(material.jobType);
 
   if (!displayItem) return null;
@@ -26,9 +22,7 @@ export function ChildJobsAvatar_Purchasing({
           cursor: "pointer",
           boxShadow: 4,
         }}
-        onClick={() => {
-          updateChildDialogueTrigger((prev) => !prev);
-        }}
+        onClick={onOpen}
       >
         {childJobs.length}
       </Avatar>

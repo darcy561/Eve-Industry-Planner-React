@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import ContentDialogue, {
-  useDialogueCloseReset,
   useDialogueEventState,
 } from "../../../Styled Components/Dialogue/ContentDialogue";
 import {
@@ -43,12 +42,15 @@ const defaultState = () => ({
   contextGroupId: null,
 });
 
-/** Save the current group's jobs as an account-scoped template (event-driven global dialogue). */
-function SaveGroupTemplateDialogueInner() {
-  const [messageData, , resetDialogue] = useDialogueEventState(
-    GROUP_TEMPLATES_SAVE_DIALOGUE_EVENT,
-    defaultState,
-  );
+/**
+ * The dialogue itself, mounted only while it is open so that reading the planner
+ * to work out what would be saved costs nothing the rest of the time.
+ *
+ * @param {Object} props
+ * @param {Object} props.messageData - What the open event carried
+ * @param {Function} props.onDismiss - Puts the dialogue away
+ */
+function SaveGroupTemplateDialogueBody({ messageData, onDismiss }) {
   const queryClient = useQueryClient();
   const groupArray = useUsersStore((s) => s.jobData.groupArray);
   const jobArray = useUsersStore((s) => s.jobData.jobArray);
@@ -59,7 +61,6 @@ function SaveGroupTemplateDialogueInner() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const open = Boolean(messageData.isOpen);
   const activeSession = Number(messageData.openSession || 0);
   const resolvedGroup = useMemo(() => {
     if (messageData.contextGroupId) {
@@ -80,7 +81,7 @@ function SaveGroupTemplateDialogueInner() {
     );
   }, [resolvedGroup, jobArray]);
   const { data: catalog = [] } = useQuery(
-    buildCatalogQueryOptions(activeSession, open),
+    buildCatalogQueryOptions(activeSession, true),
   );
 
   const normalizedName = useMemo(
@@ -104,14 +105,8 @@ function SaveGroupTemplateDialogueInner() {
     [],
   );
 
-  const handleClose = useDialogueCloseReset({
-    resetFns: [
-      () => setName(""),
-      () => setDescription(""),
-      () => setSelectedTemplate(null),
-    ],
-    onClose: resetDialogue,
-  });
+  /* What the reader typed goes with the dialogue: it is unmounted on close. */
+  const handleClose = onDismiss;
 
   const saveNewMutation = useMutation({
     mutationFn: async () => {
@@ -219,7 +214,6 @@ function SaveGroupTemplateDialogueInner() {
 
   return (
     <SaveGroupTemplateDialogueFrame
-      open={open}
       onClose={handleClose}
       busy={busy}
       selectedTemplate={selectedTemplate}
@@ -284,7 +278,6 @@ function SaveGroupTemplateDialogueInner() {
 }
 
 function SaveGroupTemplateDialogueFrame({
-  open,
   onClose,
   busy,
   selectedTemplate,
@@ -295,7 +288,7 @@ function SaveGroupTemplateDialogueFrame({
 }) {
   return (
     <ContentDialogue
-      open={open}
+      open
       onClose={onClose}
       loadingVariant="dense"
       useAppShellDesign
@@ -334,6 +327,19 @@ function SaveGroupTemplateDialogueFrame({
   );
 }
 
+/** Listens for the open event; nothing below it exists until one arrives. */
 export default function SaveGroupTemplateDialogue() {
-  return <SaveGroupTemplateDialogueInner />;
+  const [messageData, , resetDialogue] = useDialogueEventState(
+    GROUP_TEMPLATES_SAVE_DIALOGUE_EVENT,
+    defaultState,
+  );
+
+  if (!messageData.isOpen) return null;
+
+  return (
+    <SaveGroupTemplateDialogueBody
+      messageData={messageData}
+      onDismiss={resetDialogue}
+    />
+  );
 }

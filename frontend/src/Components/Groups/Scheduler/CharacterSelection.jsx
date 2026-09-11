@@ -12,6 +12,7 @@ import {
 import SelectAllIcon from "@mui/icons-material/SelectAll";
 import DeselectIcon from "@mui/icons-material/Deselect";
 import useUsersStore from "../../../Zustand/usersStore";
+import { useHasChanged } from "../../../Hooks/useHasChanged";
 
 /**
  * Character selection component for the scheduler.
@@ -28,7 +29,6 @@ export default function CharacterSelection({ onSelectionChange }) {
     [charactersRecord],
   );
 
-  // Initialise selected characters - default to all if available
   const [selectedCharacterHashes, setSelectedCharacterHashes] = useState(() => {
     if (allCharacters && allCharacters.length > 0) {
       return new Set(allCharacters.map((character) => character.CharacterHash));
@@ -36,17 +36,16 @@ export default function CharacterSelection({ onSelectionChange }) {
     return new Set();
   });
 
-  useEffect(() => {
-    if (
-      allCharacters &&
-      allCharacters.length > 0 &&
-      selectedCharacterHashes.size === 0
-    ) {
-      setSelectedCharacterHashes(
-        new Set(allCharacters.map((character) => character.CharacterHash)),
-      );
-    }
-  }, [allCharacters]);
+  // Characters arrive after the first render, so the default is applied when
+  // they turn up. It follows whether there are any rather than whether any are
+  // chosen: nobody chosen is a choice the reader can make, and re-reading it as
+  // "not set up yet" would put everyone back the next time the store was
+  // written.
+  if (useHasChanged(allCharacters.length > 0) && allCharacters.length > 0) {
+    setSelectedCharacterHashes(
+      new Set(allCharacters.map((character) => character.CharacterHash)),
+    );
+  }
 
   const selectedCharacterRows = useMemo(() => {
     if (!allCharacters || allCharacters.length === 0) return [];

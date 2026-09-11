@@ -28,6 +28,7 @@ import {
 } from "../../Context/defaultValues";
 import { showSnackbarSuccess } from "../../Events/snackbarEvents";
 import { scheduleDebouncedApplicationSettingsSave } from "../../Functions/Debounce/userDocumentsPersistSchedule.js";
+import { useHasChanged } from "../../Hooks/useHasChanged";
 
 export default function ReprocessingSettingsPanel({ pageState, pageActions }) {
   const { data: fullItemList } = useCachedData(
@@ -45,12 +46,8 @@ export default function ReprocessingSettingsPanel({ pageState, pageActions }) {
   // rather than hiding a list the reader came for. It only ever opens itself;
   // shutting it is the reader's to do.
   const [expanded, setExpanded] = useState(exemptTypeIDs.length > 0);
-  const [openedFor, setOpenedFor] = useState(exemptTypeIDs.length);
-  if (exemptTypeIDs.length !== openedFor) {
-    setOpenedFor(exemptTypeIDs.length);
-    if (exemptTypeIDs.length > 0) {
-      setExpanded(true);
-    }
+  if (useHasChanged(exemptTypeIDs.length) && exemptTypeIDs.length > 0) {
+    setExpanded(true);
   }
 
   // Handle settings changes

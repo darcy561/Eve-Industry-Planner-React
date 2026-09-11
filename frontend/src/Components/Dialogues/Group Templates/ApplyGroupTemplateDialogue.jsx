@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import ContentDialogue, {
-  useDialogueCloseReset,
   useDialogueEventState,
 } from "../../../Styled Components/Dialogue/ContentDialogue";
 import {
@@ -47,13 +46,14 @@ const defaultState = () => ({
 });
 
 /**
- * Global dialogue: pick a saved group template and instantiate it into a new or existing group.
+ * The dialogue itself — pick a saved group template and instantiate it into a new
+ * or existing group. Mounted only while it is open.
+ *
+ * @param {Object} props
+ * @param {Object} props.messageData - What the open event carried
+ * @param {Function} props.onDismiss - Puts the dialogue away
  */
-function ApplyGroupTemplateDialogueInner() {
-  const [messageData, , resetDialogue] = useDialogueEventState(
-    GROUP_TEMPLATES_APPLY_DIALOGUE_EVENT,
-    defaultState,
-  );
+function ApplyGroupTemplateDialogueBody({ messageData, onDismiss }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const getGroupObject = useUsersStore((s) => s.jobData.actions.getGroupObject);
@@ -66,14 +66,13 @@ function ApplyGroupTemplateDialogueInner() {
     templateID: null,
   });
 
-  const open = Boolean(messageData.isOpen);
   const activeSession = Number(messageData.openSession || 0);
   const formatQty = (qty) => new Intl.NumberFormat().format(Number(qty || 0));
   const { data: catalog = [] } = useQuery(
-    buildCatalogQueryOptions(activeSession, open),
+    buildCatalogQueryOptions(activeSession, true),
   );
   const { data: fullItemList = null } = useQuery(
-    buildFullItemListQueryOptions(open),
+    buildFullItemListQueryOptions(true),
   );
   const getItemName = (itemID) =>
     fullItemList?.[itemID]?.name || `Type ${itemID}`;
@@ -103,12 +102,8 @@ function ApplyGroupTemplateDialogueInner() {
     return getActiveGroupObject();
   }, [messageData.contextGroupId, getGroupObject, getActiveGroupObject]);
 
-  const handleCloseWithReset = useDialogueCloseReset({
-    resetFns: [
-      () => setSelectedBySession({ session: activeSession, templateID: null }),
-    ],
-    onClose: resetDialogue,
-  });
+  /* What the reader chose goes with the dialogue: it is unmounted on close. */
+  const handleCloseWithReset = onDismiss;
 
   const applyMutation = useMutation({
     mutationFn: async () => {
@@ -194,7 +189,7 @@ function ApplyGroupTemplateDialogueInner() {
 
   return (
     <ContentDialogue
-      open={open}
+      open
       onClose={handleCloseWithReset}
       loadingVariant="dense"
       useAppShellDesign
@@ -294,6 +289,19 @@ function ApplyGroupTemplateDialogueInner() {
   );
 }
 
+/** Listens for the open event; nothing below it exists until one arrives. */
 export default function ApplyGroupTemplateDialogue() {
-  return <ApplyGroupTemplateDialogueInner />;
+  const [messageData, , resetDialogue] = useDialogueEventState(
+    GROUP_TEMPLATES_APPLY_DIALOGUE_EVENT,
+    defaultState,
+  );
+
+  if (!messageData.isOpen) return null;
+
+  return (
+    <ApplyGroupTemplateDialogueBody
+      messageData={messageData}
+      onDismiss={resetDialogue}
+    />
+  );
 }

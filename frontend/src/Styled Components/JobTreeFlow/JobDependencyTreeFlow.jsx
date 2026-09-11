@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ReactFlow, ReactFlowProvider } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Box, Typography, useTheme } from "@mui/material";
@@ -20,6 +13,7 @@ import FitViewToGraphEffect from "./FitViewToGraphEffect";
 import JobTreeLegend from "./JobTreeLegend";
 import JobTreeControls from "./JobTreeControls";
 import { JobTreeInteractionContext, noop } from "./jobTreeInteractionContext";
+import { useHasChanged } from "../../Hooks/useHasChanged";
 import { getJobTreeFlowCanvasSx } from "./jobTreeFlowCanvasSx";
 
 const nodeTypes = { jobDependency: JobDependencyNode };
@@ -29,8 +23,7 @@ function JobDependencyTreeFlowInner({
   jobs = [],
   completeJobIds,
   chainHighlightJobIds,
-  initialFocusJobId,
-  focusRequestKey,
+  focusRequest,
   fitViewRequestKey,
   onJobDoubleClick,
   showHelpText = false,
@@ -61,28 +54,30 @@ function JobDependencyTreeFlowInner({
     [jobs, completeJobIds],
   );
 
+  /* A request to focus a job is a value, not a message: two asks for the same
+   * job are told apart by what the asker put in `at`, and the tree acts on the
+   * request changing rather than on being poked. */
+  const focusJobId =
+    focusRequest?.jobID != null && jobIdSet.has(String(focusRequest.jobID))
+      ? String(focusRequest.jobID)
+      : null;
+  const focusKey = focusJobId
+    ? `${focusJobId}:${String(focusRequest.at ?? "")}`
+    : null;
+
   const [hoveredId, setHoveredId] = useState(null);
-  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [chosenJobId, setChosenJobId] = useState(focusJobId);
 
-  const fitSessionKey = useMemo(() => {
-    if (initialFocusJobId == null || initialFocusJobId === "") return null;
-    const id = String(initialFocusJobId);
-    if (!jobIdSet.has(id)) return null;
-    return `${id}::${String(focusRequestKey ?? "")}::${layoutRevision}`;
-  }, [initialFocusJobId, focusRequestKey, jobIdSet, layoutRevision]);
+  if (useHasChanged(focusKey) && focusJobId) {
+    setChosenJobId(focusJobId);
+  }
 
-  useLayoutEffect(() => {
-    if (!fitSessionKey) return;
-    const id = String(fitSessionKey.split("::")[0]);
-    setSelectedJobId(id);
-  }, [fitSessionKey]);
-
-  useEffect(() => {
-    if (!selectedJobId) return;
-    if (!jobIdSet.has(String(selectedJobId))) {
-      setSelectedJobId(null);
-    }
-  }, [jobs, jobIdSet, selectedJobId]);
+  /* A job can leave the tree while it is the chosen one — a choice that is no
+   * longer drawn would dim every other job for nothing. */
+  const selectedJobId =
+    chosenJobId != null && jobIdSet.has(String(chosenJobId))
+      ? chosenJobId
+      : null;
 
   const prevInteractionResetKey = useRef(undefined);
   useEffect(() => {
@@ -94,7 +89,7 @@ function JobDependencyTreeFlowInner({
     if (prevInteractionResetKey.current === interactionResetKey) return;
     prevInteractionResetKey.current = interactionResetKey;
     setHoveredId(null);
-    setSelectedJobId(null);
+    setChosenJobId(null);
   }, [interactionResetKey]);
 
   const emphasisId = hoveredId ?? selectedJobId;
@@ -177,7 +172,7 @@ function JobDependencyTreeFlowInner({
   }, [baseEdges, relatedIds, theme]);
 
   const onSelectNode = useCallback((id) => {
-    setSelectedJobId(id != null && id !== "" ? String(id) : null);
+    setChosenJobId(id != null && id !== "" ? String(id) : null);
   }, []);
 
   const onOpenNode = useCallback(
@@ -193,7 +188,7 @@ function JobDependencyTreeFlowInner({
   );
 
   const onPaneClick = useCallback(() => {
-    setSelectedJobId(null);
+    setChosenJobId(null);
     setHoveredId(null);
   }, []);
 
@@ -284,8 +279,11 @@ function JobDependencyTreeFlowInner({
             onPaneMouseEnter={onPaneMouseEnter}
             elevateEdgesOnSelect
           >
-            {fitSessionKey ? (
-              <FitViewToJobEffect fitSessionKey={fitSessionKey} />
+            {focusJobId ? (
+              <FitViewToJobEffect
+                jobID={focusJobId}
+                fitKey={`${focusKey}:${layoutRevision}`}
+              />
             ) : null}
             {fitViewRequestKey !== undefined ? (
               <FitViewToGraphEffect fitViewRequestKey={fitViewRequestKey} />
@@ -310,8 +308,7 @@ function JobDependencyTreeFlowInner({
  * @param {import("../../Classes/job").default[]} props.jobs
  * @param {ReadonlySet<string>|Set<string>|null|undefined} [props.completeJobIds]
  * @param {ReadonlySet<string>|Set<string>|null|undefined} [props.chainHighlightJobIds] — non-empty: dim outside set; these nodes get “selected” ring/pulse
- * @param {string|number|null|undefined} [props.initialFocusJobId]
- * @param {string|number|null|undefined} [props.focusRequestKey] — change to re-fit the same `initialFocusJobId` (e.g. dialogue open counter)
+ * @param {{jobID: string|number, at?: string|number}|null} [props.focusRequest] — job to fit and emphasise; `at` tells two requests for the same job apart
  * @param {string|number|null|undefined} [props.fitViewRequestKey] — change to re-fit/center the full graph
  * @param {(jobID: string) => void} [props.onJobDoubleClick]
  * @param {boolean} [props.showHelpText]

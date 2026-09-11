@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Grid,
   Checkbox,
@@ -28,7 +27,6 @@ function TutorialTemplate({
   const { PRIMARY_THEME } = GLOBAL_CONFIG;
 
   const shouldBeVisible = !isLoggedIn || displayHelpCards;
-  const [shouldMount, setShouldMount] = useState(shouldBeVisible);
 
   async function handleCheckBox() {
     toggleHideTutorials();
@@ -38,26 +36,14 @@ function TutorialTemplate({
     scheduleDebouncedApplicationSettingsSave();
   }
 
-  useEffect(() => {
-    if (shouldBeVisible) {
-      setShouldMount(true);
-    } else if (shouldMount) {
-      // Was visible, now hiding - unmount after fade completes
-      const timeout = setTimeout(() => {
-        setShouldMount(false);
-        // Notify parent that fade-out animation has completed
-        if (onFadeOutComplete) {
-          onFadeOutComplete();
-        }
-      }, 1000);
-      return () => clearTimeout(timeout);
-    }
-  }, [shouldBeVisible, shouldMount, onFadeOutComplete]);
-
-  if (!shouldMount) return null;
-
   return (
-    <Fade in={shouldBeVisible} timeout={1000} appear={false}>
+    <Fade
+      in={shouldBeVisible}
+      timeout={1000}
+      appear={false}
+      unmountOnExit
+      onExited={onFadeOutComplete}
+    >
       <Box sx={{ width: "100%", height: "100%" }}>
         <ContentPanel
           componentName="Tutorial Template"

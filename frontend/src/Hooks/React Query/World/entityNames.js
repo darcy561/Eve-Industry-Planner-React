@@ -1,3 +1,4 @@
+import { idsQueryKeySuffix } from "../idsQueryKey.js";
 import getUniverseNames from "../../../Functions/EveESI/World/getUniverseNames";
 
 export const ENTITY_NAMES_QUERY_KEY = ["esi", "entity-names"];
@@ -19,7 +20,7 @@ export function entityNamesQuery(ids) {
   const wanted = [...new Set((ids ?? []).filter(Boolean))].sort();
 
   return {
-    queryKey: [...ENTITY_NAMES_QUERY_KEY, wanted.join(",")],
+    queryKey: [...ENTITY_NAMES_QUERY_KEY, idsQueryKeySuffix(wanted)],
     // Keyed by id here rather than by every caller: ESI answers with a list, and
     // a lookup against a list silently finds nothing.
     queryFn: async () => {

@@ -4,9 +4,16 @@ import GLOBAL_CONFIG from "../../global-config-app";
 
 const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 
+/**
+ * Drops a job's own market hub or order type once it matches what the account
+ * defaults to, so the job carries an override only while it differs.
+ *
+ * @param {Object} activeJob
+ * @param {(layoutPatch: Object) => void} updateActiveJobLayout
+ */
 export function useStripRedundantJobMarketHubOverrides(
   activeJob,
-  updateActiveJob,
+  updateActiveJobLayout,
 ) {
   const defaultMarketLocation = useUsersStore(
     (s) => s.applicationSettings.defaultMarketLocation,
@@ -22,25 +29,23 @@ export function useStripRedundantJobMarketHubOverrides(
     const canonOrder = defaultOrderType ?? DEFAULT_ORDER_OPTION;
 
     const layout = activeJob.layout;
-    let changed = false;
+    const redundant = {};
 
     if (
       layout.localMarketDisplay != null &&
       layout.localMarketDisplay === canonMarket
     ) {
-      layout.localMarketDisplay = null;
-      changed = true;
+      redundant.localMarketDisplay = null;
     }
     if (
       layout.localOrderDisplay != null &&
       layout.localOrderDisplay === canonOrder
     ) {
-      layout.localOrderDisplay = null;
-      changed = true;
+      redundant.localOrderDisplay = null;
     }
 
-    if (changed) {
-      updateActiveJob(activeJob);
+    if (Object.keys(redundant).length > 0) {
+      updateActiveJobLayout(redundant);
     }
   }, [
     activeJob,
@@ -48,6 +53,6 @@ export function useStripRedundantJobMarketHubOverrides(
     activeJob?.layout?.localOrderDisplay,
     defaultMarketLocation,
     defaultOrderType,
-    updateActiveJob,
+    updateActiveJobLayout,
   ]);
 }

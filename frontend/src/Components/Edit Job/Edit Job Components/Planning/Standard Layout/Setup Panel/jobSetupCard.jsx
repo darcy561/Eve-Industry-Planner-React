@@ -39,8 +39,7 @@ export function JobSetupCard({ setupEntry, state, actions }) {
       <Card elevation={3} square sx={{ minWidth: "100%" }}>
         <CardActionArea
           onClick={() => {
-            state.activeJob.layout.setupToEdit = setupEntry.id;
-            actions.updateActiveJob(state.activeJob);
+            actions.updateActiveJobLayout({ setupToEdit: setupEntry.id });
           }}
         >
           <CardContent>

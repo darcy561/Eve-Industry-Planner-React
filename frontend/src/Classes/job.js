@@ -942,8 +942,17 @@ class Job {
   /**
    * Adds transaction data to the job's sales tracking.
    *
+   * Which order a sale belongs to is a guess, and on a job selling through more
+   * than one order it is only that. ESI carries no reference between a market
+   * order and a transaction or journal entry — a journal entry and a transaction
+   * name each other, an order names neither — and matching on item, location and
+   * time stops working as soon as a character holds two orders for the same item
+   * in the same station. Figures derived per order from linked sales are
+   * approximate for multi-order jobs.
+   *
    * @param {Object|Array<Object>} transaction - Transaction data or array of transactions
-   * @param {number} [activeOrder] - Active order ID to assign to transactions
+   * @param {number} [activeOrder] - Order to attribute these sales to. Nothing
+   *   supplies it today, so sales fall to the first linked order.
    */
   addTransaction(transaction, activeOrder) {
     if (!transaction) return;

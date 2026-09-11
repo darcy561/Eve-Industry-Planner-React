@@ -1,14 +1,5 @@
 import { useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  InputAdornment,
-  TextField,
-} from "@mui/material";
+import { Button, Grid, InputAdornment, TextField } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { Tooltip } from "@mui/material";
 import useUsersStore from "../../../../../../Zustand/usersStore";
@@ -16,19 +7,15 @@ import DOMPurify from "dompurify";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 import Transaction from "../../../../../../Classes/transaction";
+import ContentDialogue from "../../../../../../Styled Components/Dialogue/ContentDialogue";
 
 /**
  * The trigger for this dialogue already gates on the active job lock, but we
- * keep a defensive guard on the Add button (mirrors how `parentJobDialogue`
+ * keep a defensive guard on the Add button (mirrors how `parentJobOptions`
  * locks its internal AddIcon rows): if the dialogue is mounted while the lock
  * flips to read-only, we still refuse to mutate the persisted job.
  */
-export function AddCustomTransactionDialogue({
-  state,
-  actions,
-  newTransactionTrigger,
-  updateNewTransactionTrigger,
-}) {
+export function AddCustomTransactionDialogue({ state, actions, onClose }) {
   const CharacterHash = useUsersStore
     .getState()
     .account.actions.getMainCharacterHash();
@@ -49,188 +36,184 @@ export function AddCustomTransactionDialogue({
     CharacterHash: CharacterHash,
   });
 
-  const handleClose = () => {
-    updateNewTransactionTrigger(false);
-  };
-
   return (
-    <Dialog
-      open={newTransactionTrigger}
-      onClose={handleClose}
-      sx={{ padding: 2 }}
+    <ContentDialogue
+      open
+      onClose={onClose}
+      title="New Transaction"
+      componentName="AddCustomTransactionDialogue"
+      useAppShellDesign
+      dialogueTitleProps={{ align: "center" }}
+      actions={
+        <>
+          <Button size="large" onClick={onClose} sx={{ marginRight: 2 }}>
+            Close
+          </Button>
+          <Tooltip
+            title={
+              jobLockReadOnly
+                ? lockReasonText({ action: "manual transactions are disabled" })
+                : ""
+            }
+            arrow
+            disableHoverListener={!jobLockReadOnly}
+          >
+            <span>
+              <Button
+                size="large"
+                variant="contained"
+                disabled={jobLockReadOnly}
+                onClick={() => {
+                  if (jobLockReadOnly) return;
+                  actions.addCustomTransaction(transactionData);
+                  onClose();
+                }}
+              >
+                Add
+              </Button>
+            </span>
+          </Tooltip>
+        </>
+      }
     >
-      <DialogTitle align="center">New Transaction</DialogTitle>
-      <DialogContent>
-        <Grid container>
-          <Grid container sx={{ paddingTop: 1 }} size={12}>
-            <Grid size={6}>
-              <DateTimePicker
-                variant="outlined"
-                value={transactionData.date}
-                sx={{
-                  "& .MuiFormHelperText-root": {
-                    color: (theme) => theme.palette.secondary.main,
+      <Grid container>
+        <Grid container sx={{ paddingTop: 1 }} size={12}>
+          <Grid size={6}>
+            <DateTimePicker
+              variant="outlined"
+              value={transactionData.date}
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
                   },
-                  "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                    },
-                }}
-                onChange={(v) => {
-                  setTransactionData((prev) => ({
-                    ...prev,
-                    date: v,
-                  }));
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                variant="standard"
-                helperText="Description"
-                sx={{
-                  "& .MuiFormHelperText-root": {
-                    color: (theme) => theme.palette.secondary.main,
-                  },
-                  "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                    },
-                }}
-                onBlur={(v) => {
-                  setTransactionData((prev) => ({
-                    ...prev,
-                    description: DOMPurify.sanitize(v.target.value, {
-                      ALLOWED_TAGS: [],
-                      ALLOWED_ATTR: [],
-                    }).trim(),
-                  }));
-                }}
-              />
-            </Grid>
+              }}
+              onChange={(v) => {
+                setTransactionData((prev) => ({
+                  ...prev,
+                  date: v,
+                }));
+              }}
+            />
           </Grid>
-          <Grid container sx={{ paddingTop: 2 }} size={12}>
-            <Grid size={6}>
-              <TextField
-                variant="standard"
-                helperText="Item Cost"
-                sx={{
-                  "& .MuiFormHelperText-root": {
-                    color: (theme) => theme.palette.secondary.main,
+          <Grid size={6}>
+            <TextField
+              variant="standard"
+              helperText="Description"
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
                   },
-                  "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                    },
-                }}
-                onBlur={(v) => {
-                  const unitPrice = parseNonNegativeNumber(v.target.value);
-                  setTransactionData((prev) => ({
-                    ...prev,
-                    unit_price: unitPrice,
-                    amount: unitPrice * transactionData.quantity,
-                  }));
-                }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">ISK</InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                variant="standard"
-                helperText="Quantity"
-                type="number"
-                sx={{
-                  "& .MuiFormHelperText-root": {
-                    color: (theme) => theme.palette.secondary.main,
-                  },
-                  "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                    },
-                }}
-                onBlur={(v) => {
-                  const quantity = parseNonNegativeNumber(v.target.value);
-                  setTransactionData((prev) => ({
-                    ...prev,
-                    quantity,
-                    amount: quantity * transactionData.unit_price,
-                  }));
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Grid container sx={{ paddingTop: 2 }} size={12}>
-            <Grid size={6}>
-              <TextField
-                variant="standard"
-                helperText="Tax Or Fees Paid"
-                type="number"
-                sx={{
-                  "& .MuiFormHelperText-root": {
-                    color: (theme) => theme.palette.secondary.main,
-                  },
-                  "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                    },
-                }}
-                onBlur={(v) => {
-                  const tax = parseNonNegativeNumber(v.target.value);
-                  setTransactionData((prev) => ({
-                    ...prev,
-                    tax,
-                  }));
-                }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">ISK</InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Grid>
+              }}
+              onBlur={(v) => {
+                setTransactionData((prev) => ({
+                  ...prev,
+                  description: DOMPurify.sanitize(v.target.value, {
+                    ALLOWED_TAGS: [],
+                    ALLOWED_ATTR: [],
+                  }).trim(),
+                }));
+              }}
+            />
           </Grid>
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ padding: 2 }}>
-        <Button size="large" onClick={handleClose} sx={{ marginRight: 2 }}>
-          Close
-        </Button>
-        <Tooltip
-          title={
-            jobLockReadOnly
-              ? lockReasonText({ action: "manual transactions are disabled" })
-              : ""
-          }
-          arrow
-          disableHoverListener={!jobLockReadOnly}
-        >
-          <span>
-            <Button
-              size="large"
-              variant="contained"
-              disabled={jobLockReadOnly}
-              onClick={() => {
-                if (jobLockReadOnly) return;
-                state.activeJob.build.sale.transactions.push(
-                  new Transaction(transactionData),
-                );
-                actions.updateActiveJob(state.activeJob);
+        <Grid container sx={{ paddingTop: 2 }} size={12}>
+          <Grid size={6}>
+            <TextField
+              variant="standard"
+              helperText="Item Cost"
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
               }}
-            >
-              Add
-            </Button>
-          </span>
-        </Tooltip>
-      </DialogActions>
-    </Dialog>
+              onBlur={(v) => {
+                const unitPrice = parseNonNegativeNumber(v.target.value);
+                setTransactionData((prev) => ({
+                  ...prev,
+                  unit_price: unitPrice,
+                  amount: unitPrice * transactionData.quantity,
+                }));
+              }}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">ISK</InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              variant="standard"
+              helperText="Quantity"
+              type="number"
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+              }}
+              onBlur={(v) => {
+                const quantity = parseNonNegativeNumber(v.target.value);
+                setTransactionData((prev) => ({
+                  ...prev,
+                  quantity,
+                  amount: quantity * transactionData.unit_price,
+                }));
+              }}
+            />
+          </Grid>
+        </Grid>
+        <Grid container sx={{ paddingTop: 2 }} size={12}>
+          <Grid size={6}>
+            <TextField
+              variant="standard"
+              helperText="Tax Or Fees Paid"
+              type="number"
+              sx={{
+                "& .MuiFormHelperText-root": {
+                  color: (theme) => theme.palette.secondary.main,
+                },
+                "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                  {
+                    display: "none",
+                  },
+              }}
+              onBlur={(v) => {
+                const tax = parseNonNegativeNumber(v.target.value);
+                setTransactionData((prev) => ({
+                  ...prev,
+                  tax,
+                }));
+              }}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">ISK</InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Grid>
+    </ContentDialogue>
   );
 }
 

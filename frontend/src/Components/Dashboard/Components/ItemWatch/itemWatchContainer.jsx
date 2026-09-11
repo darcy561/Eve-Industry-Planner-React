@@ -1,19 +1,13 @@
 import { Typography, Grid, Box, CircularProgress } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import { WatchListRow } from "./ItemRow";
 import { WatchlistGroup } from "./watchlistGroup";
 import useUsersStore from "../../../../Zustand/usersStore";
-import getMarketData from "../../../../Functions/MarketData/findMarketData";
 import { collectWatchlistTypeIds } from "../../../../Functions/MarketData/collectWatchlistTypeIds";
+import { useMarketPricesQuery } from "../../../../Hooks/React Query/World/marketPrices";
 
-function WatchlistContainerInner({
-  updateGroupSettingsTrigger,
-  groupSettingsContent,
-  updateGroupSettingsContent,
-  setOpenDialogue,
-  updateWatchlistItemToEdit,
-}) {
+function WatchlistContainerInner({ onOpenGroupSettings, onEditWatchlistItem }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
   const defaultOrders = useUsersStore(
     (state) => state.applicationSettings.defaultOrderType,
@@ -110,11 +104,8 @@ function WatchlistContainerInner({
             key={group.id}
             group={group}
             index={index}
-            updateGroupSettingsTrigger={updateGroupSettingsTrigger}
-            updateGroupSettingsContent={updateGroupSettingsContent}
-            groupSettingsContent={groupSettingsContent}
-            setOpenDialogue={setOpenDialogue}
-            updateWatchlistItemToEdit={updateWatchlistItemToEdit}
+            onOpenGroupSettings={onOpenGroupSettings}
+            onEditWatchlistItem={onEditWatchlistItem}
           />
         );
       })}
@@ -125,8 +116,7 @@ function WatchlistContainerInner({
               key={item.id}
               item={item}
               index={index}
-              setOpenDialogue={setOpenDialogue}
-              updateWatchlistItemToEdit={updateWatchlistItemToEdit}
+              onEditWatchlistItem={onEditWatchlistItem}
             />
           );
         }
@@ -137,43 +127,16 @@ function WatchlistContainerInner({
 }
 
 /**
- * Fetches market prices for watchlist type IDs after watchlist data is present (per login bootstrap),
- * then renders rows that depend on `worldData.marketData`.
+ * Holds the watchlist behind its prices: the rows read `worldData.marketData`, so
+ * they wait for the first fetch and are drawn without prices if it fails.
  */
 export function WatchlistContainer(props) {
   const items = useUsersStore((state) => state.jobData.userWatchlist.items);
-  const addMarketData = useUsersStore(
-    (state) => state.worldData.actions.addMarketData,
-  );
-  const [marketReady, setMarketReady] = useState(false);
 
-  useEffect(() => {
-    if (!items || items.length === 0) {
-      setMarketReady(true);
-      return;
-    }
-    let cancelled = false;
-    setMarketReady(false);
-    (async () => {
-      try {
-        const idSet = collectWatchlistTypeIds(items);
-        const itemPriceResult = await getMarketData(idSet);
-        if (cancelled) return;
-        addMarketData(itemPriceResult);
-      } catch (e) {
-        console.error("watchlist market prefetch", e);
-      } finally {
-        if (!cancelled) {
-          setMarketReady(true);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [items, addMarketData]);
+  const typeIDs = useMemo(() => collectWatchlistTypeIds(items), [items]);
+  const { isLoading } = useMarketPricesQuery(typeIDs);
 
-  if (items.length > 0 && !marketReady) {
+  if (items.length > 0 && isLoading) {
     return (
       <Grid align="center" size={12} sx={{ py: 2 }}>
         <Box

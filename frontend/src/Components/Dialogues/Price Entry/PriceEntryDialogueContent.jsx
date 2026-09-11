@@ -286,7 +286,6 @@ export function PriceEntryDialogueContent({ state, actions }) {
                         handleUpdatePriceEntryList(updater.list);
                       }
                     }}
-                    clearUnconfirmedTrigger={state.clearUnconfirmedTrigger}
                   />
                 );
               })}
@@ -378,17 +377,14 @@ export function PriceEntryDialogueContent({ state, actions }) {
                         defaultPrice,
                       );
 
-                      if (!item.priceEntries) {
-                        item.priceEntries = [];
-                      }
-                      item.priceEntries.push(newEntry);
+                      item.priceEntries = [
+                        ...(item.priceEntries || []),
+                        newEntry,
+                      ];
                     }
                   }
                 });
                 actions.setPriceEntryList(newList);
-                actions.setClearUnconfirmedTrigger(
-                  state.clearUnconfirmedTrigger + 1,
-                );
               }}
               variant="outlined"
               fullWidth

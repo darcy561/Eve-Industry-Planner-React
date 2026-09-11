@@ -9,18 +9,24 @@ const { collection, industryJobs, characters } = vi.hoisted(() => ({
   ],
 }));
 
-vi.mock("../../../../../../Zustand/usersStore", () => ({
-  default: (selector) =>
-    selector({
-      account: {
-        characters,
-        actions: {
-          findCharacterByHash: (hash) =>
-            characters.find((c) => c.CharacterHash === hash) ?? null,
-        },
+vi.mock("../../../../../../Zustand/usersStore", () => {
+  const state = {
+    account: {
+      characters,
+      actions: {
+        findCharacterByHash: (hash) =>
+          characters.find((c) => c.CharacterHash === hash) ?? null,
+        getCorporation: () => ({ corporationName: "A Corp" }),
       },
+    },
+  };
+  // The owner portrait reads the store directly rather than through a hook.
+  return {
+    default: Object.assign((selector) => selector(state), {
+      getState: () => state,
     }),
-}));
+  };
+});
 
 vi.mock("../../../../../../Hooks/EveEsi/useBlueprintIndex", () => ({
   default: () => ({

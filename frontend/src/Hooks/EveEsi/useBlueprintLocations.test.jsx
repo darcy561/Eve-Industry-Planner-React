@@ -6,7 +6,7 @@ import { createElement } from "react";
 const { store, characterRows, corporationRows, gate, failCorporation } = vi.hoisted(() => ({
   store: {
     account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {} },
+    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
   },
   characterRows: new Map(),
   corporationRows: new Map(),
@@ -43,8 +43,10 @@ vi.mock("../React Query/Corporation/assets", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/resolveLocationNames", () => ({
-  default: async () => ({}),
+vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
+  // Anything these tests do not seed into the store is a location ESI has no name for, which is a
+  // settled answer rather than a failure to retry.
+  requestLocationName: async (id) => ({ id, resolutionStatus: "unnamed" }),
 }));
 
 import useBlueprintLocations from "./useBlueprintLocations";
@@ -82,6 +84,7 @@ beforeEach(() => {
       [JITA_STATION_ID]: { id: JITA_STATION_ID, name: "Jita IV-4" },
       [RAITARU_STRUCTURE_ID]: { id: RAITARU_STRUCTURE_ID, name: "Abbey Raitaru" },
     },
+    actions: { addUniverseIDs: () => {} },
   };
   characterRows.clear();
   characterRows.set("hash-a", [

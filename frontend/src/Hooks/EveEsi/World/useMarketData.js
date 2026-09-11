@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import getMarketData from "../../../Functions/EveESI/World/getMarketData";
-import getWorldData from "../../../Functions/EveESI/World/getWorldData";
-import useUsersStore from "../../../Zustand/usersStore";
+import useLocationNames from "../useLocationNames";
 import useESIRateLimiting from "../../App/useESIRateLimiting";
 
 /**
@@ -123,19 +122,10 @@ export function useMarketData(typeID, location) {
   }, [marketData, location?.regionID, location?.stationID]);
 
   const {
-    data: worldData,
+    names: worldData,
     isLoading: isWorldDataLoading,
     error: worldDataError,
-  } = useQuery({
-    queryKey: ["marketDataWorldData", typeID, ...worldDataIDs],
-    queryFn: () =>
-      getWorldData(
-        worldDataIDs,
-        useUsersStore.getState().account.actions.getMainCharacter(),
-      ),
-    enabled: Boolean(location?.regionID && worldDataIDs.length > 0),
-    staleTime: 5 * 60 * 1000,
-  });
+  } = useLocationNames(worldDataIDs);
 
   return {
     marketData,

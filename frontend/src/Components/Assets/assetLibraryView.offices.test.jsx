@@ -7,7 +7,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 const { store, corporationRows, officesSet } = vi.hoisted(() => ({
   store: {
     account: { characters: [], corporations: [], actions: {} },
-    worldData: { universeIDs: {} },
+    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
     applicationSettings: { actions: { getCurrentLocale: () => "en-GB" } },
   },
   corporationRows: new Map(),
@@ -68,8 +68,10 @@ vi.mock("../../Hooks/App/useCachedData", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/resolveLocationNames", () => ({
-  default: async () => ({}),
+vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
+  // Anything these tests do not seed into the store is a location ESI has no name for, which is a
+  // settled answer rather than a failure to retry.
+  requestLocationName: async (id) => ({ id, resolutionStatus: "unnamed" }),
 }));
 
 vi.mock("../../Functions/EveESI/World/getAssetLocationNames", () => ({
@@ -126,6 +128,7 @@ beforeEach(() => {
       [JITA_STATION_ID]: { id: JITA_STATION_ID, name: "Jita IV-4" },
       [EMPTY_OFFICE_ID]: { id: EMPTY_OFFICE_ID, name: "Amarr VIII" },
     },
+    actions: { addUniverseIDs: () => {} },
   };
   corporationRows.clear();
   corporationRows.set("hash-a", corporationAssetRows);

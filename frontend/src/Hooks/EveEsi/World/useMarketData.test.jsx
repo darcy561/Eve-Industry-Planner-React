@@ -1,0 +1,115 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createElement } from "react";
+
+const { store, addUniverseIDs, structureAsks, marketRows } = vi.hoisted(() => ({
+  store: { account: { characters: [] }, worldData: { universeIDs: {} } },
+  addUniverseIDs: vi.fn(),
+  structureAsks: [],
+  marketRows: { current: [] },
+}));
+
+vi.mock("../../../Zustand/usersStore", () => ({
+  default: Object.assign((selector) => selector(store), {
+    getState: () => store,
+  }),
+}));
+
+vi.mock("../../../Functions/EveESI/World/getMarketData", () => ({
+  default: async () => ({ data: marketRows.current, totalPages: 1 }),
+}));
+
+vi.mock("../../App/useESIRateLimiting", () => ({
+  default: () => ({ isRateLimited: () => false, getWaitTime: () => 0 }),
+}));
+
+vi.mock("../../../Functions/EveESI/World/getUniverseNames", () => ({
+  default: async (ids) => ids.map((id) => ({ id, name: `Station ${id}` })),
+}));
+
+// The structure answers for one character only — the alt. Asking as the main alone is what used to
+// leave it as "No Access To Location".
+vi.mock("../../../Functions/EveESI/World/getCitadelData", () => ({
+  fetchStructureName: async (id, character) => {
+    structureAsks.push(character.CharacterHash);
+    if (character.CharacterHash !== "alt") return { refused: true };
+    return {
+      refused: false,
+      name: { id, name: "Alt's Sotiyo", resolutionStatus: "resolved" },
+    };
+  },
+  communityNameOrRefusal: async (id) => ({
+    id,
+    name: `No Access To Location - ${id}`,
+    resolutionStatus: "no_access",
+  }),
+}));
+
+import { useMarketData } from "./useMarketData";
+
+const THE_FORGE = 10000002;
+const JITA = 60003760;
+const SOTIYO = 1035466617946;
+
+function render(typeID, location) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retryDelay: 0, gcTime: Infinity } },
+  });
+  return renderHook(() => useMarketData(typeID, location), {
+    wrapper: ({ children }) =>
+      createElement(QueryClientProvider, { client }, children),
+  });
+}
+
+beforeEach(() => {
+  store.account = {
+    characters: [{ CharacterHash: "main" }, { CharacterHash: "alt" }],
+    actions: { getMainCharacter: () => ({ CharacterHash: "main" }) },
+  };
+  store.worldData = { universeIDs: {}, actions: { addUniverseIDs } };
+  addUniverseIDs.mockReset();
+  structureAsks.length = 0;
+  marketRows.current = [];
+});
+
+describe("the market data a panel renders", () => {
+  // Stage D's bar: this panel resolved names as the main character alone, so a structure only an alt
+  // could dock at came back refused — and that refusal was written where every other surface read it.
+  it("names a structure only an alt can see", async () => {
+    marketRows.current = [
+      { order_id: 1, location_id: SOTIYO, system_id: 30000142, price: 10 },
+    ];
+
+    const { result } = render(34, { regionID: THE_FORGE, stationID: JITA });
+
+    await waitFor(() =>
+      expect(result.current.worldData[SOTIYO]?.name).toBe("Alt's Sotiyo")
+    );
+    expect(structureAsks).toEqual(["main", "alt"]);
+  });
+
+  it("names the stations and systems its orders sit in", async () => {
+    marketRows.current = [
+      { order_id: 1, location_id: JITA, system_id: 30000142, price: 10 },
+    ];
+
+    const { result } = render(34, { regionID: THE_FORGE, stationID: JITA });
+
+    await waitFor(() =>
+      expect(result.current.worldData[JITA]?.name).toBe(`Station ${JITA}`)
+    );
+    // The region and the system come from the same bulk lookup as the station.
+    expect(result.current.worldData[THE_FORGE]?.name).toBe(
+      `Station ${THE_FORGE}`
+    );
+  });
+
+  it("asks for no names until there are orders to name", async () => {
+    const { result } = render(34, { regionID: THE_FORGE, stationID: JITA });
+
+    await waitFor(() => expect(result.current.isMarketDataLoading).toBe(false));
+    expect(result.current.worldData).toEqual({});
+    expect(structureAsks).toHaveLength(0);
+  });
+});

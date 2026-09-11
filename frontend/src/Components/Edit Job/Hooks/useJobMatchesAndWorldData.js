@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import useUsersStore from "../../../Zustand/usersStore";
-import getWorldData from "../../../Functions/EveESI/World/getWorldData";
+import { useQueryClient } from "@tanstack/react-query";
+import { fetchLocationNames } from "../../../Hooks/React Query/World/locationNames";
 import findIndustryJobsForItem from "../../../Functions/IndustryJobs/findIndustryJobsForItem";
 
 export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
@@ -9,6 +10,7 @@ export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
   linkedJobs,
   esiDataToLink
 ) {
+  const queryClient = useQueryClient();
   const [jobMatches, setJobMatches] = useState([]);
   const [isWorldDataLoading, setIsWorldDataLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,13 +51,12 @@ export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
         }
 
         if (allLocationIDs.size > 0) {
-          const locationNames = await getWorldData(
+          const names = await fetchLocationNames(
+            queryClient,
             allLocationIDs,
-            useUsersStore.getState().account.actions.getMainCharacter()
+            Object.values(useUsersStore.getState().account.characters)
           );
-          useUsersStore
-            .getState()
-            .worldData.actions.addUniverseIDs(locationNames);
+          useUsersStore.getState().worldData.actions.addUniverseIDs(names);
         }
 
         setIsWorldDataLoading(false);

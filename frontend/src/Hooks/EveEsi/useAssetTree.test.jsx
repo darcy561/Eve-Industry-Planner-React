@@ -6,7 +6,7 @@ import { createElement } from "react";
 const { store, characterRows, containerNameCalls } = vi.hoisted(() => ({
   store: {
     account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {} },
+    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
   },
   characterRows: new Map(),
   containerNameCalls: [],
@@ -61,8 +61,10 @@ vi.mock("../App/useCachedData", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/resolveLocationNames", () => ({
-  default: async () => ({}),
+vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
+  // Anything these tests do not seed into the store is a location ESI has no name for, which is a
+  // settled answer rather than a failure to retry.
+  requestLocationName: async (id) => ({ id, resolutionStatus: "unnamed" }),
 }));
 
 vi.mock("../../Functions/EveESI/World/getAssetLocationNames", () => ({
@@ -107,6 +109,7 @@ beforeEach(() => {
         name: "Abbey Raitaru",
       },
     },
+    actions: { addUniverseIDs: () => {} },
   };
   characterRows.clear();
   characterRows.set("hash-a", characterAssetRows);

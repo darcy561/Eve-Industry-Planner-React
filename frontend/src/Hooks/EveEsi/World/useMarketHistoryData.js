@@ -1,7 +1,7 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import getMarketHistory from "../../../Functions/EveESI/World/getMarketHistory";
-import getWorldData from "../../../Functions/EveESI/World/getWorldData";
-import useUsersStore from "../../../Zustand/usersStore";
+import useLocationNames from "../useLocationNames";
 import useESIRateLimiting from "../../App/useESIRateLimiting";
 
 /**
@@ -88,20 +88,18 @@ export function useMarketHistoryData(typeID, location) {
 
   const marketHistory = data || [];
 
+  const regionId = location?.regionID;
+  const hasHistory = marketHistory.length > 0;
+  const regionIds = useMemo(
+    () => (regionId && hasHistory ? [regionId] : []),
+    [regionId, hasHistory]
+  );
+
   const {
-    data: worldData,
+    names: worldData,
     isLoading: isWorldDataLoading,
     error: worldDataError,
-  } = useQuery({
-    queryKey: ["marketHistoryWorldData", typeID, location?.regionID],
-    queryFn: () =>
-      getWorldData(
-        [location.regionID],
-        useUsersStore.getState().account.actions.getMainCharacter(),
-      ),
-    enabled: Boolean(location?.regionID && marketHistory.length > 0),
-    staleTime: 5 * 60 * 1000,
-  });
+  } = useLocationNames(regionIds);
 
   return {
     marketHistory,

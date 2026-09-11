@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import useUsersStore from "../../../Zustand/usersStore";
-import getWorldData from "../../../Functions/EveESI/World/getWorldData";
+import { fetchLocationNames } from "../../../Hooks/React Query/World/locationNames";
 import findMarketOrdersForItem from "../../../Functions/MarketOrders/findMarketOrdersForItem";
 import applyLatestOrderData from "../../../Functions/MarketOrders/applyLatestOrderData";
 import { useGetAllCharacterMarketOrders } from "../../../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders";
@@ -118,11 +118,12 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
         }
 
         if (allLocationIDs.size > 0) {
-          const locationNames = await getWorldData(
+          const names = await fetchLocationNames(
+            queryClient,
             allLocationIDs,
-            useUsersStore.getState().account.actions.getMainCharacter()
+            Object.values(useUsersStore.getState().account.characters)
           );
-          useUsersStore.getState().worldData.actions.addUniverseIDs(locationNames);
+          useUsersStore.getState().worldData.actions.addUniverseIDs(names);
         }
 
         setIsWorldDataLoading(false);

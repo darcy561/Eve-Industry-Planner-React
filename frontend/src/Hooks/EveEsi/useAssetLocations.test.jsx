@@ -3,13 +3,14 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 
-const { store, characterRows, resolveCalls, resolved } = vi.hoisted(() => ({
+const { store, characterRows, resolveCalls, resolved, pending } = vi.hoisted(() => ({
   store: {
     account: { characters: [], corporations: [] },
-    worldData: { universeIDs: {} },
+    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
   },
   characterRows: new Map(),
   resolveCalls: [],
+    pending: { current: new Set() },
   resolved: { current: {} },
 }));
 
@@ -37,10 +38,12 @@ vi.mock("../React Query/Corporation/assets", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/resolveLocationNames", () => ({
-  default: async (ids) => {
-    resolveCalls.push([...ids]);
-    return resolved.current;
+vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
+  requestLocationName: async (id) => {
+    resolveCalls.push([id]);
+    // An id left pending stands for one still being asked about.
+    if (pending.current.has(id)) await new Promise(() => {});
+    return resolved.current[id] ?? { id, resolutionStatus: "unnamed" };
   },
 }));
 
@@ -77,10 +80,12 @@ beforeEach(() => {
       },
       [ASSET_SAFETY_ID]: { id: ASSET_SAFETY_ID, name: "Asset Safety" },
     },
+    actions: { addUniverseIDs: () => {} },
   };
   characterRows.clear();
   characterRows.set("hash-a", characterAssetRows);
   resolveCalls.length = 0;
+  pending.current = new Set();
   resolved.current = {};
 });
 
@@ -112,15 +117,15 @@ describe("the asset locations offered to a dropdown", () => {
 
   it("holds a location back until its name is known", async () => {
     delete store.worldData.universeIDs[RAITARU_STRUCTURE_ID];
+    pending.current.add(RAITARU_STRUCTURE_ID);
 
     const { result } = render();
 
     await waitFor(() => expect(result.current.locations.length).toBe(1));
     expect(result.current.locations[0].locationId).toBe(JITA_STATION_ID);
-    await waitFor(() => expect(resolveCalls).toHaveLength(1));
-    // The ship holding item 1010 is in space and so absent from the set; its id sits in the
-    // structure range and is asked for alongside the structure.
-    expect(resolveCalls[0]).toContain(RAITARU_STRUCTURE_ID);
+    // One ask per id now, rather than one ask per set. The ship holding item 1010 is in space and
+    // so absent from the set; its id sits in the structure range and is asked for as well.
+    await waitFor(() => expect(resolveCalls.flat()).toContain(RAITARU_STRUCTURE_ID));
   });
 
   it("asks for nothing while disabled", async () => {

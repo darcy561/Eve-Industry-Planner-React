@@ -9,7 +9,7 @@ import {
 } from "../../../../Hooks/EveEsi/useAssetIndex";
 import useUsersStore from "../../../../Zustand/usersStore";
 import { OFFICE_FOLDER_FLAG } from "../../../../Functions/Assets/buildAssetNodes";
-import getWorldData from "../../../../Functions/EveESI/World/getWorldData";
+import { fetchLocationNames } from "../../../../Hooks/React Query/World/locationNames";
 
 /**
  * Hook for processing corporation assets in the shopping list.
@@ -74,7 +74,6 @@ export function useShoppingListCorporationAssets({
             corporationOfficesSetRef.current.add(officesKey);
 
             // Fetch location names for all office locations
-            // getWorldData will filter out IDs that already exist
             async function fetchOfficeLocationNames() {
               const updatedCorporationObject = useUsersStore
                 .getState()
@@ -96,14 +95,18 @@ export function useShoppingListCorporationAssets({
                   userObject &&
                   updatedCorporationObject.officeLocations.length > 0
                 ) {
-                  const locationNames = await getWorldData(
+                  // Every character, not just this corporation's: an office one member cannot read
+                  // is often readable by another, and an office that cannot be named still holds
+                  // the assets this list is counting.
+                  const names = await fetchLocationNames(
+                    queryClient,
                     updatedCorporationObject.officeLocations,
-                    userObject
+                    Object.values(useUsersStore.getState().account.characters)
                   );
-                  if (Object.keys(locationNames).length > 0) {
+                  if (Object.keys(names).length > 0) {
                     useUsersStore
                       .getState()
-                      .worldData.actions.addUniverseIDs(locationNames);
+                      .worldData.actions.addUniverseIDs(names);
                   }
                 }
               }

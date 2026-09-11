@@ -29,3 +29,4 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Planning stage panels (splitting the Edit Job market panel; selling costs at plan time; speculative child jobs) | [planning-stage-panels/contents.md](./planning-stage-panels/contents.md) |
 | Auth hardening (session rejection shape, account-wide revocation, auth observability and the outage runbook, cloud ESI credential failures, bootstrap half-success) | [auth-hardening/contents.md](./auth-hardening/contents.md) |
 | App shell rollout (moving screens onto the shared surface and the component layer above it; **found while converting first login**) | [app-shell-rollout/contents.md](./app-shell-rollout/contents.md) |
+| Effect-driven state synchronisation (state kept in step by an effect, and whether the area wants a different shape; **found while clearing the SPA lint backlog**) | [effect-state-sync/contents.md](./effect-state-sync/contents.md) |

@@ -310,7 +310,7 @@ describe("the mark at the head of a row", () => {
       label: "exempt too",
     };
 
-    const first = render(
+    const { unmount } = render(
       <MaterialsTable
         rows={[row({ mark: pending })]}
         formatIsk={formatIsk}
@@ -321,7 +321,7 @@ describe("the mark at the head of a row", () => {
       .getByLabelText("Manufacturing Job Pending")
       .querySelector("svg")
       .getAttribute("data-testid");
-    first.unmount();
+    unmount();
 
     render(
       <MaterialsTable

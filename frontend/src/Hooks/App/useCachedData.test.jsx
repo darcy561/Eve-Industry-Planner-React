@@ -85,17 +85,17 @@ describe("useCachedData", () => {
   // rather than holding a copy each.
   it("reads a file once however many components ask", async () => {
     const client = new QueryClient();
-    const first = renderHook(
+    const { result: first } = renderHook(
       () => useCachedData(CACHED_DATA_FILES.FULL_ITEM_LIST),
       { wrapper: withClient(client) },
     );
-    const second = renderHook(
+    const { result: second } = renderHook(
       () => useCachedData(CACHED_DATA_FILES.FULL_ITEM_LIST),
       { wrapper: withClient(client) },
     );
 
-    await waitFor(() => expect(first.result.current.data).toBeTruthy());
-    expect(second.result.current.data).toBe(first.result.current.data);
+    await waitFor(() => expect(first.current.data).toBeTruthy());
+    expect(second.current.data).toBe(first.current.data);
     expect(getFullItemList).toHaveBeenCalledTimes(1);
   });
 

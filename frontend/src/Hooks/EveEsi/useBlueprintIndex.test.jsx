@@ -169,13 +169,17 @@ describe("useBlueprintIndex", () => {
       createElement(QueryClientProvider, { client }, children);
     const request = { scope: BLUEPRINT_SCOPE.CHARACTER, id: "hash-a" };
 
-    const first = renderHook(() => useBlueprintIndex(request), { wrapper });
-    const second = renderHook(() => useBlueprintIndex(request), { wrapper });
+    const { result: first } = renderHook(() => useBlueprintIndex(request), {
+      wrapper,
+    });
+    const { result: second } = renderHook(() => useBlueprintIndex(request), {
+      wrapper,
+    });
 
-    await waitFor(() => expect(first.result.current.isLoading).toBe(false));
-    await waitFor(() => expect(second.result.current.isLoading).toBe(false));
+    await waitFor(() => expect(first.current.isLoading).toBe(false));
+    await waitFor(() => expect(second.current.isLoading).toBe(false));
 
-    expect(second.result.current.data).toBe(first.result.current.data);
+    expect(second.current.data).toBe(first.current.data);
   });
 
   // The reader is what the helpers called with a query client use. It has to answer the way the

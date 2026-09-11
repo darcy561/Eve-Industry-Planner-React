@@ -53,9 +53,7 @@ describe("ArchivedItemBreakdown", () => {
 
     renderWithProviders(<ArchivedItemBreakdown />);
 
-    await waitFor(() =>
-      expect(screen.getByText("Ragnarok")).toBeInTheDocument(),
-    );
+    expect(await screen.findByText("Ragnarok")).toBeInTheDocument();
     expect(screen.getByText("Erebus")).toBeInTheDocument();
   });
 
@@ -66,9 +64,7 @@ describe("ArchivedItemBreakdown", () => {
 
     renderWithProviders(<ArchivedItemBreakdown />);
 
-    await waitFor(() =>
-      expect(screen.getByText("Ragnarok")).toBeInTheDocument(),
-    );
+    expect(await screen.findByText("Ragnarok")).toBeInTheDocument();
     expect(getFullItemList).toHaveBeenCalledTimes(1);
   });
 
@@ -98,9 +94,7 @@ describe("ArchivedItemBreakdown", () => {
 
     renderWithProviders(<ArchivedItemBreakdown />);
 
-    await waitFor(() =>
-      expect(screen.getByText("Type 23773")).toBeInTheDocument(),
-    );
+    expect(await screen.findByText("Type 23773")).toBeInTheDocument();
   });
 
   // Ranking happens on the server, so the sort is a request parameter. Sorting
@@ -162,9 +156,7 @@ describe("ArchivedItemBreakdown", () => {
 
     renderWithProviders(<ArchivedItemBreakdown />);
     fireEvent.click(screen.getByRole("button", { name: "Show top 10" }));
-    await waitFor(() =>
-      expect(screen.getByText("Item 1009")).toBeInTheDocument(),
-    );
+    expect(await screen.findByText("Item 1009")).toBeInTheDocument();
 
     // The shorter page lands immediately, as a cached one would.
     useAccountTimelineItemsQuery.mockReturnValue(

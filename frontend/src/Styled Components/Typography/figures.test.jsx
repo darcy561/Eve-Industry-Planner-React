@@ -131,12 +131,16 @@ describe("FigureRow, the shapes a breakdown is made of", () => {
   });
 
   it("rules a total above rather than below, so it closes a block", () => {
-    const total = render(<FigureRow label="Total" value="1" isTotal />);
-    expect(total.container.firstChild).toHaveStyle({ borderTopStyle: "solid" });
-    total.unmount();
+    const { container: totalRow, unmount } = render(
+      <FigureRow label="Total" value="1" isTotal />,
+    );
+    expect(totalRow.firstChild).toHaveStyle({ borderTopStyle: "solid" });
+    unmount();
 
-    const ordinary = render(<FigureRow label="Materials" value="1" />);
-    expect(ordinary.container.firstChild).toHaveStyle({
+    const { container: ordinaryRow } = render(
+      <FigureRow label="Materials" value="1" />,
+    );
+    expect(ordinaryRow.firstChild).toHaveStyle({
       borderBottomStyle: "solid",
     });
   });

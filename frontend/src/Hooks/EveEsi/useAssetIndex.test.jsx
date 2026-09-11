@@ -171,13 +171,17 @@ describe("useAssetIndex", () => {
       createElement(QueryClientProvider, { client }, children);
     const request = { scope: ASSET_SCOPE.CHARACTER, id: "hash-a" };
 
-    const first = renderHook(() => useAssetIndex(request), { wrapper });
-    const second = renderHook(() => useAssetIndex(request), { wrapper });
+    const { result: first } = renderHook(() => useAssetIndex(request), {
+      wrapper,
+    });
+    const { result: second } = renderHook(() => useAssetIndex(request), {
+      wrapper,
+    });
 
-    await waitFor(() => expect(first.result.current.isLoading).toBe(false));
-    await waitFor(() => expect(second.result.current.isLoading).toBe(false));
+    await waitFor(() => expect(first.current.isLoading).toBe(false));
+    await waitFor(() => expect(second.current.isLoading).toBe(false));
 
-    expect(second.result.current.data).toBe(first.result.current.data);
+    expect(second.current.data).toBe(first.current.data);
   });
 
   it("reports an error rather than an empty result", async () => {

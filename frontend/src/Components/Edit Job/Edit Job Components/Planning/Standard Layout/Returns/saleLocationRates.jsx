@@ -19,6 +19,7 @@ import {
   getDefaultSaleStructure,
   getSaleStructures,
 } from "../../../../../../Functions/MarketOrders/saleLocations";
+import { BROKER_FEE_TERMS } from "../../../../../../Functions/MarketOrders/sellingRates";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import AssignUsersSelect from "../../../../../../Styled Components/Select/users";
 
@@ -74,10 +75,7 @@ export default function SaleLocationRates({
       ) : null}
 
       {isLoading || !rates ? (
-        <Stack sx={{ mt: 1 }}>
-          <Skeleton width="70%" />
-          <Skeleton width="50%" />
-        </Stack>
+        <PendingRates atStructure={atStructure} />
       ) : (
         <Stack sx={{ mt: 1 }}>
           {atStructure ? (
@@ -90,8 +88,7 @@ export default function SaleLocationRates({
                 })}
               />
               <Typography variant="caption" color="text.secondary">
-                Broker Relations does not reduce a structure's fee, and there is
-                no standing to hold with its owner.
+                {STRUCTURE_FEE_NOTE}
               </Typography>
             </>
           ) : (
@@ -317,4 +314,65 @@ function saleLocationGroups() {
       })),
     },
   ].filter((group) => group.options.length > 0);
+}
+
+/**
+ * Said wherever a citadel's fee is shown, settled or not: the absence of any
+ * working is itself the information, so it is the same sentence both times.
+ */
+const STRUCTURE_FEE_NOTE =
+  "Broker Relations does not reduce a structure's fee, and there is no standing to hold with its owner.";
+
+/**
+ * The rates block before its figures have arrived.
+ *
+ * Drawn as the rows it is about to become rather than as two loose lines, so
+ * the box keeps its height while a new location is worked out. A shorter
+ * placeholder made changing the sale location shift every panel beneath it
+ * twice — once into the placeholder and once back out.
+ *
+ * The labels are not guesses. Which subtractions a fee has is decided by the
+ * kind of place it is sold from, and that is known the moment the location is
+ * chosen; only the figures are pending.
+ *
+ * @param {object} props
+ * @param {boolean} props.atStructure
+ */
+function PendingRates({ atStructure }) {
+  const pending = <Skeleton width={52} />;
+  // Every settled term states what it was worked out from underneath it, and so
+  // does the tax. Reserving that second line is the point of this block: four
+  // rows a line short is still a box that grows when the figures land.
+  const pendingDetail = <Skeleton width={110} />;
+
+  return (
+    <Stack sx={{ mt: 1 }} aria-busy="true">
+      {atStructure ? (
+        <>
+          <FigureRow
+            label="Broker fee"
+            sublabel="the rate this structure's owner set"
+            value={pending}
+          />
+          <Typography variant="caption" color="text.secondary">
+            {STRUCTURE_FEE_NOTE}
+          </Typography>
+        </>
+      ) : (
+        <>
+          <FigureRow label="Broker fee, base" value={pending} />
+          {Object.values(BROKER_FEE_TERMS).map((term) => (
+            <FigureRow
+              key={term.id}
+              label={term.label}
+              sublabel={pendingDetail}
+              value={pending}
+            />
+          ))}
+          <FigureRow label="Broker fee" isTotal value={pending} />
+        </>
+      )}
+      <FigureRow label="Sales tax" sublabel={pendingDetail} value={pending} />
+    </Stack>
+  );
 }

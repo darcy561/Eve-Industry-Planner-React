@@ -200,10 +200,14 @@ describe("the sale location rates block", () => {
     ).toBeInTheDocument();
   });
 
+  // The block states which subtractions the fee has before it knows what they
+  // come to — that much is settled by the location alone — but never a figure.
   it("waits rather than quoting a rate it does not have yet", () => {
-    render(<SaleLocationRates saleLocation={hub} isLoading />);
+    const { container } = render(
+      <SaleLocationRates saleLocation={hub} isLoading />,
+    );
 
-    expect(screen.queryByText("Broker fee, base")).not.toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/%/);
     expect(screen.getByText("Jita")).toBeInTheDocument();
   });
 
@@ -398,5 +402,103 @@ describe("a fee quoted without the figures behind it", () => {
     render(<SaleLocationRates saleLocation={hub} rates={hubRates} />);
 
     expect(screen.queryAllByText("could not be read")).toHaveLength(0);
+  });
+});
+
+// Changing where the build is sold from re-reads the rates, and the block used
+// to collapse to two loose lines while that happened. Every panel below it moved
+// twice for one choice — down into the placeholder and back out again. The
+// pending block is the rows it is about to become, so nothing moves.
+describe("the rates block while a new location is being worked out", () => {
+  /** Every label the block states, pending or settled. */
+  const labelsOf = () =>
+    screen
+      .getAllByText(
+        /Broker fee|Broker Relations|Faction standing|Corporation standing|Sales tax/,
+      )
+      .map((node) => node.textContent);
+
+  /**
+   * How many rows carry a second line under the label.
+   *
+   * Counting labels alone cannot see the height this block is holding: a settled
+   * term states what it was worked out from underneath itself, and a pending row
+   * without that line is a row shorter than the one it becomes.
+   */
+  const detailLineCount = (container) =>
+    container.querySelectorAll(".MuiTypography-caption").length;
+
+  it("states the same rows pending as it does settled, at a station", () => {
+    const first = render(
+      <SaleLocationRates saleLocation={hub} isLoading priceHubName="Jita" />,
+    );
+    const pending = labelsOf();
+    const pendingDetails = detailLineCount(first.container);
+    first.unmount();
+
+    const settled = render(
+      <SaleLocationRates
+        saleLocation={hub}
+        rates={hubRates}
+        priceHubName="Jita"
+      />,
+    );
+
+    expect(pending).toEqual(labelsOf());
+    expect(pendingDetails).toBe(detailLineCount(settled.container));
+  });
+
+  it("states the same rows pending as it does settled, at a citadel", () => {
+    const first = render(
+      <SaleLocationRates
+        saleLocation={structure}
+        isLoading
+        priceHubName="Jita"
+      />,
+    );
+    const pending = labelsOf();
+    const pendingDetails = detailLineCount(first.container);
+    first.unmount();
+
+    const settled = render(
+      <SaleLocationRates
+        saleLocation={structure}
+        rates={structureRates}
+        priceHubName="Jita"
+      />,
+    );
+
+    expect(pending).toEqual(labelsOf());
+    expect(pendingDetails).toBe(detailLineCount(settled.container));
+  });
+
+  // A citadel's fee is one line and a station's is a base, three subtractions
+  // and a total. Which it will be is settled by the location, not by the rates,
+  // so the pending block already knows which shape to hold.
+  it("holds a station's shape rather than a citadel's", () => {
+    render(<SaleLocationRates saleLocation={hub} isLoading />);
+
+    expect(screen.getByText("Broker Relations")).toBeInTheDocument();
+    expect(screen.getByText("Faction standing")).toBeInTheDocument();
+    expect(screen.getByText("Corporation standing")).toBeInTheDocument();
+  });
+
+  it("holds a citadel's shape rather than a station's", () => {
+    render(<SaleLocationRates saleLocation={structure} isLoading />);
+
+    expect(screen.queryByText("Broker Relations")).toBeNull();
+    expect(
+      screen.getByText(/Broker Relations does not reduce/),
+    ).toBeInTheDocument();
+  });
+
+  // Said in the markup as well as visually, so a reader who is not looking at
+  // the box is told the figures in it are still being worked out.
+  it("says it is busy while it waits", () => {
+    const { container } = render(
+      <SaleLocationRates saleLocation={hub} isLoading />,
+    );
+
+    expect(container.querySelector('[aria-busy="true"]')).toBeInTheDocument();
   });
 });

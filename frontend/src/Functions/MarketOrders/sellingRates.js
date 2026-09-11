@@ -105,6 +105,21 @@ export async function brokerFeeRate(saleLocation, queryClient, characterHash) {
  */
 
 /**
+ * What an NPC station's broker fee is reduced by, and in what order it is read.
+ *
+ * Named here rather than at the row that draws them: the panel states these
+ * three while the rates are still being worked out, so the list it reserves room
+ * for and the list it fills in are the same list.
+ *
+ * @type {Record<string, {id: string, label: string}>}
+ */
+export const BROKER_FEE_TERMS = {
+  brokerRelations: { id: "brokerRelations", label: "Broker Relations" },
+  faction: { id: "faction", label: "Faction standing" },
+  corporation: { id: "corporation", label: "Corporation standing" },
+};
+
+/**
  * The broker fee and what it is made of.
  *
  * A station's rate is worth showing as working: it is derived from the seller's
@@ -144,23 +159,20 @@ export async function brokerFeeWorking(
 
   const terms = [
     {
-      id: "brokerRelations",
-      label: "Broker Relations",
+      ...BROKER_FEE_TERMS.brokerRelations,
       amount: brokerFeeRates.brokerRelations * brokerRelations,
       level: brokerRelations,
       unknown: skillsUnknown,
     },
     {
-      id: "faction",
-      label: "Faction standing",
+      ...BROKER_FEE_TERMS.faction,
       amount: brokerFeeRates.factionStanding * faction,
       level: faction,
       entityName: factionName,
       unknown,
     },
     {
-      id: "corporation",
-      label: "Corporation standing",
+      ...BROKER_FEE_TERMS.corporation,
       amount: brokerFeeRates.corporationStanding * corporation,
       level: corporation,
       entityName: corporationName,

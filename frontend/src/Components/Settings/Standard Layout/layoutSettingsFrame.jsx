@@ -26,16 +26,8 @@ function LayoutSettingsFrame() {
   const { displayHelpCards, enableCompactLayoutView, jobStatuses } =
     useUsersStore((state) => state.applicationSettings);
 
-  const shareCitadelNames = useUsersStore(
-    (state) => state.account.shareCitadelNames,
-  );
-
   const { toggleHideTutorials, toggleEnableCompactView, setJobStatusLabel } =
     useUsersStore((state) => state.applicationSettings.actions);
-
-  const toggleShareCitadelNames = useUsersStore(
-    (state) => state.account.actions.toggleShareCitadelNames,
-  );
 
   const [optimisticJobStatuses, addOptimisticJobStatusName] = useOptimistic(
     jobStatuses,

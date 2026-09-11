@@ -34,22 +34,28 @@ function NewGroupPage() {
           const matchedParentJob = useUsersStore
             .getState()
             .jobData.actions.findJobInJobArray(parentID);
-          if (!matchedParentJob) continue;
+          // A parent lists a child under the material that child produces, and
+          // a tree that has drifted may not carry that entry at all.
+          if (
+            !matchedParentJob ||
+            !matchedParentJob.build.childJobs[matchedGroupJob.itemID]
+          ) {
+            continue;
+          }
 
-          let material =
-            matchedParentJob.build.childJobs[matchedGroupJob.jobID];
-          if (!material) continue;
-
-          material = material.filter((i) => i !== matchedGroupJob.jobID);
+          matchedParentJob.removeChildJob(
+            matchedGroupJob.itemID,
+            matchedGroupJob.jobID,
+          );
           jobsToSave.add(matchedParentJob.jobID);
         }
 
-        matchedGroupJob.parentJobs = matchedGroupJob.parentJobs.filter((i) =>
-          jobIDsToInclude.includes(i),
-        );
+        matchedGroupJob.keepOnlyParentJobs(jobIDsToInclude);
 
         for (let material of matchedGroupJob.build.materials) {
-          let childJobArray = matchedGroupJob.build.childJobs[material.typeID];
+          const childJobArray =
+            matchedGroupJob.build.childJobs[material.typeID] ?? [];
+
           for (let id of childJobArray) {
             if (jobIDsToInclude.includes(id)) continue;
 
@@ -59,16 +65,12 @@ function NewGroupPage() {
 
             if (!matchedChildJob) continue;
 
-            matchedChildJob.parentJobs = matchedChildJob.parentJobs.filter(
-              () => !matchedGroupJob.jobID,
-            );
+            matchedChildJob.removeParentJob(matchedGroupJob.jobID);
+            jobsToSave.add(matchedChildJob.jobID);
           }
-          childJobArray = childJobArray.filter((i) =>
-            jobIDsToInclude.includes(i),
-          );
-          jobsToSave.add(matchedGroupJob.jobID);
         }
 
+        matchedGroupJob.keepOnlyChildJobs(jobIDsToInclude);
         jobsToSave.add(matchedGroupJob.jobID);
       }
 

@@ -70,6 +70,43 @@ repo-root [`testing/`](../../testing/) module: **look there before writing a hel
 file, and put a new reusable one there**. Helpers copied into each file that needs them are the
 failure this prevents.
 
+## Dialogues
+
+Every dialogue is built from the shared shell,
+[`ContentDialogue`](../../frontend/src/Styled Components/Dialogue/ContentDialogue.jsx) — title, error
+boundary, loading and error states, actions row and the app-shell surface — rather than from raw MUI
+`Dialog` parts. Two hooks drive it, and they are the only difference between one dialogue and
+another: `useDialogueTrigger` when the component that owns the dialogue decides when it opens, and
+`useDialogueEventState` / `useSyncedDialogueEventState` when an app event does. `DialogueCloseAction`
+gives the close button, and `useDialogueCloseReset` clears what the reader typed on the way out.
+
+**The shell renders nothing until it is open**, so a dialogue's body — and everything it derives —
+costs nothing while nobody is looking at it. Put the work in the body, as a child of the shell. Work
+done in a component that stays mounted around the shell still runs while the dialogue is shut, which
+is the trap: a list filtered from every job on the planner belongs in the body, not in the frame
+holding the open flag. An event-driven dialogue whose frame carries such work returns `null` until
+its own state says open, as the assets, shopping list and price entry dialogues do.
+
+The cost of that rule is the closing transition: a dialogue disappears at once rather than fading.
+Opening still animates.
+
+## Changing the job being edited
+
+A component on the Edit Job page never writes into `state.activeJob`. It says what changed and the
+reducer rebuilds the job — `updateActiveJobLayout` for the reader's choices about the job's own
+screens, `toggleActiveJobReadyForSale`, `addCustomTransaction`, and the marking actions beside them.
+Writing to the prop reaches the store either way, because the reducer rebuilds from what it is given,
+which is exactly why it is easy to do by accident: the change lands on the object the current render
+is still reading, and it only becomes visible because the call site remembered to dispatch after it.
+
+These actions are covered end to end rather than in isolation, through
+[`frontend/src/tests/editJobHarness.jsx`](../../frontend/src/tests/editJobHarness.jsx): it mounts a
+piece of the page over the real reducer with nothing mocked, so a test presses what a reader presses
+and then reads the job that came out. `editJobMutators.*.test.jsx` beside the page are those tests,
+one file per stage, with their data in
+[`frontend/src/tests/editJobFixtures.js`](../../frontend/src/tests/editJobFixtures.js). A new way of
+changing the job gets one.
+
 ## Lint and format
 
 The SPA is linted by **ESLint** ([`frontend/eslint.config.mjs`](../../frontend/eslint.config.mjs),

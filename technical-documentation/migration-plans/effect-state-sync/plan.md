@@ -21,8 +21,8 @@ telling us something about how state is held in this part of the SPA.
 ## Starting position
 
 The SPA's lint bar includes `react-hooks`, which carries the React Compiler's rules. Those rules
-flagged 21 places where state is set inside an effect. Three have been resolved; **18 remain, across
-13 files, none of which has a test**.
+flagged 21 places where state is set inside an effect. **All 21 are resolved**, each with tests
+written before the change to the file it was in.
 
 The findings are not one problem — they are several shapes sharing a lint rule. Every one is listed,
 grouped and given a verdict in [measurements/inventory.md](./measurements/inventory.md); Phase 2 below
@@ -45,8 +45,8 @@ inventory, and a row on the section task map. No product work.
 Every finding read at its call site and given a verdict in
 [measurements/inventory.md](./measurements/inventory.md). No code changed.
 
-**Twelve of eighteen are corrections in their own file.** The other six are not eighteen problems but
-two mechanisms plus one misplaced fetch:
+**Twelve of the eighteen were corrections in their own file** (one of them has since been made). The
+other six are not eighteen problems but two mechanisms plus one misplaced fetch:
 
 - **A signal sent by bumping a counter**, in three places: the job tree dialogue and the group job
   tree both bump a session counter so the tree below re-runs a fit, and the tree itself unpacks that
@@ -63,21 +63,36 @@ about: `CharacterSelection.jsx` re-selects every character whenever the characte
 and the current selection is empty, so a reader who deselected everyone has the lot re-selected under
 them.
 
-### Phase 3 — decide
+### Phase 3 — decide — **settled for the commonest shape**
 
 The answer to the question this project was opened to ask:
 
 **No broad refactor.** Two thirds of the findings are corrections where they stand, each in its own
-file, and the pattern for the commonest of them already has three worked examples.
+file.
 
-**One mechanism is worth designing once.** The counter-bump signal appears in three places across two
-features and is the only thing here that recurs. It should be decided as a piece — what it means for
-a parent to tell a view below it to re-run something — rather than three times over.
+**The commonest shape is now one hook — settled and done.** A value that follows another was being
+brought into step by hand in four places, each with its own `seen`/`setSeen` pair, and four more of
+the verdicts called for the same thing. That is `useHasChanged` in `frontend/src/Hooks/`: it answers
+whether a value moved since the last render, and the caller writes its own update so what is being
+set stays at the call site. Five places use it.
 
-**One finding is a defect** and should be fixed on its own merit rather than as lint work.
+Its answer is only true for the render it fires on, and that render is replaced by the one the update
+causes — so it cannot be read afterwards, only acted on in the moment. Worth knowing before reaching
+for it, and the reason its tests observe each render rather than the settled value.
 
-Done when the counter-bump mechanism has an agreed shape, or a recorded decision to leave it and
-scope the rule for those three with the reasoning attached.
+**The counter-bump signal is settled.** A parent that wants the tree below it to focus a job passes
+the request as a value — the job, and what tells two asks for the same job apart — rather than raising
+a counter the tree reads as a poke. The dialogue keys its request on the opening it came from; the
+group page has no key to give, and needs none: the job to focus arrives in the route search, and
+every path that sets it crosses back from the job page, so the tree is mounted afresh for each
+request. (What makes that safe is the mount boundary, not the navigation that clears the search
+param afterwards — a future path that changed the param without remounting would need an `at`.)
+Neither keeps a counter now, and the tree acts on the request changing instead of unpacking a
+composed string twice.
+
+**The defect is fixed**, on its own merit rather than as lint work. See the overlay.
+
+Done.
 
 ### Phase 4 — do the agreed work
 
@@ -85,10 +100,39 @@ Only after Phase 3. Each file gets a characterisation test before it is changed,
 has one and the previous round showed why that order matters: a test written after the change passed
 against a predicate that could not tell the two states apart.
 
-The twelve *correct in place* findings do not wait on the Phase 3 decision — they are independent of
-the counter-bump question and can be taken file by file whenever there is appetite.
+**Every *correct in place* finding is done, and so is the fetch.** The watchlist's prices are a
+React Query call now, behind `useMarketPricesQuery` in `Hooks/React Query/World/` — the shopping
+list dialogue fetches prices the same way by hand and is the obvious second caller, though it is not
+one of this project's findings.
 
-Done when the agreed work has landed and the overlay describes what a reader sees differently.
+The price entry rows were the last of them, and they answered the seeded-and-edited question the
+inventory raised: the entry a reader types into still cannot be derived, but it can follow *what is
+left to price* rather than the identity of the list it was read from. Its sibling finding turned out
+not to be a signal question at all — Confirm All wrote into the entries array in place, which is why
+it had to announce itself with a counter, and writing a new array the way the clipboard-import path
+beside it already did removed the need.
+
+The group name panel's two findings are done. Its second one did not end up where Phase 2 said it
+would, and the reason is recorded with the verdicts: a copy that is only read while an editor is
+open wants seeding when the editor opens, not keeping in step the rest of the time. Worth carrying
+into the remaining files — ask what reads the copy before deciding what has to keep it current.
+
+The edit job page's two are done as well. They were one effect written twice, and came out as a
+hook — `useIsScrolledOutOfView` — that owns the observer behind a ref, so nothing has to set state
+to answer "is that control still on screen".
+
+The tutorial card and the dashboard row it sits in went together, because they are two halves of
+one fade: the card now leaves the timing to MUI's `Fade`, and the row is taken back on the reader
+wanting help rather than on the card letting go. Worth carrying into the remaining files — a
+hand-run timer beside a transition is the transition's own callback written out longhand.
+
+The price history chart's window went the way Phase 2 said, with one addition: the effect also reset
+the window when the page crossed the phone breakpoint, so the guard carries the window size beside
+the series identity. Its opening window is now the state's initial value rather than something
+corrected after the first render — worth looking for elsewhere, since a state seeded with a
+placeholder and put right in an effect is the same finding wearing different clothes.
+
+Done.
 
 ## Done when
 
@@ -102,5 +146,12 @@ Done when the agreed work has landed and the overlay describes what a reader see
 
 - Turning the React Compiler on. It is not enabled, and this work is a prerequisite for that question
   rather than an attempt to answer it.
-- The Edit Job reducer's deliberate in-place mutation of `state.activeJob`.
+- **The Edit Job reducer's in-place mutation of `state.activeJob`.** Out of scope here, and since
+  done separately on its own ask: the components that wrote into the job they were handed now say
+  what changed and the reducer rebuilds it. Live behaviour, not promoted through this project.
 - The props shape of the Planning stage panels and what re-renders on a dispatch.
+- **The SPA's dialogue kit.** The parent job dialogue's finding was resolved by deriving its list
+  while rendering, and separately — on its own ask — the shared dialogue shell gained a
+  component-driven hook and the rule that nothing is built until a dialogue is open. That is not
+  this project's work and is not promoted through it: it is live behaviour already, written up in
+  [`../../frontend/technical-rules.md`](../../frontend/technical-rules.md) § Dialogues.

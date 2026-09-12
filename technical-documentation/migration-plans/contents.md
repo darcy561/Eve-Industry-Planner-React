@@ -22,7 +22,6 @@ Decision/history/work logs for long-running migrations. **Not SoT.**
 | Task dispatch (task type authority, envelope collapse, operator CLI) | [task-dispatch/contents.md](./task-dispatch/contents.md) |
 | Maintenance mode (stack-wide gate: router/websocket rejection, scheduler pause, runtime toggle) | [maintenance-mode/contents.md](./maintenance-mode/contents.md) |
 | ESI limiter maintainability (slot-hash ledger overlay, benchmark data, property testing and ledger diagnostics) | [esi-limiter-maintainability/contents.md](./esi-limiter-maintainability/contents.md) |
-| Location names (one cache entry per id, the ladder from ESI to a character's token to the community store, and what is retried against what is remembered) | [location-names/contents.md](./location-names/contents.md) |
 | Mongo test database (a database of the tests' own, dropped between runs, and the live suite in CI) | [mongo-test-database/contents.md](./mongo-test-database/contents.md) |
 | Document write granularity (whole-document writes to field-scoped ones, and how broad the document lock has to be; **found by shared-planners Stage G**) | [document-write-granularity/contents.md](./document-write-granularity/contents.md) |
 | Document defaults (the defaults a job and a group are born with, the schema upgrader on their read path, and the extras category id space; **found by the model parity sweep**) | [document-defaults/contents.md](./document-defaults/contents.md) |

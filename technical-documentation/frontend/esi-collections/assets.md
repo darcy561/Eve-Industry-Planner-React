@@ -34,11 +34,20 @@ a stack came from; `buildAssetNodes` is `buildAssetCollection` for the single-ow
 - **A holder outside the set is a location.** Resolution stops there — routine rather than an error,
   since a corporation member sees only the offices their roles reach, and ESI returns a ship's fitted
   modules while it is in space without returning the ship itself.
-- **`locationKind` comes from the id's range** (`assetLocationConstants.js`, `resolveLocationKind`):
-  asset safety is the sentinel `2004`, `30000000`–`32000000` and `32000000`–`33000000` are New Eden
-  and abyssal systems, `60000000`–`64000000` are stations, and anything else is a structure. A row's
-  `location_type` cannot separate a structure from a container — both arrive as `"item"` — so the
-  range answers it from the id instead.
+- **`locationKind` comes from the id's range** (`assetLocationConstants.js`, `resolveLocationKind`),
+  classified against [EVE's published id ranges](https://developers.eveonline.com/docs/guides/id-ranges/):
+  asset safety is the sentinel `2004`; regions, constellations, systems (abyssal systems separately),
+  celestials, stargates, stations and station folders each have their own band; a spawned item — a
+  player structure, an assembled ship, a container — is anything at or above `1000000000000`. An id
+  outside every one of those ranges is `UNKNOWN` rather than assumed to be a structure. A row's
+  `location_type` cannot separate a structure from a container on its own — both arrive as `"item"`
+  — so the range answers it from the id instead.
+- **A ship in space is told apart from a structure by what is filed inside it, not by its id.** A
+  ship's item id sits in the same spawned-item range a structure's does, so a holder outside the
+  asset set — one already read as a location by the rule above — is reclassified as `SHIP` when what
+  the node sits in carries a fitting-slot, bay or cargo flag (`assetLocationConstants.isShipHoldFlag`).
+  A ship's `locationKind` is settled this way rather than left as `STRUCTURE`, which is what stops a
+  ship in space being asked of ESI as a place — see [location-names.md](./location-names.md).
 - **A place flag stops resolution there rather than inheriting further.** `OfficeFolder`, `Hangar`,
   `Deliveries`, `CorpDeliveries`, `CorporationGoalDeliveries` and `AssetSafety` mark a node as sitting
   *at* a place rather than being held by whatever row its `location_id` names, which is what lets a
@@ -56,13 +65,15 @@ a stack came from; `buildAssetNodes` is `buildAssetCollection` for the single-ow
 the static item list carries no category for — whether the node holds children flagged as ship
 fittings (`HiSlot`, `MedSlot`, `LoSlot`, `SubSystemSlot`, `SubSystemBay`, `DroneBay`, `FighterBay`,
 `FighterTube`, `FrigateEscapeBay`, `Specialized`; deliberately not `RigSlot`, which an Upwell
-structure also carries). `assetPresentation.js` resolves the image url — an ancient relic
-(`category_id` 34) is served only as its `relic` variant — and the display name, falling back to
-**`"Unknown Item - <type_id>"`** for a type the static item list does not name: the static list names
-every *published* type, so an unpublished one — a SKIN component, a removed item, a test-server
-oddity a player still holds — renders this way regardless of whether it has a resolvable category.
-The same fallback applies to a blueprint's type; [blueprints.md](./blueprints.md) points back here
-rather than restating it.
+structure also carries). It is a different list from `isShipHoldFlag` above, and deliberately so: one
+answers whether an *item* is an assembled ship, the other whether the thing *holding* an item is a
+ship, and admitting `Cargo` to the first would take containers with it. `assetPresentation.js`
+resolves the image url — an ancient relic (`category_id` 34) is served only as its `relic` variant —
+and the display name, falling back to **`"Unknown Item - <type_id>"`** for a type the static item
+list does not name: the static list names every *published* type, so an unpublished one — a SKIN
+component, a removed item, a test-server oddity a player still holds — renders this way regardless of
+whether it has a resolvable category. The same fallback applies to a blueprint's type;
+[blueprints.md](./blueprints.md) points back here rather than restating it.
 
 ## The corporation asset union
 
@@ -85,6 +96,7 @@ than through the node collection.
 | The flat, virtualisable row list a tree renders | `flattenAssetTree.js` — a row's `key` names what it is rather than where it sits, so an expansion `Set` owned by the page survives a refetch or a reorder |
 | Where a type is held, and the containers on the path to it | `assetsOfType.js` — everything on a path to a matching stack is kept, and everything inside a match; an office folder is read through rather than shown |
 | Named locations for a dropdown | `Hooks/EveEsi/useAssetLocations.js`, pairing `useAssetIndex` with [location-names.md](./location-names.md) |
+| The distinct locations a collection's assets sit at, and the ids among them nothing will ever name | `assetLocationIds.js` — `assetLocationIds` for the first; `unnameableLocationIds` for a ship in space, filtered out of what any picker hands to the names hook |
 
 `useAssetTree.js` pairs the node collection, the blueprint collection and the shared name query into
 everything one asset view renders. Blueprints are always excluded from an asset view — they have
@@ -92,8 +104,16 @@ their own library, [blueprints.md](./blueprints.md) — except an ancient relic,
 the blueprints endpoint because it carries runs the way a copy does but is a material a player holds,
 not a blueprint.
 
+A location nobody could name is shown saying so, never dropped, so a genuine access problem never
+reads as the place simply not existing. `describeLocation`, `byLocationOrder`, `orderLocations` and
+`locationOptions` (`assetTree.js`) give every view that ordering and that shape; a picker built from
+`locationOptions` withholds an id with no entry in the names map yet, since a row with no label says
+nothing a reader can act on, while a tree built from `orderLocations` keeps an unnamed location's
+place because the assets sitting there are still visible.
+
 ## Topic-only detail
 
-- A module fitted to a ship that is itself in space names the ship as its location, and the ship's
-  `item_id` falls in the structure id range, so it is asked for as a location and settles as
-  unreadable. It costs one name lookup and is never displayed.
+- A ship flying in space is absent from the asset endpoint's own answer while its fitted modules are
+  not, so each module names the ship's item id as its location. That id is never asked about: it
+  carries no location kind that either naming path answers for, and it is filtered out of what
+  reaches [location-names.md](./location-names.md)'s hook before any request is made.

@@ -1,9 +1,10 @@
 # Location names (`frontend/src/Hooks/EveEsi/useLocationNames.js`)
 
-Live SoT for how a location or container id becomes a name a player reads — the one place this
-happens for both collections. Hook:
+Live SoT for how an EVE id becomes the name a player reads: places from ESI's bulk lookup, player
+structures from a linked character's token, and the community-submitted store as the fallback
+beneath that — for both collections. Hook:
 [`frontend/src/Hooks/EveEsi/useLocationNames.js`](../../../frontend/src/Hooks/EveEsi/useLocationNames.js).
-Walk: [`frontend/src/Functions/EveESI/World/resolveLocationNames.js`](../../../frontend/src/Functions/EveESI/World/resolveLocationNames.js).
+Loader: [`frontend/src/Functions/EveESI/World/nameLoader.js`](../../../frontend/src/Functions/EveESI/World/nameLoader.js).
 
 Which locations an asset or blueprint view needs named comes from
 [assets.md](./assets.md) and [blueprints.md](./blueprints.md); this topic only covers turning an id
@@ -11,33 +12,108 @@ into a name.
 
 ## Asking for names
 
-`useLocationNames(locationIds)` takes the locations a view needs named and returns the names it has,
-alongside loading and error state. It asks only for what `worldData` does not already hold, so a
-second consumer wanting the same locations resolves nothing and reads through the store instead. A
-consumer that counts quantities rather than rendering a location simply never calls this hook, so it
-never waits on a name round trip.
+`useLocationNames(locationIds)` takes the ids a view wants named and returns the names it has,
+alongside loading and error state. Each id is its own cache entry —
+[`nameQuery`](../../../frontend/src/Hooks/React%20Query/World/names.js), keyed
+`["esi", "name", <id>]` — so a name resolved for one view is present for the next without being
+asked for again, and an id that could not be resolved is a failure against that id rather than a
+hole in one view's set. A consumer resolving names outside a render, inside a flow already running
+— the shopping list's corporation assets, a match being linked — calls
+`fetchNames(queryClient, ids, characters)` instead, which shares the same per-id cache: a name
+either path resolves is present for the other.
 
-A module-level claim set (`beingResolved`) tracks ids a resolution is already running for, anywhere
-in the app, keyed by id rather than by caller. The query only asks for ids that are both missing from
-`worldData` and not already claimed, so a second screen wanting an overlapping-but-different set of
-locations waits on the first's running resolution rather than asking ESI again for what is already in
-flight. Claims are released once the walk they belong to settles (`releaseClaims`), which is announced
-to every hook instance through a version counter (`useSyncExternalStore`) — a consumer that stood
-aside for a running resolution has no other signal telling it the claim was dropped, since a failed
-resolution writes nothing to the store and would otherwise be waited on for the rest of the session.
-Claiming itself is silent, so the consumer doing the resolving does not see its own ids disappear from
-under its own running query.
+`worldData.universeIDs` is read before either path asks ESI and is written once names come back: a
+name the store already holds is an answer, and asking for it again would be work for nothing.
 
-## The walk
+## What a lookup can settle on
 
-`resolveLocationNames(missing, characters)` is the walk beneath the hook, and `worldData` is written
-from there, once, at the end. Access to a structure's name is **per character** — one pilot holds
-docking rights where another does not — which is why a walk over every character exists at all. A
-refusal comes back from ESI as a *named placeholder* rather than an absence, so the walk holds a
-placeholder without treating it as settled, and a structure only settles as genuinely unreachable once
-every character has failed to name it — the second and third characters are still asked, rather than
-being skipped because the first already produced a value.
+| Outcome | Meaning | Kept for the session | Retried |
+|---|---|---|---|
+| named | ESI named it — public, or a character could see it | yes | no |
+| community | no character could see it; the community store had a name | yes | no |
+| unnamed | ESI answered and had no name for this id | yes | no |
+| no-access | every linked character was refused and the community store had nothing | yes | no |
+| *(nothing — the lookup throws)* | the token could not be acquired, ESI was unwell, the request was refused for rate, or a character could not be asked at all | no | yes |
 
-The store is written once, at the end of the walk, rather than per character: `worldData`'s reader
-skips whatever the store already holds, so a placeholder written mid-walk would hide the id from the
-characters still to be tried.
+A refusal is answered for: the request went through and said "you cannot see this" (`403` or
+`404`), and asking again says the same thing while the same characters are linked. It is kept like
+any other settled outcome, so an account that links a character who can see the structure reads its
+name from the next session rather than during this one. Anything
+else — a `5xx`, a rate-limit refusal, a token that could not be refreshed — throws rather than
+settling, so nothing upstream can cache it as an answer. A name lasts the app session and is not
+carried across a reload: nothing persists it, which is what keeps a renamed structure, or one the
+account has since lost access to, from being served stale.
+
+## Where a name comes from
+
+`nameSource(id)` (`Functions/EveESI/World/nameSource.js`) decides where to ask from the id's kind
+(`resolveLocationKind`, `Functions/Assets/assetLocationConstants.js`):
+
+- A region, constellation, system, abyssal system or station — and a faction, corporation, alliance
+  or character id — is asked in bulk through `POST /universe/names`, one call per thousand ids
+  raised in a tick.
+- A structure (a spawned item's id) is asked of the account's linked characters in turn, through
+  `GET /universe/structures/{id}` with each character's token.
+- A celestial, a stargate, a station's office folder, and any id outside a documented range name
+  nothing at all: `POST /universe/names` answers only for the place kinds above and refuses the
+  whole call over anything else, so neither path is asked, and the id settles as `unnamed` without a
+  request being made.
+
+A ship in space is not asked either. Its item id sits in the same range a structure's does, so what
+tells the two apart is what is filed inside it rather than the id: a holder outside the asset set is
+settled as a ship, not a structure, when what it holds carries a fitting-slot, bay or cargo flag
+(`assetLocationConstants.isShipHoldFlag`). `Functions/Assets/assetLocationIds.js`'s
+`unnameableLocationIds` collects those ids, and every surface handing location ids to
+`useLocationNames` — the tree, the location dropdown, the "where is this held" dialogue, the
+blueprint library's locations — filters through it, so an id that was never going to resolve is
+never asked about.
+
+## Asking every character for a structure
+
+Docking access is per character, and nothing records which one holds it, so a structure is named by
+asking each linked character in turn (`fetchStructureName`). One character's refusal decides nothing
+for the account by itself — the next character is still asked — and only once every character has
+been asked and refused does the community store come into it (`communityNameOrRefusal`), never
+earlier: asking it sooner would take a community name over an alt's own docking rights. An account
+that has opted out of sharing citadel names does not read them either, and settles on `no-access`
+without asking.
+
+A character whose token was never granted the structures scope is not counted as having been asked:
+asking anyway would spend a refusal to be told what the token already says, and the answer would be
+indistinguishable from a genuine docking refusal once it arrived. If every character was either
+skipped this way or failed without a clean refusal, the id is a failure rather than settling as
+`no-access` — the account has not established that it cannot see the structure.
+
+## Batching without asking per id
+
+`Functions/EveESI/World/nameLoader.js` keeps a cache entry per id from becoming a request per id.
+Everything asked for in one tick is collected and flushed on the next macrotask — after React has
+rendered the whole list of views wanting names — and issued as ESI takes it: the public ids as one
+`POST /universe/names` per thousand, each structure as its own character walk. Two views wanting the
+same id in the same tick share one lookup.
+
+`POST /universe/names` is all-or-nothing: one id it cannot resolve refuses the whole call with a
+`404` that names nothing and does not say which id was at fault. A batch refused this way is split
+in half and asked again, down to the single id at fault, which settles as `unnamed`; every other id
+in the batch still gets its name. A batch refused for any other reason is not split — those ids
+failed rather than one of them being at fault, and a failure is retried whole rather than turned into
+a cascade of smaller calls.
+
+## What the rest of the app reads
+
+A location nobody could name is shown saying so, never dropped — an office or a station missing from
+a list reads as the place not existing, when the truth may be a genuine access problem. That
+standard, and the order locations are shown in, belongs to [assets.md](./assets.md) §
+Assembling a view (`describeLocation`, `byLocationOrder`, `locationOptions`); this topic produces the
+names those functions read and stops there.
+
+`worldData.universeIDs` remains as a read-through map: `useLocationNames` checks it before asking and
+writes back what it resolves. The shopping list's corporation-assets flow also writes into it, once
+names it fetched outside a render come back. Nothing else reads or writes it.
+
+## Topic-only detail
+
+`Functions/Endpoints/Private/citadelNames.js` is the community store's client.
+`resolveCitadelName` reads one id per `GET`, ETag'd and CDN-cached at the edge. A character with
+docking access who names a structure through ESI, on an account that has not opted out, queues that
+name to be submitted back, batched up to 200 submissions per request.

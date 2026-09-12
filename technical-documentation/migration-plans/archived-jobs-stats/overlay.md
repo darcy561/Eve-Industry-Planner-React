@@ -1253,23 +1253,89 @@ which wraps its child in a `div` that is not valid between a table body and a ro
 | Cumulative profit | `timeline` | running profit across the window |
 | Where the work went | `totals?summary=1` | the archive split across the three segments |
 | Top items | `timeline/items` | each item's share of the selected measure |
-| What it cost | `timeline` | the six cost components per month, stacked |
+| What it cost | `timeline` | the six cost components per month, in ISK, beside one another |
 | Costs for the period | `timeline` | the same six summed over the window |
-| Extras by category | `timeline` | extras per month, by category |
+| Extras by category | `timeline` | extras per month, by category, in ISK |
 | Extras for the period | `timeline` | extras summed over the window, by category |
 
 The paired shapes answer different questions: a monthly chart says **when**, its pie says **what**,
 and the pie reads the response's own `totals` rather than re-summing the months so the two cannot
 disagree.
 
+Cost components are drawn in **ISK**, and a reader decides which of them the chart holds. Materials
+are most of a build, so all six measured against one another leave install, invention, extras and the
+fees on the axis floor; taking materials off is what makes the rest readable, because the axis then
+scales to what is left. The figures stay figures throughout — the alternative, shares of each month,
+makes every component visible at the cost of the numbers a reader came for.
+
+**The keys above the chart are the control.** Pressing one takes that component off, pressing it
+again brings it back, and the last one on show is disabled — a chart with nothing on it draws nothing
+and says nothing about why. The row is `ChartKeys` over [`useChartKeys`](#chart-keys), the shared
+pair described below; What it cost draws its components beside one another and an item's Cost
+composition stacks them into a column a month, and both take their series, colours and toggle from
+`useCostComponentStack` so a component added to the list lands on both.
+
+Extras by category carries the same keys, for the same reason: one category can be most of an
+account's extras — a haulage bill against a few million in copies. Its categories come from the data
+rather than a fixed list, so the set changes as a reader changes the range: a category with nothing in
+the new window is simply gone. `useChartKeys` therefore forgets a key it is no longer drawing — what
+was set aside is about the chart in front of the reader, not a standing refusal — and drops the whole
+set rather than leave a window holding only hidden categories with nothing on the chart at all.
+
 A pie slice is a share of a total, which a negative figure cannot be, so non-positive values are
 dropped. On Top items ranked by profit that is a likely outcome rather than an edge case, so the
 panel distinguishes "no item profited" from "nothing archived" instead of reporting an empty period.
 
-### Colours, keys and hover
+### Chart keys
+
+Any chart whose series differ by orders of magnitude has the same problem these cost charts have, so
+the control is shared rather than built into each of them — a chart that wants it takes the pair,
+never its own copy:
+[`useChartKeys`](../../../frontend/src/Styled Components/Charts/useChartKeys.js) owns which series a
+reader has set aside and hands the series back carrying it, and
+[`ChartKeys`](../../../frontend/src/Styled Components/Charts/ChartKeys.jsx) draws the row. A chart
+takes the series it is given and skips what is marked hidden; the axis scales to what is drawn.
+
+```jsx
+const { series, toggle } = useChartKeys(SERIES);
+<ChartKeys series={series} seed={SEED} onToggle={toggle} />
+<TimeSeriesChart series={series} paletteSeed={SEED} showLegend={false} … />
+```
+
+The charts that carry the keys today are What it cost, an item's Cost composition, Extras by category
+and the per-unit cost history — the one Build History and Cost Breakdown both draw, where materials
+bury install and invention the same way. Each chart holds its own idea of what is on it, so taking
+materials off one leaves the one beside it alone.
+
+Three things that look incidental and are not:
+
+- **The keys are buttons, not recharts' legend.** Recharts decides what sits in front by render
+  order, and its legend loses the pointer to the chart surface: a key there looks clickable, clicking
+  it focuses the chart instead. Buttons also put the keys on the tab order, and the tooltip anchor
+  takes focus when a key is disabled so the reason reaches a keyboard.
+- **The chart's own legend goes off.** Two rows of keys either say the same thing twice or disagree.
+- **One palette seed for both.** The keys and the marks resolve colour from the same rotation and the
+  same position in the series list, which is why a hidden series stays in the list rather than being
+  filtered out of it.
+
+A key reads as a control before it is pressed: a series on the chart is a filled pill in its own
+colour, one taken off is an empty outline with its label struck through and its swatch hollow — the
+colour it will come back as, rather than a grey that says nothing. Hovering says what pressing will
+do, and a caption under the row states that the keys can be pressed at all, since nothing else on the
+page works that way.
+
+### Colours and hover
 
 Series that mean the same thing wherever they are drawn take their colour from a role — cost, sales,
 profit, loss — rather than from their position in the rotation, so cost reads as cost on every chart.
+
+An area whose figure crosses zero is drawn in the profit colour above the axis and the loss colour
+below it, which is what Cumulative profit does: a running total that has gone negative must not read
+as a gain. SVG paints a mark one colour, so the split is a two-stop gradient broken where zero falls
+in the drawn span — taken from the axis domain when one is pinned, since the break has to land on the
+zero line the reader sees. A series asks for it with `splitAtZero`; every other area keeps its flat
+colour. The legend swatch is read from `fill`, which a gradient reference leaves empty, so the flag
+suits a chart drawing one series.
 
 Slice colours go on the **row**, not only on the drawn sector: recharts takes a legend swatch from
 the entry's own `fill`, so colouring in a shape renderer alone draws correctly and legends grey.

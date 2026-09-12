@@ -13,6 +13,8 @@ Which market a figure is priced against when nobody has said, and how that answe
 - **Defaults keyed to an item's market group**, and the walk up the group tree that finds the nearest
   one carrying a default.
 - **Publishing an item's market group to the SPA**, which today holds no market group data at all.
+- **The vocabulary the ladder is written in** — `PricingChoice`, `PricingSide`, `JobPricing`,
+  `PRICING_SIDE`, and the rule that an empty value is not a choice at any rung.
 
 **Not live SoT** until this project is complete and promotion is approved.
 
@@ -52,4 +54,7 @@ Named for the **work**, not a git branch. **Project close** = plan tracks done +
 | Find every surface reading the account default today | [plan.md](./plan.md) § Stage A |
 | Know what is additive and what needs a schema step | [plan.md](./plan.md) § Wire compatibility |
 | See what the SPA holds about an item's market group | [plan.md](./plan.md) § Stage B |
+| Know why a group default sits inside a side | [plan.md](./plan.md) § A group default belongs to a side |
+| Read what has already gone wrong here before changing a stored shape | [plan.md](./plan.md) § Traps this work has already fallen into |
+| Find what the market group tree actually contains | [measurements/market-group-tree.md](./measurements/market-group-tree.md) |
 | Landed behaviour notes (fill as work lands) | [overlay.md](./overlay.md) |

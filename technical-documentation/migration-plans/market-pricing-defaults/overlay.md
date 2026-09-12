@@ -80,7 +80,9 @@ Every surface names its own side where it asks, so moving one is a single token:
 | Market and price-history links | the figure's own | `locationID`/`regionID` from the caller, and only where it has none does the side decide |
 
 The watchlist is the case that shows why the two are separate: one row prices its materials on one
-side and the item on the other, which the single default could not express.
+side and the item on the other, which the single default could not express. It takes the selling
+**market** only — the column states what listing the item would fetch, so the sell price is the figure
+it wants whatever basis the account prices on.
 
 **A link's side must match the figure it sits beside.** A group's output card and the Selling stage's
 market costs panel both show a selling figure, so their market and price-history buttons take
@@ -97,13 +99,72 @@ and raised a `TypeError`; they are guarded now. In `ItemRow` the item's own wort
 defaults. Both callers already passed a resolved pair, so only the names moved — `marketSelect` and
 `listingSelect`, matching what is handed in.
 
+### A4 — Setting the defaults
+
+Job Settings and the first-login setup both offer a market and a basis for each side, built from
+`PRICING_SIDES` in `Functions/MarketData/pricingSide.js` so the two screens cannot drift apart.
+
+The controls are labelled **Materials** and **Output** rather than buying and selling. A basis is
+itself called buy or sell, so "buying market" sitting beside a basis of "Sell Orders" reads as a
+contradiction when that is the normal, correct case — naming the thing being priced avoids putting the
+two axes in the same phrase.
+
+`updatePricingDefault(side, key, value)` replaced `updateDefaultMarket` and `updateDefaultOrders`;
+nothing writes the single pair now.
+
+Both screens are covered control by control — all four of market and basis on each side — rather than
+by one write path standing in for the rest. A control wired to the right side but the wrong field
+renders and saves exactly like a correct one, so only naming each corner catches it.
+
 ## Stage B — Market group defaults
 
 ### B1 — Publishing an item's market group
 
-_Not started._ Record here: what `FullItem` carries, and how the group tree reaches the SPA.
+`FullItem` gained `market_group_id`, taken from `EVEType.MarketSectionID`. **Read that carefully:**
+`EVEType.MarketGroupID` is the SDE's *inventory* group, which is what `CategoryID` is looked up by. The
+two are crossed on the struct, both are small integers and both resolve to a real group, so a swap
+would look right everywhere — a test asserts them apart on one type for that reason.
+
+A new `marketGroups.json` names each group and says what contains it, published like the other static
+data: an entry in `staticDataFileDefs`, a handler, a route, and its own metric. `ParentID` is 0 at a
+root, which is the only signal a walk gets to stop; a group whose parent is missing from the source is
+kept as a root rather than pointed at nothing, because a name is still worth having.
+
+`CACHED_DATA_FILES` in the SPA answers to `staticDataFileDefs`, and a key that matches nothing the
+server serves throws on first use. It carried `INVENTION_DATA`, which matched no server key and was
+reached for by nothing; it is `INVENTION_MODIFIERS` now, beside the new `MARKET_GROUPS`.
+
+The two lists are a contract across two languages with nothing between them, which is how that key
+survived. `TestSPAAndServerAgreeOnTheStaticDataKeys` in `shared/core/sde` reads the SPA's list from the
+repo and fails if either side names something the other does not, so the next drift is caught at the
+point it is written rather than the first time something reaches for it.
 
 ### B2 — The walk
 
-_Not started._ Record here: how the nearest ancestor carrying a default is found, what caches it, and
-what happens at two depths of one branch.
+`resolveGroupDefault({marketGroupID, marketGroups, groupDefaults})` climbs from an item's own market
+group towards a root, and answers market and basis separately: each stops at the first ancestor naming
+it, so a nearer group narrows what it names and leaves the rest to whatever answers next. An empty
+value is not a choice here either, so a group naming `""` is climbed past rather than treated as an
+answer.
+
+Group defaults are stored per side, inside `PricingSide.Groups` keyed by market group id — a group
+cannot answer the side it was not set on. A job's own override is `JobPricing`, which has no group
+table at all: groups are an account rung beneath the job, so a job carrying one would answer a question
+it does not own. `PricingChoice` is the market-and-basis pair both are built from.
+
+Neither the upgrader's seed nor the SPA's merge may replace a whole side to fill part of it: a side can
+carry groups before it names a market, and what is persisted is the merged copy.
+
+**The walk is capped.** EVE's tree is a few levels deep, so anything longer has met a cycle the
+published file should not contain; a cap is what keeps that from hanging a page that runs this once
+per material on every row. Removing it does not fail a test — it hangs the suite, which is the
+behaviour the cycle case is there to pin.
+
+The tree it walks is measured at [measurements/market-group-tree.md](./measurements/market-group-tree.md):
+2,039 groups, 19 roots, five hops at the deepest. Nothing in the real data states a zero parent or
+names a parent it does not carry, so those two guards are defensive rather than load-bearing — and the
+cap sits far above the real depth on purpose, so a legitimate deepening of EVE's tree is not silently
+truncated.
+
+Still to wire: the per-material resolution consulting this rung, the SPA reading the published tree,
+and the settings surface for choosing a group.

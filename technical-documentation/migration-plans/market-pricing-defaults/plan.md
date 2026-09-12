@@ -1,6 +1,7 @@
 # Market pricing defaults — plan
 
-**Status:** Stage A in progress — steps 1-5 landed; steps 6-7 open. Stage B not started.
+**Status:** Stage A steps 1-6 landed; step 7 waits on the shared-planners release. Stage B: the data is
+published and the walk is built, but nothing consults it yet.
 **Code in scope:** [`frontend/src/`](../../../frontend/src/) — `Hooks/Planner/`, `Functions/MarketData/`,
 `Styled Components/Select/`, `Zustand/applicationSettings/`, `Classes/shoppingList.js` and the panels
 and dialogues listed in § Stage A; [`services/shared/models/`](../../../services/shared/models/),
@@ -15,9 +16,19 @@ Phase 1 (project folders/docs) before any product work.
 For Go surfaces in scope only: `go fix -diff` before planned work; again on edited packages (not unrelated code).
 Live SoT will not be edited until this project is complete and promotion is approved.
 
-**`go fix` in scope at Phase 1:** clean. `go fix -diff ./shared/models/... ./shared/documentschema/...
-./shared/schemamaint/...` reports nothing. Stage B's worker packages are not yet in scope and want
-their own scan when that stage opens.
+**`go fix` in scope:** clean for Stage A (`./shared/models/...`, `./shared/documentschema/...`,
+`./shared/schemamaint/...`). Scanned again when Stage B opened, over `./worker/tasks/sde/...`,
+`./shared/core/sde/...` and `./api/staticdata/...`: two suggestions, both `omitempty` to `omitzero`,
+which `go fix` itself marks a behaviour change — `VersionJSON.GeneratedAt` in `shared/core/sde/files.go`
+and `fileMeta.ModTime` in `api/staticdata/endpoints.go`. Both are on fields this project does not
+touch, and JSON tag semantics belong to [go-127-adoption](../go-127-adoption/contents.md). Left alone
+deliberately, and named here so a later scan coming back non-empty is not mistaken for new debt.
+
+Three further suggestions appeared on this project's **own** new code and were taken: a
+`json:"…,omitempty"` on a struct field, which does nothing and promised an omission it could not
+deliver; an embedded-field literal `go fix` simplifies to the promoted form; and a hand-rolled
+`contains` helper in the new `shared/core/sde` test, which is `slices.Contains`. All three are in scope
+because they are on lines this project wrote.
 
 ## Why this project exists
 
@@ -142,8 +153,8 @@ one hook answering for both sides and has to be split or parameterised rather th
 `shoppingList.calculateTotalValue`, `ItemWatch/ItemRow.jsx` and `ItemWatch/ItemRowExpanded.jsx` index
 `findMarketData(typeID)[hub][basis]` with no guard on either step. The guarded form is the exception —
 `OutputCard.jsx` is the one checked example that degrades to `0`. An id the per-hub shape does not
-carry is a `TypeError` rather than a figure of nothing, and the split is the moment that becomes
-reachable, so fix them with the stage whichever way the defaults land.
+carry was a `TypeError` rather than a figure of nothing, and the split was the moment that became
+reachable, so they were guarded with the stage — see [overlay.md](./overlay.md) § A3.
 
 `ItemRow.jsx` alone holds **13** of them: three in `buildCosts`, and ten more in render reading
 `calculatedCosts.mainItemPrice[defaultMarket]`. Those ten then take `.sell` directly rather than the
@@ -166,10 +177,14 @@ makes it the place to seed the new defaults from an existing account's single va
 
 **Seeding is not optional, and it cannot be deferred behind the field it fills.** Go serialises a
 non-pointer struct field whether or not Mongo held it, so an account stored before the split reaches
-the SPA as `"defaultPricing":{"buying":{"market":"","basis":""},…}` — empty strings, not a missing
-key. A client that reads that as an answer overwrites the account's real default and writes the empty
-strings back on the next save. The upgrader fills it before anything downstream sees it, and the SPA
-merge treats a side with no market as unfilled rather than as a choice of nowhere.
+the SPA as `"defaultPricing":{"buying":{},"selling":{}}` — the key present with each side empty, not a
+missing key. A client that reads that as an answer overwrites the account's real default and writes
+the emptiness back on the next save. The upgrader fills it before anything downstream sees it, and the
+SPA merge treats a side with no market as unfilled rather than as a choice of nowhere.
+
+`PricingSide`'s own fields are `omitempty`, which is why an unfilled side is `{}` rather than a pair of
+empty strings. A consumer must read **either** as unanswered: the two shapes differ only by who wrote
+the document, never by what it means.
 
 **The seed is gated on the empty market, not on the schema version.** An unversioned document is
 stamped with the current version at the top of the same function, so a `SchemaVersion < n` test would
@@ -200,7 +215,7 @@ again, and the old pair stops being written and ages out with the documents.
    override at whatever was picked first.
 4. ~~Point each surface in the table at a side, explicitly.~~ Done.
 5. ~~Guard the unguarded price reads in the three files above.~~ Done, with the rest of step 4.
-6. Settings and first-login controls offer both pairs.
+6. ~~Settings and first-login controls offer both pairs.~~ Done.
 7. Stop writing the old fields, once the shared-planners release has backfilled the stored ones.
 
 **Done when** every surface in the table names a side, no code reads `defaultMarketLocation` or
@@ -234,6 +249,28 @@ is "Material", which lumps minerals, moon goo, fuel blocks and salvage together 
 a player would want priced differently from one another. Shipping it would teach a grouping players
 would then want to escape.
 
+### A group default belongs to a side
+
+It is stored inside `PricingSide` as `Groups`, keyed by market group id, so a group can never answer
+the selling side with a figure meant for buying — the conflation this whole project exists to remove.
+The cost is that pricing minerals on both sides is two entries; the alternative was a group rung
+giving one answer to two different questions.
+
+**A job's override is a different type for the same reason.** `JobLayout.LocalPricing` is `*JobPricing`,
+a pair of `PricingChoice` with no group table: market groups are an account-level rung *beneath* a job's
+own choice, so a job carrying one would be answering a question it does not own. Both share
+`PricingChoice`, which is the shape of an answer at every rung that can give one.
+
+**Nothing may replace a whole side to fill part of it.** A side can hold a group table before it names
+a market of its own, so the upgrader's seed assigns the embedded pair and leaves `Groups` alone, and
+the SPA's merge carries `groups` through rather than rebuilding the side without them. What is
+persisted is the merged copy, so a merge that dropped them would lose them on the next unrelated save.
+
+**A nearer group outranks a further one, field by field.** Market and basis are answered separately and
+each stops at the first ancestor naming it, so a group naming a market without a basis narrows one axis
+and leaves the other to whatever answers next. That is the rule rungs 1, 2 and 4 already use; making
+rung 3 behave differently inside itself would be the surprise.
+
 ### The tree is where the design is
 
 EVE's market groups are a deep tree, and a default set on "Minerals" must cover Tritanium. So rung 3
@@ -243,6 +280,19 @@ material row, on every row of every job, so it wants a cache.
 **Additive on both sides.** `FullItem` gains `MarketSectionID` — the item list is read as a map, so a
 new field breaks no consumer, though the published list needs regenerating — and the market group tree
 is published alongside it so the setting can offer "Minerals" rather than an id.
+
+### The work
+
+1. ~~Publish an item's market group and the group tree.~~ Done (B1).
+2. ~~The stored shape for a group default, and the walk that resolves one.~~ Done (B2, in part).
+3. Consult the walk from the per-material resolution. Rung 3 is **per item**, like rung 1, so it
+   belongs beside `getEffectiveMaterialPriceHub` rather than in the panel-level resolver — a panel
+   default is always concrete, so a rung underneath it could never fire.
+4. Read the published tree and each item's market group in the SPA.
+5. A settings surface for choosing a group and what it prices against, per side.
+
+**Done when** a player can say "price minerals from Jita buy orders" once and have every mineral on
+every job follow it, without touching a row.
 
 ## Non-goals
 
@@ -256,31 +306,75 @@ is published alongside it so the setting can offer "Minerals" rather than an id.
 - **What a basis default means on the selling side.** Listing an order and dumping into bids are
   different exits with different bases, and Returns already shows both. Whether the selling default
   names one basis or names the exit route is undecided.
-- **Two depths of the same branch.** When a player has set a default on "Minerals" and another on a
-  group beneath it, whether the nearer simply wins or whether a deeper default may only narrow the
-  basis and not the market. Stage B.
-- **Whether the market-link helpers need a default at all**, or should always take the market the
-  figure beside them was priced from.
+
+## Traps this work has already fallen into
+
+Recorded because each one passed a build, passed a test run, and would have reached a player.
+
+**A field the wire always carries.** Adding a stored field is not additive on its own: what fills it
+has to land in the same change, or every existing document answers with an empty one. See
+§ Wire compatibility.
+
+**The shape of "empty" changed under a comment that described it.** `PricingSide`'s fields gained
+`omitempty` a stage later, so an unfilled side went from `{"market":"","basis":""}` to `{}` — and the
+comment, the plan and the regression test all still described the old shape. The test had never
+exercised the real payload. A claim about the wire is worth re-probing whenever the tags move.
+
+**`omitempty` on a struct field does nothing.** `json:"buying,omitempty"` promised an omission
+`encoding/json` will not perform. A pointer is what omits a whole absent thing; within a present one,
+an empty member is written as `{}`.
+
+**A read path on the new field with a write path on the old one.** A half-finished cutover is worse
+than either end of it: here it froze a job's override at the first pick and the hub selector went dead
+after one use. See [overlay.md](./overlay.md) § A2.
+
+**Replacing a whole value to fill part of it.** Invisible until something else is stored alongside,
+then it deletes it. See § A group default belongs to a side.
+
+**Adding a map makes a struct uncomparable.** `PricingSide` lost `==` when it gained `Groups`. The
+compiler caught it in tests; it would not have in a map key.
+
+**A fixture whose two sides agree proves nothing.** Several tests seeded `buying` and `selling` with
+identical values, so a surface asking for the wrong side passed. Give the two sides different values
+in every fixture.
+
+**A key list duplicated across two languages.** Nothing connects the two copies until a test does, and
+until then a key naming something the other side never had throws only when first reached for. See
+[overlay.md](./overlay.md) § B1.
 
 ## Stage status
 
 | Stage | State |
 |-------|-------|
 | Phase 1 — project folder and docs | Done |
-| Stage A — retire the single account default | In progress — steps 1-5 of 7 |
-| Stage B — defaults by market group | Not started, blocked on Stage A |
+| Stage A — retire the single account default | Steps 1-6 landed; step 7 waits on the release |
+| Stage B1 — publishing the market group data | Done |
+| Stage B2 — the stored shape and the walk | Done; nothing consults it yet |
+| Stage B3 — wiring the rung, and the settings surface | Not started |
 
 ## Start here
 
-Stage A step 6 — the Settings and first-login controls, which still set the single
-`defaultMarketLocation` / `defaultOrderType` and are the last things writing them. Every reading
-surface now names a side.
+**Stage A is as far as it can go until the shared-planners release runs.** Step 7 — dropping the
+single `defaultMarketLocation` / `defaultOrderType` and the job's `localMarketDisplay` /
+`localOrderDisplay` — is the only step left, and it waits on that release backfilling the stored
+documents (§ Wire compatibility).
 
-Two things are deliberately still on the old fields until step 7 retires them:
-`Zustand/applicationSettings` still carries and persists the single pair, and the `Job` constructor
-still reads `layout.localMarketDisplay` / `localOrderDisplay` to seed a job stored before the split.
-Nothing else reads either. Read § Two axes, both called buy and sell first — it is the one thing that
-will make a reviewer reject the field names if it is skipped.
+What is deliberately still there in the meantime: `Zustand/applicationSettings` carries and persists
+the single pair so a stored value survives, and the `Job` constructor reads the job's legacy pair to
+seed a job stored before the split. Nothing writes either, and nothing else reads them.
+
+**One rollout note for step 7.** Once a player changes a default, `defaultPricing` moves and the
+single pair does not, so the stored pair goes stale rather than wrong. A session still running older
+code would read the stale one. That is a deploy-window consideration, not a data question — the
+server never overwrites a filled side.
+
+**Stage B is where the work is, and it does not wait on the release.** Its next piece is § Stage B,
+§ The work item 3: consulting the walk from the per-material resolution. Rung 3 is per item, so it
+belongs beside `getEffectiveMaterialPriceHub`, not in the panel-level resolver — a panel default is
+always concrete, so nothing underneath it could ever fire.
+
+Read § Two axes, both called buy and sell before naming anything, and § Traps this work has already
+fallen into before changing a stored shape. Both cost a slice each the first time.
 
 The design in this plan was worked out while building the Planning stage panels, which is where the
 crossed buying and selling sides first showed. That project records what it handed over at

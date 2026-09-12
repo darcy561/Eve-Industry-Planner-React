@@ -64,11 +64,14 @@ export function isTerminalPlannerAuthCode(code) {
 
 /**
  * Clears tab session + client-readable auth cookies, then navigates to EVE SSO.
+ *
+ * @param {string} [returnTo] - Where the reader was headed, when they were sent here
+ *   from somewhere other than the page they wanted.
  */
-export function redirectToFullEveLogin() {
+export function redirectToFullEveLogin(returnTo) {
   clearTabPlannerSession();
   clearPlannerAuthCookiesClientSide();
-  redirectToEveSSO();
+  redirectToEveSSO(returnTo);
 }
 
 /**

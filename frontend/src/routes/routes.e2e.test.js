@@ -91,15 +91,14 @@ describe("walking into a page signed out", () => {
   it.each(["/settings", "/dashboard", "/accounts", "/archived-jobs"])(
     "sends them from %s to sign in",
     async (url) => {
-      const { pathname, search } = await enterRoute(url);
+      const { pathname } = await enterRoute(url);
 
       expect(pathname).toBe("/auth");
-      expect(search).toMatchObject({ state: url });
     },
   );
 
   // The whole location, so signing in returns them to what they asked for.
-  it("carries the search of the page they were headed to", async () => {
+  it("carries the page they were headed to, search and all", async () => {
     const { search } = await enterRoute("/settings?tab=notifications");
 
     expect(search.state).toBe("/settings?tab=notifications");
@@ -303,6 +302,35 @@ describe("arriving at the sign-in page", () => {
 
     expect(loginProgress().completedSteps.size).toBe(1);
   });
+});
+
+describe("coming back from EVE", () => {
+  beforeEach(() => {
+    app.isLoggedIn = true;
+    app.jobArray = [{ jobID: "job-1" }];
+  });
+
+  it("puts the reader back where they were", async () => {
+    const { pathname, search } = await enterRoute(
+      `/auth?state=${encodeURIComponent("/editjob/job-1?activeGroup=group-1")}`,
+    );
+
+    expect(pathname).toBe("/editjob/job-1");
+    expect(search).toMatchObject({ activeGroup: "group-1" });
+  });
+
+  // EVE echoes whatever it was given, so the value is checked rather than trusted. A
+  // damaged one is not worth more than landing on the default.
+  it.each(["main", "//evil.example", "/nonsense", "/auth"])(
+    "sends them to the dashboard when the callback carries %s",
+    async (state) => {
+      const { pathname } = await enterRoute(
+        `/auth?state=${encodeURIComponent(state)}`,
+      );
+
+      expect(pathname).toBe("/dashboard");
+    },
+  );
 });
 
 describe("an account that has not finished first login", () => {

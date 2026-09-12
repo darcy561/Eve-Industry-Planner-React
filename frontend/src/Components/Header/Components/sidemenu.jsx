@@ -12,13 +12,22 @@ import {
   RouterListItemButton,
   whenFollowed,
 } from "../../../Styled Components/Navigation/routerControls.jsx";
+import { canVisitRoute } from "../../../utils/routeAccess.js";
 import useUsersStore from "../../../Zustand/usersStore";
 import { useTranquilityServerStatusQuery } from "../../../Hooks/React Query/tranquilityServerStatus.js";
 import { formatNumberForLocale } from "../../../Functions/Helper/numberParser";
 import { PlannerSwitcher } from "./plannerSwitcher.jsx";
 
-/** One destination in the menu: a real link, so it can be opened in a new tab. */
+/**
+ * One destination in the menu: a real link, so it can be opened in a new tab.
+ *
+ * Whether it belongs in front of this reader is the route's own answer, so the menu
+ * never holds a second opinion about which pages need an account.
+ */
 function NavItem({ to, primary, onNavigated }) {
+  const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
+  if (!canVisitRoute(to, isLoggedIn)) return null;
+
   return (
     <RouterListItemButton to={to} onClick={whenFollowed(onNavigated)}>
       <ListItemText primary={primary} />
@@ -81,37 +90,29 @@ export function SideMenu({ open, setOpen }) {
             <Divider />
             {isLoggedIn && (
               <>
-                <Divider />
                 {/* Exercises the planner endpoints and the realtime switch. The
                     app still works in the account's own planner; this points the
                     connection somewhere else without moving the data. */}
                 <PlannerSwitcher />
                 <Divider />
-                <NavItem
-                  to="/asset-library"
-                  primary="Asset Library"
-                  onNavigated={close}
-                />
               </>
             )}
+            <NavItem
+              to="/asset-library"
+              primary="Asset Library"
+              onNavigated={close}
+            />
+            <NavItem
+              to="/blueprint-library"
+              primary="Blueprint Library"
+              onNavigated={close}
+            />
+            <NavItem
+              to="/archived-jobs"
+              primary="Archived Jobs"
+              onNavigated={close}
+            />
             <Divider />
-            {isLoggedIn && (
-              <>
-                <NavItem
-                  to="/blueprint-library"
-                  primary="Blueprint Library"
-                  onNavigated={close}
-                />
-                <Divider />
-                <NavItem
-                  to="/archived-jobs"
-                  primary="Archived Jobs"
-                  onNavigated={close}
-                />
-                <Divider />
-              </>
-            )}
-
             <NavItem
               to="/jobplanner"
               primary="Job Planner"
@@ -131,7 +132,8 @@ export function SideMenu({ open, setOpen }) {
         </Box>
       </Box>
 
-      {/* Bottom Section*/}
+      {/* The account's own block. This gate stays where the others went: it holds
+          Sign Out, which is an action rather than a page to be let into. */}
       {isLoggedIn && (
         <Box
           sx={{

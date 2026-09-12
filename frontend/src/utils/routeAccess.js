@@ -46,6 +46,20 @@ export function allRoutes() {
   return appRoutes();
 }
 
+/**
+ * Whether a reader may go to a path — a public route is open to anyone, a private one
+ * needs them signed in. A path the app has no route for is nowhere to go.
+ *
+ * @param {string} path
+ * @param {boolean} isLoggedIn
+ * @returns {boolean}
+ */
+export function canVisitRoute(path, isLoggedIn) {
+  const route = routeForPath(path);
+  if (!route) return false;
+  return route.audience !== "private" || isLoggedIn;
+}
+
 /** The route a path belongs to, or undefined when the app has none. */
 export function routeForPath(path) {
   const [pathname] = path.split(/[?#]/);

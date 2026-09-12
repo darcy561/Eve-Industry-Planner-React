@@ -38,7 +38,6 @@ function clearClientSessionState() {
 function clearBrowserStorage() {
   sessionStorage.clear();
   localStorage.removeItem("Auth");
-  localStorage.removeItem("originalPath");
 }
 
 export const Route = createFileRoute("/signout")({

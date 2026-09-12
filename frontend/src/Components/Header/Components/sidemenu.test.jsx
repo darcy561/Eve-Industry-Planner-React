@@ -70,15 +70,29 @@ describe("the side menu", () => {
     expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
   });
 
-  it("shows a signed-out reader only what they can reach", async () => {
-    loggedIn.current = false;
+  // Which entries a reader sees is the routes' own answer, so this is the audience
+  // declarations read back rather than a list the menu keeps of its own.
+  it.each(["Asset Library", "Blueprint Library", "Archived Jobs", "Settings"])(
+    "keeps %s from a signed-out reader",
+    async (label) => {
+      loggedIn.current = false;
 
-    await showMenu();
+      await showMenu();
 
-    expect(screen.queryByRole("link", { name: "Asset Library" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "Settings" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Job Planner" })).toBeVisible();
-  });
+      expect(screen.queryByRole("link", { name: label })).toBeNull();
+    },
+  );
+
+  it.each(["Job Planner", "Reprocessing Calculator", "Item Tree"])(
+    "offers %s to a signed-out reader",
+    async (label) => {
+      loggedIn.current = false;
+
+      await showMenu();
+
+      expect(screen.getByRole("link", { name: label })).toBeVisible();
+    },
+  );
 
   it("closes the drawer behind a reader who follows a link", async () => {
     await showMenu();

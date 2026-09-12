@@ -4,10 +4,7 @@ import { resumeStoredSession } from "../../../Functions/Auth/resumeStoredSession
 import { runAppLogin } from "../../../Functions/Auth/appLoginFlow.js";
 import { redirectToFullEveLogin } from "../../../Functions/Auth/plannerSessionRedirect.js";
 import { tryCompleteAdditionalAccountImportWindow } from "../additionalAccountImport.js";
-import {
-  getAuthCallbackParams,
-  storeOriginalPathFromOAuthState,
-} from "../oauthUrlParams.js";
+import { getAuthCallbackParams } from "../oauthUrlParams.js";
 
 /**
  * One-shot: OAuth `code`, localStorage `Auth`, per-tab sessionStorage resume, or EVE SSO redirect.
@@ -27,8 +24,6 @@ export function useAuthUrlLogin() {
       if (await tryCompleteAdditionalAccountImportWindow(state, authCode)) {
         return;
       }
-      storeOriginalPathFromOAuthState(state);
-
       if (authCode) {
         try {
           await runAppLogin({
@@ -46,7 +41,9 @@ export function useAuthUrlLogin() {
         return;
       }
 
-      redirectToFullEveLogin();
+      // Carries where the guard was sending them, so signing in returns them to the
+      // page they asked for rather than to `/auth`.
+      redirectToFullEveLogin(state);
     }
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once; login flow is idempotent and must not re-run on hook identity

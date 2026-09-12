@@ -19,19 +19,8 @@ export const Route = createFileRoute("/auth")({
 
     // If user is already logged in, redirect them away from auth page
     if (isLoggedIn) {
-      // Get the original path from the state parameter
-      const originalPath = search.state;
-
-      // Determine redirect path using the utility function
-      const redirectPath = getRedirectPathAfterAuth(originalPath, "/dashboard");
-
-      // Clean up the originalPath from localStorage after determining redirect
-      if (originalPath) {
-        localStorage.removeItem("originalPath");
-      }
-
       throw redirect({
-        to: redirectPath,
+        to: getRedirectPathAfterAuth(search.state, "/dashboard"),
       });
     }
 

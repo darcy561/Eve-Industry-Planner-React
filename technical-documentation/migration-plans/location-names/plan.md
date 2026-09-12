@@ -151,10 +151,37 @@ public branch rather than a second one.
 
 ### Stage E — the store
 
-Decide whether `worldData.universeIDs` keeps a read-through copy, or its readers move onto the hook
-and the slice's universe half is deleted. Nine surfaces read it — two through the map and seven
-through `findUniverseData` — so the read-through copy is the cheaper answer unless those surfaces
-are moving for their own reasons.
+The readers move onto the hook and the slice's universe half goes. Nine surfaces read it, in three
+groups by how much of the reader has to change.
+
+**A location nobody can name is shown saying so, never dropped.** This is the standard for every
+surface, not a choice each picker makes: an office or a station filtered out of a list is
+indistinguishable from one the account does not have, so a genuine access problem reads as missing
+data. `assetTree.js` already ordered an unreadable location last rather than hiding it; that
+ordering is now the one `describeLocation` / `byLocationOrder` / `locationOptions` give every
+picker.
+
+**Group 1 — done.** Two of the four turned out to be simplifications rather than conversions:
+`Market Data/dialogueFrame.jsx` and `priceHistory.jsx` already held the names, handed to them by
+`useMarketData` / `useMarketHistoryData`, so they read what they were given and the dialogues
+stopped writing names back into the store on close — the hook writes through already. The other two
+took a hook call: `corporationOffices.jsx` (which had been subscribing to `universeIDs` purely to
+force a re-render) and `Shopping List/assetLocationsSelection.jsx`. `useAssetLocations` stopped
+dropping unreadable locations, which is what carried the standard above to the three pickers that
+read from it. Both market hooks now ask for the region's own name whether or not anything came
+back, so an empty market names the region it found nothing in rather than "Unknown Region".
+
+**Groups 2 and 3 — done.** `marketbar.jsx` was another surface already holding its names, handed
+them by the Market Data dialogue; its prop is now `locationNames` and it reads them directly. The
+four Edit Job panels — `availableOrdersTab`, `linkedMarketOrdersTab`, `availableJobs` and
+`linkedJobs` — each took a `useLocationNames` call over the ids in their own rows. They had been
+reading through `getState()` inside the row loop, which takes no subscription, so a name arriving
+after the row rendered never reached it.
+
+With those five moved, nothing outside `useLocationNames` reads the store's universe half, and
+`findUniverseData` is deleted. `universeIDs` and `addUniverseIDs` remain because the hook reads what
+they hold before asking ESI and writes back what it resolves — whether that read-through copy earns
+its place is the one question this stage has left.
 
 ## Wire compatibility
 
@@ -172,7 +199,8 @@ an open decision below rather than planned work.
   asked again on the next mount. Plus the existing `useLocationNames` suite, which must pass
   unchanged.
 - **Stage D** — a structure only an alt can see is named on the market and Edit Job surfaces.
-- **Stage E** — whichever the decision makes real.
+- **Stage E** — that a location nobody can name is offered by a picker, saying so and ordered last,
+  at the rendered picker rather than at the hook.
 - **Before Stage D closes** — one end-to-end pass over the whole ladder: a structure named from an
   alt's token, one named from the community store, one settling as no-access, and a failure retried,
   asserted at a rendered surface rather than at the resolver. Unit tests either side of a shared
@@ -183,12 +211,13 @@ an open decision below rather than planned work.
 | Question | Options | Status |
 |----------|---------|--------|
 | Does the community rung gain a batch form? | Keep one id per request / add a batch endpoint | Open — per-id GETs are ETag'd and CDN-cached, which a batch POST would not be, so the per-id form may already be the cheaper one at the edge |
-| Does `worldData.universeIDs` survive? | Read-through copy / delete it and move all nine readers | Open — Stage E |
+| Does `worldData.universeIDs` survive? | Read-through copy / delete it | Open — the readers have moved and so have the writers, bar the shopping list's corporation assets. `useLocationNames` answers from the map before asking ESI and writes back after; nothing else reads it. It survives no reload, so what it buys is one render's worth of cache in front of the query cache |
 | Are named results kept across a reload? | Nothing persists today / persist named and community outcomes | Open — this is why a reload re-resolves everything, and also why a reload is the workaround for D1 and D2 |
-| Does an unknown id fail a whole `/universe/names` batch? | Verify against ESI | Open — the spec documents only 200 and a default error; if one bad id fails 1000, the loader needs a bisect or a filter |
+| ~~Does an unknown id fail a whole `/universe/names` batch?~~ | — | Settled — it does. Measured against live ESI: one id ESI rejects refuses the whole call with a 404 naming nothing, and the body does not say which id was at fault. The loader bisects a refused batch to isolate it. Every id probed was one that was never valid; an id that has since gone from ESI's data was not tested, so the loader still handles an id omitted from a successful answer as well. See [`measurements/universe-names-batch.md`](./measurements/universe-names-batch.md) |
 | When is a `no-access` verdict asked about again? | On a character being linked / never within a session | Open — the outcome table says a refusal is worth re-asking once the account gains a character who might see it, and nothing invalidates the entry today. It needs a hook into character linking, which belongs with Stage D or E |
 | ~~Where does `unnamed` live, and what does it mean for `unreadable`?~~ | — | Settled in Stage B — a cached outcome of its own, carrying no name, and deliberately not `NO_ACCESS`, so `unreadable` still means only that every character was refused |
 | Who owns `entityNames.js`? | Fold into the public branch here / leave it and accept two | Open — it is new work from another session; settle before Stage D |
+| What does a picker do with an id ESI cannot resolve? | Leave it out / offer it saying the place has no name | Open — `useLocationNames` does not return an `unnamed` outcome at all, so `locationOptions` cannot tell it apart from an id still in flight and withholds both. That contradicts the stage's own rule for `no-access`. The case is narrow: an id outside every public range is classified as a structure and never reaches the bulk lookup, so this is only reached by an id inside the station, system, constellation or region ranges that ESI does not know |
 
 ## Stage status
 
@@ -199,7 +228,7 @@ an open decision below rather than planned work.
 | B — per-id cache and loader | Done |
 | C — `useLocationNames` cutover | Done |
 | D — the direct callers | Done |
-| E — the store | Not started |
+| E — the store | Done — `findUniverseData` deleted; the read-through copy is an open question |
 | A ship is not a place | Done — an id that is a ship in space is no longer asked of ESI as a structure; see the overlay |
 
 ## Promote map
@@ -240,3 +269,22 @@ from the cache and no longer holds anything the cache would disagree with.
 `entityNames.js` is still unsettled and is now the only thing in this project's scope that resolves
 ids outside the shared loader. It writes no verdicts, so it cannot reintroduce a fault; folding it in
 would buy batching with whatever location ids the same render asks for, and nothing else.
+
+Stage E's Group 1 has landed. Four surfaces came off the store: two of them only had to read the
+names their own hook already handed them (`Market Data/dialogueFrame.jsx`, `priceHistory.jsx`), and
+both dialogues stopped writing those names back on close. `corporationOffices.jsx` and
+`Shopping List/assetLocationsSelection.jsx` took a `useLocationNames` call. The standard that came
+with it — a location nobody can name is offered saying so, never dropped — is carried by
+`locationOptions` in `assetTree.js`, so the three pickers reading through `useAssetLocations` got it
+without each making the choice for itself. Groups 2 and 3 are open.
+
+Groups 2 and 3 have landed. The five remaining readers are off the store: `marketbar.jsx` reads the
+names the Market Data dialogue already hands it, and the four Edit Job panels resolve through the
+hook rather than through a `getState()` read taken mid-render. `findUniverseData` had no callers
+left and is gone. What remains of the slice is the store's `universeIDs` map itself, which
+`useLocationNames` still reads before asking and writes after resolving.
+
+Location ids are classified against EVE's published ranges. The rule that made anything unmatched a
+structure is gone, and with it the refusal-per-character an id that was never a place used to cost.
+A celestial, a stargate and a station's office folder are named by neither path and are no longer
+asked about at all.

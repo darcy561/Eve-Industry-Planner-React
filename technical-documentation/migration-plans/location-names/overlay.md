@@ -286,7 +286,40 @@ name resolution does with an answer. It is about asking a question that has none
 
 ## Stage E — the store
 
-_Not landed._
+_Landed._
+
+### A location nobody can name is shown, never dropped
+
+A surface that resolves location names shows the ones it could not resolve, carrying the
+`No Access To Location - <id>` name that says so. Filtering them out is what several pickers used to
+do, and it is indistinguishable from the place not existing: an office the account cannot dock at
+simply vanished from the corporation picker, so an access problem read as missing data and there was
+nothing for the reader to act on.
+
+`Functions/Assets/assetTree.js` owns the shape and the order. `describeLocation(id, names)` gives
+`{locationId, name, unreadable}`; `byLocationOrder` puts named locations first alphabetically, then
+the unnamed, then the unreadable. `orderLocations` builds a list of locations and what sits at each —
+what the asset tree walks — and `locationOptions` builds the same thing without the contents, which
+is what a picker offers. `locationOptions` withholds an id still being asked about: a list can show
+an unnamed location because the assets are visibly there, but a picker row with no label says
+nothing, and the name is moments away.
+
+### The surfaces
+
+`corporationOffices.jsx` and `Shopping List/assetLocationsSelection.jsx` call `useLocationNames` and
+read `locationOptions`. Neither subscribes to `worldData.universeIDs` any more — the office picker
+had been subscribing to it purely to force a re-render when a name landed.
+
+`Market Data/dialogueFrame.jsx` and `priceHistory.jsx` needed no hook call at all: `useMarketData`
+and `useMarketHistoryData` already hand them the names map, so they read it directly. Both dialogues
+stopped calling `addUniverseIDs` on close, which the hook's own write-through had already made
+redundant. The chart's map arrives as `regionNames`; it was called `alternativeRegionData` while it
+was the fallback behind a store read, and there is no longer a store read for it to be alternative
+to.
+
+Both market hooks now ask for the region's own name whether or not any rows came back. They used to
+withhold the request until there was something to name, which is how an item that has never traded
+in a region came to be reported as having no data in "Unknown Region".
 
 ## Drafts for live documentation
 
@@ -304,9 +337,77 @@ until promote.
 |---------|-------|------------|
 | The outcome vocabulary | Tested | `Functions/EveESI/World/locationOutcome.test.js` — the settled outcomes carrying the same values the older resolution statuses do, and which HTTP statuses are a refusal against a failure |
 | The resolvers | Tested | `getUniverseNames.test.js`, `getCitadelData.test.js` — a name, a refusal, an unacquirable token, a failed request and each failing status classified; the community rung reached only from a refusal, and not at all for an account that has opted out |
-| The batching loader | Tested | `locationNameLoader.test.js` — one call for a tick's ids, a batch over a thousand split, two callers for one id asking once, an id ESI did not mention settling as unnamed, a failed call failing the ids it spoke for, the character ladder and the community store only after every refusal, a character that could not ask failing rather than settling, and a region asked for in bulk rather than against a token |
+| The batching loader | Tested | `locationNameLoader.test.js` — one call for a tick's ids, a batch over a thousand split, two callers for one id asking once, an id ESI did not mention settling as unnamed, a failed call failing the ids it spoke for, the character ladder and the community store only after every refusal, a character that could not ask failing rather than settling, a region asked for in bulk rather than against a token, one unresolvable id isolated out of a refused batch so the rest are still named, and a batch refused for any other reason left unsplit |
 | The per-id cache entry | Tested | `Hooks/React Query/World/locationNames.test.jsx` — two callers sharing one entry, a refusal kept, a failure cached nowhere and asked again |
 | The hook | Tested | `Hooks/EveEsi/useLocationNames.test.jsx` — asking only for what the store lacks, waiting for characters, writing through to the store, a failure reported rather than an empty result, the names that resolved kept when one fails, and the id asked for again on the next mount after a failure |
 | The ladder, end to end | Tested | `Components/Assets/assetLibraryView.names.test.jsx` — the rendered library against a faked ESI and nothing else: a station from the bulk lookup, a structure only an alt can dock at, a community name once every character is refused, no access when nobody can name it, a ship in space never asked about, each character asked exactly once, and a pass that fails asked again |
-| The market data panel | Tested | `Hooks/EveEsi/World/useMarketData.test.jsx` — a structure only an alt can dock at named through the real hook and loader, with only the ESI edges faked; the stations and systems its orders sit in named from the bulk lookup; and nothing asked for until there are orders to name |
-| The other four consumers | Little or none | `useMarketHistoryData`, the two Edit Job hooks and the shopping list's corporation assets have no tests of their own, and had none before this project. The ladder they now share is covered beneath them |
+| The market data panel | Tested | `Hooks/EveEsi/World/useMarketData.test.jsx` — a structure only an alt can dock at named through the real hook and loader, with only the ESI edges faked; the stations and systems its orders sit in named from the bulk lookup; and the region named even when no orders came back |
+| The market history chart | Tested | `Hooks/EveEsi/World/useMarketHistoryData.test.jsx` — the region named when the item has no history at all, and no name asked for when there is no region; `Styled Components/LineGraph/priceHistory.test.jsx` — the chart naming its region from the map it is handed, and saying the region is unknown when no name reached it |
+| The location pickers | Tested | `Styled Components/Select/corporationOffices.test.jsx` and `Components/Dialogues/Shopping List/assetLocationsSelection.test.jsx` — an office and an asset location nobody can read offered saying so, ordered after the named ones and selectable; `Hooks/EveEsi/useAssetLocations.test.jsx` — the same at the hook the three dropdowns share, plus a location held back until its name is known |
+| The other three consumers | Little or none | The two Edit Job hooks and the shopping list's corporation assets have no tests of their own, and had none before this project. The ladder they now share is covered beneath them |
+
+### What the store keeps
+
+`marketbar.jsx` reads the names map the Market Data dialogue hands it, as `locationNames`. The four
+Edit Job panels — `availableOrdersTab`, `linkedMarketOrdersTab`, `availableJobs`, `linkedJobs` —
+call `useLocationNames` over the ids in their own rows. Each had been reading the store through
+`getState()` inside the row loop: a read with no subscription behind it, so a row rendered before a
+name resolved kept "Location Data Unavailable" until something else re-rendered it.
+
+`findUniverseData` is deleted — nothing outside the hook reads the store's universe half any more.
+`worldData.universeIDs` and `addUniverseIDs` remain: `useLocationNames` answers from the map before
+it asks ESI, and writes back what it resolves.
+
+## One bad id no longer costs a page its names
+
+`POST /universe/names` is all-or-nothing: an id ESI cannot resolve refuses the whole call with a 404
+that names nothing and does not say which id was at fault. A batch carries up to a thousand ids, so
+one bad id among them left every location on the page unnamed — and, because the id is in the set
+every time, on every attempt after it too.
+
+`settlePublicNames` splits a batch refused that way in half and asks again, down to the single id
+that is at fault. That one settles as `unnamed` — ESI has said it resolves to nothing, so keeping the
+answer is what stops it poisoning the next batch it lands in — and every other id in the batch gets
+its name. A batch refused for any other reason is not split: those ids failed, and failures are
+retried whole rather than turned into a cascade of smaller calls.
+
+The measurements behind this are in
+[`measurements/universe-names-batch.md`](./measurements/universe-names-batch.md).
+
+## An id says what can name it
+
+`resolveLocationKind` classifies a location id against
+[EVE's published id ranges](https://developers.eveonline.com/docs/guides/id-ranges/) rather than by
+the handful of ranges the app happened to need, and `locationNameSource` turns that into where the
+name can be got: the bulk lookup, a character's token, or nowhere.
+
+Only a spawned item — an id at or above a million million — is a structure. Everything below that
+and outside a documented range is `UNKNOWN`. That is the whole point of classifying: the previous
+rule made *anything unmatched* a structure, and a structure is asked of every linked character in
+turn, so one id that was never a place cost a refusal per character and five times a hit's weight
+against the error budget each time. A ship in space was that defect in its most expensive form.
+
+Three kinds that really do arrive as a location can be named by neither path, and the loader now
+settles them without asking: a celestial (a starbase's modules sit at a moon), a stargate, and a
+station's office folder. `POST /universe/names` answers only for regions, constellations, solar
+systems and stations among places, and refuses the whole call over anything else — so batching one
+of these would have cost every other name in the batch as well.
+
+A location the app cannot name is not offered as somewhere to work from: `PLACE_KINDS` is unchanged,
+so a stack at a moon does not appear in a location picker. It did appear before this, labelled
+`No Access To Location` — which said the account could not read the place, when the truth was that
+the place was a moon and nothing was ever going to name it.
+
+## The Edit Job hooks stopped resolving names
+
+`useGatherJobMatchesAndUpdateExistingLinkedJobs` and
+`useGatherMarketOrdersAndUpdateExistingLinkedOrders` gathered the ids of their rows inside an async
+effect, fetched the names imperatively and wrote them into the store themselves — while the panels
+beneath them resolved the same ids again through `useLocationNames`. Each now calls that hook over
+its own rows and returns its `isLoading`, so the page still waits for the names before it draws and
+there is one lookup rather than two. The market order panel's gate had never worked: it read a field
+its hook does not return, so the panel drew before any name arrived.
+
+Matching moved out of the effect at the same time. It is a function of the jobs ESI reported and the
+job being edited, so it is derived while rendering; the effect keeps only the write of the latest
+ESI figures onto the job.

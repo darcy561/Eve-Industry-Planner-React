@@ -37,4 +37,5 @@ without it, and the fate of `worldData.universeIDs`.
 | See what has landed | [plan.md](./plan.md) § Stage status |
 | Read how resolution works today, before any stage lands | [overlay.md](./overlay.md) § Current behaviour |
 | Read how a stage works once it has landed | [overlay.md](./overlay.md) |
+| See what ESI actually answered, rather than what the plan assumed | [measurements/](./measurements/) |
 | Promote this project into live documentation | [plan.md](./plan.md) § Promote map |

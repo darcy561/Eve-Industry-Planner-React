@@ -6,6 +6,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useMemo } from "react";
 import { MdOutlineLinkOff } from "react-icons/md";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
@@ -18,6 +19,7 @@ import useUsersStore from "../../../../../../Zustand/usersStore";
 import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
+import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
 
 export function LinkedMarketOrdersTab({
   state,
@@ -28,6 +30,12 @@ export function LinkedMarketOrdersTab({
   const getCorporation =
     useUsersStore.getState().account.actions.getCorporation;
   const jobLockReadOnly = useActiveJobReadOnly(state);
+  const marketOrders = state.activeJob.build.sale.marketOrders;
+  const locationIds = useMemo(
+    () => (marketOrders ?? []).map((order) => order.location_id),
+    [marketOrders],
+  );
+  const { names: locationNames } = useLocationNames(locationIds);
 
   return (
     <Grid container>
@@ -45,14 +53,12 @@ export function LinkedMarketOrdersTab({
         }}
         size={12}
       >
-        {state.activeJob.build.sale.marketOrders?.map((order) => {
+        {marketOrders?.map((order) => {
           const charData = useUsersStore
             .getState()
             .account.actions.findCharacterByHash(order.CharacterHash);
           const locationName =
-            useUsersStore
-              .getState()
-              .worldData.actions.findUniverseData(order.location_id)?.name ||
+            locationNames[order.location_id]?.name ||
             "Location Data Unavailable";
 
           const corpData = getCorporation(charData?.corporation_id);

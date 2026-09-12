@@ -1,4 +1,7 @@
-import { STATIONID_RANGE } from "../../Context/defaultValues";
+import {
+  LOCATION_KIND,
+  resolveLocationKind,
+} from "../Assets/assetLocationConstants";
 import { SALE_LOCATION_KIND } from "./saleLocations";
 import {
   brokerFeeAmount,
@@ -36,8 +39,7 @@ export default async function calcSellingCharges(
   citadelBrokersFee,
 ) {
   const atStation =
-    marketOrder.location_id >= STATIONID_RANGE.low &&
-    marketOrder.location_id <= STATIONID_RANGE.high;
+    resolveLocationKind(marketOrder.location_id) === LOCATION_KIND.STATION;
 
   // A real order names where it was placed, so its location is turned into the
   // shape the shared rate function reads rather than the rate being worked out a

@@ -141,9 +141,40 @@ export function officeLocationIds(collection) {
 }
 
 /**
- * Locations in the order they are shown: by name, the unnamed after them, and the ones the account
+ * A location as a surface shows it.
+ *
+ * A location nobody could name is described rather than dropped: the name already says so, and the
+ * flag lets a surface say it its own way. Hiding it instead would read as the place not existing.
+ *
+ * @param {number} locationId
+ * @param {Object<string, {name: string}>} names
+ * @returns {{locationId: number, name: string, unreadable: boolean}}
+ */
+export function describeLocation(locationId, names) {
+  return {
+    locationId,
+    name: names[locationId]?.name ?? "",
+    unreadable: isNoAccessLocation(names[locationId]),
+  };
+}
+
+/**
+ * The order locations are shown in: by name, the unnamed after them, and the ones the account
  * cannot read last. A location whose name has not resolved keeps its place — it is still where the
  * assets are.
+ *
+ * @param {{name: string, unreadable: boolean}} a
+ * @param {{name: string, unreadable: boolean}} b
+ * @returns {number}
+ */
+export function byLocationOrder(a, b) {
+  if (a.unreadable !== b.unreadable) return a.unreadable ? 1 : -1;
+  if (!a.name || !b.name) return a.name ? -1 : b.name ? 1 : 0;
+  return a.name.localeCompare(b.name);
+}
+
+/**
+ * Locations and what sits at each, in display order.
  *
  * @param {Iterable<[number, T]>} entries - location id and whatever is at it
  * @param {Object<string, {name: string}>} names
@@ -153,14 +184,27 @@ export function officeLocationIds(collection) {
 export function orderLocations(entries, names) {
   return [...entries]
     .map(([locationId, rows]) => ({
-      locationId,
-      name: names[locationId]?.name ?? "",
-      unreadable: isNoAccessLocation(names[locationId]),
+      ...describeLocation(locationId, names),
       rows,
     }))
-    .sort((a, b) => {
-      if (a.unreadable !== b.unreadable) return a.unreadable ? 1 : -1;
-      if (!a.name || !b.name) return a.name ? -1 : b.name ? 1 : 0;
-      return a.name.localeCompare(b.name);
-    });
+    .sort(byLocationOrder);
+}
+
+/**
+ * Locations on their own, in display order — what a picker offers.
+ *
+ * An id with no entry in `names` is held back rather than offered as a blank row: unlike a list,
+ * where an unnamed location keeps its place because the assets are visibly there, a picker row with
+ * no label says nothing a reader can act on. That covers an id still being asked about, and also
+ * one ESI answered about without naming, which `useLocationNames` does not return at all.
+ *
+ * @param {Iterable<number>} locationIds
+ * @param {Object<string, {name: string}>} names
+ * @returns {Array<{locationId: number, name: string, unreadable: boolean}>}
+ */
+export function locationOptions(locationIds, names) {
+  return [...locationIds]
+    .filter((locationId) => names[locationId])
+    .map((locationId) => describeLocation(locationId, names))
+    .sort(byLocationOrder);
 }

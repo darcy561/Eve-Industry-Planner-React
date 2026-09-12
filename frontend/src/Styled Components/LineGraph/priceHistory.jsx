@@ -18,7 +18,6 @@ import {
 import { normalizeLocaleForIntl } from "../../Functions/Helper/localeDetection";
 import { useHasChanged } from "../../Hooks/useHasChanged";
 import { useItemNames } from "../../Hooks/useItemNames";
-import useUsersStore from "../../Zustand/usersStore";
 import { ChartRangeSlider, TimeSeriesChart, trailingRange } from "../Charts";
 
 const { MARKET_OPTIONS } = GLOBAL_CONFIG;
@@ -40,14 +39,14 @@ function PriceHistoryItemName({ typeID }) {
  * @param {number} props.typeID
  * @param {number} props.regionID
  * @param {Function} props.updateRegionID
- * @param {Object} [props.alternativeRegionData]
+ * @param {Object<string, {name: string}>} [props.regionNames]
  */
 function PriceHistoryLineGraph({
   graphData,
   typeID,
   regionID,
   updateRegionID,
-  alternativeRegionData,
+  regionNames,
 }) {
   const theme = useTheme();
   const regionSelectShell = getAppShellMarketSelectProps(theme);
@@ -73,11 +72,7 @@ function PriceHistoryLineGraph({
     setVisibleIndexRange(trailingRange(rowCount, windowSize));
   }
 
-  const regionName =
-    useUsersStore
-      .getState()
-      .worldData.actions.findUniverseData(regionID, alternativeRegionData)
-      ?.name || "Unknown Region";
+  const regionName = regionNames?.[regionID]?.name || "Unknown Region";
 
   const filteredData = useMemo(() => {
     if (!rowCount || visibleIndexRange[1] < visibleIndexRange[0]) return [];

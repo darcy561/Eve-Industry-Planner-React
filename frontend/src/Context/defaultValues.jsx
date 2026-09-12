@@ -692,42 +692,6 @@ export const structureTypeTooltip = (
 );
 
 /**
- * Station ID range for EVE Online stations.
- *
- * @type {Object}
- * @property {number} low - Lower bound of station ID range
- * @property {number} high - Upper bound of station ID range
- */
-export const STATIONID_RANGE = {
-  low: 60000000,
-  high: 64000000,
-};
-
-/**
- * System ID range for EVE Online solar systems.
- *
- * @type {Object}
- * @property {number} low - Lower bound of system ID range
- * @property {number} high - Upper bound of system ID range
- */
-export const SYSTEMID_RANGE = {
-  low: 30000000,
-  high: 32000000,
-};
-
-/**
- * Citadel ID range for EVE Online citadels.
- *
- * @type {Object}
- * @property {number} low - Lower bound of citadel ID range
- * @property {number} high - Upper bound of citadel ID range
- */
-export const CITADELID_RANGE = {
-  low: 61000000,
-  high: 64000000,
-};
-
-/**
  * Small text format configuration for Material-UI Typography.
  *
  * @type {Object}

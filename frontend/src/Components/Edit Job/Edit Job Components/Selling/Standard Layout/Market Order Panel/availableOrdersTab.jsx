@@ -1,4 +1,5 @@
 import { Avatar, IconButton, Tooltip, Typography, Grid } from "@mui/material";
+import { useMemo } from "react";
 
 import AddLinkIcon from "@mui/icons-material/AddLink";
 import {
@@ -19,6 +20,7 @@ import {
 } from "../../../../../../Functions/Helper/numberParser";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
+import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
 
 export function AvailableMarketOrdersTab({ state, actions, itemOrderMatch }) {
   const queryClient = useQueryClient();
@@ -28,6 +30,12 @@ export function AvailableMarketOrdersTab({ state, actions, itemOrderMatch }) {
   const getCorporation =
     useUsersStore.getState().account.actions.getCorporation;
   const jobLockReadOnly = useActiveJobReadOnly(state);
+  const locationIds = useMemo(
+    () => itemOrderMatch.map((order) => order.location_id),
+    [itemOrderMatch],
+  );
+  const { names: locationNames } = useLocationNames(locationIds);
+
   return (
     <Grid container>
       <Grid
@@ -49,9 +57,7 @@ export function AvailableMarketOrdersTab({ state, actions, itemOrderMatch }) {
               .getState()
               .account.actions.findCharacterByHash(order.CharacterHash);
             const locationName =
-              useUsersStore
-                .getState()
-                .worldData.actions.findUniverseData(order.location_id)?.name ??
+              locationNames[order.location_id]?.name ??
               "Location Data Unavailable";
 
             let corpData = null;

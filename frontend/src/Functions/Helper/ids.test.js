@@ -140,3 +140,29 @@ describe("changing a set of ids", () => {
     expect(ids).toEqual(new Set([34]));
   });
 });
+
+// A caller holding ids in a Map reaches for `.keys()` or `.values()`, which is an iterator rather
+// than an array. Read as one value it becomes a single unreadable id, and the whole list is lost.
+describe("ids held in something other than an array", () => {
+  it("reads a Map's values", () => {
+    const held = new Map([
+      ["a", 60003760],
+      ["b", 30000142],
+    ]);
+
+    expect(asNumberIDList(held.values())).toEqual([60003760, 30000142]);
+  });
+
+  it("reads a Map's keys", () => {
+    const held = new Map([
+      [60003760, "Jita"],
+      [30000142, "Jita"],
+    ]);
+
+    expect(asNumberIDSet(held.keys())).toEqual(new Set([60003760, 30000142]));
+  });
+
+  it("still reads a string as one id, not as its characters", () => {
+    expect(asStringIDList("587")).toEqual(["587"]);
+  });
+});

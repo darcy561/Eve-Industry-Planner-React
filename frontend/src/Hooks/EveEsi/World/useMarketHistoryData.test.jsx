@@ -1,0 +1,74 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createElement } from "react";
+
+const { store, addUniverseIDs, historyRows } = vi.hoisted(() => ({
+  store: { account: { characters: [] }, worldData: { universeIDs: {} } },
+  addUniverseIDs: vi.fn(),
+  historyRows: { current: [] },
+}));
+
+vi.mock("../../../Zustand/usersStore", () => ({
+  default: Object.assign((selector) => selector(store), {
+    getState: () => store,
+  }),
+}));
+
+vi.mock("../../../Functions/EveESI/World/getMarketHistory", () => ({
+  default: async () => ({ data: historyRows.current }),
+}));
+
+vi.mock("../../App/useESIRateLimiting", () => ({
+  default: () => ({ isRateLimited: () => false, getWaitTime: () => 0 }),
+}));
+
+vi.mock("../../../Functions/EveESI/World/getUniverseNames", () => ({
+  default: async (ids) => ids.map((id) => ({ id, name: `Region ${id}` })),
+}));
+
+import { useMarketHistoryData } from "./useMarketHistoryData";
+
+const THE_FORGE = 10000002;
+
+function render(typeID, location) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retryDelay: 0, gcTime: Infinity } },
+  });
+  return renderHook(() => useMarketHistoryData(typeID, location), {
+    wrapper: ({ children }) =>
+      createElement(QueryClientProvider, { client }, children),
+  });
+}
+
+beforeEach(() => {
+  store.account = {
+    characters: [{ CharacterHash: "main" }],
+    actions: { getMainCharacter: () => ({ CharacterHash: "main" }) },
+  };
+  store.worldData = { universeIDs: {}, actions: { addUniverseIDs } };
+  addUniverseIDs.mockReset();
+  historyRows.current = [];
+});
+
+describe("the market history a chart renders", () => {
+  // An item that has never traded in a region still has a region, and the chart says which one it
+  // found nothing in — it read "Unknown Region" while the name was withheld until rows arrived.
+  it("names the region when there is no history at all", async () => {
+    const { result } = render(34, { regionID: THE_FORGE });
+
+    await waitFor(() =>
+      expect(result.current.worldData[THE_FORGE]?.name).toBe(
+        `Region ${THE_FORGE}`,
+      ),
+    );
+    expect(result.current.marketHistory).toEqual([]);
+  });
+
+  it("asks for no name when there is no region to name", async () => {
+    const { result } = render(34, {});
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.worldData).toEqual({});
+  });
+});

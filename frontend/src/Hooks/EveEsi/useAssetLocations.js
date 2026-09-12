@@ -2,17 +2,18 @@ import { useMemo } from "react";
 import useAssetIndex, { ASSET_SCOPE } from "./useAssetIndex";
 import useLocationNames from "./useLocationNames";
 import assetLocationIds from "../../Functions/Assets/assetLocationIds";
-import { isNoAccessLocation } from "../../Functions/Assets/assetLocationConstants";
+import { locationOptions } from "../../Functions/Assets/assetTree";
 
 /**
  * The named locations a scope's assets sit at, ready for a dropdown.
  *
  * Three dropdowns offer this list and each held its own copy of the rules — which location kinds
- * count, that an unreadable structure is dropped, and that the order is alphabetical by name. They
- * read it from here instead, so a location offered on one is offered on all of them.
+ * count, how an unreadable structure is treated, and what order they come in. They read it from
+ * here instead, so a location offered on one is offered on all of them. `locationOptions` owns what
+ * is offered and in what order.
  *
  * @param {{scope?: string, id?: string|number, enabled?: boolean}} [request]
- * @returns {{locations: Array<{locationId: number, name: string}>, isLoading: boolean, isError: boolean}}
+ * @returns {{locations: Array<{locationId: number, name: string, unreadable: boolean}>, isLoading: boolean, isError: boolean}}
  */
 export default function useAssetLocations({
   scope = ASSET_SCOPE.CHARACTERS,
@@ -37,17 +38,7 @@ export default function useAssetLocations({
   } = useLocationNames(locationIds);
 
   const locations = useMemo(
-    () =>
-      locationIds
-        .filter((locationId) => {
-          const location = names[locationId];
-          return Boolean(location) && !isNoAccessLocation(location);
-        })
-        .map((locationId) => ({
-          locationId,
-          name: names[locationId].name ?? "",
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+    () => locationOptions(locationIds, names),
     [locationIds, names],
   );
 

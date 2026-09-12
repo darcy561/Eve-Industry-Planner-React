@@ -117,13 +117,23 @@ vi.mock("../../Functions/EveESI/fetchWithCustomHeaders", () => ({
     }
 
     const ids = JSON.parse(options.body);
+    // Measured against live ESI: the bulk lookup is all-or-nothing. An id it cannot resolve refuses
+    // the whole call with a 404 and names none of the ids beside it.
+    if (ids.some((id) => !publicNames.current[id])) {
+      return {
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+        json: async () => ({
+          error: "Ensure all IDs are valid before resolving.",
+        }),
+      };
+    }
     return {
       ok: true,
       status: 200,
       json: async () =>
-        ids
-          .filter((id) => publicNames.current[id])
-          .map((id) => ({ id, name: publicNames.current[id] })),
+        ids.map((id) => ({ id, name: publicNames.current[id] })),
     };
   },
 }));
@@ -141,6 +151,8 @@ const ALT_ONLY_STRUCTURE = 1035466617946;
 const COMMUNITY_STRUCTURE = 1035466617947;
 const CLOSED_STRUCTURE = 1035466617948;
 const SHIP_IN_SPACE = 1099999999999;
+const MOON = 40009077;
+const DEAD_STATION = 60999999;
 
 const MAIN = { CharacterHash: "hash-main", CharacterName: "Main" };
 const ALT = { CharacterHash: "hash-alt", CharacterName: "Alt" };
@@ -263,6 +275,34 @@ describe("the names an asset view shows", () => {
     expect(
       esiCalls.filter((call) => call.url.includes(String(SHIP_IN_SPACE))),
     ).toHaveLength(0);
+  });
+
+  // A moon is a place a starbase's modules sit at, and nothing can name it: the bulk lookup answers
+  // for stations, systems, constellations and regions only, and a character's token answers for
+  // structures. Asked either way it costs an error, and asked in a batch it costs every name beside
+  // it.
+  it("never asks about a moon, and names the station beside it", async () => {
+    characterRows.current = [stack(1, JITA), stack(2, MOON)];
+
+    renderLibrary();
+
+    expect(await screen.findByText("Jita IV-4")).toBeTruthy();
+    expect(
+      esiCalls.filter((call) => call.url.includes(String(MOON))),
+    ).toHaveLength(0);
+    // Nor carried into the bulk call, where it would have refused the batch Jita was in.
+    const bulk = esiCalls.filter((call) => call.url.includes("universe/names"));
+    expect(bulk).toHaveLength(1);
+  });
+
+  // One id ESI cannot resolve used to cost every name on the page, on every attempt, because it is
+  // in the batch every time.
+  it("finds the one id ESI will not resolve, and names the rest", async () => {
+    characterRows.current = [stack(1, JITA), stack(2, DEAD_STATION)];
+
+    renderLibrary();
+
+    expect(await screen.findByText("Jita IV-4")).toBeTruthy();
   });
 
   it("asks each character once, and only once, for a structure", async () => {

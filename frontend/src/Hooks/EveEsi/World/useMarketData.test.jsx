@@ -105,11 +105,16 @@ describe("the market data a panel renders", () => {
     );
   });
 
-  it("asks for no names until there are orders to name", async () => {
+  // An empty market still has a region, and the panel says which one it found nothing in.
+  it("names the region when no orders came back", async () => {
     const { result } = render(34, { regionID: THE_FORGE, stationID: JITA });
 
-    await waitFor(() => expect(result.current.isMarketDataLoading).toBe(false));
-    expect(result.current.worldData).toEqual({});
+    await waitFor(() =>
+      expect(result.current.worldData[THE_FORGE]?.name).toBe(
+        `Station ${THE_FORGE}`,
+      ),
+    );
+    // Nothing was asked of a character: an empty market names no structures.
     expect(structureAsks).toHaveLength(0);
   });
 });

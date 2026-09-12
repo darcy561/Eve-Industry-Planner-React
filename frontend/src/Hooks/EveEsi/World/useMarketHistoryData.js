@@ -89,11 +89,8 @@ export function useMarketHistoryData(typeID, location) {
   const marketHistory = data || [];
 
   const regionId = location?.regionID;
-  const hasHistory = marketHistory.length > 0;
-  const regionIds = useMemo(
-    () => (regionId && hasHistory ? [regionId] : []),
-    [regionId, hasHistory],
-  );
+  // The region is asked for whether or not it has any history: the chart names it either way.
+  const regionIds = useMemo(() => (regionId ? [regionId] : []), [regionId]);
 
   const {
     names: worldData,

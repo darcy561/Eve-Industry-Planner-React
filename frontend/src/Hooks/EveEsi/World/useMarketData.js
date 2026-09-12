@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import getMarketData from "../../../Functions/EveESI/World/getMarketData";
 import useLocationNames from "../useLocationNames";
 import useESIRateLimiting from "../../App/useESIRateLimiting";
+import { asNumberIDSet } from "../../../Functions/Helper/ids";
 
 /**
  * Custom hook that fetches market data for a specific item and region from EVE ESI API.
@@ -106,19 +107,17 @@ export function useMarketData(typeID, location) {
 
   const marketData = data || [];
   const worldDataIDs = useMemo(() => {
-    if (marketData.length === 0 || !location) return [];
+    // The region is asked for whether or not any orders came back: its name is what the empty
+    // market message says.
+    if (!location) return [];
 
-    const locations = new Set();
-    marketData.forEach((item) => {
-      locations.add(item.location_id);
-      locations.add(item.system_id);
-    });
-    locations.add(location.regionID);
-    locations.add(location.stationID);
-
-    return Array.from(locations)
-      .filter(Boolean)
-      .sort((a, b) => Number(a) - Number(b));
+    return [
+      ...asNumberIDSet([
+        ...marketData.flatMap((item) => [item.location_id, item.system_id]),
+        location.regionID,
+        location.stationID,
+      ]),
+    ].sort((a, b) => a - b);
   }, [marketData, location?.regionID, location?.stationID]);
 
   const {

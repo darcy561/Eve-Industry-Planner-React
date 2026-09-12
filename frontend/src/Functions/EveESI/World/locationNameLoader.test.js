@@ -91,6 +91,121 @@ describe("requestLocationName", () => {
     expect(outcome.name).toBeUndefined();
   });
 
+  // Measured against live ESI: `POST /universe/names` is all-or-nothing. One id it cannot resolve
+  // refuses the whole call with a 404 and names nothing, saying nothing about which id was at
+  // fault — so without this the one bad id takes every name on the page with it, on every attempt.
+  it("finds the one bad id in a batch and names the rest anyway", async () => {
+    // In the station range, so it goes to the bulk lookup: an id ESI cannot resolve is only a
+    // problem for the batch when it is one the batch would carry.
+    const BAD = 60999999;
+    namesMock.mockImplementation(async (ids) => {
+      if (ids.includes(BAD)) {
+        throw new LocationResolutionError("universe names: 404 Not Found", {
+          status: 404,
+        });
+      }
+      return ids.map((id) => named(id, `Place ${id}`));
+    });
+
+    const [jita, bad, amarr] = await Promise.all([
+      requestLocationName(JITA, characters),
+      requestLocationName(BAD, characters),
+      requestLocationName(AMARR, characters),
+    ]);
+
+    expect(jita.name).toBe(`Place ${JITA}`);
+    expect(amarr.name).toBe(`Place ${AMARR}`);
+    expect(bad.resolutionStatus).toBe(LOCATION_OUTCOME.UNNAMED);
+    expect(bad.name).toBeUndefined();
+  });
+
+  // A refused batch is only worth splitting when ESI has said an id is unresolvable. Splitting on
+  // anything else would turn one failed call into a cascade of them.
+  it("does not split a batch that failed for any other reason", async () => {
+    namesMock.mockRejectedValue(
+      new LocationResolutionError("universe names: 503 Service Unavailable", {
+        status: 503,
+      }),
+    );
+
+    await Promise.allSettled([
+      requestLocationName(JITA, characters),
+      requestLocationName(AMARR, characters),
+    ]);
+
+    expect(namesMock).toHaveBeenCalledTimes(1);
+  });
+
+  // A moon, a stargate and a station's office folder can each arrive as something's location, and
+  // `POST /universe/names` answers for none of them — it refuses the whole call, taking the ids
+  // batched beside it with it. Before these were classified, they fell to the structure path and
+  // cost a 403 per linked character instead.
+  it.each([
+    [40009077, "a planet"],
+    [50001248, "a stargate"],
+    [66000001, "an office folder"],
+  ])("asks nothing about %i (%s), and still names the rest", async (bad) => {
+    namesMock.mockResolvedValue([named(JITA, "Jita IV-4")]);
+
+    const [jita, unnameable] = await Promise.all([
+      requestLocationName(JITA, characters),
+      requestLocationName(bad, characters),
+    ]);
+
+    expect(jita.name).toBe("Jita IV-4");
+    expect(unnameable.resolutionStatus).toBe(LOCATION_OUTCOME.UNNAMED);
+    expect(namesMock).toHaveBeenCalledWith([JITA]);
+    expect(structureMock).not.toHaveBeenCalled();
+  });
+
+  // ESI refuses a request it will not accept — empty, holding a duplicate, or carrying a number
+  // outside int32 — without looking at any id in it. That is the app having built a bad request, and
+  // nothing else would say so: the ids simply fail, and the cache does not keep the failure.
+  it("says so when ESI refuses the request rather than the ids", async () => {
+    const refusedRequest = new LocationResolutionError("universe names: 400", {
+      status: 400,
+      permanent: true,
+    });
+    namesMock.mockRejectedValue(refusedRequest);
+    const reported = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    const settled = await Promise.allSettled([
+      requestLocationName(JITA, characters),
+      requestLocationName(AMARR, characters),
+    ]);
+
+    expect(reported).toHaveBeenCalledWith(
+      expect.stringContaining("refused a batch of 2 outright"),
+    );
+    // Not split: narrowing down would settle one id as nameless over a fault that was never about
+    // that id.
+    expect(namesMock).toHaveBeenCalledTimes(1);
+    expect(settled.every((result) => result.status === "rejected")).toBe(true);
+    reported.mockRestore();
+  });
+
+  // The failure is never cached, so the next view wanting those ids asks again and lands here
+  // again. Reported every time, one bad request would fill the console for the session.
+  it("reports the same refused request once", async () => {
+    namesMock.mockRejectedValue(
+      new LocationResolutionError("universe names: 400", {
+        status: 400,
+        permanent: true,
+      }),
+    );
+    const reported = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    await Promise.allSettled([requestLocationName(AMARR, characters)]);
+    await Promise.allSettled([requestLocationName(AMARR, characters)]);
+
+    expect(reported).toHaveBeenCalledTimes(1);
+    reported.mockRestore();
+  });
+
   it("fails the ids a failed call spoke for, rather than answering with nothing", async () => {
     namesMock.mockRejectedValue(new LocationResolutionError("esi down"));
 

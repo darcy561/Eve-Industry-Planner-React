@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Avatar,
@@ -25,6 +25,7 @@ import {
 import findBlueprintType from "../../../../../../Functions/Shared/findBlueprintType";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
+import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
 
 /**
  * Unlinking an ESI job removes a run from `activeJob.build.costs.linkedJobs` (persisted), so
@@ -37,6 +38,12 @@ export function LinkedJobsTab(props) {
   const [clickedJobs, setClickedJobs] = useState(new Set());
   const [removedJobs, setRemovedJobs] = useState(new Set());
   const jobLockReadOnly = useActiveJobReadOnly(state);
+  const linkedJobs = state.activeJob.build.costs.linkedJobs;
+  const stationIds = useMemo(
+    () => linkedJobs.map((job) => job.station_id),
+    [linkedJobs],
+  );
+  const { names: facilityNames } = useLocationNames(stationIds);
 
   const getStatusColor = (status, isReadyToDeliver) => {
     if (isReadyToDeliver) {
@@ -107,7 +114,7 @@ export function LinkedJobsTab(props) {
           },
         }}
       >
-        {state.activeJob.build.costs.linkedJobs
+        {linkedJobs
           .filter((job) => !removedJobs.has(job.job_id))
           .map((job) => {
             const jobOwner = useUsersStore
@@ -118,9 +125,7 @@ export function LinkedJobsTab(props) {
               job.blueprint_id,
               queryClient,
             );
-            const facilityData = useUsersStore
-              .getState()
-              .worldData.actions.findUniverseData(job.station_id);
+            const facilityData = facilityNames[job.station_id];
             const timeRemaining = formatTimeRemaining(job.finishesAt, { now });
             const isReadyToDeliver = job.isReadyToDeliver;
 

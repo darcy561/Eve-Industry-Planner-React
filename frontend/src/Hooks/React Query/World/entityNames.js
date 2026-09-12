@@ -1,5 +1,7 @@
 import { idsQueryKeySuffix } from "../idsQueryKey.js";
 import getUniverseNames from "../../../Functions/EveESI/World/getUniverseNames";
+import retryUnlessPermanent from "../retryUnlessPermanent";
+import { asNumberIDSet } from "../../../Functions/Helper/ids";
 
 export const ENTITY_NAMES_QUERY_KEY = ["esi", "entity-names"];
 
@@ -17,7 +19,7 @@ export const ENTITY_NAMES_QUERY_KEY = ["esi", "entity-names"];
  * @returns {object} React Query configuration
  */
 export function entityNamesQuery(ids) {
-  const wanted = [...new Set((ids ?? []).filter(Boolean))].sort();
+  const wanted = [...asNumberIDSet(ids)].sort((a, b) => a - b);
 
   return {
     queryKey: [...ENTITY_NAMES_QUERY_KEY, idsQueryKeySuffix(wanted)],
@@ -43,7 +45,7 @@ export function entityNamesQuery(ids) {
     },
     staleTime: Infinity,
     gcTime: Infinity,
-    retry: 1,
+    retry: retryUnlessPermanent(1),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   };

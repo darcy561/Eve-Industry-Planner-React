@@ -13,6 +13,7 @@ import {
 } from "../React Query/Corporation/journal";
 import { corporationTransactionsQuery } from "../React Query/Corporation/transactions";
 import { isQueryObserverResultLoading } from "./queryLoadingState";
+import { asNumberIDSet, asStringIDList } from "../../Functions/Helper/ids";
 
 const CHARACTER_QUERIES = [
   characterMarketOrdersQuery,
@@ -44,16 +45,14 @@ const CORPORATION_DIVISION_QUERIES = [
 export function useGetCharacterOrdersAndWalletData(characterHashes) {
   const characters = useUsersStore((store) => store.account.characters);
 
-  const hashes = Array.isArray(characterHashes)
-    ? characterHashes.filter(Boolean)
-    : [characterHashes].filter(Boolean);
+  const hashes = asStringIDList(characterHashes);
 
   const requested = (characters ?? []).filter((character) =>
     hashes.includes(character.CharacterHash),
   );
 
   const corporationIds = [
-    ...new Set(requested.map((c) => c.corporation_id).filter(Boolean)),
+    ...asNumberIDSet(requested.map((c) => c.corporation_id)),
   ];
 
   const combine = useCallback((results) => {

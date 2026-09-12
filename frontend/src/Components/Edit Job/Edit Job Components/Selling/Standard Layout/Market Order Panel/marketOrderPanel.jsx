@@ -24,7 +24,7 @@ export function MarketOrderPanel(props) {
 
   const {
     marketOrderMatches: itemOrderMatch,
-    isWorldDataLoading,
+    isLoading: ordersLoading,
     error: worldDataError,
   } = useGatherMarketOrdersAndUpdateExistingLinkedOrders(
     queryClient,
@@ -34,7 +34,7 @@ export function MarketOrderPanel(props) {
     actions,
   );
 
-  const isLoading = parentIsLoading || isWorldDataLoading;
+  const isLoading = parentIsLoading || ordersLoading;
 
   const isError = parentIsError || worldDataError;
 

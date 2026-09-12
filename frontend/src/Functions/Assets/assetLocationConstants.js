@@ -46,6 +46,14 @@ export function isNoAccessLocation(location) {
 export const ASSET_SAFETY_LOCATION_ID = 2004;
 
 /**
+ * The first id EVE gives to something spawned into the world rather than defined by the universe:
+ * a player structure, an assembled ship, a container.
+ *
+ * @type {number}
+ */
+const SPAWNED_ITEM_FLOOR = 1000000000000;
+
+/**
  * Location flags only a ship files things in.
  *
  * Fitting slots and bays, and the holds a hull carries — cargo included. A structure's own modules
@@ -105,43 +113,106 @@ export const LOCATION_KIND = Object.freeze({
   CONSTELLATION: "constellation",
   SYSTEM: "system",
   ABYSSAL_SYSTEM: "abyssalSystem",
+  CELESTIAL: "celestial",
+  STARGATE: "stargate",
   STATION: "station",
+  STATION_FOLDER: "stationFolder",
   STRUCTURE: "structure",
+  UNKNOWN: "unknown",
 });
 
 /**
- * Classifies a location id by its range, per ESI's asset location_id reference.
+ * How a location's name can be got, if at all.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const LOCATION_NAME_SOURCE = Object.freeze({
+  BULK: "bulk",
+  CHARACTER: "character",
+  NONE: "none",
+});
+
+/**
+ * The kinds `POST /universe/names` answers for.
+ *
+ * The endpoint resolves alliances, characters, constellations, corporations, types, regions, solar
+ * systems, stations and factions — and nothing else. An id outside that set is not merely left out
+ * of the answer: it refuses the whole call, taking every id batched beside it with it.
+ *
+ * @type {Set<string>}
+ */
+const BULK_NAMEABLE_KINDS = new Set([
+  LOCATION_KIND.REGION,
+  LOCATION_KIND.CONSTELLATION,
+  LOCATION_KIND.SYSTEM,
+  LOCATION_KIND.ABYSSAL_SYSTEM,
+  LOCATION_KIND.STATION,
+]);
+
+/**
+ * Where to ask for this location's name.
+ *
+ * `NONE` is an answer, not a gap: a moon, a stargate, a station's office folder and an id in no
+ * documented range can each arrive as something's location, and none of them can be named by either
+ * path. Asking anyway spends an error either way — a refused batch for the bulk lookup, a 403 per
+ * character for the structure walk.
+ *
+ * @param {number} locationId
+ * @returns {string} one of {@link LOCATION_NAME_SOURCE}
+ */
+export function locationNameSource(locationId) {
+  const kind = resolveLocationKind(locationId);
+  if (BULK_NAMEABLE_KINDS.has(kind)) return LOCATION_NAME_SOURCE.BULK;
+  if (kind === LOCATION_KIND.STRUCTURE) return LOCATION_NAME_SOURCE.CHARACTER;
+  return LOCATION_NAME_SOURCE.NONE;
+}
+
+/**
+ * Classifies a location id by its range, per EVE's published id ranges.
  *
  * A row's `location_type` cannot do this on its own: a player structure arrives as `"item"`, the
  * same value a container carries, so telling them apart means walking the chain to find where it
- * ends. The range answers it from the id alone. Customs offices share the structure range and are
- * not separable here. `SYSTEM` deliberately spans two documented ranges — New Eden systems and
- * wormhole systems — because an asset in space sits in one the same way it sits in the other.
+ * ends. The range answers it from the id alone.
  *
- * Regions and constellations never arrive as an asset's location, but they do reach name
- * resolution — a market history reads a region. They are classified here rather than falling to the
- * `STRUCTURE` default, which would send them to an endpoint that answers for neither.
+ * Only a spawned item — an id at or above a million million — is a structure. Everything below that
+ * and outside a documented range is `UNKNOWN`, which is the point of classifying at all: an id
+ * treated as a structure on the strength of matching nothing else is asked of every linked
+ * character and refused by all of them, which is what a ship in space used to cost.
  *
  * `SHIP` is not decided here: a ship's item id sits in the same range as a structure's, and only the
  * flag of the thing filed inside it tells the two apart. {@link buildAssetNodes} settles that.
  *
+ * @see https://developers.eveonline.com/docs/guides/id-ranges/
  * @param {number} locationId
  * @returns {string} one of {@link LOCATION_KIND}
  */
 export function resolveLocationKind(locationId) {
   if (locationId === ASSET_SAFETY_LOCATION_ID)
     return LOCATION_KIND.ASSET_SAFETY;
-  if (locationId >= 10000000 && locationId < 13000000)
+  if (locationId >= SPAWNED_ITEM_FLOOR) return LOCATION_KIND.STRUCTURE;
+  if (locationId >= 10000000 && locationId < 20000000)
     return LOCATION_KIND.REGION;
-  if (locationId >= 20000000 && locationId < 23000000) {
+  if (locationId >= 20000000 && locationId < 30000000) {
     return LOCATION_KIND.CONSTELLATION;
   }
-  if (locationId >= 30000000 && locationId < 32000000)
-    return LOCATION_KIND.SYSTEM;
+  // Abyssal systems are their own kind because an asset there is reached differently, but every
+  // other subdivision of the system range — New Eden, wormhole, void, hidden — is a system.
   if (locationId >= 32000000 && locationId < 33000000) {
     return LOCATION_KIND.ABYSSAL_SYSTEM;
   }
+  if (locationId >= 30000000 && locationId < 40000000)
+    return LOCATION_KIND.SYSTEM;
+  if (locationId >= 40000000 && locationId < 50000000)
+    return LOCATION_KIND.CELESTIAL;
+  if (locationId >= 50000000 && locationId < 60000000)
+    return LOCATION_KIND.STARGATE;
+  // Stations and outposts. Above them sit the station folders — containers for a station's offices
+  // rather than places, and not entities ESI will name. The band between the two, 64M to 65.9M, is
+  // unlabelled in EVE's table, so it is left unknown rather than assumed to be either.
   if (locationId >= 60000000 && locationId < 64000000)
     return LOCATION_KIND.STATION;
-  return LOCATION_KIND.STRUCTURE;
+  if (locationId >= 66000000 && locationId < 70000000) {
+    return LOCATION_KIND.STATION_FOLDER;
+  }
+  return LOCATION_KIND.UNKNOWN;
 }

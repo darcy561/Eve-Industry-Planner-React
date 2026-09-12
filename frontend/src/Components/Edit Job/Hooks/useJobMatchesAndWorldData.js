@@ -1,8 +1,14 @@
-import { useState, useEffect } from "react";
-import useUsersStore from "../../../Zustand/usersStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { fetchLocationNames } from "../../../Hooks/React Query/World/locationNames";
+import { useEffect, useMemo } from "react";
+import useLocationNames from "../../../Hooks/EveEsi/useLocationNames";
 import findIndustryJobsForItem from "../../../Functions/IndustryJobs/findIndustryJobsForItem";
+import { asNumberIDSet } from "../../../Functions/Helper/ids";
+
+/** Every place an industry job row can name. */
+function jobLocationIds(jobs = []) {
+  return asNumberIDSet(
+    jobs.flatMap((job) => [job.location_id, job.facility_id, job.station_id]),
+  );
+}
 
 export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
   allIndustryJobs,
@@ -10,64 +16,37 @@ export function useGatherJobMatchesAndUpdateExistingLinkedJobs(
   linkedJobs,
   esiDataToLink,
 ) {
-  const queryClient = useQueryClient();
-  const [jobMatches, setJobMatches] = useState([]);
-  const [isWorldDataLoading, setIsWorldDataLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function processGatherJobMatchesAndUpdateExistingLinkedJobs() {
-      if (!allIndustryJobs) {
-        setJobMatches([]);
-        setError(null);
-        return;
-      }
-
-      try {
-        setIsWorldDataLoading(true);
-        setError(null);
-
-        const matches = findIndustryJobsForItem(allIndustryJobs, activeJob, {
+  // Derived while rendering rather than set from an effect: the matches are a function of the jobs
+  // ESI reported and the job being edited, so an effect would paint one frame of the previous set.
+  const { jobMatches, error } = useMemo(() => {
+    if (!allIndustryJobs) return { jobMatches: [], error: null };
+    try {
+      return {
+        jobMatches: findIndustryJobsForItem(allIndustryJobs, activeJob, {
           linkedAcrossAccount: linkedJobs,
           beingRemoved: esiDataToLink.industryJobs.remove,
-        });
-
-        activeJob.updateLinkedJobData(allIndustryJobs);
-        setJobMatches(matches);
-
-        const allLocationIDs = new Set();
-        matches.forEach((job) => {
-          if (job.location_id) allLocationIDs.add(job.location_id);
-          if (job.facility_id) allLocationIDs.add(job.facility_id);
-          if (job.station_id) allLocationIDs.add(job.station_id);
-        });
-
-        if (activeJob.build.costs.linkedJobs.length > 0) {
-          activeJob.build.costs.linkedJobs.forEach((job) => {
-            if (job.location_id) allLocationIDs.add(job.location_id);
-            if (job.facility_id) allLocationIDs.add(job.facility_id);
-            if (job.station_id) allLocationIDs.add(job.station_id);
-          });
-        }
-
-        if (allLocationIDs.size > 0) {
-          const names = await fetchLocationNames(
-            queryClient,
-            allLocationIDs,
-            Object.values(useUsersStore.getState().account.characters),
-          );
-          useUsersStore.getState().worldData.actions.addUniverseIDs(names);
-        }
-
-        setIsWorldDataLoading(false);
-      } catch (err) {
-        setError(err);
-        setIsWorldDataLoading(false);
-      }
+        }),
+        error: null,
+      };
+    } catch (err) {
+      return { jobMatches: [], error: err };
     }
+  }, [allIndustryJobs, activeJob, linkedJobs, esiDataToLink]);
 
-    processGatherJobMatchesAndUpdateExistingLinkedJobs();
-  }, [allIndustryJobs, linkedJobs, esiDataToLink]);
+  // The one thing here that is not a derivation: the job being edited takes the latest figures ESI
+  // reported for the jobs already linked to it.
+  useEffect(() => {
+    if (allIndustryJobs) activeJob.updateLinkedJobData(allIndustryJobs);
+  }, [allIndustryJobs, activeJob]);
+
+  const linkedJobRows = activeJob.build.costs.linkedJobs;
+  const locationIds = useMemo(
+    () => jobLocationIds([...jobMatches, ...linkedJobRows]),
+    [jobMatches, linkedJobRows],
+  );
+  // The panels below resolve their own rows' names from the same per-id cache; this is here because
+  // the page waits for them before it draws, rather than drawing rows that say nothing yet.
+  const { isLoading: isWorldDataLoading } = useLocationNames(locationIds);
 
   return {
     jobMatches,

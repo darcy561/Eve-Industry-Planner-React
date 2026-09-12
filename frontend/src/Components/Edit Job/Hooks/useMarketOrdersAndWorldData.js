@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import useUsersStore from "../../../Zustand/usersStore";
-import { fetchLocationNames } from "../../../Hooks/React Query/World/locationNames";
+import { useState, useEffect, useMemo } from "react";
+import useLocationNames from "../../../Hooks/EveEsi/useLocationNames";
 import findMarketOrdersForItem from "../../../Functions/MarketOrders/findMarketOrdersForItem";
 import applyLatestOrderData from "../../../Functions/MarketOrders/applyLatestOrderData";
 import { useGetAllCharacterMarketOrders } from "../../../Hooks/EveEsi/Character/useGetAllCharacterMarketOrders";
 import { useGetAllCharacterHistoricMarketOrders } from "../../../Hooks/EveEsi/Character/useGetAllCharacterHistoricMarketOrders";
 import { useGetAllCorporationMarketOrders } from "../../../Hooks/EveEsi/Corporation/useGetAllCorporationMarketOrders";
 import { useGetAllCorporationHistoricMarketOrders } from "../../../Hooks/EveEsi/Corporation/useGetAllCorporationHistoricMarketOrders";
+import { asNumberIDSet } from "../../../Functions/Helper/ids";
 
 function updateLinkedMarketOrdersWithLatestData(allOrders, activeJob, actions) {
   if (applyLatestOrderData(activeJob, allOrders)) {
@@ -22,7 +22,6 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
   actions,
 ) {
   const [marketOrderMatches, setMarketOrderMatches] = useState([]);
-  const [isWorldDataLoading, setIsWorldDataLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const {
@@ -50,12 +49,26 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
     error: corporationHistoricMarketOrdersError,
   } = useGetAllCorporationHistoricMarketOrders();
 
+  const linkedOrderRows = activeJob.build.sale.marketOrders;
+  const locationIds = useMemo(
+    () =>
+      asNumberIDSet(
+        [...marketOrderMatches, ...linkedOrderRows].map(
+          (order) => order.location_id,
+        ),
+      ),
+    [marketOrderMatches, linkedOrderRows],
+  );
+  // The panel waits for the names before it draws, rather than drawing rows that say nothing yet.
+  // The tabs beneath it read the same per-id cache, so this costs no extra lookup.
+  const { isLoading: areNamesLoading } = useLocationNames(locationIds);
+
   const isLoading =
     isCharacterMarketOrdersLoading ||
     isCharacterHistoricMarketOrdersLoading ||
     isCorporationMarketOrdersLoading ||
     isCorporationHistoricMarketOrdersLoading ||
-    isWorldDataLoading;
+    areNamesLoading;
 
   const isError =
     isCharacterMarketOrdersError ||
@@ -80,7 +93,6 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
       }
 
       try {
-        setIsWorldDataLoading(true);
         setError(null);
 
         const allCharacterOrders = [
@@ -110,34 +122,15 @@ export function useGatherMarketOrdersAndUpdateExistingLinkedOrders(
           actions,
         );
         setMarketOrderMatches(matches);
-
-        const allLocationIDs = new Set();
-        matches.forEach((order) => {
-          if (order.location_id) allLocationIDs.add(order.location_id);
-        });
-        if (activeJob.build.sale.marketOrders.length > 0) {
-          activeJob.build.sale.marketOrders.forEach((order) => {
-            if (order.location_id) allLocationIDs.add(order.location_id);
-          });
-        }
-
-        if (allLocationIDs.size > 0) {
-          const names = await fetchLocationNames(
-            queryClient,
-            allLocationIDs,
-            Object.values(useUsersStore.getState().account.characters),
-          );
-          useUsersStore.getState().worldData.actions.addUniverseIDs(names);
-        }
-
-        setIsWorldDataLoading(false);
       } catch (err) {
         setError(err);
-        setIsWorldDataLoading(false);
       }
     }
 
     processGatherMarketOrdersAndUpdateExistingLinkedOrders();
+    // `activeJob` and `actions` are written to here, not read from: listing the job would re-run the
+    // match on every edit the reducer makes to it, including the one this effect itself causes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     queryClient,
     linkedOrders,

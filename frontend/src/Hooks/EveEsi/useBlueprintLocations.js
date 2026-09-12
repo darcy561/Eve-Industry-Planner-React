@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import useAssetIndex, { ASSET_SCOPE } from "./useAssetIndex";
 import useLocationNames from "./useLocationNames";
+import { locationOptions } from "../../Functions/Assets/assetTree";
 import blueprintLocations from "../../Functions/Blueprints/blueprintLocations";
 import { unnameableLocationIds } from "../../Functions/Assets/assetLocationIds";
+import { asNumberIDSet } from "../../Functions/Helper/ids";
 
 const EMPTY_NAMES = new Map();
 
@@ -32,7 +34,9 @@ export default function useBlueprintLocations(blueprints) {
   // A blueprint aboard a ship in space holds the ship's item id, which no lookup will ever name.
   const requested = useMemo(() => {
     const ships = unnameableLocationIds(assets);
-    return [...new Set(locationIds.values())].filter((id) => !ships.has(id));
+    return [...asNumberIDSet(locationIds.values())].filter(
+      (id) => !ships.has(id),
+    );
   }, [locationIds, assets]);
   const {
     names,
@@ -52,17 +56,13 @@ export default function useBlueprintLocations(blueprints) {
     return found;
   }, [locationIds, names]);
 
-  // The places blueprints are held at, for narrowing the library to one of them.
-  const places = useMemo(() => {
-    const named = new Map();
-    for (const locationId of locationIds.values()) {
-      const name = names[locationId]?.name;
-      if (name) named.set(locationId, name);
-    }
-    return [...named.entries()]
-      .map(([locationId, name]) => ({ locationId, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [locationIds, names]);
+  // The places blueprints are held at, for narrowing the library to one of them. The same picker
+  // component is fed from `useAssetLocations`, so both feeds order and describe a place the same
+  // way — a structure nobody can read is offered saying so, after the named ones.
+  const places = useMemo(
+    () => locationOptions(asNumberIDSet(locationIds.values()), names),
+    [locationIds, names],
+  );
 
   // A failure reads the same as a blueprint simply having no location, so it is reported rather
   // than left to look like an answer.

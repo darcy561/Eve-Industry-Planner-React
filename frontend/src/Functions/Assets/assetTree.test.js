@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import buildAssetNodes from "./buildAssetNodes";
 import {
   assetRowsByLocation,
+  locationOptions,
   namedContainerIds,
   rowsByCompartment,
   sortNodesByName,
@@ -123,5 +124,34 @@ describe("the containers worth naming", () => {
   // The folder carries no player-given name; its hangars are not containers.
   it("leaves out an office folder", () => {
     expect(namedContainerIds(corporation)).toEqual([2002]);
+  });
+});
+
+// What every location picker in the app offers, and in what order.
+describe("the locations a picker offers", () => {
+  const names = {
+    1: { name: "Zoohen VII", resolutionStatus: "resolved" },
+    2: { name: "Amarr VIII", resolutionStatus: "resolved" },
+    3: { name: "No Access To Location - 3", resolutionStatus: "no_access" },
+  };
+
+  it("puts a location nobody can read after every named one", () => {
+    expect(
+      locationOptions([3, 1, 2], names).map(({ locationId }) => locationId),
+    ).toEqual([2, 1, 3]);
+  });
+
+  it("marks the one nobody can read", () => {
+    expect(locationOptions([1, 3], names)).toEqual([
+      { locationId: 1, name: "Zoohen VII", unreadable: false },
+      { locationId: 3, name: "No Access To Location - 3", unreadable: true },
+    ]);
+  });
+
+  // A blank row says nothing a reader can act on, and the name is moments away.
+  it("holds back a location still being asked about", () => {
+    expect(
+      locationOptions([1, 99], names).map(({ locationId }) => locationId),
+    ).toEqual([1]);
   });
 });

@@ -1,11 +1,9 @@
 import { Skeleton, Stack } from "@mui/material";
-import { useCallback } from "react";
 import PriceHistoryLineGraph from "../../../Styled Components/LineGraph/priceHistory";
 import ContentDialogue, {
   DialogueCloseAction,
   useDialogueEventState,
 } from "../../../Styled Components/Dialogue/ContentDialogue";
-import useUsersStore from "../../../Zustand/usersStore";
 import { useMarketHistoryData } from "../../../Hooks/EveEsi/World/useMarketHistoryData";
 
 function PriceHistoryDialogue() {
@@ -28,11 +26,6 @@ function PriceHistoryDialogue() {
     messageData.selectedTypeID,
     messageData.selectedLocation,
   );
-
-  const handleClose = useCallback(() => {
-    useUsersStore.getState().worldData.actions.addUniverseIDs(worldData);
-    resetDialogue();
-  }, [worldData, resetDialogue]);
 
   const isFetchActive =
     messageData.isOpen &&
@@ -57,7 +50,7 @@ function PriceHistoryDialogue() {
   return (
     <ContentDialogue
       open={messageData.isOpen}
-      onClose={handleClose}
+      onClose={resetDialogue}
       loadingVariant="dense"
       useAppShellDesign
       componentName="PriceHistoryDialogue"
@@ -98,7 +91,7 @@ function PriceHistoryDialogue() {
         overflowX: "hidden",
         overflowY: "hidden",
       }}
-      actions={<DialogueCloseAction onClose={handleClose} />}
+      actions={<DialogueCloseAction onClose={resetDialogue} />}
       dialogueActionsProps={{ sx: { display: "flex" } }}
     >
       <PriceHistoryLineGraph
@@ -111,7 +104,7 @@ function PriceHistoryDialogue() {
             selectedLocation: { ...prev.selectedLocation, regionID: x },
           }))
         }
-        alternativeRegionData={worldData}
+        regionNames={worldData}
       />
     </ContentDialogue>
   );

@@ -15,6 +15,8 @@ export const character = {
 };
 
 export const JITA_IV = 60003760;
+/** A player structure, so a job's facility is a different place from the station holding it. */
+export const ABBEY_RAITARU = 1035466617946;
 export const AMARR_VIII = 60008494;
 export const TRITANIUM = 34;
 export const RIFTER = 587;
@@ -32,6 +34,9 @@ export function esiIndustryJob(job_id, { runs = 1 } = {}) {
     cost: 1000,
     start_date: "2026-01-01T00:00:00Z",
     end_date: "2026-01-02T00:00:00Z",
+    // ESI reports both: the facility the job runs in, and the station it sits in. `linkedESIJob`
+    // stores the facility as the linked row's `station_id`, so the two are not interchangeable.
+    facility_id: ABBEY_RAITARU,
     station_id: JITA_IV,
   };
 }
@@ -176,8 +181,22 @@ export function editJobStore({
     },
     worldData: {
       marketData: {},
+      // The panels resolve location names through `useLocationNames`, which answers from here
+      // before it asks ESI — so a seeded name is a name that has already resolved.
+      universeIDs: {
+        [JITA_IV]: {
+          id: JITA_IV,
+          name: "Jita IV",
+          resolutionStatus: "resolved",
+        },
+        [ABBEY_RAITARU]: {
+          id: ABBEY_RAITARU,
+          name: "Abbey Raitaru",
+          resolutionStatus: "resolved",
+        },
+      },
       actions: {
-        findUniverseData: () => ({ name: "Jita IV" }),
+        addUniverseIDs: () => {},
         findMarketData: () => ({ jita: { sell: 5, buy: 4 } }),
         findSystemIndex: () => ({ manufacturing: 0.01 }),
       },

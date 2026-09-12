@@ -105,7 +105,9 @@ describe("the asset locations offered to a dropdown", () => {
     expect(result.current.locations[0].locationId).toBe(RAITARU_STRUCTURE_ID);
   });
 
-  it("leaves out a structure the account cannot read", async () => {
+  // Dropping it instead would read as the account holding nothing there, which is the opposite of
+  // what an unreadable structure means: the assets are in it, and no character can name it.
+  it("offers a structure the account cannot read, last and saying so", async () => {
     store.worldData.universeIDs[RAITARU_STRUCTURE_ID] = {
       id: RAITARU_STRUCTURE_ID,
       name: "No Access To Location - 1035466617946",
@@ -113,12 +115,14 @@ describe("the asset locations offered to a dropdown", () => {
 
     const { result } = render();
 
-    await waitFor(() =>
-      expect(result.current.locations.length).toBeGreaterThan(0),
-    );
+    await waitFor(() => expect(result.current.locations.length).toBe(2));
     expect(
       result.current.locations.map(({ locationId }) => locationId),
-    ).toEqual([JITA_STATION_ID]);
+    ).toEqual([JITA_STATION_ID, RAITARU_STRUCTURE_ID]);
+    expect(result.current.locations[1]).toMatchObject({
+      unreadable: true,
+      name: "No Access To Location - 1035466617946",
+    });
   });
 
   it("holds a location back until its name is known", async () => {

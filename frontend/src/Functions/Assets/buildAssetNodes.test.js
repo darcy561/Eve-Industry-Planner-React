@@ -36,7 +36,9 @@ describe("buildAssetNodes", () => {
       locationId: 999999,
       depth: 0,
       rootFlag: "Unlocked",
-      locationKind: "structure",
+      // In no documented id range, so it is not taken for a structure and nothing will be asked
+      // about it.
+      locationKind: "unknown",
     });
   });
 

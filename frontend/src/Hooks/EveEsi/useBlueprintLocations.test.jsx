@@ -188,6 +188,26 @@ describe("what each blueprint's location is called", () => {
     expect(result.current.names.size).toBe(0);
   });
 
+  // The library's picker is fed from here and the asset dropdowns are fed from `useAssetLocations`.
+  // Both reach the same component, so a structure nobody can read has to be offered the same way in
+  // each: named after the readable places, saying it cannot be read.
+  it("offers a location nobody can read, last and marked", async () => {
+    store.worldData.universeIDs[RAITARU_STRUCTURE_ID] = {
+      id: RAITARU_STRUCTURE_ID,
+      name: `No Access To Location - ${RAITARU_STRUCTURE_ID}`,
+      resolutionStatus: "no_access",
+    };
+
+    const { result } = render();
+
+    await waitFor(() => expect(result.current.places.length).toBe(2));
+    expect(result.current.places.map(({ locationId }) => locationId)).toEqual([
+      JITA_STATION_ID,
+      RAITARU_STRUCTURE_ID,
+    ]);
+    expect(result.current.places[1].unreadable).toBe(true);
+  });
+
   it("says nothing for a blueprint the assets do not cover", async () => {
     characterRows.set("hash-a", []);
     corporationRows.set("hash-a", []);

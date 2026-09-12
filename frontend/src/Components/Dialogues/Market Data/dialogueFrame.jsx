@@ -6,14 +6,12 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useCallback } from "react";
 import MarketDataDisplayGrid from "../../../Styled Components/DataGrid/marketbar";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
 import ContentDialogue, {
   DialogueCloseAction,
   useDialogueEventState,
 } from "../../../Styled Components/Dialogue/ContentDialogue";
-import useUsersStore from "../../../Zustand/usersStore";
 import { useMarketData } from "../../../Hooks/EveEsi/World/useMarketData";
 
 function MarketDataDialogue() {
@@ -37,11 +35,6 @@ function MarketDataDialogue() {
     worldDataError,
   } = useMarketData(messageData.selectedTypeID, messageData.selectedLocation);
 
-  const handleClose = useCallback(() => {
-    useUsersStore.getState().worldData.actions.addUniverseIDs(worldData);
-    resetDialogue();
-  }, [worldData, resetDialogue]);
-
   const isFetchActive =
     messageData.isOpen &&
     !!messageData.selectedTypeID &&
@@ -55,12 +48,7 @@ function MarketDataDialogue() {
         : null;
 
   const regionName =
-    useUsersStore
-      .getState()
-      .worldData.actions.findUniverseData(
-        messageData.selectedLocation?.regionID,
-        worldData,
-      )?.name || "Unknown Region";
+    worldData[messageData.selectedLocation?.regionID]?.name || "Unknown Region";
 
   const loadingSkeleton = (
     <Stack spacing={2}>
@@ -73,7 +61,7 @@ function MarketDataDialogue() {
   return (
     <ContentDialogue
       open={messageData.isOpen}
-      onClose={handleClose}
+      onClose={resetDialogue}
       loadingVariant="dense"
       useAppShellDesign
       componentName="MarketDataDialogue"
@@ -110,7 +98,7 @@ function MarketDataDialogue() {
         flexDirection: "column",
         overflowY: "hidden",
       }}
-      actions={<DialogueCloseAction onClose={handleClose} />}
+      actions={<DialogueCloseAction onClose={resetDialogue} />}
       dialogueActionsProps={{ sx: { display: "flex" } }}
     >
       <Box
@@ -177,7 +165,7 @@ function MarketDataDialogue() {
             marketData={marketData}
             typeID={messageData.selectedTypeID}
             regionID={messageData.selectedLocation?.regionID}
-            alternativeRegionData={worldData}
+            locationNames={worldData}
             isLoading={Boolean(isFetchActive && isLoading)}
           />
         )}

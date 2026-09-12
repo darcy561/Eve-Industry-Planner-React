@@ -101,3 +101,54 @@ describe("getUniverseNames", () => {
     expect(fetchMock.mock.calls[0][1].body).toBe(JSON.stringify([JITA]));
   });
 });
+
+// ESI refuses a body holding the same id twice, and an empty one, with a 400 that resolves nothing
+// in the batch — so the list that reaches the wire is a set, whatever the caller passed.
+describe("the ids that reach the wire", () => {
+  it("sends each id once, however many times it was asked for", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => [{ id: 60003760, name: "Jita IV-4" }],
+    });
+
+    await getUniverseNames([60003760, 60003760, 30000142, 60003760]);
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual([
+      60003760, 30000142,
+    ]);
+  });
+
+  it("asks for nothing rather than sending an empty body", async () => {
+    await expect(getUniverseNames([])).rejects.toBeInstanceOf(
+      LocationResolutionError,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("marks a refused request as one not worth repeating", async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 400,
+      statusText: "Bad Request",
+      json: async () => ({ error: "'ids' items are not all unique" }),
+    });
+
+    await expect(getUniverseNames([60003760])).rejects.toMatchObject({
+      permanent: true,
+    });
+  });
+
+  it("leaves a failure ESI may answer next time worth repeating", async () => {
+    fetchMock.mockResolvedValue({
+      ok: false,
+      status: 503,
+      statusText: "Service Unavailable",
+      json: async () => null,
+    });
+
+    await expect(getUniverseNames([60003760])).rejects.toMatchObject({
+      permanent: false,
+    });
+  });
+});

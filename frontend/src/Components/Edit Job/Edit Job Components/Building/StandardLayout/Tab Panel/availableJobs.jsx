@@ -17,7 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { LARGE_TEXT_FORMAT } from "../../../../../../Context/defaultValues";
 import { showSnackbarSuccess } from "../../../../../../Events/snackbarEvents";
 import useUsersStore from "../../../../../../Zustand/usersStore";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import PanelFallBack from "../../../../panelStates";
 import {
   formatNumberForLocale,
@@ -27,6 +27,7 @@ import findBlueprintType from "../../../../../../Functions/Shared/findBlueprintT
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { useCurrentTime } from "../../../../../../Hooks/useCurrentTime";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
+import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
 
 /**
  * Linking an ESI job adds a run to `activeJob.build.costs.linkedJobs` (persisted),
@@ -36,6 +37,11 @@ import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
  */
 export function AvailableJobsTab(props) {
   const { state, actions, jobMatches, isLoading, isError, error } = props;
+  const facilityIds = useMemo(
+    () => jobMatches.map((job) => job.facility_id),
+    [jobMatches],
+  );
+  const { names: facilityNames } = useLocationNames(facilityIds);
   const queryClient = useQueryClient();
   const [clickedJobs, setClickedJobs] = useState(new Set());
   const now = useCurrentTime();
@@ -146,9 +152,7 @@ export function AvailableJobsTab(props) {
               queryClient,
             );
             const facilityName =
-              useUsersStore
-                .getState()
-                .worldData.actions.findUniverseData(job.facility_id)?.name ||
+              facilityNames[job.facility_id]?.name ||
               "Location Data Unavailable";
             const timeRemaining = formatTimeRemaining(
               Date.parse(job.end_date),

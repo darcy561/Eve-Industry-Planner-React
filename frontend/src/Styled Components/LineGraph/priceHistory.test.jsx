@@ -8,16 +8,6 @@ vi.mock("../../Hooks/useItemNames", () => ({
   useItemNames: () => ({ 34: "Tritanium" }),
 }));
 
-vi.mock("../../Zustand/usersStore", () => ({
-  default: {
-    getState: () => ({
-      worldData: {
-        actions: { findUniverseData: () => ({ name: "The Forge" }) },
-      },
-    }),
-  },
-}));
-
 vi.mock("../Charts", async (importOriginal) => ({
   ...(await importOriginal()),
   // Recharts measures itself, which jsdom cannot do; the window under test is
@@ -78,6 +68,12 @@ function window_() {
   return screen
     .getAllByRole("slider")
     .map((thumb) => Number(thumb.getAttribute("aria-valuenow")));
+}
+
+// The chart names the region from the map it is handed — the only place it gets one, now that the
+// store is not read here.
+function heading() {
+  return screen.getByText(/Price History For/).textContent;
 }
 
 function rowsCharted() {
@@ -179,5 +175,23 @@ describe("the price history chart's visible window", () => {
     rerender(again(rows));
 
     expect(window_()).toEqual([93, 99]);
+  });
+});
+
+describe("the region the price history chart names", () => {
+  it("names the region from the names it is given", () => {
+    show(history(10), {
+      regionNames: {
+        10000002: { name: "The Forge", resolutionStatus: "resolved" },
+      },
+    });
+
+    expect(heading()).toContain("in The Forge");
+  });
+
+  it("says the region is unknown when no name reached it", () => {
+    show(history(10));
+
+    expect(heading()).toContain("in Unknown Region");
   });
 });

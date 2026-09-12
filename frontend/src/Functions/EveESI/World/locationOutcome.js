@@ -40,11 +40,18 @@ export const LOCATION_OUTCOME = Object.freeze({
 export class LocationResolutionError extends Error {
   /**
    * @param {string} message
-   * @param {{locationId?: number, status?: number, characterHash?: string, needsReauthorisation?: boolean, cause?: unknown}} [detail]
+   * @param {{locationId?: number, status?: number, characterHash?: string, needsReauthorisation?: boolean, permanent?: boolean, cause?: unknown}} [detail]
    */
   constructor(
     message,
-    { locationId, status, characterHash, needsReauthorisation, cause } = {},
+    {
+      locationId,
+      status,
+      characterHash,
+      needsReauthorisation,
+      permanent,
+      cause,
+    } = {},
   ) {
     super(message, { cause });
     this.name = "LocationResolutionError";
@@ -55,6 +62,9 @@ export class LocationResolutionError extends Error {
     // will, however many times it is asked — but it has established nothing about the account, so
     // this is not a refusal.
     this.needsReauthorisation = Boolean(needsReauthorisation);
+    // The request itself was refused rather than the thing it asked about: the same call will be
+    // refused every time, so asking again is waste and the answer will never arrive.
+    this.permanent = Boolean(permanent);
   }
 }
 

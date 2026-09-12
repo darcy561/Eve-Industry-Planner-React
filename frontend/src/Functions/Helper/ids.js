@@ -14,13 +14,22 @@
 /**
  * A list of ids from whatever a caller passed.
  *
+ * Any iterable is read through — an array, a Set, a `Map`'s `.keys()` or `.values()` — because a
+ * caller handing one of those an id at a time is passing ids, not passing one id. A string is the
+ * exception: it is iterable, and it is an id.
+ *
  * @param {*} value - One id, or an iterable of them
  * @returns {Array<*>} The ids, in the order given; empty for nothing
  */
 export function asIDList(value) {
   if (value == null) return [];
   if (Array.isArray(value)) return [...value];
-  if (value instanceof Set) return [...value];
+  if (
+    typeof value !== "string" &&
+    typeof value?.[Symbol.iterator] === "function"
+  ) {
+    return [...value];
+  }
   return [value];
 }
 

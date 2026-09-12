@@ -1,7 +1,8 @@
 import { FormControl, Select, MenuItem, FormHelperText } from "@mui/material";
 import useUsersStore from "../../Zustand/usersStore";
 import { useMemo } from "react";
-import { isNoAccessLocation } from "../../Functions/Assets/assetLocationConstants";
+import useLocationNames from "../../Hooks/EveEsi/useLocationNames";
+import { locationOptions } from "../../Functions/Assets/assetTree";
 
 export default function CorporationOfficesSelect({
   selectedCorporation,
@@ -10,10 +11,6 @@ export default function CorporationOfficesSelect({
 }) {
   const corporations = useUsersStore((state) => state.account.corporations);
 
-  // Subscribe to worldData changes so component re-renders when location names are added
-  const universeIDs = useUsersStore((state) => state.worldData.universeIDs);
-
-  // Get office locations for the selected corporation with safety checks
   const officeLocations = useMemo(() => {
     const corp = corporations.find(
       (c) => Number(c.corporation_id) === Number(selectedCorporation),
@@ -24,34 +21,21 @@ export default function CorporationOfficesSelect({
     return corp.officeLocations || [];
   }, [selectedCorporation, corporations]);
 
-  // Ensure the selected value is valid (exists in officeLocations) or default to empty string
+  const { names } = useLocationNames(officeLocations);
+
+  // An office nobody can dock at is offered carrying the name that says so, rather than left out:
+  // the corporation has it either way, and hiding it reads as the office not existing.
+  const offices = useMemo(
+    () => locationOptions(officeLocations, names),
+    [officeLocations, names],
+  );
+
+  // Against the offices actually offered, not the corporation's whole list: an office whose name is
+  // still being asked about has no item to select, and a value with no item is out of range.
   const selectedValue = useMemo(() => {
     if (!value) return "";
-    // Check if the value exists in the office locations
-    if (officeLocations.includes(value)) {
-      return value;
-    }
-    // Value doesn't match any office location, return empty string to avoid out of range error
-    return "";
-  }, [value, officeLocations]);
-
-  // Sort office locations alphabetically by name
-  const sortedOfficeLocations = useMemo(() => {
-    const worldData = useUsersStore.getState().worldData;
-    return officeLocations
-      .map((locationID) => {
-        const locationNameData = worldData.actions.findUniverseData(locationID);
-        if (!locationNameData || isNoAccessLocation(locationNameData)) {
-          return null;
-        }
-        return {
-          locationID,
-          name: locationNameData.name,
-        };
-      })
-      .filter((item) => item !== null)
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [officeLocations, universeIDs]);
+    return offices.some((office) => office.locationId === value) ? value : "";
+  }, [value, offices]);
 
   return (
     <FormControl
@@ -73,10 +57,8 @@ export default function CorporationOfficesSelect({
           if (!selected) {
             return <em>Select an office</em>;
           }
-          const selectedLocation = sortedOfficeLocations.find(
-            (loc) => loc.locationID === selected,
-          );
-          return selectedLocation ? selectedLocation.name : "";
+          const office = offices.find((loc) => loc.locationId === selected);
+          return office?.name || "";
         }}
         onChange={(e) => {
           if (onChange) {
@@ -91,8 +73,8 @@ export default function CorporationOfficesSelect({
         <MenuItem value="" disabled>
           <em>Select an office</em>
         </MenuItem>
-        {sortedOfficeLocations.map(({ locationID, name }) => (
-          <MenuItem key={locationID} value={locationID}>
+        {offices.map(({ locationId, name }) => (
+          <MenuItem key={locationId} value={locationId}>
             {name}
           </MenuItem>
         ))}

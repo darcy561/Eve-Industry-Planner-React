@@ -8,7 +8,10 @@ vi.mock("../../../Functions/EveESI/World/locationNameLoader", () => ({
 }));
 
 import { fetchLocationNames, locationNameQuery } from "./locationNames";
-import { LOCATION_OUTCOME } from "../../../Functions/EveESI/World/locationOutcome";
+import {
+  LOCATION_OUTCOME,
+  LocationResolutionError,
+} from "../../../Functions/EveESI/World/locationOutcome";
 
 const JITA = 60003760;
 const characters = [{ CharacterHash: "hash-a" }];
@@ -88,7 +91,26 @@ describe("locationNameQuery", () => {
   });
 
   it("asks again before giving up on a failure", () => {
-    expect(locationNameQuery(JITA, characters).retry).toBe(2);
+    const { retry } = locationNameQuery(JITA, characters);
+    const failure = new LocationResolutionError("universe names: 503", {
+      status: 503,
+    });
+
+    expect(retry(0, failure)).toBe(true);
+    expect(retry(1, failure)).toBe(true);
+    expect(retry(2, failure)).toBe(false);
+  });
+
+  // A refused request is refused identically every time, and each attempt costs five times a hit
+  // against ESI's error budget.
+  it("does not ask again when ESI refused the request itself", () => {
+    const { retry } = locationNameQuery(JITA, characters);
+    const refused = new LocationResolutionError("universe names: 400", {
+      status: 400,
+      permanent: true,
+    });
+
+    expect(retry(0, refused)).toBe(false);
   });
 
   it("asks for nothing without an id or a character", () => {

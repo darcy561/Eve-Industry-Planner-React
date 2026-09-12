@@ -1,5 +1,9 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import { LocationResolutionError } from "./locationOutcome";
+import { asNumberIDSet } from "../../Helper/ids";
+
+/** ESI's answer when the request body itself is unusable, rather than the ids in it. */
+export const MALFORMED_REQUEST_STATUS = 400;
 
 /**
  * Retrieves universe names for location IDs from EVE ESI API.
@@ -31,9 +35,14 @@ async function getUniverseNames(requestedLocationIDs, config = {}) {
     );
   }
 
-  const locationIDsArray = Array.isArray(requestedLocationIDs)
-    ? requestedLocationIDs
-    : [...requestedLocationIDs];
+  // ESI refuses a body holding the same id twice, and refuses an empty one — both with a 400 that
+  // resolves nothing in the batch. Reading the ids here rather than trusting each caller keeps that
+  // contract in one place, at the edge that owns it: a set, and numbers, so `60003760` and
+  // `"60003760"` cannot arrive as two ids.
+  const locationIDsArray = [...asNumberIDSet(requestedLocationIDs)];
+  if (locationIDsArray.length === 0) {
+    throw new LocationResolutionError("universe names: nothing requested");
+  }
 
   // Enhanced configuration for rate limiting
   const enhancedConfig = {
@@ -64,7 +73,13 @@ async function getUniverseNames(requestedLocationIDs, config = {}) {
   if (!response.ok) {
     throw new LocationResolutionError(
       `universe names: ${response.status} ${response.statusText}`,
-      { status: response.status },
+      {
+        status: response.status,
+        // A 400 is the request being rejected — empty, holding a duplicate, or carrying a number
+        // outside int32 — rather than an id resolving to nothing. Nothing in the batch was looked
+        // at, and the same body would be refused again.
+        permanent: response.status === MALFORMED_REQUEST_STATUS,
+      },
     );
   }
 

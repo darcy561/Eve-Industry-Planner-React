@@ -4,6 +4,9 @@ import CorporationSelect from "../../../Styled Components/Select/corporations";
 import CorporationOfficesSelect from "../../../Styled Components/Select/corporationOffices";
 import CorporationHangarsSelect from "../../../Styled Components/Select/corporationHangars";
 import { locationPickerLabel } from "../../../Functions/Assets/assetPresentation";
+import { locationOptions } from "../../../Functions/Assets/assetTree";
+import useLocationNames from "../../../Hooks/EveEsi/useLocationNames";
+import { useMemo } from "react";
 
 export default function SelectAssetLocation_ShoppingListDialogue({
   state,
@@ -12,8 +15,15 @@ export default function SelectAssetLocation_ShoppingListDialogue({
   assetLocationsError,
 }) {
   const characters = useUsersStore((state) => state.account.characters);
-  const universeIDs = useUsersStore((state) => state.worldData.universeIDs);
-  const locations = state.assetLocations ?? [];
+  const locationIds = useMemo(
+    () => state.assetLocations ?? [],
+    [state.assetLocations],
+  );
+  const { names } = useLocationNames(locationIds);
+  const locations = useMemo(
+    () => locationOptions(locationIds, names),
+    [locationIds, names],
+  );
 
   // Show character asset dropdowns when assetType is "character"
   if (state.assetType === "character") {
@@ -68,9 +78,10 @@ export default function SelectAssetLocation_ShoppingListDialogue({
             size="small"
             displayEmpty
             disabled={locations.length === 0}
-            renderValue={(locationId) =>
-              locationId
-                ? (universeIDs[locationId]?.name ?? "")
+            renderValue={(selected) =>
+              selected
+                ? (locations.find((loc) => loc.locationId === selected)?.name ??
+                  "")
                 : locationPickerLabel({
                     count: locations.length,
                     isLoading: assetLocationsLoading,
@@ -81,9 +92,9 @@ export default function SelectAssetLocation_ShoppingListDialogue({
               actions.setSelectedAssetLocation(e.target.value);
             }}
           >
-            {locations.map((locationId) => (
+            {locations.map(({ locationId, name }) => (
               <MenuItem key={locationId} value={locationId}>
-                {universeIDs[locationId]?.name ?? ""}
+                {name}
               </MenuItem>
             ))}
           </Select>

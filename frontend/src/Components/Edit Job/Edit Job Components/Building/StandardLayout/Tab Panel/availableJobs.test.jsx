@@ -12,9 +12,7 @@ const { store } = vi.hoisted(() => ({
         }),
       },
     },
-    worldData: {
-      actions: { findUniverseData: () => ({ name: "Jita IV - Moon 4" }) },
-    },
+    worldData: { universeIDs: {}, actions: { addUniverseIDs: () => {} } },
     applicationSettings: {
       actions: { getCurrentLocale: () => "en-GB" },
     },
@@ -29,6 +27,17 @@ vi.mock("../../../../../../Zustand/usersStore", () => ({
 
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({}),
+}));
+
+// This file is about a job's clock and status, not about resolving places: the names arrive
+// already resolved so the rows render without the query layer this mock has replaced.
+vi.mock("../../../../../../Hooks/EveEsi/useLocationNames", () => ({
+  default: () => ({
+    names: { 60003760: { name: "Jita IV - Moon 4" } },
+    isLoading: false,
+    isError: false,
+    error: null,
+  }),
 }));
 
 vi.mock("../../../../../../Functions/Shared/findBlueprintType", () => ({

@@ -2,8 +2,8 @@ import getUniverseNames from "./getUniverseNames";
 import { fetchStructureName, communityNameOrRefusal } from "./getCitadelData";
 import { LOCATION_OUTCOME, LocationResolutionError } from "./locationOutcome";
 import {
-  resolveLocationKind,
-  LOCATION_KIND,
+  locationNameSource,
+  LOCATION_NAME_SOURCE,
 } from "../../Assets/assetLocationConstants";
 
 /** ESI resolves up to a thousand ids in one `POST /universe/names`. */
@@ -57,10 +57,20 @@ async function flush() {
   const publicIds = [];
   const structureIds = [];
   for (const id of batch.keys()) {
-    if (resolveLocationKind(id) === LOCATION_KIND.STRUCTURE) {
-      structureIds.push(id);
-    } else {
-      publicIds.push(id);
+    switch (locationNameSource(id)) {
+      case LOCATION_NAME_SOURCE.BULK:
+        publicIds.push(id);
+        break;
+      case LOCATION_NAME_SOURCE.CHARACTER:
+        structureIds.push(id);
+        break;
+      default:
+        // Nothing can name it, so nothing is asked. Both paths would answer with an error, and the
+        // bulk one would refuse the whole batch this id was carried in.
+        settleWaiters(batch, id, {
+          id,
+          resolutionStatus: LOCATION_OUTCOME.UNNAMED,
+        });
     }
   }
 
@@ -72,11 +82,45 @@ async function flush() {
   ]);
 }
 
+/**
+ * ESI's answer to a batch holding an id it cannot resolve: the whole call is refused with this
+ * status, naming nothing and saying nothing about which id was at fault.
+ */
+const INVALID_IDS_STATUS = 404;
+
 async function settlePublicNames(ids, batch) {
   let named;
   try {
     named = await getUniverseNames(ids);
   } catch (err) {
+    if (err?.permanent) {
+      // Not a bad id among good ones: the call itself was refused, so nothing in it was looked at.
+      // Splitting would narrow down to a single id and settle it as nameless on the strength of a
+      // fault that was never about that id — and asking again would be refused identically.
+      reportRefusedRequest(ids, err);
+      for (const id of ids) rejectWaiters(batch, id, err);
+      return;
+    }
+    if (err?.status === INVALID_IDS_STATUS && ids.length > 1) {
+      // One unresolvable id refuses the batch it is in, so the ids beside it are not answered for.
+      // Splitting the batch narrows down which id that is; every other id still gets its name.
+      const half = Math.ceil(ids.length / 2);
+      await Promise.all([
+        settlePublicNames(ids.slice(0, half), batch),
+        settlePublicNames(ids.slice(half), batch),
+      ]);
+      return;
+    }
+    if (err?.status === INVALID_IDS_STATUS) {
+      // Alone and still refused: ESI has said this id resolves to nothing. That is an answer, and
+      // keeping it is what stops the id being asked about on every render for the rest of the
+      // session — and, more to the point, poisoning every batch it lands in.
+      settleWaiters(batch, ids[0], {
+        id: ids[0],
+        resolutionStatus: LOCATION_OUTCOME.UNNAMED,
+      });
+      return;
+    }
     for (const id of ids) rejectWaiters(batch, id, err);
     return;
   }
@@ -89,8 +133,9 @@ async function settlePublicNames(ids, batch) {
       id,
       entry
         ? { ...entry, id, resolutionStatus: LOCATION_OUTCOME.NAMED }
-        : // ESI answered and did not mention it. That is an answer, and keeping it is what stops
-          // the id being asked about on every render for the rest of the session.
+        : // Kept though every id ESI rejects was measured as refusing the whole call rather than
+          // being left out of a successful one: what an id that was valid once and has since gone
+          // from ESI's data does is unmeasured, and this is what would catch it.
           { id, resolutionStatus: LOCATION_OUTCOME.UNNAMED },
     );
   }
@@ -160,6 +205,26 @@ async function settleStructureName(id, batch) {
   } catch (err) {
     rejectWaiters(batch, id, err);
   }
+}
+
+/**
+ * Requests already reported as refused outright.
+ *
+ * A permanent failure is never cached — it rejects, and the next view wanting those ids asks
+ * again — so without this the same bad request is reported on every mount for the life of the
+ * session.
+ *
+ * @type {Set<string>}
+ */
+const reportedRefusals = new Set();
+
+function reportRefusedRequest(ids, err) {
+  const seen = `${err.status}:${[...ids].sort((a, b) => a - b).join(",")}`;
+  if (reportedRefusals.has(seen)) return;
+  reportedRefusals.add(seen);
+  console.error(
+    `Location names: ESI refused a batch of ${ids.length} outright — ${err.message}`,
+  );
 }
 
 /**

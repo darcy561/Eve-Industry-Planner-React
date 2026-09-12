@@ -221,6 +221,66 @@ function sellingThroughOrder(order_id) {
   });
 }
 
+// A row used to read the names the store held at the moment it rendered, so a name that resolved
+// afterwards never reached it. Both panels resolve through the names hook now.
+describe("the places these panels name", () => {
+  it("names where an offered order sits", () => {
+    renderOverEditJob(storedJob({ jobStatus: 4 }), ({ state, actions }) => (
+      <AvailableMarketOrdersTab
+        state={state}
+        actions={actions}
+        itemOrderMatch={[esiMarketOrder(700001)]}
+      />
+    ));
+
+    expect(screen.getByText("Jita IV")).toBeTruthy();
+  });
+
+  it("names where a linked order sits", () => {
+    renderOverEditJob(sellingThroughOrder(700001), ({ state, actions }) => (
+      <LinkedMarketOrdersTab
+        state={state}
+        actions={actions}
+        activeOrder={700001}
+        updateActiveOrder={() => {}}
+      />
+    ));
+
+    expect(screen.getByText("Jita IV")).toBeTruthy();
+  });
+
+  // The facility, not the station holding it: ESI reports both, and they are different places.
+  it("names the facility an offered industry job is running in", () => {
+    renderOverEditJob(jobWithOneSlot(), ({ state, actions }) => (
+      <AvailableJobsTab
+        state={state}
+        actions={actions}
+        jobMatches={[esiIndustryJob(500001, { runs: 3 })]}
+        isLoading={false}
+        isError={false}
+      />
+    ));
+
+    expect(screen.getByText("Abbey Raitaru")).toBeTruthy();
+  });
+
+  it("names where a linked industry job is running", () => {
+    renderOverEditJob(
+      jobWithOneSlot({ linkedJobs: [linkedIndustryJob(500001)] }),
+      ({ state, actions }) => (
+        <LinkedJobsTab
+          state={state}
+          actions={actions}
+          isLoading={false}
+          isError={false}
+        />
+      ),
+    );
+
+    expect(screen.getByText("Jita IV")).toBeTruthy();
+  });
+});
+
 describe("unlinking a market order, end to end", () => {
   it("takes the order off the job and remembers it to save", () => {
     const { editJob } = renderOverEditJob(

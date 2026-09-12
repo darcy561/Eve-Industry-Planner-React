@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import useUsersStore from "../../Zustand/usersStore";
 import { locationNameQuery } from "../React Query/World/locationNames";
 import { LOCATION_OUTCOME } from "../../Functions/EveESI/World/locationOutcome";
+import { asNumberIDSet } from "../../Functions/Helper/ids";
 
 const EMPTY_NAMES = {};
 
@@ -29,10 +30,7 @@ export default function useLocationNames(locationIds) {
   );
 
   const requested = useMemo(
-    () =>
-      [...new Set([...(locationIds ?? [])].filter(Boolean))].sort(
-        (a, b) => a - b,
-      ),
+    () => [...asNumberIDSet(locationIds)].sort((a, b) => a - b),
     [locationIds],
   );
 

@@ -99,3 +99,20 @@ describe("a lookup that fails", () => {
     );
   });
 });
+
+// The same rule the location names query follows: ESI refusing the request is not worth repeating,
+// while ESI being unwell is.
+describe("asking again after a failure", () => {
+  it("asks again when ESI was unwell", () => {
+    const { retry } = entityNamesQuery([500001]);
+
+    expect(retry(0, { status: 503 })).toBe(true);
+    expect(retry(1, { status: 503 })).toBe(false);
+  });
+
+  it("does not ask again when ESI refused the request itself", () => {
+    const { retry } = entityNamesQuery([500001]);
+
+    expect(retry(0, { status: 400, permanent: true })).toBe(false);
+  });
+});

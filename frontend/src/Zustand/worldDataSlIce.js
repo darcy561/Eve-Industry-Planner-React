@@ -26,7 +26,7 @@ const worldDataSlice = (set, get) => ({
       ...coreActions(set, get),
 
       // Universe data actions
-      ...universeDataActions(set, get),
+      ...universeDataActions(set),
 
       // Market data actions
       ...marketDataActions(set, get),

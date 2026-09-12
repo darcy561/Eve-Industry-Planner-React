@@ -1,5 +1,7 @@
 import { requestLocationName } from "../../../Functions/EveESI/World/locationNameLoader";
 import { LOCATION_OUTCOME } from "../../../Functions/EveESI/World/locationOutcome";
+import retryUnlessPermanent from "../retryUnlessPermanent";
+import { asNumberIDSet } from "../../../Functions/Helper/ids";
 
 export const LOCATION_NAME_QUERY_KEY = ["esi", "location-name"];
 
@@ -27,7 +29,7 @@ export function locationNameQuery(locationId, characters = []) {
     // — is an answer worth keeping. A failure is not cached at all: it rejects, and is retried.
     staleTime: Infinity,
     gcTime: Infinity,
-    retry: 2,
+    retry: retryUnlessPermanent(2),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   };
@@ -53,7 +55,7 @@ export function locationNameQuery(locationId, characters = []) {
  * @returns {Promise<Object<string, Object>>} what was named, keyed by location id
  */
 export async function fetchLocationNames(queryClient, locationIds, characters) {
-  const ids = [...new Set([...(locationIds ?? [])].filter(Boolean))];
+  const ids = [...asNumberIDSet(locationIds)];
   if (ids.length === 0 || !(characters?.length > 0)) return {};
 
   const settled = await Promise.allSettled(

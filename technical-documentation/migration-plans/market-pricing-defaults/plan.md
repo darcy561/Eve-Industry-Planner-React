@@ -1,6 +1,6 @@
 # Market pricing defaults — plan
 
-**Status:** Stage A in progress — steps 1-2 landed; steps 3-7 open. Stage B not started.
+**Status:** Stage A in progress — steps 1-5 landed; steps 6-7 open. Stage B not started.
 **Code in scope:** [`frontend/src/`](../../../frontend/src/) — `Hooks/Planner/`, `Functions/MarketData/`,
 `Styled Components/Select/`, `Zustand/applicationSettings/`, `Classes/shoppingList.js` and the panels
 and dialogues listed in § Stage A; [`services/shared/models/`](../../../services/shared/models/),
@@ -79,6 +79,34 @@ That matters because three surfaces have no obvious side. `ItemWatch` is a watch
 dialogue seeds a figure the player is about to overwrite, and the market-link helpers want whichever
 market the figure beside them came from. Rather than guessing once and burying the guess, each names
 its side where it asks, and a wrong choice is visible and cheap to change.
+
+## The job's override splits too
+
+Rung 2 carries the same conflation rung 4 did. `layout.localMarketDisplay` / `localOrderDisplay` is a
+single pair on the job, and `useEffectiveMarketHubFromLayout` feeds it to both Materials & Sourcing
+and — through `useJobSellingContext` — the selling context. Parameterising the hook by side does not
+fix that on its own: both sides would still fall through to one job-level override, so a player whose
+account can buy in Jita and sell in Amarr could not say the same thing about a single job. That reads
+as a regression the moment anyone tries it.
+
+So the job's override takes the same shape as the account's: a side each, each naming a market and a
+basis.
+
+**An empty value is not a choice.** That one rule holds at every rung — an account side the upgrader
+has not filled, a job side the player has not set, a material override naming a market but not a
+basis. It is why `PricingSide` marks both fields `omitempty`, and why the resolver tests a field for
+emptiness rather than for presence.
+
+**The job's is nil-able where the account's is not.** An account always has defaults; a job usually
+has no override at all, so `JobLayout.LocalPricing` is a pointer and nil omits it from the document
+entirely rather than writing an empty pair onto every job.
+
+**Nothing seeds a job server-side.** `Upgrader.Job` only clamps the schema version, and it runs in the
+offline `schemamaint` drain rather than on read, so a job is handed to a caller exactly as stored.
+Seeding an existing job's single override into both sides therefore belongs in the SPA's `Job`
+constructor, beside the `marketLocation → localMarketDisplay` alias already there. That is the
+established home for a job's defaults and legacy shapes, and it is the opposite of where the account's
+seed went — worth stating, because the two look like the same problem.
 
 ## Stage A — Retire the single account default
 
@@ -166,9 +194,12 @@ again, and the old pair stops being written and ages out with the documents.
 
 1. ~~Name the two axes apart (§ Two axes, both called buy and sell) and add the fields.~~ Done.
 2. ~~Seed them in `Upgrader.ApplicationSettings` from the existing single value.~~ Done — landed with step 1, because step 1 alone is a data-loss bug.
-3. Give the resolver a side argument; split or parameterise `useEffectiveMarketHubFromLayout`.
-4. Point each surface in the table at a side, explicitly.
-5. Guard the unguarded price reads in the three files above.
+3. ~~Split the job's own override the same way, give the resolver a side argument, and move the job's
+   hub and basis controls onto it (§ The job's override splits too).~~ Done — the controls had to move
+   in the same step, because a read path on the new field and a write path on the old one freezes the
+   override at whatever was picked first.
+4. ~~Point each surface in the table at a side, explicitly.~~ Done.
+5. ~~Guard the unguarded price reads in the three files above.~~ Done, with the rest of step 4.
 6. Settings and first-login controls offer both pairs.
 7. Stop writing the old fields, once the shared-planners release has backfilled the stored ones.
 
@@ -236,14 +267,19 @@ is published alongside it so the setting can offer "Minerals" rather than an id.
 | Stage | State |
 |-------|-------|
 | Phase 1 — project folder and docs | Done |
-| Stage A — retire the single account default | In progress — steps 1-2 of 7 |
+| Stage A — retire the single account default | In progress — steps 1-5 of 7 |
 | Stage B — defaults by market group | Not started, blocked on Stage A |
 
 ## Start here
 
-Stage A step 3 — giving the resolver a side argument, and splitting or parameterising
-`useEffectiveMarketHubFromLayout`, which today answers for both sides at once. The fields exist,
-default correctly and are seeded for accounts that predate them; nothing reads them yet. Read § Two axes, both called buy and sell first — it is the one thing that
+Stage A step 6 — the Settings and first-login controls, which still set the single
+`defaultMarketLocation` / `defaultOrderType` and are the last things writing them. Every reading
+surface now names a side.
+
+Two things are deliberately still on the old fields until step 7 retires them:
+`Zustand/applicationSettings` still carries and persists the single pair, and the `Job` constructor
+still reads `layout.localMarketDisplay` / `localOrderDisplay` to seed a job stored before the split.
+Nothing else reads either. Read § Two axes, both called buy and sell first — it is the one thing that
 will make a reviewer reject the field names if it is skipped.
 
 The design in this plan was worked out while building the Planning stage panels, which is where the

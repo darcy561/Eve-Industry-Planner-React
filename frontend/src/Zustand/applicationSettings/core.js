@@ -25,6 +25,51 @@ function defaultReprocessingSettings() {
   };
 }
 
+/**
+ * @typedef {{market: string, basis: string}} PricingSide
+ */
+
+/**
+ * Where each side of a job is priced when nothing nearer has said.
+ *
+ * @returns {{buying: PricingSide, selling: PricingSide}}
+ */
+function defaultPricingSides() {
+  return {
+    buying: { market: DEFAULT_MARKET_OPTION, basis: DEFAULT_ORDER_OPTION },
+    selling: { market: DEFAULT_MARKET_OPTION, basis: DEFAULT_ORDER_OPTION },
+  };
+}
+
+/**
+ * An account's pricing defaults, seeded from the single market and order type
+ * wherever the server has not sent the pair.
+ *
+ * Both sides seed from the same value on purpose: an account that has only ever
+ * said "Jita, sell orders" has said nothing about which side of a job it meant,
+ * so neither side may claim it more than the other.
+ *
+ * @param {object} incoming
+ * @param {object} prev
+ * @param {string} market - The single default, already merged
+ * @param {string} basis - The single order type, already merged
+ * @returns {{buying: PricingSide, selling: PricingSide}}
+ */
+function mergePricingDefaults(incoming, prev, market, basis) {
+  const previous = prev.defaultPricing ?? defaultPricingSides();
+
+  const side = (name) => {
+    // A side with no market has not been filled in yet rather than being a
+    // choice of nowhere: Go serialises the whole struct either way, so an
+    // account stored before the split arrives here as empty strings.
+    const sent = incoming.defaultPricing?.[name];
+    if (!sent?.market) return { market, basis };
+    return { market: sent.market, basis: sent.basis || previous[name].basis };
+  };
+
+  return { buying: side("buying"), selling: side("selling") };
+}
+
 /** @param {unknown} structure @param {new (data: object) => { toDocument(): object }} StructureClass */
 function customStructureRowToDocument(structure, StructureClass) {
   if (structure != null && typeof structure.toDocument === "function") {
@@ -66,6 +111,7 @@ export const stateDefault = () => ({
   defaultMaterialEfficiencyValue: 0,
   defaultMarketLocation: DEFAULT_MARKET_OPTION,
   defaultOrderType: DEFAULT_ORDER_OPTION,
+  defaultPricing: defaultPricingSides(),
   hideCompleteMaterials: false,
   defaultStationIDForAssets: DEFAULT_ASSET_LOCATION,
   defaultCitadelBrokersFee: 1,
@@ -169,6 +215,12 @@ export function mergeApplicationSettingsState(
       : incoming.localOrderDisplay !== undefined
         ? incoming.localOrderDisplay
         : prev.defaultOrderType;
+  const defaultPricing = mergePricingDefaults(
+    incoming,
+    prev,
+    defaultMarketLocation,
+    defaultOrderType,
+  );
 
   return {
     ...prev,
@@ -186,6 +238,7 @@ export function mergeApplicationSettingsState(
     }),
     defaultMarketLocation,
     defaultOrderType,
+    defaultPricing,
     ...(incoming.hideCompleteMaterials !== undefined && {
       hideCompleteMaterials: incoming.hideCompleteMaterials,
     }),
@@ -273,6 +326,7 @@ export const coreActions = (set, get) => ({
       displayHelpCards: state.displayHelpCards,
       defaultMarketLocation: state.defaultMarketLocation,
       defaultOrderType: state.defaultOrderType,
+      defaultPricing: state.defaultPricing,
       esiJobTab: state.esiJobTab,
       enableCompactLayoutView: state.enableCompactLayoutView,
       enableAutomaticJobRecalculation: state.enableAutomaticJobRecalculation,

@@ -53,6 +53,32 @@ func (u Upgrader) ApplicationSettings(doc *models.ApplicationSettings, accountID
 	if doc.SchemaVersion > models.ApplicationSettingsSchemaCurrent {
 		doc.SchemaVersion = models.ApplicationSettingsSchemaCurrent
 	}
+
+	// Not gated on the schema version: an unversioned document is stamped with the
+	// current one above, so a version test would never fire for the legacy rows
+	// this fills. The empty market is the signal instead.
+	if doc.DefaultPricing.Buying.Market == "" {
+		doc.DefaultPricing.Buying = legacyPricingSide(doc)
+	}
+	if doc.DefaultPricing.Selling.Market == "" {
+		doc.DefaultPricing.Selling = legacyPricingSide(doc)
+	}
+}
+
+// legacyPricingSide is the market and basis an account named before the buying
+// and selling sides were told apart.
+//
+// Both sides seed from it: an account that named one market said nothing about
+// which side of a job it meant, so neither side may claim it over the other.
+func legacyPricingSide(doc *models.ApplicationSettings) models.PricingSide {
+	side := models.DefaultPricingDefaults().Buying
+	if doc.DefaultMarketLocation != "" {
+		side.Market = doc.DefaultMarketLocation
+	}
+	if doc.DefaultOrderType != "" {
+		side.Basis = doc.DefaultOrderType
+	}
+	return side
 }
 
 // Group normalises legacy job_groups documents in memory. Idempotent.

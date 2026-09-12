@@ -60,6 +60,7 @@ func DefaultApplicationSettings(accountID string, now time.Time) ApplicationSett
 		DisplayHelpCards:                 false,
 		DefaultMarketLocation:            "jita",
 		DefaultOrderType:                 "sell",
+		DefaultPricing:                   DefaultPricingDefaults(),
 		EsiJobTab:                        nil,
 		EnableCompactLayoutView:          false,
 		EnableAutomaticJobRecalculation:  true,
@@ -150,6 +151,32 @@ type ReprocessingSettings struct {
 	SellExcessMineralTypes       bool    `bson:"sellExcessMineralTypes" json:"sellExcessMineralTypes"`
 }
 
+// PricingSide is where one side of a job is priced: the market, and which side
+// of that market's order book the figure comes from.
+//
+// Both axes are called buy and sell and they do not agree. Basis is a listing
+// type — buy, sell, buyP95 or sellP05 — so materials being bought are normally
+// priced with Basis "sell", because the ask is what buying actually costs.
+type PricingSide struct {
+	Market string `bson:"market" json:"market"`
+	Basis  string `bson:"basis" json:"basis"`
+}
+
+// PricingDefaults is what a figure is priced against when nothing nearer has
+// said. A material's own override and the panel it sits on both outrank it.
+type PricingDefaults struct {
+	Buying  PricingSide `bson:"buying" json:"buying"`
+	Selling PricingSide `bson:"selling" json:"selling"`
+}
+
+// DefaultPricingDefaults returns the pricing defaults a new account starts with.
+func DefaultPricingDefaults() PricingDefaults {
+	return PricingDefaults{
+		Buying:  PricingSide{Market: "jita", Basis: "sell"},
+		Selling: PricingSide{Market: "jita", Basis: "sell"},
+	}
+}
+
 // LinkedCharacterSession is returned at login / auth refresh for cloud-mode additional characters
 // (short-lived access session material only; no refresh token).
 type LinkedCharacterSession struct {
@@ -165,17 +192,19 @@ type ApplicationSettingsMeta struct {
 }
 
 type ApplicationSettings struct {
-	SchemaVersion                    int     `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
-	DisplayHelpCards                 bool    `bson:"displayHelpCards" json:"displayHelpCards"`
-	DefaultMarketLocation            string  `bson:"defaultMarketLocation" json:"defaultMarketLocation"`
-	DefaultOrderType                 string  `bson:"defaultOrderType" json:"defaultOrderType"`
-	EsiJobTab                        *string `bson:"esiJobTab,omitempty" json:"esiJobTab,omitempty"`
-	EnableCompactLayoutView          bool    `bson:"enableCompactLayoutView" json:"enableCompactLayoutView"`
-	EnableAutomaticJobRecalculation  bool    `bson:"enableAutomaticJobRecalculation" json:"enableAutomaticJobRecalculation"`
-	EnableSkipMissingBlueprints      bool    `bson:"enableSkipMissingBlueprints" json:"enableSkipMissingBlueprints"`
-	HideCompleteMaterialsFromEditJob bool    `bson:"hideCompleteMaterials" json:"hideCompleteMaterials"`
-	DefaultStationIDForAssets        int64   `bson:"defaultStationIDForAssets" json:"defaultStationIDForAssets"`
-	DefaultCitadelBrokersFee         float64 `bson:"defaultCitadelBrokersFee" json:"defaultCitadelBrokersFee"`
+	SchemaVersion         int    `bson:"schemaVersion,omitempty" json:"schemaVersion,omitempty"`
+	DisplayHelpCards      bool   `bson:"displayHelpCards" json:"displayHelpCards"`
+	DefaultMarketLocation string `bson:"defaultMarketLocation" json:"defaultMarketLocation"`
+	DefaultOrderType      string `bson:"defaultOrderType" json:"defaultOrderType"`
+	// DefaultPricing prices the buying and selling sides of a job separately.
+	DefaultPricing                   PricingDefaults `bson:"defaultPricing" json:"defaultPricing"`
+	EsiJobTab                        *string         `bson:"esiJobTab,omitempty" json:"esiJobTab,omitempty"`
+	EnableCompactLayoutView          bool            `bson:"enableCompactLayoutView" json:"enableCompactLayoutView"`
+	EnableAutomaticJobRecalculation  bool            `bson:"enableAutomaticJobRecalculation" json:"enableAutomaticJobRecalculation"`
+	EnableSkipMissingBlueprints      bool            `bson:"enableSkipMissingBlueprints" json:"enableSkipMissingBlueprints"`
+	HideCompleteMaterialsFromEditJob bool            `bson:"hideCompleteMaterials" json:"hideCompleteMaterials"`
+	DefaultStationIDForAssets        int64           `bson:"defaultStationIDForAssets" json:"defaultStationIDForAssets"`
+	DefaultCitadelBrokersFee         float64         `bson:"defaultCitadelBrokersFee" json:"defaultCitadelBrokersFee"`
 	// DefaultMarketCharacter is whose skills and standings price a sale.
 	//
 	// Not the character that builds: market skills and the standings grind

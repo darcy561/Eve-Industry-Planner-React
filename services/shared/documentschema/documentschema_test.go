@@ -110,3 +110,67 @@ func TestArchivedJobStatsUpgradeKeepsLabelsItAlreadyHas(t *testing.T) {
 		t.Fatalf("label = %q, want the name the row was archived under", row.ExtraCategories[0].Label)
 	}
 }
+
+// A document stored before DefaultPricing existed decodes to empty sides, and Go
+// serialises them whether or not Mongo held them — so a caller downstream cannot
+// tell "unset" from "chosen" unless the upgrader fills them first.
+func TestApplicationSettingsSeedsPricingFromTheSingleDefault(t *testing.T) {
+	doc := &models.ApplicationSettings{
+		DefaultMarketLocation: "amarr",
+		DefaultOrderType:      "buy",
+	}
+
+	var u Upgrader
+	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
+
+	want := models.PricingSide{Market: "amarr", Basis: "buy"}
+	if doc.DefaultPricing.Buying != want || doc.DefaultPricing.Selling != want {
+		t.Fatalf("pricing = %+v, want both sides %+v", doc.DefaultPricing, want)
+	}
+}
+
+func TestApplicationSettingsLeavesAChosenPricingSideAlone(t *testing.T) {
+	chosen := models.PricingSide{Market: "hek", Basis: "buyP95"}
+	doc := &models.ApplicationSettings{
+		DefaultMarketLocation: "amarr",
+		DefaultOrderType:      "buy",
+		DefaultPricing:        models.PricingDefaults{Selling: chosen},
+	}
+
+	var u Upgrader
+	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
+
+	if doc.DefaultPricing.Selling != chosen {
+		t.Fatalf("selling = %+v, want %+v", doc.DefaultPricing.Selling, chosen)
+	}
+	if want := (models.PricingSide{Market: "amarr", Basis: "buy"}); doc.DefaultPricing.Buying != want {
+		t.Fatalf("buying = %+v, want %+v", doc.DefaultPricing.Buying, want)
+	}
+}
+
+// Every upgrade step must be safe to run twice; this one is gated on an empty
+// market rather than a version, so it has to be checked directly.
+func TestApplicationSettingsPricingSeedIsIdempotent(t *testing.T) {
+	doc := &models.ApplicationSettings{DefaultMarketLocation: "dodixie", DefaultOrderType: "sellP05"}
+
+	var u Upgrader
+	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
+	first := doc.DefaultPricing
+	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
+
+	if doc.DefaultPricing != first {
+		t.Fatalf("second run changed pricing: %+v then %+v", first, doc.DefaultPricing)
+	}
+}
+
+// An account with neither field set still gets a usable pair.
+func TestApplicationSettingsPricingFallsBackToTheGlobalDefault(t *testing.T) {
+	doc := &models.ApplicationSettings{}
+
+	var u Upgrader
+	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
+
+	if want := models.DefaultPricingDefaults(); doc.DefaultPricing != want {
+		t.Fatalf("pricing = %+v, want %+v", doc.DefaultPricing, want)
+	}
+}

@@ -1,4 +1,8 @@
 import useUsersStore from "../Zustand/usersStore";
+import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../Functions/MarketData/pricingSide.js";
 
 /**
  * ShoppingList class for EVE Online industry material purchasing management.
@@ -115,8 +119,11 @@ class ShoppingList {
    * @param {Object} [alternativePriceLocation={}] - Alternative price location for market data
    */
   calculateTotalValue(alternativePriceLocation = {}) {
-    const { defaultMarketLocation, defaultOrderType } =
-      useUsersStore.getState().applicationSettings;
+    const { marketDisplay, orderDisplay } = resolvePricingSide({
+      accountPricing:
+        useUsersStore.getState().applicationSettings.defaultPricing,
+      side: PRICING_SIDE.BUYING,
+    });
     this.totalValue = 0;
     this.items.forEach((item) => {
       if (!item.isVisible || !item.includeWhenCopying) return;
@@ -126,12 +133,12 @@ class ShoppingList {
       );
       this.totalValue +=
         quantityAfterAssets *
-        useUsersStore
+        (useUsersStore
           .getState()
           .worldData.actions.findMarketData(
             item.typeID,
             alternativePriceLocation,
-          )[defaultMarketLocation][defaultOrderType];
+          )?.[marketDisplay]?.[orderDisplay] ?? 0);
     });
   }
 

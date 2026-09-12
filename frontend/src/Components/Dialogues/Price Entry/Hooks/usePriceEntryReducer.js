@@ -8,6 +8,10 @@
 
 import { useReducer, useMemo } from "react";
 import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../../../Functions/MarketData/pricingSide.js";
+import {
   PRICE_ENTRY_ACTION_TYPES,
   priceEntryReducer,
 } from "./priceEntryReducer";
@@ -19,15 +23,31 @@ import { useAdvanceWhenFollowingAppDefault } from "../../../../Hooks/Planner/use
 const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 
 /**
+ * What the dialogue opens on: the account's buying default, read fresh rather
+ * than closed over, because the reducer rebuilds its initial state on reset.
+ *
+ * @returns {{displayMarket: string, displayOrder: string}}
+ */
+function resolveBuyingDefault() {
+  const { marketDisplay, orderDisplay } = resolvePricingSide({
+    accountPricing: useUsersStore.getState().applicationSettings.defaultPricing,
+    side: PRICING_SIDE.BUYING,
+  });
+
+  return { displayMarket: marketDisplay, displayOrder: orderDisplay };
+}
+
+/**
  * Custom hook for managing price entry dialogue state.
  */
 export default function usePriceEntryReducer() {
-  const defaultMarketLocation = useUsersStore(
-    (s) => s.applicationSettings.defaultMarketLocation,
-  );
-  const defaultOrderType = useUsersStore(
-    (s) => s.applicationSettings.defaultOrderType,
-  );
+  const {
+    marketDisplay: defaultMarketLocation,
+    orderDisplay: defaultOrderType,
+  } = resolvePricingSide({
+    accountPricing: useUsersStore((s) => s.applicationSettings.defaultPricing),
+    side: PRICING_SIDE.BUYING,
+  });
 
   /**
    * Creates the initial state for the price entry dialogue.
@@ -37,12 +57,7 @@ export default function usePriceEntryReducer() {
     isLoading: false,
     requestedJobIDs: [],
     priceEntryList: [],
-    displayMarket:
-      useUsersStore.getState().applicationSettings.defaultMarketLocation ??
-      DEFAULT_MARKET_OPTION,
-    displayOrder:
-      useUsersStore.getState().applicationSettings.defaultOrderType ??
-      DEFAULT_ORDER_OPTION,
+    ...resolveBuyingDefault(),
   });
 
   const initialState = createInitialState();

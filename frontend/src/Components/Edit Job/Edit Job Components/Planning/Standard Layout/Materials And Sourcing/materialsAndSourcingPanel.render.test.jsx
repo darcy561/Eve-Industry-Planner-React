@@ -325,7 +325,11 @@ describe("choosing a pricing basis", () => {
 
     expect(updateActiveJob).toHaveBeenCalledWith(
       expect.objectContaining({
-        layout: expect.objectContaining({ localOrderDisplay: "buy" }),
+        layout: expect.objectContaining({
+          localPricing: expect.objectContaining({
+            buying: expect.objectContaining({ basis: "buy" }),
+          }),
+        }),
       }),
     );
   });
@@ -364,7 +368,11 @@ describe("choosing a hub", () => {
 
     expect(updateActiveJob).toHaveBeenCalledWith(
       expect.objectContaining({
-        layout: expect.objectContaining({ localMarketDisplay: "amarr" }),
+        layout: expect.objectContaining({
+          localPricing: expect.objectContaining({
+            buying: expect.objectContaining({ market: "amarr" }),
+          }),
+        }),
       }),
     );
   });

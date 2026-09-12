@@ -1,4 +1,5 @@
 import { Box, Typography, useMediaQuery, Grid } from "@mui/material";
+import { PRICING_SIDE } from "../../../../../../Functions/MarketData/pricingSide.js";
 import GLOBAL_CONFIG from "../../../../../../global-config-app";
 import MarketHistoryIconButton from "../../../../../../Styled Components/IconButton/marketHistory";
 import MarketDataIconButton from "../../../../../../Styled Components/IconButton/marketData";
@@ -31,8 +32,14 @@ export function MarketCostsPanel({ state }) {
           gap: 1,
         }}
       >
-        <MarketHistoryIconButton itemTypeID={state.activeJob.itemID} />
-        <MarketDataIconButton itemTypeID={state.activeJob.itemID} />
+        <MarketHistoryIconButton
+          itemTypeID={state.activeJob.itemID}
+          side={PRICING_SIDE.SELLING}
+        />
+        <MarketDataIconButton
+          itemTypeID={state.activeJob.itemID}
+          side={PRICING_SIDE.SELLING}
+        />
       </Box>
       <Grid
         container

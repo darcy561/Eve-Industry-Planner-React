@@ -157,9 +157,13 @@ type ReprocessingSettings struct {
 // Both axes are called buy and sell and they do not agree. Basis is a listing
 // type — buy, sell, buyP95 or sellP05 — so materials being bought are normally
 // priced with Basis "sell", because the ask is what buying actually costs.
+//
+// An empty field is not a choice. An account's are filled by the upgrader, but a
+// job's override sets whichever half the player named and leaves the other for
+// the rung below to answer.
 type PricingSide struct {
-	Market string `bson:"market" json:"market"`
-	Basis  string `bson:"basis" json:"basis"`
+	Market string `bson:"market,omitempty" json:"market,omitempty"`
+	Basis  string `bson:"basis,omitempty" json:"basis,omitempty"`
 }
 
 // PricingDefaults is what a figure is priced against when nothing nearer has

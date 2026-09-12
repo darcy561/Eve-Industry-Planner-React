@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -741,6 +742,10 @@ func TestJobLayout_BSONRoundTripKeepsEveryField(t *testing.T) {
 		"esiJobTab":           "1",
 		"setupToEdit":         "setup-1",
 		"resourceDisplayType": "grid",
+		"localPricing": bson.M{
+			"buying":  bson.M{"market": "jita", "basis": "sell"},
+			"selling": bson.M{"market": "amarr", "basis": "buy"},
+		},
 		"materialPriceOverrides": bson.M{
 			"34": bson.M{"marketDisplay": "amarr", "orderDisplay": "buy"},
 		},
@@ -769,5 +774,50 @@ func TestJobLayout_BSONRoundTripKeepsEveryField(t *testing.T) {
 	overrides, ok := written["materialPriceOverrides"].(bson.D)
 	if !ok || len(overrides) != 1 {
 		t.Fatalf("materialPriceOverrides came back as %T", written["materialPriceOverrides"])
+	}
+}
+
+// Both decoders assign by hand, so the JSON side needs its own guard against a
+// field being added to the struct and nowhere else.
+func TestJobLayout_localPricingSurvivesJSON(t *testing.T) {
+	const raw = `{"localMarketDisplay":"jita","localPricing":{"buying":{"market":"jita","basis":"sell"},"selling":{"market":"amarr","basis":"buy"}}}`
+
+	var l JobLayout
+	if err := json.Unmarshal([]byte(raw), &l); err != nil {
+		t.Fatal(err)
+	}
+	if l.LocalPricing == nil {
+		t.Fatal("localPricing was dropped")
+	}
+	if got := l.LocalPricing.Selling; got.Market != "amarr" || got.Basis != "buy" {
+		t.Fatalf("selling = %+v, want amarr/buy", got)
+	}
+
+	back, err := json.Marshal(l)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(back), `"localPricing"`) {
+		t.Fatalf("localPricing was not written back: %s", back)
+	}
+}
+
+// A job with no override writes none: the field is nil rather than an empty pair
+// on every job document.
+func TestJobLayout_noLocalPricingIsOmitted(t *testing.T) {
+	var l JobLayout
+	if err := json.Unmarshal([]byte(`{"localMarketDisplay":"jita"}`), &l); err != nil {
+		t.Fatal(err)
+	}
+	if l.LocalPricing != nil {
+		t.Fatalf("localPricing = %+v, want nil", l.LocalPricing)
+	}
+
+	back, err := json.Marshal(l)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(back), "localPricing") {
+		t.Fatalf("localPricing was written for a job that has none: %s", back)
 	}
 }

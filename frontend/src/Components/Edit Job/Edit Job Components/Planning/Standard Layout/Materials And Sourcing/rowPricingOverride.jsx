@@ -1,4 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
+import { PRICING_SIDE } from "../../../../../../Functions/MarketData/pricingSide.js";
 
 import { MarketListingSelectApplicationSettings } from "../../../../../../Styled Components/Select/marketListing";
 import { MarketLocationSelectApplicationSettings } from "../../../../../../Styled Components/Select/marketLocation";
@@ -53,6 +54,7 @@ export default function RowPricingOverride({
       >
         <Box sx={{ minWidth: 140 }}>
           <MarketLocationSelectApplicationSettings
+            side={PRICING_SIDE.BUYING}
             overrideMarketLocation={overrideMarket}
             alternativeDefaultMarketLocation={panelMarket}
             onMarketLocationCommit={(id) => onMarketCommit?.(typeID, id)}
@@ -63,6 +65,7 @@ export default function RowPricingOverride({
         </Box>
         <Box sx={{ minWidth: 140 }}>
           <MarketListingSelectApplicationSettings
+            side={PRICING_SIDE.BUYING}
             overrideOrderType={overrideListing}
             alternativeDefaultOrderType={panelListing}
             onOrderTypeCommit={(id) => onListingCommit?.(typeID, id)}

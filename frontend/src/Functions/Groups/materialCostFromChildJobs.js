@@ -71,16 +71,16 @@ function calculateJobUnitCost(inputJob, ctx) {
  * @param {string[]} childJobs
  * @param {unknown} [alternativeJobLocation]
  * @param {*} alternativePriceLocation
- * @param {*} defaultMarketLocation
- * @param {*} defaultOrderType
+ * @param {string} marketSelect - The hub the caller resolved for its side
+ * @param {string} listingSelect - The basis the caller resolved for its side
  */
 export function calculateMaterialCostFromChildJobs(
   inputMaterial,
   childJobs,
   alternativeJobLocation = [],
   alternativePriceLocation,
-  defaultMarketLocation,
-  defaultOrderType,
+  marketSelect,
+  listingSelect,
 ) {
   const jobArray = useUsersStore.getState().jobData.jobArray || [];
   const altLocs = Array.isArray(alternativeJobLocation)
@@ -97,8 +97,7 @@ export function calculateMaterialCostFromChildJobs(
       .worldData.actions.findMarketData(
         materialObject.typeID,
         alternativePriceLocation,
-      )?.[defaultMarketLocation]?.[defaultOrderType] ||
-    materialObject.purchasedCost;
+      )?.[marketSelect]?.[listingSelect] || materialObject.purchasedCost;
 
   if (inputMaterial.purchaseComplete) {
     return inputMaterial.purchasedCost;

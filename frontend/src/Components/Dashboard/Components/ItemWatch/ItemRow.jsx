@@ -1,4 +1,8 @@
 import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../../../Functions/MarketData/pricingSide.js";
+import {
   FormControl,
   FormHelperText,
   Grid,
@@ -34,12 +38,19 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
   const { setUserWatchlistItems } = useUsersStore.getState().jobData.actions;
 
-  const defaultMarket = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation,
+  // A watched item is costed on both sides: its materials are bought, and the
+  // item itself is valued at what it would fetch.
+  const accountPricing = useUsersStore(
+    (state) => state.applicationSettings.defaultPricing,
   );
-  const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType,
-  );
+  const buying = resolvePricingSide({
+    accountPricing,
+    side: PRICING_SIDE.BUYING,
+  });
+  const selling = resolvePricingSide({
+    accountPricing,
+    side: PRICING_SIDE.SELLING,
+  });
   const marketData = useUsersStore((state) => state.worldData.marketData);
 
   const { getCustomStructureWithID } =
@@ -73,16 +84,22 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
     item.materials.forEach((mat) => {
       const itemPrice = findMarketData(mat.typeID);
 
-      totalPurchase += itemPrice[defaultMarket][defaultOrders] * mat.quantity;
+      totalPurchase +=
+        (itemPrice?.[buying.marketDisplay]?.[buying.orderDisplay] ?? 0) *
+        mat.quantity;
 
       if (mat.materials.length === 0) {
-        totalBuild += itemPrice[defaultMarket][defaultOrders] * mat.quantity;
+        totalBuild +=
+          (itemPrice?.[buying.marketDisplay]?.[buying.orderDisplay] ?? 0) *
+          mat.quantity;
         return;
       }
       let matBuild = calculateInstallCostfromSetup(mat?.buildData);
       mat.materials.forEach((cMat) => {
         let itemCPrice = findMarketData(cMat.typeID);
-        matBuild += itemCPrice[defaultMarket][defaultOrders] * cMat.quantity;
+        matBuild +=
+          (itemCPrice?.[buying.marketDisplay]?.[buying.orderDisplay] ?? 0) *
+          cMat.quantity;
       });
 
       matBuild = matBuild / mat.quantityProduced;
@@ -91,11 +108,18 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
     totalPurchase = totalPurchase / item.quantity;
     totalBuild = totalBuild / item.quantity;
     return {
-      totalBuild: totalBuild,
-      totalPurchase: totalPurchase,
-      mainItemPrice: mainItemPrice,
+      totalBuild,
+      totalPurchase,
+      mainItemWorth: mainItemPrice?.[selling.marketDisplay]?.sell ?? 0,
     };
-  }, [marketData]);
+    // The resolved ids rather than the objects: those are rebuilt every render,
+    // and this recomputes the whole tree.
+  }, [
+    marketData,
+    buying.marketDisplay,
+    buying.orderDisplay,
+    selling.marketDisplay,
+  ]);
 
   const isItemDataOutdated = !item?.buildData;
 
@@ -178,17 +202,13 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
               alignItems: "center",
 
               color:
-                calculatedCosts.mainItemPrice[defaultMarket].sell !== 0
-                  ? "none"
-                  : "success.main",
+                calculatedCosts.mainItemWorth !== 0 ? "none" : "success.main",
 
               marginBottom: { xs: "5px", sm: "0px" },
             }}
           >
             <Typography sx={{ typography: { xs: "caption", sm: "body2" } }}>
-              {formatNumberForLocale(
-                calculatedCosts.mainItemPrice[defaultMarket].sell,
-              )}
+              {formatNumberForLocale(calculatedCosts.mainItemWorth)}
             </Typography>
           </Grid>
           <Grid
@@ -212,7 +232,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                   typography: { xs: "caption", sm: "body2" },
                   color:
                     calculatedCosts.totalPurchase <
-                    calculatedCosts.mainItemPrice[defaultMarket].sell
+                    calculatedCosts.mainItemWorth
                       ? calculatedCosts.totalBuild <
                         calculatedCosts.totalPurchase
                         ? "warning.main"
@@ -234,7 +254,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
               <Tooltip
                 title={formatNumberForLocale(
                   ((calculatedCosts.totalPurchase -
-                    calculatedCosts.mainItemPrice[defaultMarket].sell) /
+                    calculatedCosts.mainItemWorth) /
                     calculatedCosts.totalPurchase) *
                     100,
                   { min: 0, max: 4 },
@@ -247,7 +267,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                     typography: "caption",
                     color:
                       calculatedCosts.totalPurchase <
-                      calculatedCosts.mainItemPrice[defaultMarket].sell
+                      calculatedCosts.mainItemWorth
                         ? calculatedCosts.totalBuild <
                           calculatedCosts.totalPurchase
                           ? "warning.main"
@@ -257,7 +277,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                 >
                   {formatNumberForLocale(
                     ((calculatedCosts.totalPurchase -
-                      calculatedCosts.mainItemPrice[defaultMarket].sell) /
+                      calculatedCosts.mainItemWorth) /
                       calculatedCosts.totalPurchase) *
                       100,
                     { min: 0, max: 0 },
@@ -311,7 +331,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                       typography: { xs: "caption", sm: "body2" },
                       color:
                         calculatedCosts.totalBuild <
-                        calculatedCosts.mainItemPrice[defaultMarket].sell
+                        calculatedCosts.mainItemWorth
                           ? calculatedCosts.totalBuild >
                             calculatedCosts.totalPurchase
                             ? "orange"
@@ -333,7 +353,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                   <Tooltip
                     title={formatNumberForLocale(
                       ((calculatedCosts.totalBuild -
-                        calculatedCosts.mainItemPrice[defaultMarket].sell) /
+                        calculatedCosts.mainItemWorth) /
                         calculatedCosts.totalBuild) *
                         100,
                       { min: 0, max: 4 },
@@ -347,7 +367,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                         typography: { xs: "caption", sm: "body2" },
                         color:
                           calculatedCosts.totalBuild <
-                          calculatedCosts.mainItemPrice[defaultMarket].sell
+                          calculatedCosts.mainItemWorth
                             ? calculatedCosts.totalBuild >
                               calculatedCosts.totalPurchase
                               ? "orange"
@@ -357,7 +377,7 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
                     >
                       {formatNumberForLocale(
                         ((calculatedCosts.totalBuild -
-                          calculatedCosts.mainItemPrice[defaultMarket].sell) /
+                          calculatedCosts.mainItemWorth) /
                           calculatedCosts.totalBuild) *
                           100,
                       )}

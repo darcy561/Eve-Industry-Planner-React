@@ -31,6 +31,7 @@ import { useChildJobBuildActions } from "./Hooks/useChildJobBuildActions";
 import { finaliseCreatedChildJobs } from "./Helpers/finaliseCreatedChildJobs";
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { hasSavingAvailable } from "../../../../../../Functions/MarketData/materialSourcingRow";
+import { PRICING_SIDE } from "../../../../../../Functions/MarketData/pricingSide.js";
 
 /**
  * What the build takes, and whether each part is bought or built.
@@ -66,7 +67,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
   } = useMaterialsSourcing({ state, actions, displayType });
 
   const {
-    updateLayoutPreference,
+    updateJobPricing,
     updateMaterialLayoutPreference,
     resetMaterialLayoutPreference,
     clearAllMaterialLayoutPreferences,
@@ -125,7 +126,7 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
 
   // The basis every row is priced on unless it carries an override of its own.
   const changeBasis = (basisID) =>
-    updateLayoutPreference("localOrderDisplay", basisID);
+    updateJobPricing(PRICING_SIDE.BUYING, "basis", basisID);
 
   const toggleRow = (typeID) =>
     setOpenTypeIDs((open) =>
@@ -144,9 +145,12 @@ export default function MaterialsAndSourcingPanel({ state, actions }) {
       action={
         <Stack direction="row" spacing={1.5} sx={{ alignItems: "flex-end" }}>
           <MarketLocationSelectApplicationSettings
-            overrideMarketLocation={state.activeJob.layout.localMarketDisplay}
+            side={PRICING_SIDE.BUYING}
+            overrideMarketLocation={
+              state.activeJob.layout.localPricing?.buying?.market
+            }
             onMarketLocationCommit={(id) =>
-              updateLayoutPreference("localMarketDisplay", id ?? null)
+              updateJobPricing(PRICING_SIDE.BUYING, "market", id ?? null)
             }
             labelText="Hub"
             disabled={readOnly}

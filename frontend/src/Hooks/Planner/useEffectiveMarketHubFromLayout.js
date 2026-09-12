@@ -1,31 +1,27 @@
 import { useMemo } from "react";
 import useUsersStore from "../../Zustand/usersStore.js";
-import GLOBAL_CONFIG from "../../global-config-app";
+import { resolvePricingSide } from "../../Functions/MarketData/pricingSide.js";
 
-const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
-
-export function useEffectiveMarketHubFromLayout(layout) {
-  const defaultMarketLocation = useUsersStore(
-    (s) => s.applicationSettings.defaultMarketLocation,
+/**
+ * Where one side of a job is priced, from the job's own choice down to the
+ * global default.
+ *
+ * The side is the caller's to name: a surface knows whether it is asking what
+ * something costs to buy or what it fetches when sold, and nothing here can
+ * infer it.
+ *
+ * @param {object} layout - The job's layout
+ * @param {string} side - One of PRICING_SIDE
+ * @returns {{marketDisplay: string, orderDisplay: string}}
+ */
+export function useEffectiveMarketHubFromLayout(layout, side) {
+  const accountPricing = useUsersStore(
+    (s) => s.applicationSettings.defaultPricing,
   );
-  const defaultOrderType = useUsersStore(
-    (s) => s.applicationSettings.defaultOrderType,
-  );
+  const jobPricing = layout?.localPricing;
 
   return useMemo(
-    () => ({
-      marketDisplay:
-        layout.localMarketDisplay ??
-        defaultMarketLocation ??
-        DEFAULT_MARKET_OPTION,
-      orderDisplay:
-        layout.localOrderDisplay ?? defaultOrderType ?? DEFAULT_ORDER_OPTION,
-    }),
-    [
-      layout.localMarketDisplay,
-      layout.localOrderDisplay,
-      defaultMarketLocation,
-      defaultOrderType,
-    ],
+    () => resolvePricingSide({ jobPricing, accountPricing, side }),
+    [jobPricing, accountPricing, side],
   );
 }

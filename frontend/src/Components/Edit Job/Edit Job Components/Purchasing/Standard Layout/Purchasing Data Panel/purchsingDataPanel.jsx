@@ -15,6 +15,10 @@ import { showShoppingList } from "../../../../../../Events/shoppingListEvents";
 import { scheduleDebouncedApplicationSettingsSave } from "../../../../../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import importMultibuyFromClipboard from "../../../../../../Functions/Clipboard/importMultibuy";
 import ContentPanel from "../../../../../../Styled Components/Paper/ContentPanel";
+import {
+  PRICING_SIDE,
+  setJobPricingSide,
+} from "../../../../../../Functions/MarketData/pricingSide.js";
 
 export function PurchasingDataPanel_EditJob(props) {
   const { state, actions } = props;
@@ -200,12 +204,19 @@ export function PurchasingDataPanel_EditJob(props) {
           >
             <Grid size={6}>
               <MarketLocationSelectApplicationSettings
+                side={PRICING_SIDE.BUYING}
                 overrideMarketLocation={
-                  state.activeJob.layout.localMarketDisplay ?? undefined
+                  state.activeJob.layout.localPricing?.buying?.market ??
+                  undefined
                 }
                 onMarketLocationCommit={(id) => {
                   actions.updateActiveJobLayout({
-                    localMarketDisplay: id === undefined ? null : id,
+                    localPricing: setJobPricingSide(
+                      state.activeJob.layout.localPricing,
+                      PRICING_SIDE.BUYING,
+                      "market",
+                      id,
+                    ),
                   });
                 }}
                 customFormStyling={{
@@ -216,12 +227,19 @@ export function PurchasingDataPanel_EditJob(props) {
             </Grid>
             <Grid size={6}>
               <MarketListingSelectApplicationSettings
+                side={PRICING_SIDE.BUYING}
                 overrideOrderType={
-                  state.activeJob.layout.localOrderDisplay ?? undefined
+                  state.activeJob.layout.localPricing?.buying?.basis ??
+                  undefined
                 }
                 onOrderTypeCommit={(id) => {
                   actions.updateActiveJobLayout({
-                    localOrderDisplay: id === undefined ? null : id,
+                    localPricing: setJobPricingSide(
+                      state.activeJob.layout.localPricing,
+                      PRICING_SIDE.BUYING,
+                      "basis",
+                      id,
+                    ),
                   });
                 }}
                 customFormStyling={{

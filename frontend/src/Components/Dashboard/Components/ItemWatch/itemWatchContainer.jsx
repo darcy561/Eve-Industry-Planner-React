@@ -1,4 +1,8 @@
 import { Typography, Grid, Box, CircularProgress } from "@mui/material";
+import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../../../Functions/MarketData/pricingSide.js";
 import { useMemo } from "react";
 
 import { WatchListRow } from "./ItemRow";
@@ -9,9 +13,13 @@ import { useMarketPricesQuery } from "../../../../Hooks/React Query/World/market
 
 function WatchlistContainerInner({ onOpenGroupSettings, onEditWatchlistItem }) {
   const { userWatchlist } = useUsersStore((state) => state.jobData);
-  const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType,
-  );
+  // Both columns state a build cost, which is what the materials cost to buy.
+  const { orderDisplay: defaultOrders } = resolvePricingSide({
+    accountPricing: useUsersStore(
+      (state) => state.applicationSettings.defaultPricing,
+    ),
+    side: PRICING_SIDE.BUYING,
+  });
 
   const hasItems = userWatchlist.items.length > 0;
   const hasGroups = userWatchlist.groups?.length > 0;

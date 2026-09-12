@@ -9,8 +9,10 @@ vi.mock("../../../../../Zustand/usersStore", () => {
       actions: { findJobInJobArray: () => undefined },
     },
     applicationSettings: {
-      defaultMarketLocation: 60003760,
-      defaultOrderType: "sell",
+      defaultPricing: {
+        buying: { market: "jita", basis: "sell" },
+        selling: { market: 60003760, basis: "sell" },
+      },
       actions: { getCurrentLocale: () => "en-GB" },
     },
     worldData: { marketData: {} },

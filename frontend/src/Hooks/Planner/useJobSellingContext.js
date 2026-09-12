@@ -6,6 +6,7 @@ import {
 } from "../../Functions/MarketOrders/saleLocations";
 import { resolveSellerCharacter } from "../../Functions/MarketOrders/sellerCharacter";
 import { useEffectiveMarketHubFromLayout } from "./useEffectiveMarketHubFromLayout.js";
+import { PRICING_SIDE } from "../../Functions/MarketData/pricingSide.js";
 
 /**
  * Who sells this job's output, and from where.
@@ -23,6 +24,7 @@ import { useEffectiveMarketHubFromLayout } from "./useEffectiveMarketHubFromLayo
 export function useJobSellingContext(activeJob) {
   const { marketDisplay: marketSelect } = useEffectiveMarketHubFromLayout(
     activeJob?.layout,
+    PRICING_SIDE.SELLING,
   );
 
   const plan = activeJob?.build?.sale?.plan ?? {};

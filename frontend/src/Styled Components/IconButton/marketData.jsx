@@ -1,4 +1,8 @@
 import { IconButton, Tooltip } from "@mui/material";
+import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../Functions/MarketData/pricingSide.js";
 import { showMarketDataDialogue } from "../../Events/dialogueEvents";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import useUsersStore from "../../Zustand/usersStore";
@@ -26,15 +30,19 @@ function MarketDataIconButton({
   iconStyle,
   tooltipText = "Current Market Data",
   tooltipPlacement = "top",
+  side = PRICING_SIDE.BUYING,
 }) {
   let marketLocation = locationID;
 
   if (!marketLocation) {
-    marketLocation = MARKET_OPTIONS.find(
-      (i) =>
-        i.id ===
-        useUsersStore.getState().applicationSettings.defaultMarketLocation,
-    );
+    // The market a link points at is the one the figure beside it came from.
+    // Where a caller has none to give, the side it is pricing decides.
+    const { marketDisplay } = resolvePricingSide({
+      accountPricing:
+        useUsersStore.getState().applicationSettings.defaultPricing,
+      side,
+    });
+    marketLocation = MARKET_OPTIONS.find((i) => i.id === marketDisplay);
   }
 
   if (typeof marketLocation === "string") {

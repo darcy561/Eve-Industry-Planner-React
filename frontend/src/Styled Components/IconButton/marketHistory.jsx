@@ -1,4 +1,8 @@
 import { IconButton, Tooltip } from "@mui/material";
+import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../Functions/MarketData/pricingSide.js";
 import { showPriceHistoryDialogue } from "../../Events/dialogueEvents";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import useUsersStore from "../../Zustand/usersStore";
@@ -26,16 +30,21 @@ function MarketHistoryIconButton({
   iconStyle,
   tooltipText = "Item Price History",
   tooltipPlacement = "top",
+  side = PRICING_SIDE.BUYING,
 }) {
   let marketRegion = regionID;
 
   if (!marketRegion) {
+    // The market a link points at is the one the figure beside it came from.
+    // Where a caller has none to give, the side it is pricing decides.
+    const { marketDisplay } = resolvePricingSide({
+      accountPricing:
+        useUsersStore.getState().applicationSettings.defaultPricing,
+      side,
+    });
     marketRegion =
-      MARKET_OPTIONS.find(
-        (i) =>
-          i.id ===
-          useUsersStore.getState().applicationSettings.defaultMarketLocation,
-      ) ?? MARKET_OPTIONS.find((i) => i.regionID === DEFAULT_REGION);
+      MARKET_OPTIONS.find((i) => i.id === marketDisplay) ??
+      MARKET_OPTIONS.find((i) => i.regionID === DEFAULT_REGION);
   }
 
   if (typeof marketRegion === "string") {

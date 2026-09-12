@@ -1,0 +1,106 @@
+import { describe, expect, it } from "vitest";
+import Job from "./job.js";
+import {
+  PRICING_SIDE,
+  setJobPricingSide,
+} from "../Functions/MarketData/pricingSide.js";
+
+const jobWith = (layout) => new Job({ jobID: "j1", itemID: 34, layout }).layout;
+
+describe("a job's pricing override", () => {
+  it("is absent on a job that has chosen nothing", () => {
+    expect(jobWith({}).localPricing).toBeNull();
+  });
+
+  // A job stored before the sides were told apart names one market, which says
+  // nothing about which side of the job it meant — so it seeds both.
+  it("seeds both sides from a job's single market and order type", () => {
+    expect(
+      jobWith({ localMarketDisplay: "hek", localOrderDisplay: "buy" })
+        .localPricing,
+    ).toEqual({
+      buying: { market: "hek", basis: "buy" },
+      selling: { market: "hek", basis: "buy" },
+    });
+  });
+
+  it("seeds from the older marketLocation key too", () => {
+    expect(jobWith({ marketLocation: "amarr" }).localPricing).toEqual({
+      buying: { market: "amarr", basis: null },
+      selling: { market: "amarr", basis: null },
+    });
+  });
+
+  it("keeps a stored side and seeds only the other", () => {
+    expect(
+      jobWith({
+        localMarketDisplay: "hek",
+        localOrderDisplay: "buy",
+        localPricing: { selling: { market: "dodixie", basis: "sellP05" } },
+      }).localPricing,
+    ).toEqual({
+      buying: { market: "hek", basis: "buy" },
+      selling: { market: "dodixie", basis: "sellP05" },
+    });
+  });
+
+  // The reducer rebuilds the job from the previous instance on every layout
+  // edit, so a pick that only won on the first construction would leave the
+  // selector dead for the rest of the session.
+  const pick = (job, market) =>
+    new Job({
+      ...job,
+      layout: {
+        ...job.layout,
+        localPricing: setJobPricingSide(
+          job.layout.localPricing,
+          PRICING_SIDE.BUYING,
+          "market",
+          market,
+        ),
+      },
+    });
+
+  it("takes a second pick on a job that had none", () => {
+    let job = new Job({ jobID: "j1", itemID: 34, layout: {} });
+
+    job = pick(job, "amarr");
+    expect(job.layout.localPricing.buying.market).toBe("amarr");
+
+    job = pick(job, "dodixie");
+    expect(job.layout.localPricing.buying.market).toBe("dodixie");
+  });
+
+  it("takes a second pick on a job seeded from its legacy fields", () => {
+    let job = new Job({
+      jobID: "j1",
+      itemID: 34,
+      layout: { localMarketDisplay: "amarr", localOrderDisplay: "buy" },
+    });
+
+    job = pick(job, "dodixie");
+    expect(job.layout.localPricing.buying.market).toBe("dodixie");
+    // The other side keeps what the single legacy pair seeded it with.
+    expect(job.layout.localPricing.selling.market).toBe("amarr");
+  });
+
+  it("carries no override once the last choice is cleared", () => {
+    let job = new Job({ jobID: "j1", itemID: 34, layout: {} });
+    job = pick(job, "amarr");
+
+    expect(pick(job, null).layout.localPricing).toBeNull();
+  });
+
+  it("survives a round trip through the stored document", () => {
+    const stored = new Job({
+      jobID: "j1",
+      itemID: 34,
+      layout: { localPricing: { buying: { market: "hek", basis: "buyP95" } } },
+    }).toDocument();
+
+    expect(new Job(stored).layout.localPricing.buying).toEqual({
+      market: "hek",
+      basis: "buyP95",
+    });
+  });
+});

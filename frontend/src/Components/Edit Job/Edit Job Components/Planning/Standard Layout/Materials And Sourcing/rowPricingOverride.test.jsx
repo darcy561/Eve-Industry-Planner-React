@@ -6,8 +6,12 @@ vi.mock("../../../../../../Zustand/usersStore.js", () => ({
   default: (selector) =>
     selector({
       applicationSettings: {
-        defaultMarketLocation: "jita",
-        defaultOrderType: "sell",
+        defaultPricing: {
+          buying: { market: "jita", basis: "sell" },
+          // Deliberately different: a fixture whose sides agree cannot tell a
+          // surface asking for the wrong one.
+          selling: { market: "amarr", basis: "buy" },
+        },
       },
     }),
 }));

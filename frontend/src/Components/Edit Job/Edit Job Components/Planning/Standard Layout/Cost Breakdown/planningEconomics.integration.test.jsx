@@ -61,8 +61,12 @@ vi.mock("../../../../../../Functions/MarketOrders/sellerCharacter", () => ({
 vi.mock("../../../../../../Zustand/usersStore", () => {
   const storeState = {
     applicationSettings: {
-      defaultMarketLocation: "jita",
-      defaultOrderType: "sell",
+      defaultPricing: {
+        buying: { market: "jita", basis: "sell" },
+        // Deliberately different: a fixture whose sides agree cannot tell a
+        // surface asking for the wrong one.
+        selling: { market: "amarr", basis: "buy" },
+      },
       actions: {
         getCurrentLocale: () => "en-GB",
         checkTypeIDisExempt: () => false,

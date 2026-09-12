@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { useEffectiveMarketHubFromLayout } from "../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js";
+import { PRICING_SIDE } from "../../../../../../Functions/MarketData/pricingSide.js";
 import {
   childJobCoverage,
   coverageModeFor,
@@ -42,7 +43,7 @@ export function useMaterialsSourcing({ state, actions, displayType = "all" }) {
   const { activeJob } = state;
   const { layout } = activeJob;
   const { marketDisplay: marketSelect, orderDisplay: listingSelect } =
-    useEffectiveMarketHubFromLayout(layout);
+    useEffectiveMarketHubFromLayout(layout, PRICING_SIDE.BUYING);
 
   const checkTypeIDisExempt = useUsersStore(
     (store) => store.applicationSettings.actions.checkTypeIDisExempt,

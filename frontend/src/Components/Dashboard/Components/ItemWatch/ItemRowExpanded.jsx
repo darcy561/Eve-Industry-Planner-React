@@ -1,4 +1,8 @@
 import { useMemo } from "react";
+import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../../../Functions/MarketData/pricingSide.js";
 import { Typography, Grid } from "@mui/material";
 
 import useUsersStore from "../../../../Zustand/usersStore";
@@ -7,28 +11,37 @@ import { formatNumberForLocale } from "../../../../Functions/Helper/numberParser
 import { calculateInstallCostfromSetup } from "../../../../Functions/Installation Costs/installCosts";
 
 export function ExpandedWatchlistRow({ mat }) {
-  const defaultMarket = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation,
+  // The material's own materials are bought; the material itself is compared
+  // against what it would fetch, so the row reads both sides.
+  const accountPricing = useUsersStore(
+    (state) => state.applicationSettings.defaultPricing,
   );
-  const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType,
-  );
+  const buying = resolvePricingSide({
+    accountPricing,
+    side: PRICING_SIDE.BUYING,
+  });
+  const selling = resolvePricingSide({
+    accountPricing,
+    side: PRICING_SIDE.SELLING,
+  });
   const { findMarketData } = useUsersStore.getState().worldData.actions;
   const marketData = useUsersStore((state) => state.worldData.marketData);
 
-  const matPrice = findMarketData(mat.typeID);
+  const matWorth =
+    findMarketData(mat.typeID)?.[selling.marketDisplay]?.sell ?? 0;
   const matBuildPrice = useMemo(() => {
     let buildPrice = calculateInstallCostfromSetup(mat?.buildData);
     mat.materials.forEach((x) => {
       let matBuildCalc = 0;
       let xPrice = findMarketData(x.typeID);
       matBuildCalc +=
-        (xPrice[defaultMarket][defaultOrders] * x.quantity) /
+        ((xPrice?.[buying.marketDisplay]?.[buying.orderDisplay] ?? 0) *
+          x.quantity) /
         mat.quantityProduced;
       buildPrice += matBuildCalc * mat.quantity;
     });
     return buildPrice / mat.quantity;
-  }, [marketData]);
+  }, [marketData, buying.marketDisplay, buying.orderDisplay]);
 
   return (
     <Grid
@@ -70,7 +83,7 @@ export function ExpandedWatchlistRow({ mat }) {
         sx={{
           color:
             mat.materials.length > 0
-              ? matBuildPrice < matPrice[defaultMarket].sell
+              ? matBuildPrice < matWorth
                 ? "error.main"
                 : "success.main"
               : "none",
@@ -84,7 +97,7 @@ export function ExpandedWatchlistRow({ mat }) {
           sx={{ typography: { xs: "caption", sm: "body2" } }}
           align="center"
         >
-          {formatNumberForLocale(matPrice[defaultMarket].sell)}
+          {formatNumberForLocale(matWorth)}
         </Typography>
       </Grid>
       <Grid container size={12}>
@@ -107,10 +120,7 @@ export function ExpandedWatchlistRow({ mat }) {
             </Grid>
             <Grid
               sx={{
-                color:
-                  matBuildPrice > matPrice[defaultMarket].sell
-                    ? "error.main"
-                    : "success.main",
+                color: matBuildPrice > matWorth ? "error.main" : "success.main",
               }}
               size={{
                 xs: 12,

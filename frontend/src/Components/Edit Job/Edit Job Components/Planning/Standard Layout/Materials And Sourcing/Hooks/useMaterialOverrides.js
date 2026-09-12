@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { setJobPricingSide } from "../../../../../../../Functions/MarketData/pricingSide.js";
 import {
   getSafeMaterialPriceOverrides,
   setMaterialOverrideMap,
@@ -25,6 +26,15 @@ export function useMaterialOverrides({
       });
     },
     [activeJob, layout, updateActiveJob],
+  );
+
+  const updateJobPricing = useCallback(
+    (side, key, value) =>
+      updateLayoutPreference(
+        "localPricing",
+        setJobPricingSide(layout?.localPricing, side, key, value),
+      ),
+    [layout?.localPricing, updateLayoutPreference],
   );
 
   const updateMaterialLayoutPreference = useCallback(
@@ -70,6 +80,7 @@ export function useMaterialOverrides({
 
   return {
     updateLayoutPreference,
+    updateJobPricing,
     updateMaterialLayoutPreference,
     clearAllMaterialLayoutPreferences,
     resetMaterialLayoutPreference,

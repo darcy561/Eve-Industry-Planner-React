@@ -107,22 +107,24 @@ function MarketListingSelect({
 export default MarketListingSelect;
 
 /**
- * Buy/sell listing select aligned with `applicationSettings.defaultOrderType`, with an optional override
- * (same shape as persisted `layout.localOrderDisplay`).
+ * Pricing basis select, falling back to the account's default basis for the side
+ * of the job being priced.
  *
  * @param {Object} props
  * @param {string | null | undefined} props.overrideOrderType
  * @param {(orderTypeId: string | undefined) => void} props.onOrderTypeCommit — `undefined` clears override when choice matches default
+ * @param {string} props.side — One of PRICING_SIDE: which side of the job this control prices
  * @param {string | undefined} [props.alternativeDefaultOrderType]
  */
 export function MarketListingSelectApplicationSettings({
   overrideOrderType,
   onOrderTypeCommit,
+  side,
   alternativeDefaultOrderType,
   ...rest
 }) {
   const storeDefault = useUsersStore(
-    (s) => s.applicationSettings.defaultOrderType,
+    (s) => s.applicationSettings.defaultPricing?.[side]?.basis,
   );
   const applicationDefault = alternativeDefaultOrderType ?? storeDefault;
   const value = overrideOrderType ?? applicationDefault ?? DEFAULT_ORDER_OPTION;

@@ -1,12 +1,17 @@
 import { useEffect } from "react";
 import useUsersStore from "../../Zustand/usersStore.js";
+import { PRICING_SIDE } from "../../Functions/MarketData/pricingSide.js";
 import GLOBAL_CONFIG from "../../global-config-app";
 
 const { DEFAULT_MARKET_OPTION, DEFAULT_ORDER_OPTION } = GLOBAL_CONFIG;
 
 /**
- * Drops a job's own market hub or order type once it matches what the account
- * defaults to, so the job carries an override only while it differs.
+ * Drops a job's own market or basis once it matches what the account defaults
+ * to, so the job carries an override only while it differs.
+ *
+ * Each side is judged against its own default: a job that names the buying
+ * market the account already buys at is redundant on that side alone, and its
+ * selling choice is left as it is.
  *
  * @param {Object} activeJob
  * @param {(layoutPatch: Object) => void} updateActiveJobLayout
@@ -15,44 +20,36 @@ export function useStripRedundantJobMarketHubOverrides(
   activeJob,
   updateActiveJobLayout,
 ) {
-  const defaultMarketLocation = useUsersStore(
-    (s) => s.applicationSettings.defaultMarketLocation,
+  const accountPricing = useUsersStore(
+    (s) => s.applicationSettings.defaultPricing,
   );
-  const defaultOrderType = useUsersStore(
-    (s) => s.applicationSettings.defaultOrderType,
-  );
+  const jobPricing = activeJob?.layout?.localPricing;
 
   useEffect(() => {
-    if (!activeJob?.layout) return;
+    if (!jobPricing) return;
 
-    const canonMarket = defaultMarketLocation ?? DEFAULT_MARKET_OPTION;
-    const canonOrder = defaultOrderType ?? DEFAULT_ORDER_OPTION;
+    let changed = false;
+    const kept = {};
 
-    const layout = activeJob.layout;
-    const redundant = {};
+    for (const side of Object.values(PRICING_SIDE)) {
+      const chosen = jobPricing[side] ?? {};
+      const canonMarket =
+        accountPricing?.[side]?.market ?? DEFAULT_MARKET_OPTION;
+      const canonBasis = accountPricing?.[side]?.basis ?? DEFAULT_ORDER_OPTION;
 
-    if (
-      layout.localMarketDisplay != null &&
-      layout.localMarketDisplay === canonMarket
-    ) {
-      redundant.localMarketDisplay = null;
-    }
-    if (
-      layout.localOrderDisplay != null &&
-      layout.localOrderDisplay === canonOrder
-    ) {
-      redundant.localOrderDisplay = null;
+      const market = chosen.market === canonMarket ? null : chosen.market;
+      const basis = chosen.basis === canonBasis ? null : chosen.basis;
+
+      if (market !== (chosen.market ?? null)) changed = true;
+      if (basis !== (chosen.basis ?? null)) changed = true;
+      kept[side] = { market: market ?? null, basis: basis ?? null };
     }
 
-    if (Object.keys(redundant).length > 0) {
-      updateActiveJobLayout(redundant);
-    }
-  }, [
-    activeJob,
-    activeJob?.layout?.localMarketDisplay,
-    activeJob?.layout?.localOrderDisplay,
-    defaultMarketLocation,
-    defaultOrderType,
-    updateActiveJobLayout,
-  ]);
+    if (!changed) return;
+
+    const stillChosen = Object.values(kept).some(
+      (side) => side.market || side.basis,
+    );
+    updateActiveJobLayout({ localPricing: stillChosen ? kept : null });
+  }, [jobPricing, accountPricing, updateActiveJobLayout]);
 }

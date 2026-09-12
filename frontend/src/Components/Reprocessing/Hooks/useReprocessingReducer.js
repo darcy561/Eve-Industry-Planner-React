@@ -11,6 +11,10 @@
 
 import { useReducer } from "react";
 import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../../Functions/MarketData/pricingSide.js";
+import {
   reprocessingReducer,
   REPROCESSING_ACTION_TYPES,
 } from "./reprocessingReducer";
@@ -100,12 +104,15 @@ export default function useReprocessingReducer() {
   );
   const { getDefaultReprocessingCharacter } =
     useUsersStore.getState().applicationSettings.actions;
-  const defaultMarketLocation = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation,
-  );
-  const defaultOrderType = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType,
-  );
+  const {
+    marketDisplay: defaultMarketLocation,
+    orderDisplay: defaultOrderType,
+  } = resolvePricingSide({
+    accountPricing: useUsersStore(
+      (state) => state.applicationSettings.defaultPricing,
+    ),
+    side: PRICING_SIDE.SELLING,
+  });
 
   const characters = useUsersStore((state) => state.account.characters);
 

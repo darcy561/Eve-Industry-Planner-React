@@ -27,6 +27,37 @@ import {
  *
  * @class Job
  */
+/**
+ * A job's own choice of where each side of it is priced, or null where it has
+ * made none.
+ *
+ * A job stored before the sides were told apart carries one market and one order
+ * type. Both sides seed from it: naming one market said nothing about which side
+ * of the job it meant, so neither side may claim it over the other.
+ *
+ * @param {object|null|undefined} stored - `layout.localPricing` as stored
+ * @param {string|null} market - The job's single market, already resolved
+ * @param {string|null} basis - The job's single order type, already resolved
+ * @returns {{buying: {market: string|null, basis: string|null},
+ *   selling: {market: string|null, basis: string|null}}|null}
+ */
+function jobPricingOverride(stored, market, basis) {
+  const side = (name) => {
+    const chosen = stored?.[name];
+    if (chosen?.market || chosen?.basis) {
+      return { market: chosen.market || null, basis: chosen.basis || null };
+    }
+    return { market: market ?? null, basis: basis ?? null };
+  };
+
+  const buying = side("buying");
+  const selling = side("selling");
+  const chosenAnywhere =
+    buying.market || buying.basis || selling.market || selling.basis;
+
+  return chosenAnywhere ? { buying, selling } : null;
+}
+
 class Job {
   /**
    * @param {Object} itemJson - Job data object containing job configuration
@@ -132,15 +163,23 @@ class Job {
         ? itemJson.layout.materialPriceOverrides
         : {};
 
+    const localMarketDisplay =
+      itemJson?.layout?.localMarketDisplay ??
+      itemJson?.layout?.marketLocation ??
+      null;
+    const localOrderDisplay =
+      itemJson?.layout?.localOrderDisplay ??
+      itemJson?.layout?.orderType ??
+      null;
+
     this.layout = {
-      localMarketDisplay:
-        itemJson?.layout?.localMarketDisplay ??
-        itemJson?.layout?.marketLocation ??
-        null,
-      localOrderDisplay:
-        itemJson?.layout?.localOrderDisplay ??
-        itemJson?.layout?.orderType ??
-        null,
+      localMarketDisplay,
+      localOrderDisplay,
+      localPricing: jobPricingOverride(
+        itemJson?.layout?.localPricing,
+        localMarketDisplay,
+        localOrderDisplay,
+      ),
       esiJobTab: itemJson?.layout?.esiJobTab || null,
       setupToEdit: itemJson?.layout?.setupToEdit || null,
       resourceDisplayType: itemJson?.layout?.resourceDisplayType || null,
@@ -274,6 +313,7 @@ class Job {
       layout: {
         localMarketDisplay: this.layout.localMarketDisplay,
         localOrderDisplay: this.layout.localOrderDisplay,
+        localPricing: this.layout.localPricing,
         esiJobTab: this.layout.esiJobTab,
         setupToEdit: this.layout.setupToEdit,
         resourceDisplayType: this.layout.resourceDisplayType,

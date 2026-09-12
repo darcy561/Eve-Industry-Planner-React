@@ -142,22 +142,24 @@ function MarketLocationSelect({
 export default MarketLocationSelect;
 
 /**
- * Chooses a market hub using live `applicationSettings.defaultMarketLocation`, with an optional per-job override
- * (same field shape as persisted `layout.localMarketDisplay`).
+ * Chooses a market hub, falling back to the account's default for the side of
+ * the job being priced.
  *
  * @param {Object} props
- * @param {string | null | undefined} props.overrideMarketLocation — when set, overrides application default for display/commit
+ * @param {string | null | undefined} props.overrideMarketLocation — when set, overrides the account default for display/commit
  * @param {(marketLocationId: string | undefined) => void} props.onMarketLocationCommit — `undefined` clears override when choice matches default
+ * @param {string} props.side — One of PRICING_SIDE: which side of the job this control prices
  * @param {string | undefined} [props.alternativeDefaultMarketLocation] — optional substitute for store default (tests / special flows)
  */
 export function MarketLocationSelectApplicationSettings({
   overrideMarketLocation,
   onMarketLocationCommit,
+  side,
   alternativeDefaultMarketLocation,
   ...rest
 }) {
   const storeDefault = useUsersStore(
-    (s) => s.applicationSettings.defaultMarketLocation,
+    (s) => s.applicationSettings.defaultPricing?.[side]?.market,
   );
   const applicationDefault = alternativeDefaultMarketLocation ?? storeDefault;
   const value =

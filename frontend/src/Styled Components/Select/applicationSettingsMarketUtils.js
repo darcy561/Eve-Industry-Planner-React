@@ -1,6 +1,6 @@
 /**
- * Shared helpers for selects aligned with Zustand `applicationSettings.defaultMarketLocation`
- * and `applicationSettings.defaultOrderType`.
+ * Shared helpers for selects aligned with the account's pricing default for the
+ * side of a job they price.
  */
 
 /**

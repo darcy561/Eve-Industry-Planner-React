@@ -11,6 +11,7 @@ import { showSnackbarSuccess } from "../../../../../../Events/snackbarEvents";
 import { formatNumberForLocale } from "../../../../../../Functions/Helper/numberParser";
 import useUsersStore from "../../../../../../Zustand/usersStore";
 import { useEffectiveMarketHubFromLayout } from "../../../../../../Hooks/Planner/useEffectiveMarketHubFromLayout.js";
+import { PRICING_SIDE } from "../../../../../../Functions/MarketData/pricingSide.js";
 
 export function AddMaterialCost_Purchasing({
   state,
@@ -21,6 +22,7 @@ export function AddMaterialCost_Purchasing({
 }) {
   const { marketDisplay, orderDisplay } = useEffectiveMarketHubFromLayout(
     state.activeJob.layout,
+    PRICING_SIDE.BUYING,
   );
 
   const materialPrice = useUsersStore

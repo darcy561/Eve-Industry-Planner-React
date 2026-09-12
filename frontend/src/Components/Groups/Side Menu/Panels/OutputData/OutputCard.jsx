@@ -1,5 +1,9 @@
 import HighlightIcon from "@mui/icons-material/Highlight";
 import {
+  PRICING_SIDE,
+  resolvePricingSide,
+} from "../../../../../Functions/MarketData/pricingSide.js";
+import {
   Avatar,
   Card,
   CardActions,
@@ -19,12 +23,13 @@ import { formatNumberForLocale } from "../../../../../Functions/Helper/numberPar
 
 function OutputJobCard({ inputJob, state, actions }) {
   const { activeGroupID } = useUsersStore((state) => state.jobData);
-  const defaultMarket = useUsersStore(
-    (state) => state.applicationSettings.defaultMarketLocation,
-  );
-  const defaultOrders = useUsersStore(
-    (state) => state.applicationSettings.defaultOrderType,
-  );
+  const { marketDisplay: defaultMarket, orderDisplay: defaultOrders } =
+    resolvePricingSide({
+      accountPricing: useUsersStore(
+        (state) => state.applicationSettings.defaultPricing,
+      ),
+      side: PRICING_SIDE.SELLING,
+    });
 
   const CurrentBuildCost =
     calculateCurrentJobBuildCostFromChildren(inputJob, {
@@ -113,10 +118,12 @@ function OutputJobCard({ inputJob, state, actions }) {
         <MarketHistoryIconButton
           itemTypeID={inputJob.itemID}
           tooltipPlacement="left"
+          side={PRICING_SIDE.SELLING}
         />
         <MarketDataIconButton
           itemTypeID={inputJob.itemID}
           tooltipPlacement="left"
+          side={PRICING_SIDE.SELLING}
         />
       </CardActions>
     </Card>

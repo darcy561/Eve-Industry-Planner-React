@@ -1,0 +1,475 @@
+# Market price delivery — plan
+
+**Status:** Phase 1 complete. Stage A not started.
+**Code in scope:** [`frontend/src/`](../../../frontend/src/) — `Functions/MarketData/`,
+`Functions/EveESI/World/`, `Functions/Endpoints/Public/`, `Functions/Shared/getMissingESIData.js`,
+`Hooks/React Query/World/`, `Zustand/worldDataSlice/`, `Styled Components/Select/`,
+`global-config-app.js`, and the surfaces listed in § Stage A and § The pipeline prices travel today;
+[`services/api/v1endpoints/marketPrices.go`](../../../services/api/v1endpoints/marketPrices.go),
+[`services/shared/redis/marketorders.go`](../../../services/shared/redis/marketorders.go),
+[`services/shared/core/esi/locations.go`](../../../services/shared/core/esi/locations.go).
+**Live SoT (until promote):** [frontend/](../../frontend/contents.md), [backend/](../../backend/contents.md)
+
+**Rules:** Read and following [`../documentation-rules.md`](../documentation-rules.md)
+and [`../technical-rules.md`](../technical-rules.md) (migration-plans).
+Phase 1 (project folders/docs) before any product work.
+For Go surfaces in scope only: `go fix -diff` before planned work; again on edited packages (not unrelated code).
+Live SoT will not be edited until this project is complete and promotion is approved.
+
+**`go fix` in scope:** clean for `./shared/redis/...`, `./shared/core/esi/...`,
+`./worker/tasks/esi/...` and `./core/scheduler/esi/...`. A scan of `./api/v1endpoints/...` reports
+suggestions in `authenticate.go`, `refresh.go`, `session_types.go` and `statistics/live_scope_test.go`
+— struct-literal consolidation and the `omitempty`/`omitzero` pair that `go fix` itself marks a
+behaviour change. None is in `marketPrices.go`, the one file of that package this project touches, so
+all are left alone deliberately; JSON tag semantics belong to
+[go-127-adoption](../go-127-adoption/contents.md). Named here so a later scan coming back non-empty is
+not mistaken for new debt.
+
+## Why this project exists
+
+The price path is the oldest thing in the application that has never been replaced. It asks a
+question it does not need the answer to, answers a question it cannot actually know, and assumes a
+world with exactly four markets in it.
+
+**It asks too widely.** A caller wants one material's price at one market. The endpoint returns every
+hub and every basis for that type, so a Planning stage reading four figures per material is sent
+sixteen. On a full 500-type request that is **208 KB where 43 KB would do** — the measurements are in
+[measurements.md](./measurements.md).
+
+**It guesses at freshness.** The browser decides a price is stale when the single `lastUpdated` on
+the blob is more than four hours old. That timestamp is the *minimum* across the four hubs, so a hub
+nobody is looking at drags a type into a refetch — while the server knows exactly when each hub's
+book was last walked and never says.
+
+**It has no idea a market could be anything else.** `GLOBAL_CONFIG.MARKET_OPTIONS` and
+`esicore.DefaultMarketLocations` are two hand-maintained copies of the same four hubs, and a market id
+is assumed throughout to be one of them. The custom-structure work is about to make that false.
+
+## What the present design costs
+
+One request, end to end:
+
+| Step | What happens today |
+|------|--------------------|
+| Ask | `POST /api/v1/market-prices`, up to 500 type ids, no market or basis named |
+| Server read | A loop per type: one `GET` for the adjusted price, one `MGET` across the four hub regions. 500 types is about 1,000 sequential Redis round trips, none pipelined |
+| Answer | Per type: four hubs × four bases, plus `adjustedPrice`, `lastUpdated` and `typeID`, flattened by a custom `MarshalJSON` so a hub id and a metadata field are both top-level keys |
+| Hold | Merged whole into `worldData.marketData`, keyed by type id, in memory for the session |
+| Re-ask | When the blob's single `lastUpdated` is over four hours old |
+
+The server half beneath that — the hourly region walk, the ETag and page cache, the station filter,
+the percentile trim — is sound and is not in scope.
+
+## The pipeline prices travel today
+
+Before any of it is replaced, this is the path a price takes, because it is what Stage B and Stage D
+have to move and it is longer than the read sites suggest.
+
+| Step | File |
+|------|------|
+| A flow collects the material ids of the jobs it is about to work on | `Functions/Shared/getMissingESIData.js` |
+| Which of those ids to actually ask for is decided from the store and the age guess | `Functions/MarketData/findMarketData.js`, `refreshPeriod.js` |
+| The request is made and batched to the 500-id cap | `Functions/Endpoints/Public/marketPrices.js` |
+| The answer is written into the store by the caller, not by the fetch | `worldData.actions.addMarketData` |
+| A price is read back synchronously | `findMarketData`, `getMarketPriceForType` |
+
+`getMissingESIData` is the imperative entry point, called from nine places, none of them a render —
+`buildNextMaterialsTree`, `massBuildMaterials`, `addNewJobsToPlanner`, `importFitFromClipboard`,
+`instantiateGroupTemplate`, `childJobBuildPipeline` (which is also how `finaliseCreatedChildJobs`
+reaches it), `useEditJobInitialState`, `importNewJob` and `groupFrame`. Each of them writes the result
+into the store itself. That is the shape § Where a price is read from replaces with one cache and two ways of asking
+it; a design that only accounted for the hook would leave every one of those flows behind.
+
+## What a market source is
+
+**The four default hubs are the only markets the server will ever serve.** They are shared
+infrastructure: every account prices against them, so one hourly walk pays for all of them. A market
+a single player added is that player's own concern, fetched by their browser and kept on their
+device — whether it is a citadel or an NPC station in a region the server does not track. "Public" is
+not the deciding word; *whose market it is* is.
+
+Three kinds of source, and the price layer must answer for all of them behind one shape:
+
+| Kind | Orders come from | Fetched by | Derived by | Held in | Clock |
+|------|------------------|-----------|-----------|---------|-------|
+| **Default hub** (4) | The region book, walked whole, filtered to the hub station | Server, hourly | Server | World-data store, session-scoped | One per hub |
+| **Custom NPC station** | `/markets/{region_id}/orders` with `type_id`, filtered to the station | Browser | Browser | IndexedDB | One per source **and type** |
+| **Custom citadel** | `/markets/structures/{structure_id}`, the whole book | Browser, with the reader's own token | Browser | IndexedDB | One per source |
+
+**A custom citadel is how a private market is reached** — the two are one kind, not two. A reader who
+wants a private market adds the citadel that market runs in, and it is queried with that reader's own
+ESI token, which is what grants the access. There is no separate private-source kind beside it, and
+nothing about a private market needs a different row, tier or clock from any other citadel.
+
+### The two custom kinds are not one problem
+
+They share a storage tier and nothing else. From the ESI specification (checked against the published
+schema, not from memory — see [measurements.md](./measurements.md) § ESI market routes):
+
+- `/markets/{region_id}/orders` is **public** and takes a **`type_id` filter**. A custom NPC station
+  is therefore cheap and incremental: ask for the types the planner actually needs, filter the result
+  to the station's `location_id`. The SPA already has exactly this call in
+  [`Functions/EveESI/World/getMarketData.js`](../../../frontend/src/Functions/EveESI/World/getMarketData.js),
+  ETag support included.
+- `/markets/structures/{structure_id}` is **authenticated** and has **no type filter**. A citadel's
+  price for one type can only be had by walking its entire order book. That is a large, all-or-nothing
+  fetch, which is what makes IndexedDB load-bearing here rather than a convenience: a book walked once
+  must not be walked again next session.
+
+Two consequences worth settling before any code:
+
+- **A new ESI scope.** `esi-markets.structure_markets.v1` is not among the scopes the SPA requests
+  today. Adding it re-authorises every linked character, which is an operational event, not a code
+  change.
+- **Which character can read the book.** Nothing records which character holds docking access at a
+  structure, so the book is attempted per character in turn and one character's refusal is not the
+  account's answer. This is the same rule the SPA already follows for resolving structure *names*, and
+  the same implementation shape should serve both.
+
+### Keeping a reader-saved source current
+
+A hub's book is re-walked on a schedule so its prices do not drift. A reader-saved source has to be
+kept current the same way and for the same reason — a figure a player plans against must not be a
+figure that happened to be fetched once — but the browser is what does the walking, and the two
+custom kinds pace differently.
+
+**ESI's own cache expiry is the clock**, not a period the SPA picks. Each response says when the data
+behind it changes, and a source is due when that moment passes. A period of our own would either ask
+too often, spending the reader's ESI allowance on a book that has not moved, or too rarely, and quote
+a stale figure with no way of knowing it.
+
+**Several NPC stations in one region cost one request.** `/markets/{region_id}/orders` answers for the
+whole region, so a reader with three stations in Domain asks once per type and splits the answer
+across them by `location_id`. The unit of a request is therefore the **region**, while the unit of a
+row stays the source. Grouping happens in the loader, so no call site has to know two of its sources
+share a region.
+
+**A citadel is refreshed whole, on its own cadence.** Its book has no type filter, so a walk fills
+every type it holds at once and a want for one type is answered for all of them. That makes a
+demand-driven walk the worst way to do it — the first material a panel prices would pay for the
+entire book — so the book is walked on its expiry and the rows are already there when a panel asks.
+
+**The walk needs a live token, and that is the same problem the name path already solved.** A
+structure's market is read with a linked character's token, exactly as a structure's name is, and
+nothing records which character can reach it.
+[`nameLoader`](../../../frontend/src/Functions/EveESI/World/nameLoader.js) already asks each linked
+character in turn, refuses to let one character's refusal settle the account's answer, skips a
+character whose token never carried the scope, and keeps a transient failure from being cached as an
+answer. Two implementations of that would drift, and would then disagree about whether an account can
+see a structure it can see.
+
+**So the walk is extracted before it is reused, and that extraction is the work.** The machinery sits
+in `settleStructureName`, which is private to the module, reads from its own batching queue, and ends
+in `communityNameOrRefusal` — a name-specific fallback a market has no equivalent of. Taking it as it
+stands is not possible; what lands is a parameterised per-character walk in shared code — the request
+to make and what counts as a refusal passed in, no fallback of its own — with **both** name
+resolution and the market walk calling it. Name resolution keeps the community fallback by supplying
+it, not by the primitive knowing about it.
+
+### Where a price is read from
+
+Prices must be readable from one place whatever kind of source they came from, and the SPA already
+has the pattern for this: the name cache, where **every unit is its own React Query entry and a
+loader behind it turns a tick's worth of wants into whatever shape each transport takes**
+([frontend/esi-collections/location-names.md](../../frontend/esi-collections/location-names.md) is
+its live SoT). Prices have the same shape of problem — many small units, wanted by many views at
+once, answerable from more than one transport — so they take the same answer.
+
+- **One cache entry per type at one source**, so a price resolved for one panel is present for the
+  next without being asked for again, and a source that fails fails against that source rather than
+  leaving a hole in one view's set.
+- **One loader beneath it**, which is where the three transports differ and the only place that
+  difference lives: the tick's wants grouped by source, hub wants issued as one API query, station
+  wants grouped by region and split back out by `location_id`, citadel wants served from a book
+  walked on its own clock.
+- **One accessor above it**, so a caller asks for a type at a source and never learns which kind it
+  was.
+
+**Reading and asking are separate, and the accessor is the reading half.** It answers from what the
+cache already holds and reports absence rather than waiting — which is what every caller already
+copes with, because `findMarketData` returns a zero-filled shape today. That is what keeps the
+synchronous readers working: `Classes/shoppingList.js` reads a price inside a row build, and
+`materialCostByBasis` takes a `getPrice` callback it calls in a reduce. Neither can await, and
+neither has to.
+
+Asking is the other half, and has the two entry points the name cache has: the hook for a view that
+wants prices while it renders, and an imperative `fetchPrices(queryClient, wants)` for a flow already
+running outside render — which is what `getMissingESIData` becomes. Both share the one cache, so a
+price either path resolves is present for the other.
+
+`worldData.marketData` stops being the price store. Zustand keeps what it is good at — the source
+registry, which is small, app-wide and rarely changes — and the read-through beneath the cache, which
+is `worldData.universeIDs`'s role in the name design, becomes **IndexedDB** for the sources that need
+to survive a reload.
+
+### One price, whoever derived it
+
+A row is `{ buy, sell, buyP95, sellP05 }` for one type at one source, and a caller asking for the
+price of a type at a source must not need to know which kind the source is, who fetched it, or where
+it is held. One accessor answers; the tier is a property of the source, resolved beneath it.
+
+This puts a real hazard in the open: the derivation — best bid, best ask, nearest-rank percentile with
+the under-five-orders fallback to the best price — lives today in `buildMarketPriceEntry` in Go, and a
+browser deriving a custom source's row has to produce the same figures from the same orders. That is a
+second implementation of one rule, which is exactly what the one-source-of-truth bar exists to stop.
+It cannot be avoided by moving work to the server, because the whole point of a custom source is that
+the server does not fetch it. How the two are held in agreement is an open decision below.
+
+## Freshness belongs to the source
+
+A default hub's order book is walked as a whole, hourly, and every price it produces shares that one
+moment. The server publishes each hub's clock; the browser holds, per hub, the clock its rows came
+from, and asks for a type when the row is **missing** or the **hub's clock has moved**. The four-hour
+age guess goes.
+
+The unit differs by kind, because the fetch does — the Clock column of the table in § What a market
+source is carries which. What paces a reader-saved source, and what it costs, is § Keeping a
+reader-saved source current.
+
+The practical effect on the hubs: a second job opened on the same materials within the hour asks for
+nothing at all, where today it re-downloads every price whose blob happened to cross the four-hour
+line.
+
+The hub clocks come from a source-status read that is cheap enough to make on its own:
+
+```
+GET /api/v1/market-sources
+[ { "id": "jita", "name": "Jita", "regionID": 10000002, "stationID": 60003760,
+    "refreshedAt": 1757000000000 } ]
+```
+
+This is also the server's list of the markets it serves, which is what retires the second copy in the
+SPA. The SPA's full source registry is this list plus whatever sources the reader has saved.
+
+## The unit of a price
+
+**One type at one source.** A row carries the four bases and nothing else; the source carries the
+clock.
+
+```
+POST /api/v1/market-prices/query
+{ "sources": ["jita"], "typeIDs": [34, 35, 36], "adjusted": true }
+
+{
+  "sources": { "jita": { "refreshedAt": 1757000000000,
+                         "prices": { "34": { "buy": …, "sell": …, "buyP95": …, "sellP05": … } } } },
+  "adjusted": { "refreshedAt": 1756900000000, "prices": { "34": 4.9 } }
+}
+```
+
+The endpoint only ever answers for the four server-held hubs; a request naming a custom source is a
+client-side mistake and is rejected rather than silently empty. Three things follow from the shape:
+
+- **The caller names the sources**, so a surface pricing against one market carries one market's
+  figures. Rows where the market holds no order for a type are absent rather than a block of zeroes.
+- **All four bases stay together in a row.** Narrowing to one would save a further tenth and break the
+  basis picker: [`materialCostByBasis`](../../../frontend/src/Functions/MarketData/materialPricing.js)
+  prices the whole job on all four so a player choosing one sees its effect rather than its name.
+- **The adjusted price is its own block.** It is source-independent and refreshes daily, so repeating
+  it inside each row would tie a figure that has not moved to the clock of one that has. It is asked
+  for by flag — only installation cost estimation reads it — and carries its own clock.
+
+The response is a plain nested object, which retires the custom `MarshalJSON` and the ambiguity of a
+top-level key being either a hub or a metadata field. The handler reads through one pipelined Redis
+round trip per source rather than a loop per type.
+
+## Two tiers of storage
+
+Both tiers are the same cache. What differs is whether anything survives beneath it when the tab
+closes.
+
+| Tier | What it holds | What is beneath the cache | Why |
+|------|---------------|---------------------------|-----|
+| Session | Rows and clocks for the four default hubs, adjusted prices | Nothing — a reload asks the API again | Server-cached and cheap to ask for again |
+| Persistent | Rows and clocks for every reader-saved source, public station and private citadel alike | IndexedDB, read through on a cache miss and written on resolve | Fetched at the reader's own expense — a citadel book walk especially — and never re-derivable for free |
+
+A source declares its tier in one place and nothing above the loader branches on it. The SPA holds
+nothing in IndexedDB today, so the persistent tier is new ground.
+
+## Wire compatibility
+
+| Surface | Change | Note |
+|---------|--------|------|
+| `GET /api/v1/market-sources` | **Additive** | New route; nothing reads it until Stage A lands in the SPA |
+| `POST /api/v1/market-prices` → `/query` | **Breaking** | Request gains required `sources`; response is reshaped and the flattened top-level hub keys go. The endpoint is public and unauthenticated, but the SPA is its only consumer and the two ship together, so the shape is cut over rather than versioned |
+| `worldData.marketData` | **Breaking, SPA-internal** | Retired. Prices move to a React Query entry per type and source, read through one accessor; the store keeps the source registry and nothing else |
+| ESI scopes | **Migrate-required** | Citadel sources need `esi-markets.structure_markets.v1`, which the SPA does not request today. Every linked character must re-authorise. Scopes are operator configuration, not in-repo, so this is a deployment step and needs its own call-out at Stage E |
+| Stored documents | **Additive** | Saved market locations are saved sale locations, a `CustomStructures` lane on the planner document. An additive field plus an upgrader step, with the Invention lane's v0→v1 addition as a worked precedent. The price *data* is IndexedDB and touches no server shape |
+| IndexedDB store | **Additive** | New, versioned from the first write |
+
+## Stage A — The source registry
+
+The markets stop being a list the SPA also keeps, and become a registry that admits more than four.
+
+1. `GET /api/v1/market-sources` serves `esicore.DefaultMarketLocations` joined to the stored region
+   refresh times, which `MarketOrdersStore.RefreshTimes` already reads.
+2. The SPA holds a source registry in the world-data store: the server's sources, each marked as
+   server-held, with room for reader-saved sources to join them.
+3. Retire `GLOBAL_CONFIG.MARKET_OPTIONS` and move its thirteen readers onto the registry —
+   `marketPriceForType.js`, `marketLocation.jsx`, `saleLocations.js`, `saleLocationRates.jsx`,
+   `marketCostsPanel.jsx`, `marketLabelHelpers.js`, `basicMineralOutput.jsx`, the market data and
+   market history icon and typography components, `priceHistory.jsx`, and
+   `worldDataSlice/marketData.js`.
+4. `DEFAULT_MARKET_OPTION` stays in config: it is a default *choice*, not a copy of the list.
+
+**Done when** the SPA holds no hand-maintained market list, every surface reads sources from the
+registry, no surface assumes a source is one of four, and a hub's refresh clock is available to the
+price layer.
+
+## Stage B — The price row and the narrowed query
+
+1. Reshape the endpoint to `/query` with `sources`, `typeIDs` and the `adjusted` flag, and the nested
+   response above. Retire the custom `MarshalJSON`. Reject a source the server does not hold.
+2. Pipeline the handler's Redis reads — one round trip per source, one for adjusted prices.
+3. Rekey `worldData.marketData` to type-and-source, and put every read behind the single accessor that
+   `getMarketPriceForType` is already most of.
+4. Move the pipeline in § The pipeline prices travel today onto the new shape: `findMarketData` and
+   `getMissingESIData` stop writing into the store themselves, and the eight flows that call the
+   latter ask through the imperative path instead.
+5. Move every call site onto naming the source it wants. The resolver
+   [market-pricing-defaults](../market-pricing-defaults/contents.md) is building is what answers that
+   question; where it is not yet wired, a call site names the market it is already pricing against.
+6. Delete [`Functions/MarketData/refreshMarketData.js`](../../../frontend/src/Functions/MarketData/refreshMarketData.js)
+   and [`Functions/MarketData/requestChunks.js`](../../../frontend/src/Functions/MarketData/requestChunks.js),
+   which nothing imports.
+
+**Done when** a request carries the sources it wants, the response carries only those, no caller reads
+a price without naming a source, and the handler no longer loops per type.
+
+## Stage C — Freshness from the source's clock
+
+1. The browser records, per source, the clock the rows it holds came from — per source and type for a
+   source fetched per type.
+2. A fetch is decided by missing rows or a moved clock; `doesMarketItemRequireRefresh` stops being the
+   rule for prices.
+3. `DEFAULT_ITEM_REFRESH_PERIOD` and `Functions/MarketData/refreshPeriod.js` are deleted. Nothing
+   else uses either: the constant has one reader, `refreshPeriod.js`, whose only live caller is
+   `findMarketData.js` — the rest is the dead `refreshMarketData.js`.
+
+**Done when** no price is asked for twice while its source's clock has not moved, and no price
+survives a walk that produced a new figure.
+
+## Stage D — The price cache and its two tiers
+
+1. A React Query entry per type at one source, with the loader beneath it that turns a tick's wants
+   into requests, following the name cache's shape (§ Where a price is read from).
+2. One accessor above it, replacing `getMarketPriceForType` and retiring `worldData.marketData`. The
+   store keeps the source registry.
+3. The session tier behaves as today: lost on reload.
+4. The persistent tier reads through IndexedDB beneath the cache, versioned, with a documented path
+   for a schema change and for eviction. The library choice is an open decision below.
+5. Stage E is the persistent tier's first consumer, so this stage lands with it close behind rather
+   than waiting for a second tenant to prove it.
+
+**Done when** every price in the SPA is read through one accessor, no caller knows which kind of
+source answered, hub prices still vanish on reload, and a row written to the persistent tier survives
+one.
+
+## Stage E — Sources the browser fetches
+
+1. Derivation in the SPA: best bid, best ask, nearest-rank percentile with the under-five fallback,
+   producing the same row shape the server produces, held in agreement with the Go implementation by
+   whatever § Open decisions settles on.
+2. **Custom NPC station:** per-type region orders filtered to the station's `location_id`, built on
+   the existing `getMarketData` call and its ETag handling. Rows and per-type clocks to the persistent
+   tier.
+   Several stations in one region share one request per type, split back out by `location_id`.
+3. **Custom citadel:** the whole-book walk on the reader's own token, through `nameLoader`'s
+   per-character machinery **extended** rather than copied — it already asks each linked character in
+   turn, keeps one refusal from settling the account's answer, skips a character whose token lacks the
+   scope, and refuses to cache a transient failure as an answer. One clock for the whole source.
+4. Each source refreshed on its own ESI expiry rather than on demand, so a panel pricing its first
+   material does not pay for a book walk.
+5. The accessor from Stage D answers for these sources without its callers changing.
+
+This stage builds against the placeholder accessor that already exists for saved locations —
+`Functions/MarketOrders/saleLocations.js` returns placeholder rows today — so Stage F slides the real
+list in behind it.
+
+**Done when** a price at a reader-saved source reads through the same accessor as a hub price,
+survives a reload, stays current without being asked for, and costs one request per region rather
+than one per station.
+
+## Stage F — Custom market locations
+
+The stored list of markets a reader has added, and the surface for adding one.
+
+**A market source and a selling point are the same saved row.** A reader adds a location once, as a
+selling point in the `CustomStructures` family, and that same row is the market its prices are read
+from. So the source registry is the four server hubs plus the reader's saved sale locations, and there
+is no second list of markets beside them.
+[`Functions/MarketOrders/saleLocations.js`](../../../frontend/src/Functions/MarketOrders/saleLocations.js)
+already normalises a hub and a saved structure into one shape through `resolveSaleLocation`, and is
+where a source resolves — not a parallel accessor.
+
+1. Build the lane from the shape [planning-stage-panels](../planning-stage-panels/plan.md) § Handed to
+   the custom-structure work worked out, widened to carry a saved **NPC station** as well as a
+   structure. `resolveSaleLocation` already treats a named station as a choice of its own; today the
+   only stations it can name are the four hubs, because `MARKET_OPTIONS` is the whole list of them.
+   A station's broker fee stays derived from the seller's standings, and a structure's stays the rate
+   its owner set — that difference is `SALE_LOCATION_KIND` and is not this project's to change.
+2. No character is stored on a row. Which characters can reach a structure is answered by asking them,
+   not by recording an answer that goes stale when a character is linked or loses access.
+3. The surface for adding, editing and removing one, built from the shared component library.
+4. Replace the placeholder rows in `saleLocations.js` with the stored list — a change to that one
+   file, which is what the placeholder was shaped to allow.
+
+**This project is the custom-structure work, for markets.**
+[planning-stage-panels](../planning-stage-panels/plan.md) and
+[market-pricing-defaults](../market-pricing-defaults/contents.md) both hand saved citadels to an
+unnamed "custom-structure work"; for anything to do with pricing against one, that work is this stage.
+The other `CustomStructures` lanes are not affected and stay wherever they are taken up.
+
+`CustomStructures` already carries per-planner lanes of named, player-defined locations, and that
+handover worked the sale lane's shape out — including that the structure id is stored precisely so a
+later project can query the structure's own market, which is this one.
+
+That section's `SaleStructure.PriceHub` exists because the app holds no prices for a structure, so a
+job selling from one prices against a hub instead. Once this project can price a structure directly,
+that field becomes a fallback for a structure whose own market is empty or unreachable rather than the
+only answer — a change to what it means, which belongs in this stage rather than being left implied.
+
+**Done when** a reader can add an NPC station or a citadel as a market, price against it anywhere a
+hub can be priced against, and the placeholder is gone.
+
+## Left out on purpose
+
+**The Market Data and Price History dialogues** read region order books and history straight from ESI
+in the browser, paginating client-side against the reader's own ESI allowance — while the server
+already holds the four hubs' region pages in Redis behind `regionPageKey`. Serving the hub case from
+the server would remove a second transport for the same data. It is excluded from this project's scope
+by decision, and recorded here because the argument does not go away. Note that Stage E gives the
+browser a legitimate version of this path for custom sources, where there is no server copy to serve.
+
+## Non-goals
+
+- Changing how the server builds the four hubs' books, or the meaning of the four bases.
+- Deciding which market or basis a figure is priced against — [market-pricing-defaults](../market-pricing-defaults/contents.md).
+- Serving any reader-saved market from the server, private or public.
+
+## Open decisions
+
+| Question | Notes |
+|----------|-------|
+| **How the Go and JavaScript derivations are held in agreement.** Options: a fixture file in the repo (order books in, expected rows out) that a test on each side reads, so a change to one without the other fails; or generating the JavaScript from the Go; or accepting drift and testing each alone | The fixture is the cheapest thing that actually catches a divergence, and the repo already keeps shared fixtures for the SPA. Decide before Stage E writes a line of derivation |
+| How the browser learns a hub clock moved — polling `GET /api/v1/market-sources`, or a push over the existing websocket fan-out | Polling is simpler and the clock moves hourly; the fan-out exists and would make it exact. Decide at Stage C |
+| IndexedDB access — `idb`, Dexie, or the raw API | Stage D. Check current versions and maintenance before choosing, per the shared dependency rule |
+| When the `esi-markets.structure_markets.v1` scope is added — with Stage E, or earlier so the re-authorisation rides a release that is already asking for one | Adding a scope re-authorises every character; it should not be its own event if it can avoid being one |
+| Whether a citadel book walk is bounded, and what happens to a reader who saves a structure with a very large book | Unknown until measured. Stage E |
+
+## Stage status
+
+| Stage | Status |
+|-------|--------|
+| Phase 1 — project folder and docs | Done |
+| Stage A — The source registry | Not started |
+| Stage B — The price row and the narrowed query | Not started |
+| Stage C — Freshness from the source's clock | Not started |
+| Stage D — The price cache and its two tiers | Not started |
+| Stage E — Sources the browser fetches | Not started |
+| Stage F — Custom market locations | Not started |
+
+## Start here
+
+Stage A. It is self-contained, it is the only stage that is purely additive on the wire, and every
+stage after it needs the registry and the clock it publishes.

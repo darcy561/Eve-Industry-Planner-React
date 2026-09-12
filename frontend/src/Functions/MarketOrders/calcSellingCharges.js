@@ -45,12 +45,12 @@ export default async function calcSellingCharges(
   const saleLocation = atStation
     ? {
         kind: SALE_LOCATION_KIND.HUB,
-        priceHubStationID: marketOrder.location_id,
+        feeStationID: marketOrder.location_id,
         brokerFee: null,
       }
     : {
         kind: SALE_LOCATION_KIND.STRUCTURE,
-        priceHubStationID: null,
+        feeStationID: null,
         brokerFee: citadelBrokersFee,
       };
 

@@ -31,7 +31,7 @@ export function useSellingRates(saleLocation, characterHash) {
       "sellingRates",
       saleLocation?.kind ?? "none",
       saleLocation?.id ?? "none",
-      saleLocation?.priceHubStationID ?? "none",
+      saleLocation?.feeStationID ?? "none",
       characterHash ?? "none",
       inputs.updatedAt,
     ],

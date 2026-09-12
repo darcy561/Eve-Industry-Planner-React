@@ -50,7 +50,7 @@ const hub = {
   kind: SALE_LOCATION_KIND.HUB,
   id: "jita",
   name: "Jita",
-  priceHubStationID: 60003760,
+  feeStationID: 60003760,
   brokerFee: null,
 };
 

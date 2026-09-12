@@ -9,7 +9,7 @@ const hub = {
   kind: SALE_LOCATION_KIND.HUB,
   id: "jita",
   name: "Jita",
-  priceHubStationID: 60003760,
+  feeStationID: 60003760,
   brokerFee: null,
 };
 
@@ -17,7 +17,7 @@ const structure = {
   kind: SALE_LOCATION_KIND.STRUCTURE,
   id: "placeholder-sale-structure",
   name: "Placeholder Citadel",
-  priceHubStationID: 60003760,
+  feeStationID: 60003760,
   brokerFee: 1.5,
 };
 

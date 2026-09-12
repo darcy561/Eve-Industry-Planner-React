@@ -374,7 +374,7 @@ describe("naming an NPC station as the sale location", () => {
     const location = resolveSaleLocation("amarr", "jita");
 
     expect(location.id).toBe("amarr");
-    expect(location.priceHubStationID).toBe(60008494);
+    expect(location.feeStationID).toBe(60008494);
   });
 
   it("still falls back to the pricing hub when nothing is named", () => {

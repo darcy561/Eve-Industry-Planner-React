@@ -152,7 +152,7 @@ export async function brokerFeeWorking(
   );
   const { faction, corporation, unknown, factionName, corporationName } =
     await getStationStandings(
-      saleLocation?.priceHubStationID,
+      saleLocation?.feeStationID,
       queryClient,
       characterHash,
     );

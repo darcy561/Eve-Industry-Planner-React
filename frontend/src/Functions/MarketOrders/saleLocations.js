@@ -63,8 +63,10 @@ const PLACEHOLDER_SALE_STRUCTURES = [
  * @property {string} kind - One of SALE_LOCATION_KIND
  * @property {string} id - Hub id, or the saved row's id
  * @property {string} name - Display name
- * @property {number} priceHubStationID - The station whose prices apply
- * @property {string} priceHubID - The MARKET_OPTIONS id those prices come from
+ * @property {number|null} feeStationID - The NPC station whose owner's standings
+ *   set the broker fee. Null at a structure, whose owner sets a rate instead —
+ *   it is not the station the figures are priced against, which is priceHubID
+ * @property {string} priceHubID - The market the figures are priced against
  * @property {string} priceHubName - What that hub is called
  * @property {number|null} brokerFee - The owner's rate for a structure; null at a
  *   hub, where the rate is derived from the seller instead
@@ -127,7 +129,7 @@ function saleLocationFromHub(hub) {
     kind: SALE_LOCATION_KIND.HUB,
     id: hub.id,
     name: hub.name,
-    priceHubStationID: hub.stationID,
+    feeStationID: hub.stationID,
     priceHubID: hub.id,
     priceHubName: hub.name,
     brokerFee: null,
@@ -148,7 +150,8 @@ function saleLocationFromStructure(structure) {
     kind: SALE_LOCATION_KIND.STRUCTURE,
     id: structure.id,
     name: structure.name,
-    priceHubStationID: hub?.stationID ?? null,
+    // No standings apply: the owner sets the rate.
+    feeStationID: null,
     priceHubID: hub?.id ?? null,
     priceHubName: hub?.name ?? null,
     brokerFee: structure.brokerFee,

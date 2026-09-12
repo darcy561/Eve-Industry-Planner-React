@@ -58,7 +58,7 @@ describe("resolveSaleLocation", () => {
     const location = resolveSaleLocation(structure.id);
     const hub = resolveSaleLocation(null, structure.priceHub);
 
-    expect(location.priceHubStationID).toBe(hub.priceHubStationID);
+    expect(location.priceHubID).toBe(hub.priceHubID);
   });
 
   test("choosing a structure resolves that one, not the default", () => {
@@ -74,8 +74,8 @@ describe("resolveSaleLocation", () => {
     const { fallback, other } = structurePair();
 
     expect(other.priceHub).not.toBe(fallback.priceHub);
-    expect(resolveSaleLocation(other.id).priceHubStationID).not.toBe(
-      resolveSaleLocation(fallback.id).priceHubStationID,
+    expect(resolveSaleLocation(other.id).priceHubID).not.toBe(
+      resolveSaleLocation(fallback.id).priceHubID,
     );
   });
 

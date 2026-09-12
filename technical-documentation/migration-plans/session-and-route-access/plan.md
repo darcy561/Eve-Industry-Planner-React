@@ -199,18 +199,16 @@ a deep link, and it needs no mechanism of its own.
 
 ## What crosses the handshake
 
-A fresh sign-in does leave, so it needs a way back:
+A fresh sign-in does leave, so it needs a way back. `state` carries where the reader was headed —
+path, search and hash — and EVE echoes it onto the callback URL.
 
-1. Capture `location.href` — pathname, search and hash.
-2. Mint a single-use nonce, store the href under it in `sessionStorage`, send `state=<nonce>` to EVE.
-3. EVE returns to `/auth?code=…&state=<nonce>`.
-4. `/auth` exchanges the code, reads the nonce back to an href, and deletes the entry.
-5. Validate, then `navigate({ href })`. The route's own `validateSearch` re-checks `activeGroup` and
-   `pageView` on arrival, so the search is coerced by the route rather than trusted.
-
-`state` is then only ever a nonce, so nothing arriving from the network can be a path. It also gives
-`state` its actual job in the handshake: an unguessable single-use value this tab minted is what makes
-a callback answerable.
+**A nonce keyed to a stored location was built and then taken back out.** It would have kept the
+return target off the network entirely and given `state` its CSRF job, but neither is this project's
+to bank: the SPA has no CSRF defence either way, and that question is open as
+[auth-hardening](../auth-hardening/plan.md) § Stage F (#32). What it did cost was a seam — the guard
+held a path, the storage wanted a nonce, and the handover between them was wrong on the first
+attempt, sending a bookmark to a private page to the dashboard. A damaged `state` landing on the
+default is not worth that.
 
 **A returning target is validated before the router sees it.** It must start with `/`; it must not
 start with `//`, which is protocol-relative and leaves the site while passing a naive check; it must
@@ -285,8 +283,8 @@ tidiness, and it is the fiddliest part of the auth surface.
 | 2 — the progress tracker | **Landed.** `Functions/Auth/loginProgress.js` holds step state outside React and `useLoginState` reads it. Behaviour: [overlay.md](./overlay.md) § How login progress is tracked |
 | 3 — one guard | **Landed.** The root guard owns first login, resume and the private requirement; `allowPublicAccess`, `requireAuth` and `utils/authGuard.js` are gone. Behaviour: [overlay.md](./overlay.md) § Guarding a route |
 | 4 — the data a page needs | **Landed.** `/editjob/$jobID` and `/group/$groupID` carry loaders, the router has a not-found page and a deliberate preload staleness, and the fetch-or-bounce in the two pages is gone. Behaviour: [overlay.md](./overlay.md) § What a page needs beyond a session |
-| 5 — the handshake | Not started |
-| 6 — the second readers | Not started |
+| 5 — the handshake | **Landed.** `state` carries where the reader was headed and is checked against the real routes on return; `getRedirectPathAfterAuth` is down to "a route the app has, and not transient"; `storeOriginalPathFromOAuthState` and the `originalPath` key are gone. Behaviour: [overlay.md](./overlay.md) § Signing in and coming back |
+| 6 — the second readers | **Landed.** The side menu asks each route whether a reader may go there, through `canVisitRoute`. Behaviour: [overlay.md](./overlay.md) § Who sees which navigation |
 
 ## Settled
 
@@ -306,8 +304,10 @@ tidiness, and it is the fiddliest part of the auth surface.
   route splash otherwise, so the two waits do not look alike.
 - **What does a failed resume do on a public page?** Rendering signed-out is the obvious answer, but a
   reader who had a session and silently loses it deserves to be told something. No decision yet.
-- **Does the additional-account window move to the nonce mechanism at all**, or stay as it is with a
-  note saying why.
+- **The additional-account window stays as it is.** It was only ever a candidate for folding into a
+  shared nonce mechanism, and that mechanism was built and then taken back out. Its own
+  `additional:<nonce>` handshake and `BroadcastChannel` hand-off are the right shape for two live
+  contexts, which is a different problem from a tab that leaves and comes back.
 
 ## What promote has to fix
 

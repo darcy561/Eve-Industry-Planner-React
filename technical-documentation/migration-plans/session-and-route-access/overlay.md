@@ -197,9 +197,40 @@ component test that renders it, and removing `defaultNotFoundComponent` fails th
 
 ## Signing in and coming back
 
-*Stage 5 — not started.* `state` still carries a path, and `getRedirectPathAfterAuth` still treats a
-route with a param as private. Live behaviour, plus Stage 1's route matching, is the truth here.
+*Stage 5 — landed.*
+
+A resume never leaves the page, so nothing has to be carried. A **fresh sign-in does** — the browser
+navigates to EVE and the URL is gone — and what comes back is the callback URL, so `state` is the
+only thing that survives. It carries where the reader was headed.
+
+What changed is not where that value lives but that it is now **checked rather than trusted**.
+`getRedirectPathAfterAuth` is three tests: the value must start with a single `/` — `//evil` is
+protocol-relative and leaves the site while reading as a path — it must match a route the app has,
+and it must not be `transient`, because `/auth` and `/signout` are passed through rather than
+returned to. Anything else lands on the default, which is all a damaged `state` is worth.
+
+That is what retires the earlier failure without storing anything: `state` used to carry `"main"` for
+a login, which was kept as the path to return to and navigated to from `/auth`, resolving relatively
+onto `/auth/main`. `"main"` is not a route, so it now falls to the default.
+
+The rule that treated any route carrying a param as private is gone with it. A reader sent to sign in
+from a shared job or group link comes back to it, and a deep link into a private page is where they
+land rather than the dashboard. `storeOriginalPathFromOAuthState` and the `originalPath` key in
+`localStorage` are deleted; signing out no longer has one to clear.
 
 ## Who sees which navigation
 
-*Stage 6 — not started.* The side menu still gates its entries on `isLoggedIn` by hand.
+*Stage 6 — landed.*
+
+The side menu used to wrap its entries in `isLoggedIn &&`, which was a list of which pages need an
+account maintained by hand in a second place — and the one nobody would think to update when a route
+changed. Each entry now asks the route: `canVisitRoute(path, isLoggedIn)` in `utils/routeAccess.js`
+says a public route is open to anyone, a private one needs a signed-in reader, and a path the app has
+no route for is nowhere to go.
+
+One `isLoggedIn` gate stays, around the account block at the foot of the menu. That block holds Sign
+Out, which is an action rather than a page to be let into, so gating the section is a layout decision
+rather than a second opinion about route access.
+
+With that, every consumer of a route's audience reads the same declaration: the guard, the post-login
+landing, and the menu.

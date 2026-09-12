@@ -47,7 +47,9 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
     accountPricing,
     side: PRICING_SIDE.BUYING,
   });
-  const selling = resolvePricingSide({
+  // Only the market: the column states what listing the item would fetch, so the
+  // sell price is the figure it wants whatever basis the account prices on.
+  const { marketDisplay: sellingMarket } = resolvePricingSide({
     accountPricing,
     side: PRICING_SIDE.SELLING,
   });
@@ -110,16 +112,11 @@ export function WatchListRow({ item, index, onEditWatchlistItem }) {
     return {
       totalBuild,
       totalPurchase,
-      mainItemWorth: mainItemPrice?.[selling.marketDisplay]?.sell ?? 0,
+      mainItemWorth: mainItemPrice?.[sellingMarket]?.sell ?? 0,
     };
     // The resolved ids rather than the objects: those are rebuilt every render,
     // and this recomputes the whole tree.
-  }, [
-    marketData,
-    buying.marketDisplay,
-    buying.orderDisplay,
-    selling.marketDisplay,
-  ]);
+  }, [marketData, buying.marketDisplay, buying.orderDisplay, sellingMarket]);
 
   const isItemDataOutdated = !item?.buildData;
 

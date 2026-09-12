@@ -20,15 +20,16 @@ export function ExpandedWatchlistRow({ mat }) {
     accountPricing,
     side: PRICING_SIDE.BUYING,
   });
-  const selling = resolvePricingSide({
+  // Only the market: the row states what the material would fetch listed, so the
+  // sell price is the figure it wants whatever basis the account prices on.
+  const { marketDisplay: sellingMarket } = resolvePricingSide({
     accountPricing,
     side: PRICING_SIDE.SELLING,
   });
   const { findMarketData } = useUsersStore.getState().worldData.actions;
   const marketData = useUsersStore((state) => state.worldData.marketData);
 
-  const matWorth =
-    findMarketData(mat.typeID)?.[selling.marketDisplay]?.sell ?? 0;
+  const matWorth = findMarketData(mat.typeID)?.[sellingMarket]?.sell ?? 0;
   const matBuildPrice = useMemo(() => {
     let buildPrice = calculateInstallCostfromSetup(mat?.buildData);
     mat.materials.forEach((x) => {

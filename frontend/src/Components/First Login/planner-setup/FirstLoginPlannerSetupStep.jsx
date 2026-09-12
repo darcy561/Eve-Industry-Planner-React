@@ -1,4 +1,5 @@
 import { Divider, Grid, Stack, TextField, Typography } from "@mui/material";
+import { PRICING_SIDES } from "../../../Functions/MarketData/pricingSide.js";
 import { useTheme } from "@mui/material/styles";
 import { useMemo } from "react";
 import useUsersStore from "../../../Zustand/usersStore";
@@ -24,15 +25,13 @@ export function FirstLoginPlannerSetupStep() {
   );
 
   const {
-    defaultMarketLocation,
-    defaultOrderType,
+    defaultPricing,
     defaultStationIDForAssets,
     defaultCitadelBrokersFee,
     enableCompactLayoutView,
   } = useUsersStore((state) => state.applicationSettings);
   const {
-    updateDefaultMarket,
-    updateDefaultOrders,
+    updatePricingDefault,
     updateDefaultAssetLocation,
     updateCitadelBrokersFee,
     setEnableCompactLayoutView,
@@ -56,28 +55,32 @@ export function FirstLoginPlannerSetupStep() {
           station when viewing asset lists.
         </Typography>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <MarketLocationSelect
-              {...appShellMarketSelectProps}
-              value={defaultMarketLocation}
-              onChange={(e) => {
-                updateDefaultMarket(e.id);
-                scheduleDebouncedApplicationSettingsSave();
-              }}
-              labelText="Default Market Hub"
-            />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <MarketListingSelect
-              {...appShellMarketSelectProps}
-              value={defaultOrderType}
-              onChange={(e) => {
-                updateDefaultOrders(e.id);
-                scheduleDebouncedApplicationSettingsSave();
-              }}
-              labelText="Default Market Orders"
-            />
-          </Grid>
+          {PRICING_SIDES.map(({ side, noun }) => (
+            <Grid key={side} container size={{ xs: 12, md: 6 }} spacing={2}>
+              <Grid size={6}>
+                <MarketLocationSelect
+                  {...appShellMarketSelectProps}
+                  value={defaultPricing?.[side]?.market}
+                  onChange={(e) => {
+                    updatePricingDefault(side, "market", e.id);
+                    scheduleDebouncedApplicationSettingsSave();
+                  }}
+                  labelText={`${noun} market`}
+                />
+              </Grid>
+              <Grid size={6}>
+                <MarketListingSelect
+                  {...appShellMarketSelectProps}
+                  value={defaultPricing?.[side]?.basis}
+                  onChange={(e) => {
+                    updatePricingDefault(side, "basis", e.id);
+                    scheduleDebouncedApplicationSettingsSave();
+                  }}
+                  labelText={`${noun} prices`}
+                />
+              </Grid>
+            </Grid>
+          ))}
           <Grid size={{ xs: 12, md: 6 }}>
             <FirstLoginAssetLocationSelect
               value={defaultStationIDForAssets}

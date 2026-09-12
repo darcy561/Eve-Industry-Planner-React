@@ -1,4 +1,5 @@
 import { Box, FormControlLabel, Grid, Switch, TextField } from "@mui/material";
+import { PRICING_SIDES } from "../../../Functions/MarketData/pricingSide.js";
 import { scheduleDebouncedApplicationSettingsSave } from "../../../Functions/Debounce/userDocumentsPersistSchedule.js";
 import MarketLocationSelect from "../../../Styled Components/Select/marketLocation";
 import MarketListingSelect from "../../../Styled Components/Select/marketListing";
@@ -11,8 +12,7 @@ import CustomExtrasFrame from "./Job Settings/customExtrasFrame";
 
 function JobSettingsFrame() {
   const {
-    defaultMarketLocation: defaultMarket,
-    defaultOrderType: defaultOrders,
+    defaultPricing,
     defaultStationIDForAssets: defaultAssetLocation,
     hideCompleteMaterials,
     defaultCitadelBrokersFee: citadelBrokersFee,
@@ -20,8 +20,7 @@ function JobSettingsFrame() {
   } = useUsersStore((state) => state.applicationSettings);
 
   const {
-    updateDefaultMarket,
-    updateDefaultOrders,
+    updatePricingDefault,
     updateDefaultAssetLocation,
     toggleHideCompleteMaterials,
     updateCitadelBrokersFee,
@@ -37,40 +36,35 @@ function JobSettingsFrame() {
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <Grid container>
-        <Grid
-          align="center"
-          sx={{ paddingX: "20px" }}
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <MarketLocationSelect
-            value={defaultMarket}
-            onChange={(e) => {
-              updateDefaultMarket(e.id);
-              scheduleDebouncedApplicationSettingsSave();
-            }}
-            labelText="Default Market Hub"
-          />
-        </Grid>
-        <Grid
-          align="center"
-          sx={{ paddingX: "20px" }}
-          size={{
-            xs: 12,
-            sm: 6,
-          }}
-        >
-          <MarketListingSelect
-            value={defaultOrders}
-            onChange={(e) => {
-              updateDefaultOrders(e.id);
-              scheduleDebouncedApplicationSettingsSave();
-            }}
-            labelText="Default Market Orders"
-          />
-        </Grid>
+        {PRICING_SIDES.map(({ side, noun }) => (
+          <Grid
+            key={side}
+            container
+            sx={{ paddingX: "20px" }}
+            size={{ xs: 12, sm: 6 }}
+          >
+            <Grid align="center" size={6}>
+              <MarketLocationSelect
+                value={defaultPricing?.[side]?.market}
+                onChange={(e) => {
+                  updatePricingDefault(side, "market", e.id);
+                  scheduleDebouncedApplicationSettingsSave();
+                }}
+                labelText={`${noun} market`}
+              />
+            </Grid>
+            <Grid align="center" size={6}>
+              <MarketListingSelect
+                value={defaultPricing?.[side]?.basis}
+                onChange={(e) => {
+                  updatePricingDefault(side, "basis", e.id);
+                  scheduleDebouncedApplicationSettingsSave();
+                }}
+                labelText={`${noun} prices`}
+              />
+            </Grid>
+          </Grid>
+        ))}
         <Grid
           align="center"
           size={{

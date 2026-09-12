@@ -195,45 +195,37 @@ export const preferencesActions = (set, get) => ({
     ),
 
   /**
-   * Updates the default market location.
+   * Sets one field of one side of the account's pricing defaults.
    *
-   * @param {string} newValue - New default market location (e.g., 'jita', 'amarr')
+   * The side is which half of a job is being priced, and the key is the market
+   * or the basis it is priced on. The two axes are both called buy and sell and
+   * do not agree: a basis is a listing type, so buying materials normally uses
+   * the "sell" basis, because the ask is what buying costs.
+   *
+   * @param {string} side - One of PRICING_SIDE
+   * @param {"market"|"basis"} key
+   * @param {string} value
    *
    * @example
-   * store.getState().applicationSettings.actions.updateDefaultMarket('jita');
+   * actions.updatePricingDefault("buying", "market", "jita");
    */
-  updateDefaultMarket: (newValue) =>
+  updatePricingDefault: (side, key, value) =>
     set(
       (state) => ({
         ...state,
         applicationSettings: {
           ...state.applicationSettings,
-          defaultMarketLocation: newValue,
+          defaultPricing: {
+            ...state.applicationSettings.defaultPricing,
+            [side]: {
+              ...state.applicationSettings.defaultPricing?.[side],
+              [key]: value,
+            },
+          },
         },
       }),
       false,
-      "updateDefaultMarket",
-    ),
-
-  /**
-   * Updates the default order type.
-   *
-   * @param {string} newValue - New default order type ('buy' or 'sell')
-   *
-   * @example
-   * store.getState().applicationSettings.actions.updateDefaultOrders('sell');
-   */
-  updateDefaultOrders: (newValue) =>
-    set(
-      (state) => ({
-        ...state,
-        applicationSettings: {
-          ...state.applicationSettings,
-          defaultOrderType: newValue,
-        },
-      }),
-      false,
-      "updateDefaultOrders",
+      "updatePricingDefault",
     ),
 
   /**

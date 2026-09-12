@@ -17,10 +17,11 @@ alongside loading and error state. Each id is its own cache entry —
 [`nameQuery`](../../../frontend/src/Hooks/React%20Query/World/names.js), keyed
 `["esi", "name", <id>]` — so a name resolved for one view is present for the next without being
 asked for again, and an id that could not be resolved is a failure against that id rather than a
-hole in one view's set. A consumer resolving names outside a render, inside a flow already running
-— the shopping list's corporation assets, a match being linked — calls
-`fetchNames(queryClient, ids, characters)` instead, which shares the same per-id cache: a name
-either path resolves is present for the other.
+hole in one view's set. A consumer resolving names outside a render, inside a flow already running —
+the broker fee a linked market order was charged, which is worked out where no component is
+rendering — calls `fetchNames(queryClient, ids)` instead, which shares the same per-id cache: a name
+either path resolves is present for the other. Only a player structure needs a character's token, so
+that call takes characters only when it might ask for one.
 
 `worldData.universeIDs` is read before either path asks ESI and is written once names come back: a
 name the store already holds is an answer, and asking for it again would be work for nothing.
@@ -107,13 +108,33 @@ standard, and the order locations are shown in, belongs to [assets.md](./assets.
 Assembling a view (`describeLocation`, `byLocationOrder`, `locationOptions`); this topic produces the
 names those functions read and stops there.
 
+Every settled outcome reaches a consumer, including one ESI had no name for: an entry that carries
+no name is still an answer, and withholding it left a surface unable to tell it from an id still
+being asked about, so a place was asked for and nothing appeared. A consumer reads the name it holds
+and falls back to the shared label when there is none.
+
+`forgetNames` drops what is known about an id, so the next view asking resolves it again. Nothing
+calls it: a settled outcome is right while the account is the same account, and a structure that
+refused every linked character will refuse them again. It stops being right when what the account
+can see changes — a character linked, a corporation or alliance joined or left — and that is what
+this exists for, so whatever comes to watch for those changes has somewhere to say so rather than
+reaching into the cache's keys from outside.
+
 `worldData.universeIDs` remains as a read-through map: `useLocationNames` checks it before asking and
-writes back what it resolves. The shopping list's corporation-assets flow also writes into it, once
-names it fetched outside a render come back. Nothing else reads or writes it.
+writes back what it resolves. Nothing else in the app reads or writes it, in either direction. The
+map holds nothing across a reload, so what it buys is a render's worth of cache in front of the
+cache proper.
 
 ## Topic-only detail
 
-`Functions/Endpoints/Private/citadelNames.js` is the community store's client.
-`resolveCitadelName` reads one id per `GET`, ETag'd and CDN-cached at the edge. A character with
-docking access who names a structure through ESI, on an account that has not opted out, queues that
-name to be submitted back, batched up to 200 submissions per request.
+`Functions/EveESI/World/communityNames.js` owns the community store in both directions, because
+structure information has one home: `communityName` reads a name back, and `submitStructureName`
+gives one. A character with docking access who names a structure through ESI, on an account that has
+not opted out, queues that name to be submitted, batched up to 200 submissions per request and sent
+on a short delay — or at once when the queue grows, or when the page is hidden, so a queue that only
+ever drained on a timer does not lose what it holds when the page goes away. A chunk the store
+refuses is put back rather than dropped.
+
+`Functions/Endpoints/Private/citadelNames.js` is the client underneath: `readCommunityName` reads one
+id per `GET`, ETag'd and CDN-cached at the edge, and `submitCommunityNames` posts a batch. What is
+worth submitting and when it is sent are not its business.

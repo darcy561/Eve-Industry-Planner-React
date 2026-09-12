@@ -411,6 +411,91 @@ structure they may not be able to reach. That is intended — they need to know 
 but it sits beside `ShareCitadelNames`, the existing opt-in for contributing citadel names, and should
 not land without being noticed.
 
+### Where a structure's prices will come from
+
+**A structure sells at its own market, and one day the app will read it.** Until then the figures are
+priced against a hub the player names, which is what `PriceHub` on the stored row is for. That is a
+stand-in, not the design: a sale location is where the order is listed, so the order book that decides
+what the output fetches is that location's own.
+
+The seam is already the shape that change needs, and it is worth saying where it is so the work does
+not go looking:
+
+- A `SaleLocation` carries **`priceHubID`** — the market its figures are priced against — and every
+  consumer reads that one field. `getMarketPriceForType(typeID, priceHubID, listing)` is the only way
+  a price is fetched, and nothing anywhere asks for market data by `structureID`.
+- So when a structure's market can be read, the change is confined to **`saleLocationFromStructure`**,
+  which returns the structure's own market instead of the named hub's, and to whatever backs the market
+  data behind that accessor. Returns, Cost Breakdown, Skills and the output header need no edit: they
+  already price against whatever the sale location names.
+- **`feeStationID` is a separate field and stays null for a structure.** It is the NPC station whose
+  owner's standings set the broker fee, and it is not the station anything is priced against — the two
+  were one field until they had to mean different things.
+- `PriceHub` does not become dead when that lands. A structure whose market cannot be read — no docking
+  access, or no character with the scope — still needs a market to stand in for it, so the field
+  becomes the fallback rather than the answer.
+
+**What it will take.** Structure orders are not public: they are read per character, through an
+authenticated endpoint, and only where that character can dock. The app requests no market scope today.
+So this is a new ESI surface, a new server-side cache for markets that are not the four hubs, and a
+per-character access question — not an edit. The exact endpoint and scope want checking against
+`docs.esi.evetech.net` rather than taken from here.
+
+### ...and where its materials will be bought from
+
+**The same change is owed to the buying side.** A player who lists from a citadel may buy from one
+too, and the two are separate choices — Materials & Sourcing says where the materials come from,
+Returns says where the output goes, and neither should follow the other. So the hub picker in the
+Materials & Sourcing header must offer saved citadels beside the four hubs, and a material's own
+override must be able to name a different one again.
+
+The resolution seam is ready for that. `getEffectiveMaterialPriceHub` returns
+`override?.marketDisplay ?? panelDefault` — one function, already holding the rule that a row's own
+source outranks the panel's — and what it returns goes straight to `getMarketPriceForType`. A citadel
+id passed through it needs no new plumbing. The stored fields are plain strings on both sides:
+`JobLayout.LocalMarketDisplay` and `MaterialPriceOverride.MarketDisplay` are `string` in
+`models.Job`, with no enum and no validation, so a citadel id is **additive** — no schema bump, no
+migration.
+
+What is not ready is the assumption, in three places, that a market id is one of the four:
+
+- **`Styled Components/Select/marketLocation.jsx` silently rewrites what it does not recognise.**
+  `MARKET_OPTIONS.find((option) => option.id === value) ? value : "jita"` — a stored citadel id would
+  come back as Jita on the next render, with the player's choice gone and nothing said. This is the
+  one that must change first, because it corrupts a stored value rather than merely failing to read
+  it.
+- **`worldData.findMarketData` answers in a per-hub shape.** Its empty default is built by reducing
+  `MARKET_OPTIONS`, so a citadel-keyed lookup misses and `getMarketPriceForType` returns `0` — a
+  material priced at nothing rather than a material that could not be priced.
+- **The market links resolve an id to a region.** `IconButton/marketData.jsx`,
+  `IconButton/marketHistory.jsx` and `Typography/marketData.jsx` each look the id up in
+  `MARKET_OPTIONS` to build an in-game or third-party link. A structure has no region page, so those
+  need an answer — link to the market standing in for it, or show no link — rather than falling back
+  to The Forge for a citadel in Amarr.
+
+**The rule to keep while doing it:** the panel's hub is the default and a row's override outranks it,
+on both sides of the job. Whatever offers citadels has to preserve that, or a player who sets one
+material to a citadel and then changes the panel's hub loses the row they had already answered.
+
+**The two citadels in `saleLocations.js` are test stand-ins**, not data. They exist so the panels can
+be built and exercised before the stored list does, and they disagree on every field that changes a
+figure so that a consumer which assumes one citadel produces a visibly wrong number rather than a
+coincidentally right one.
+
+## Handed to the market pricing defaults work
+
+**This project did not change the account's market defaults**, and a reader picking this up should not
+go looking for them here. Asking how the hub picker built here would behave on the surfaces this
+project does not own — the shopping list, the price entry dialogue, item watch, reprocessing — showed
+that the single `defaultMarketLocation` / `defaultOrderType` beneath it is answering two questions
+with different answers, and that an item's market group never reaches the SPA at all.
+
+That is its own work, with its own project folder:
+[market-pricing-defaults/plan.md](../market-pricing-defaults/plan.md). The ladder, the surface
+inventory, the buy/sell naming trap and the market group tree all live there, and that plan is the
+authority. Nothing in it blocks, or is blocked by, the custom-structure work above — all three land on
+the same resolver.
+
 ## Stage B — Fee and tax estimation
 
 **Frontend logic. No UI.**
@@ -1265,7 +1350,8 @@ Raw Resources panels are deleted, and the selling charges are counted. What rema
 [`overlay.md`](./overlay.md) carries how each part works now, in the shape it takes when it is folded
 into live SoT under [`../../frontend/`](../../frontend/contents.md).
 
-Two things deliberately did not land here, and a reader picking this up should not go looking for them:
+Three things deliberately did not land here, and a reader picking this up should not go looking for
+them:
 
 - **Storing saved citadels** went to the custom-structure work — the lane, its schema bump, its
   migration and its editing surface. This project stores nothing and reads sale locations through
@@ -1274,6 +1360,10 @@ Two things deliberately did not land here, and a reader picking this up should n
   backup that work needs before its upgrader writes anything.
 - **The per-component "vs last build" comparison** needs a statistics endpoint change and belongs to
   that work. See § Known limits.
+- **The account's market defaults** stayed as they are. Splitting the one default into separate
+  buying and selling defaults, and keying defaults to market groups, came out of this project's hub
+  picker but are their own work — see
+  [market-pricing-defaults/plan.md](../market-pricing-defaults/plan.md).
 
 The open questions below are still open, and none of them blocks promotion.
 

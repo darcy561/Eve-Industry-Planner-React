@@ -53,6 +53,10 @@ answer it.
   separately. This project stores nothing and reads sale locations through one accessor returning
   placeholders until that work lands — see [plan.md](./plan.md) § Building against a placeholder, and
   § Handed to the custom-structure work for what this project worked out and passed on.
+- **The market pricing defaults.** Splitting the account's one market default into separate buying and
+  selling defaults, and keying defaults to market groups, are their own work →
+  [market-pricing-defaults/contents.md](../market-pricing-defaults/contents.md). This project reads
+  the existing single default through the resolver hooks and changes neither.
 - **Document write granularity.** Settings and job writes keep whatever shape
   [document-write-granularity](../document-write-granularity/contents.md) leaves them in.
 - Live SPA and backend behaviour, promoted only when this project closes.
@@ -70,6 +74,7 @@ answer it.
 | Know what is stored and what is an SPA constant | [plan.md](./plan.md) § Stage A, § What is stored, and where |
 | Find how consumers read a sale location before the stored list exists | [plan.md](./plan.md) § Stage A, § Building against a placeholder |
 | Find what the custom-structure work inherited from here | [plan.md](./plan.md) § Handed to the custom-structure work |
+| Find why the account's single market default is being split | [market-pricing-defaults/plan.md](../market-pricing-defaults/plan.md) |
 | Find where the rate block renders on a job | [plan.md](./plan.md) § Stage F |
 | See what the fee estimate reuses from Selling | [plan.md](./plan.md) § Stage B |
 | Check what is additive and what breaks | [plan.md](./plan.md) § Wire compatibility |

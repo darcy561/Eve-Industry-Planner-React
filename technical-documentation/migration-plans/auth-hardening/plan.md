@@ -50,6 +50,7 @@ taken deliberately rather than drifting.
 | D — what a user sees when a cloud credential dies | **Not started.** Independent of everything else here |
 | E — bootstrap that half-succeeds | **Landed.** The login handler discards what it minted at both failure points, the lifecycle counters moved below the document read, the ESI secret strip is asserted, and the no-op cookie helpers are deleted. #52 closed unchanged and #53 moved to shared-planners § Stage I. Behaviour: [overlay.md](./overlay.md) § Stage E |
 | F — the security decisions that were never taken | **Not started.** Three decisions, each of which may legitimately close as declined |
+| G — a callback the browser did not ask for | **Not started.** Independent of the rest; the only one where an attacker gains something rather than a defence being thin |
 
 ---
 
@@ -300,13 +301,77 @@ each can legitimately close as declined — but it should close.
   § 8 states this as deliberate: Redis is the trust boundary. The question is whether that still holds
   now that Mongo's refresh tokens are encrypted at rest, or whether the asymmetry is the anomaly.
 - **No CSRF defence** (#32). The session cookie is `HttpOnly` and the SPA sends a per-tab
-  `X-Session-ID` header that a cross-site form cannot set, which is a double-submit defence in
-  everything but name. Whether it is one by design or by accident is the question, and whether the
-  cookie-only path leaves a hole.
+  `X-Session-ID` header that a cross-site form cannot set. The cross-site sweep recorded at
+  [current-state.md](./current-state.md) § The cross-site sweep narrows the question: `SessionID()`
+  **prefers** the header and falls back to the `eip_session` cookie, so it is not a double-submit
+  defence — `SameSite=Lax` is what holds the line. The decision is whether to require the header on
+  state-changing endpoints, leaving the fallback to the two paths that need it: the refresh recovery
+  in `refresh.go`, and the WebSocket upgrade, which reads the id from a query parameter because a
+  browser cannot set a header on `/ws`.
 - **A reauth window fixed at seven days** (#31). Making it vary by scope is only worth anything if
   there is a scope that deserves a different number.
 
 **Done when** each has an answer recorded in this file, and the ones that survive have a stage.
+
+---
+
+### Stage G — a callback the browser did not ask for
+
+**Found while building** [session-and-route-access](../session-and-route-access/plan.md), which
+retired the OAuth `state` as a carrier of paths and left the question of what it is *for*.
+
+Nothing checks that a sign-in callback answers a sign-in this browser started. `useAuthUrlLogin`
+reads `state` off the callback URL and never consults it before handing `code` to
+`POST /api/v1/eve-sso/tokens/exchange`, and `AuthHandler` derives the account from the character hash
+in the resulting token without reading any cookie already present. So a crafted
+`/auth?code=<attacker's code>` signs a reader into **the attacker's** character, and anything they
+build afterwards lands in the attacker's planner.
+
+**The check that looks like it covers this does not.** `/auth`'s `beforeLoad` redirects a signed-in
+reader away before the callback is ever handled — but it reads `isLoggedIn` from a Zustand store that
+is module state, and a cross-site link is a full document load, so the store is at its defaults and
+the reader reads as signed out. `/auth` is `transient`, so the root guard deliberately does not
+resume a session there either. The guard protects in-app navigation to the sign-in page, which was
+never the exposure.
+
+**What this stage has to answer**
+
+- Where the value is minted. The exchange already goes through the API
+  (`v1endpoints/sso/exchangeHandler.go`), so the server is the chokepoint and can refuse — which a
+  client-side check cannot, since the attacker's target is a browser they are already steering.
+- What binds it to the browser. A value the API issues must come back from the same browser, which
+  means a short-lived `HttpOnly` cookie beside it; a value the SPA alone remembers can be produced by
+  an attacker from their own browser.
+- Whether `AuthHandler` should also refuse to mint a session for one account while a valid session
+  cookie names another. On its own it inherits the same weakness — a fresh document has no cookie to
+  compare — so it is a second line rather than the fix.
+- Whether the return location keeps riding in `state` beside the minted value. It is not secret and
+  is validated against the real routes on arrival, so it can; that keeps
+  session-and-route-access's decision that the URL carries where a reader was headed.
+
+**Also here: signing out by following a link.** `/signout` tears down in `beforeLoad`, so arriving is
+enough, and `SameSite=Lax` sends the session cookie on a top-level GET — so a link from any site
+signs a reader out. The router carries history state a URL cannot (`ParsedLocation.state`), so the
+menu can mark the navigation as deliberate and the route can decline to tear down without it. No
+extra click, and a pasted or bookmarked `/signout` stops being a logout too. Watch what a reload of
+`/signout` replays.
+
+**The parts, smallest first**
+
+1. `/signout` declines to tear down unless the app marked the navigation. Frontend only, no API
+   change, and it stands alone.
+2. A route that mints a sign-in state, sets it in a short-lived `HttpOnly` cookie and returns the
+   value. Additive: nothing consumes it yet.
+3. `EveSSOExchangeHandler` takes `state`, compares it with the cookie, clears it, and refuses on a
+   mismatch. This is the part that closes the hole, and the breaking half.
+4. The SPA calls the mint before leaving for EVE, carries the value in `state`, and sends it with the
+   code.
+
+**Still to decide:** whether the mint is its own route or a field on a call the sign-in already
+makes. A route of its own is clearer and costs a round trip before every sign-in.
+
+**Done when** a callback whose `state` the API did not issue to that browser cannot mint a session,
+and arriving at `/signout` without the app having sent you there does not end a session.
 
 ---
 
@@ -319,6 +384,8 @@ Assessed for every stage that could touch a client-visible surface.
 | WebSocket upgrade rejection body becomes JSON (Stage A) | **Additive in practice** | The SPA's `parsePlannerAuthCodeFromText` already reads a code out of either a JSON body or a bare string, so a JSON body is understood by clients that predate the change. Anything else reading the upgrade body would see a changed string. |
 | Clearing cookies on a rejection code (Stage A) | **Additive** | A `Set-Cookie` on a 401 that carried none before. |
 | Account-wide revoke endpoint (Stage B) | **Additive** | A new route. |
+| Minting a sign-in state (Stage G) | **Additive** | A new route and a new short-lived cookie; nothing existing changes shape. |
+| The exchange requiring `state` (Stage G) | **Breaking for a client that does not send it** | Only this SPA calls `/api/v1/eve-sso/tokens/exchange`, and it ships with the change. A sign-in already in flight across the deploy fails and is retried by signing in again. |
 | New counters and log fields (Stage C) | **Additive** | Telemetry only. |
 | A credential-failure reason on the rotate and bootstrap responses (Stage D) | **Additive** | A new optional field; older clients ignore it. |
 | ~~Failing bootstrap where it currently warns (Stage E)~~ | **Withdrawn** | The grants fill it referred to is #53, now [shared-planners](../shared-planners/plan.md) § Stage I. Nothing left in this project makes a warned failure fatal. |

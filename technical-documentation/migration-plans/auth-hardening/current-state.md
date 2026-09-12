@@ -90,6 +90,40 @@ the file could not simply be pruned.
   absorbed into the behaviour it produced: the reauth gate, the index cleanup, the CAS writes and the
   orphan sweep, all of which are current behaviour documented in `sessions.md`.
 
+## The cross-site sweep
+
+Run when session-and-route-access finished and asked what the OAuth `state` is actually for. The
+evidence is here rather than only in the stage, so a later reader can tell whether a verdict still
+holds without repeating the sweep.
+
+**Sound as it stands.**
+
+- Every cookie the stack sets is `Secure` and `SameSite=Lax` — `plannersession/request/cookie.go`,
+  `helper/auth/app_refresh_cookie.go`, `esi_oauth_storage_cookie.go`, `tenant_affinity_cookie.go`.
+  The session and app-refresh cookies are `HttpOnly`; the ESI OAuth storage hint is deliberately not,
+  because the SPA reads it.
+- CORS is an explicit allow-list with credentials, not a wildcard —
+  `accessControlAllowOriginList=${EIP_ALLOWED_ORIGINS}` on the `cors` middleware in `docker-stack.yml`,
+  and `EnvFields` marks the value required, refusing every browser origin when empty.
+- `SameSite=Lax` is doing real work: it keeps the session cookie off cross-site POST and fetch, which
+  is what leaves only top-level GET navigations exposed.
+
+**Open, and now Stage G.** Nothing checks that a sign-in callback answers a sign-in this browser
+started, and `/signout` tears down on arrival so a link from any site ends a session.
+
+**Open, and it narrows #32.** [sessions.md](../../backend/api/auth/sessions.md)'s reading — and this
+project's own § Stage F — treat the per-tab `X-Session-ID` header as "a double-submit defence in
+everything but name". `SessionID()` in `shared/plannersession/request/cookie.go` **prefers** the
+header and falls back to the `eip_session` cookie, so the header is not required and a request
+carrying only the cookie still authenticates. What actually holds the line is `SameSite=Lax`, one
+cookie attribute away from not holding it.
+
+The fallback cannot simply be deleted. `v1endpoints/refresh.go` relies on it deliberately — when the
+presented refresh token is missing or stale but `eip_session` is valid, the current refresh row is
+resolved from that session id for multi-tab local accounts — and the WebSocket upgrade reads the id
+from a query parameter because a browser cannot set a header on `/ws`. Requiring the header on
+state-changing endpoints, and leaving the fallback to those two paths, is the shape that closes it.
+
 ## Go modernisation in the touch surface
 
 `go fix -diff` was run against only the packages this plan expects to touch — `api/middleware`,

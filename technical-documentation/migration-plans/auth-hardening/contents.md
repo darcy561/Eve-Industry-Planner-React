@@ -7,7 +7,8 @@ middleware, the WebSocket upgrade, cloud ESI credential maintenance, and the SPA
 it — and the investigation that has to happen before each piece can be scoped.
 
 - The stages of outstanding work, what each one has to answer, and the order they unblock each other
-  in — [plan.md](./plan.md).
+  in — [plan.md](./plan.md). Stage G covers binding a sign-in callback to the browser that started it,
+  and the logout a link can perform.
 - The audit that produced those stages: every claim the retired auth roadmap made, checked against
   the code as it stands, sorted into shipped, still open, and superseded — [current-state.md](./current-state.md).
 - The behaviour facts the retired roadmap was the only home for, held here until they promote into
@@ -50,6 +51,8 @@ it — and the investigation that has to happen before each piece can be scoped.
 | Understand what happens when bootstrap half-succeeds, and what was decided | [plan.md](./plan.md) § Stage E |
 | Find out where the grants ceiling question went | [plan.md](./plan.md) § Stage E, [shared-planners/plan.md](../shared-planners/plan.md) § Stage I |
 | Take a decision on refresh-token encryption, CSRF, or a variable reauth window | [plan.md](./plan.md) § Stage F |
+| Understand how a sign-in callback is bound to the browser that asked for it | [plan.md](./plan.md) § Stage G |
+| See what the cross-site sweep checked and what it found sound | [current-state.md](./current-state.md) § The cross-site sweep |
 | Check whether a change breaks a client | [plan.md](./plan.md) § Wire compatibility |
 | See which stages have landed | [plan.md](./plan.md) § Stages |
 | Find the auth invariants that no live document states yet | [overlay.md](./overlay.md) § Session window invariants |

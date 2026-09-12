@@ -23,13 +23,13 @@ vi.mock("../../../Zustand/usersStore", () => ({
 }));
 
 // The path this hook used to take.
-vi.mock("../../../Hooks/React Query/World/locationNames", async (original) => ({
+vi.mock("../../../Hooks/React Query/World/names", async (original) => ({
   ...(await original()),
-  fetchLocationNames: (...args) => imperativeFetch(...args),
+  fetchNames: (...args) => imperativeFetch(...args),
 }));
 
-vi.mock("../../../Functions/EveESI/World/locationNameLoader", () => ({
-  requestLocationName: async (id) => {
+vi.mock("../../../Functions/EveESI/World/nameLoader", () => ({
+  requestName: async (id) => {
     requested.push(id);
     if (pending.current.has(id)) await new Promise(() => {});
     return resolved.current[id] ?? { id, resolutionStatus: "unnamed" };

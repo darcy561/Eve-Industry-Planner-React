@@ -15,7 +15,7 @@ vi.mock("./getCitadelData", () => ({
   communityNameOrRefusal: (...args) => communityMock(...args),
 }));
 
-import { requestLocationName } from "./locationNameLoader";
+import { requestName } from "./nameLoader";
 import { LOCATION_OUTCOME, LocationResolutionError } from "./locationOutcome";
 
 const JITA = 60003760;
@@ -39,7 +39,7 @@ beforeEach(() => {
   communityMock.mockReset();
 });
 
-describe("requestLocationName", () => {
+describe("requestName", () => {
   it("asks for everything raised in one tick in a single call", async () => {
     namesMock.mockResolvedValue([
       named(JITA, "Jita IV-4"),
@@ -47,8 +47,8 @@ describe("requestLocationName", () => {
     ]);
 
     const [jita, amarr] = await Promise.all([
-      requestLocationName(JITA, characters),
-      requestLocationName(AMARR, characters),
+      requestName(JITA, characters),
+      requestName(AMARR, characters),
     ]);
 
     expect(namesMock).toHaveBeenCalledTimes(1);
@@ -63,7 +63,7 @@ describe("requestLocationName", () => {
       batch.map((id) => named(id, `Station ${id}`)),
     );
 
-    await Promise.all(ids.map((id) => requestLocationName(id, characters)));
+    await Promise.all(ids.map((id) => requestName(id, characters)));
 
     expect(namesMock).toHaveBeenCalledTimes(2);
     expect(namesMock.mock.calls[0][0]).toHaveLength(1000);
@@ -74,8 +74,8 @@ describe("requestLocationName", () => {
     namesMock.mockResolvedValue([named(JITA, "Jita IV-4")]);
 
     const [first, second] = await Promise.all([
-      requestLocationName(JITA, characters),
-      requestLocationName(JITA, characters),
+      requestName(JITA, characters),
+      requestName(JITA, characters),
     ]);
 
     expect(namesMock).toHaveBeenCalledTimes(1);
@@ -85,7 +85,7 @@ describe("requestLocationName", () => {
   it("settles an id ESI did not mention as unnamed rather than asking forever", async () => {
     namesMock.mockResolvedValue([]);
 
-    const outcome = await requestLocationName(JITA, characters);
+    const outcome = await requestName(JITA, characters);
 
     expect(outcome.resolutionStatus).toBe(LOCATION_OUTCOME.UNNAMED);
     expect(outcome.name).toBeUndefined();
@@ -108,9 +108,9 @@ describe("requestLocationName", () => {
     });
 
     const [jita, bad, amarr] = await Promise.all([
-      requestLocationName(JITA, characters),
-      requestLocationName(BAD, characters),
-      requestLocationName(AMARR, characters),
+      requestName(JITA, characters),
+      requestName(BAD, characters),
+      requestName(AMARR, characters),
     ]);
 
     expect(jita.name).toBe(`Place ${JITA}`);
@@ -129,8 +129,8 @@ describe("requestLocationName", () => {
     );
 
     await Promise.allSettled([
-      requestLocationName(JITA, characters),
-      requestLocationName(AMARR, characters),
+      requestName(JITA, characters),
+      requestName(AMARR, characters),
     ]);
 
     expect(namesMock).toHaveBeenCalledTimes(1);
@@ -148,8 +148,8 @@ describe("requestLocationName", () => {
     namesMock.mockResolvedValue([named(JITA, "Jita IV-4")]);
 
     const [jita, unnameable] = await Promise.all([
-      requestLocationName(JITA, characters),
-      requestLocationName(bad, characters),
+      requestName(JITA, characters),
+      requestName(bad, characters),
     ]);
 
     expect(jita.name).toBe("Jita IV-4");
@@ -172,8 +172,8 @@ describe("requestLocationName", () => {
       .mockImplementation(() => undefined);
 
     const settled = await Promise.allSettled([
-      requestLocationName(JITA, characters),
-      requestLocationName(AMARR, characters),
+      requestName(JITA, characters),
+      requestName(AMARR, characters),
     ]);
 
     expect(reported).toHaveBeenCalledWith(
@@ -199,8 +199,8 @@ describe("requestLocationName", () => {
       .spyOn(console, "error")
       .mockImplementation(() => undefined);
 
-    await Promise.allSettled([requestLocationName(AMARR, characters)]);
-    await Promise.allSettled([requestLocationName(AMARR, characters)]);
+    await Promise.allSettled([requestName(AMARR, characters)]);
+    await Promise.allSettled([requestName(AMARR, characters)]);
 
     expect(reported).toHaveBeenCalledTimes(1);
     reported.mockRestore();
@@ -209,7 +209,7 @@ describe("requestLocationName", () => {
   it("fails the ids a failed call spoke for, rather than answering with nothing", async () => {
     namesMock.mockRejectedValue(new LocationResolutionError("esi down"));
 
-    await expect(requestLocationName(JITA, characters)).rejects.toBeInstanceOf(
+    await expect(requestName(JITA, characters)).rejects.toBeInstanceOf(
       LocationResolutionError,
     );
   });
@@ -221,7 +221,7 @@ describe("requestLocationName", () => {
         : { refused: true },
     );
 
-    const outcome = await requestLocationName(RAITARU, characters);
+    const outcome = await requestName(RAITARU, characters);
 
     expect(outcome.name).toBe("Home Raitaru");
     expect(communityMock).not.toHaveBeenCalled();
@@ -235,7 +235,7 @@ describe("requestLocationName", () => {
       resolutionStatus: LOCATION_OUTCOME.COMMUNITY,
     });
 
-    const outcome = await requestLocationName(RAITARU, characters);
+    const outcome = await requestName(RAITARU, characters);
 
     expect(structureMock).toHaveBeenCalledTimes(2);
     expect(outcome.resolutionStatus).toBe(LOCATION_OUTCOME.COMMUNITY);
@@ -249,9 +249,9 @@ describe("requestLocationName", () => {
       return { refused: true };
     });
 
-    await expect(
-      requestLocationName(RAITARU, characters),
-    ).rejects.toBeInstanceOf(LocationResolutionError);
+    await expect(requestName(RAITARU, characters)).rejects.toBeInstanceOf(
+      LocationResolutionError,
+    );
     expect(communityMock).not.toHaveBeenCalled();
   });
 
@@ -263,8 +263,8 @@ describe("requestLocationName", () => {
     });
 
     const [station, structure] = await Promise.all([
-      requestLocationName(JITA, characters),
-      requestLocationName(SOTIYO, characters),
+      requestName(JITA, characters),
+      requestName(SOTIYO, characters),
     ]);
 
     expect(namesMock).toHaveBeenCalledWith([JITA]);
@@ -277,7 +277,7 @@ describe("requestLocationName", () => {
     const THE_FORGE = 10000002;
     namesMock.mockResolvedValue([named(THE_FORGE, "The Forge")]);
 
-    const outcome = await requestLocationName(THE_FORGE, characters);
+    const outcome = await requestName(THE_FORGE, characters);
 
     expect(namesMock).toHaveBeenCalledWith([THE_FORGE]);
     expect(structureMock).not.toHaveBeenCalled();
@@ -292,9 +292,9 @@ describe("requestLocationName", () => {
       throw err;
     });
 
-    await expect(
-      requestLocationName(RAITARU, characters),
-    ).rejects.toMatchObject({ needsReauthorisation: true });
+    await expect(requestName(RAITARU, characters)).rejects.toMatchObject({
+      needsReauthorisation: true,
+    });
     expect(communityMock).not.toHaveBeenCalled();
   });
 
@@ -313,13 +313,13 @@ describe("requestLocationName", () => {
       resolutionStatus: LOCATION_OUTCOME.COMMUNITY,
     });
 
-    const outcome = await requestLocationName(RAITARU, characters);
+    const outcome = await requestName(RAITARU, characters);
 
     expect(outcome.resolutionStatus).toBe(LOCATION_OUTCOME.COMMUNITY);
   });
 
   it("fails an id it has no character to ask with", async () => {
-    await expect(requestLocationName(RAITARU, [])).rejects.toBeInstanceOf(
+    await expect(requestName(RAITARU, [])).rejects.toBeInstanceOf(
       LocationResolutionError,
     );
   });

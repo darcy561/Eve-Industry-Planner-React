@@ -1,10 +1,7 @@
 import getUniverseNames from "./getUniverseNames";
 import { fetchStructureName, communityNameOrRefusal } from "./getCitadelData";
 import { LOCATION_OUTCOME, LocationResolutionError } from "./locationOutcome";
-import {
-  locationNameSource,
-  LOCATION_NAME_SOURCE,
-} from "../../Assets/assetLocationConstants";
+import nameSource, { NAME_SOURCE } from "./nameSource";
 
 /** ESI resolves up to a thousand ids in one `POST /universe/names`. */
 const NAMES_BATCH_SIZE = 1000;
@@ -25,18 +22,18 @@ let flushScheduled = false;
  * tick is collected here and issued as ESI takes it: the public ids in one bulk call, each structure
  * as its own walk. Two callers wanting the same id in the same tick wait on one lookup.
  *
- * @param {number} locationId
+ * @param {number} id
  * @param {Array<Object>} characters - the account's characters, tried in order for a structure
  * @returns {Promise<{id: number, name?: string, resolutionStatus: string}>}
  * @throws {LocationResolutionError} the lookup did not settle; the caller retries
  */
-export function requestLocationName(locationId, characters = []) {
+export function requestName(id, characters = []) {
   return new Promise((resolve, reject) => {
-    const waiting = pending.get(locationId);
+    const waiting = pending.get(id);
     if (waiting) {
       waiting.waiters.push({ resolve, reject });
     } else {
-      pending.set(locationId, { characters, waiters: [{ resolve, reject }] });
+      pending.set(id, { characters, waiters: [{ resolve, reject }] });
     }
 
     if (!flushScheduled) {
@@ -57,11 +54,11 @@ async function flush() {
   const publicIds = [];
   const structureIds = [];
   for (const id of batch.keys()) {
-    switch (locationNameSource(id)) {
-      case LOCATION_NAME_SOURCE.BULK:
+    switch (nameSource(id)) {
+      case NAME_SOURCE.BULK:
         publicIds.push(id);
         break;
-      case LOCATION_NAME_SOURCE.CHARACTER:
+      case NAME_SOURCE.CHARACTER:
         structureIds.push(id);
         break;
       default:

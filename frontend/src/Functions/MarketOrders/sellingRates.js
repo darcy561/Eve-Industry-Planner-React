@@ -5,7 +5,7 @@ import {
 } from "../../Context/defaultValues";
 import getStationData from "../EveESI/World/getStationData";
 import { raceFactionsQuery } from "../../Hooks/React Query/World/raceFactions";
-import { entityNamesQuery } from "../../Hooks/React Query/World/entityNames";
+import { fetchNames } from "../../Hooks/React Query/World/names";
 import { getCachedCharacterSkills } from "../../Hooks/EveEsi/Character/useGetCharacterSkills";
 import { getCachedCharacterStandings } from "../../Hooks/EveEsi/Character/useGetCharacterStandings";
 import { SALE_LOCATION_KIND } from "./saleLocations";
@@ -274,9 +274,9 @@ async function getStationStandings(stationID, queryClient, characterHash) {
 
   // Named so a reader can check the answer. Cosmetic, so a failure here does not
   // take the fee down with it — the figures are still right without them.
-  const names = await queryClient
-    .fetchQuery(entityNamesQuery([factionID, station.owner]))
-    .catch(() => ({}));
+  const names = await fetchNames(queryClient, [factionID, station.owner]).catch(
+    () => ({}),
+  );
 
   return {
     faction: standingFrom(standings, factionID, STANDING_FROM.FACTION),

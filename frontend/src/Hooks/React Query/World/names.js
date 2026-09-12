@@ -1,9 +1,10 @@
-import { requestLocationName } from "../../../Functions/EveESI/World/locationNameLoader";
+import { requestName } from "../../../Functions/EveESI/World/nameLoader";
 import { LOCATION_OUTCOME } from "../../../Functions/EveESI/World/locationOutcome";
 import retryUnlessPermanent from "../retryUnlessPermanent";
 import { asNumberIDSet } from "../../../Functions/Helper/ids";
 
-export const LOCATION_NAME_QUERY_KEY = ["esi", "location-name"];
+/** Every entry this cache holds sits under this prefix, one id deep. */
+const NAME_QUERY_KEY = ["esi", "name"];
 
 /**
  * One location's name, cached under that location's id.
@@ -16,15 +17,15 @@ export const LOCATION_NAME_QUERY_KEY = ["esi", "location-name"];
  * The characters are not part of the key. A location's name is a fact about the location; which of
  * the account's characters managed to read it is not something a consumer should have to match on.
  *
- * @param {number} locationId
+ * @param {number} id
  * @param {Array<Object>} characters - the account's characters, tried in order for a structure
  * @returns {object} React Query configuration
  */
-export function locationNameQuery(locationId, characters = []) {
+export function nameQuery(id, characters = []) {
   return {
-    queryKey: [...LOCATION_NAME_QUERY_KEY, locationId],
-    queryFn: () => requestLocationName(locationId, characters),
-    enabled: Boolean(locationId) && characters.length > 0,
+    queryKey: [...NAME_QUERY_KEY, id],
+    queryFn: () => requestName(id, characters),
+    enabled: Boolean(id) && characters.length > 0,
     // A name does not change while the app is open, and every settled outcome — including a refusal
     // — is an answer worth keeping. A failure is not cached at all: it rejects, and is retried.
     staleTime: Infinity,
@@ -50,16 +51,17 @@ export function locationNameQuery(locationId, characters = []) {
  * future outcome with an empty name is not silently dropped with it.
  *
  * @param {import("@tanstack/react-query").QueryClient} queryClient
- * @param {Array<number>|Set<number>} locationIds
- * @param {Array<Object>} characters
+ * @param {Array<number>|Set<number>} ids_
+ * @param {Array<Object>} [characters] - only a structure needs one; a station, a system or a
+ *   corporation is named without any
  * @returns {Promise<Object<string, Object>>} what was named, keyed by location id
  */
-export async function fetchLocationNames(queryClient, locationIds, characters) {
-  const ids = [...asNumberIDSet(locationIds)];
-  if (ids.length === 0 || !(characters?.length > 0)) return {};
+export async function fetchNames(queryClient, ids_, characters = []) {
+  const ids = [...asNumberIDSet(ids_)];
+  if (ids.length === 0) return {};
 
   const settled = await Promise.allSettled(
-    ids.map((id) => queryClient.fetchQuery(locationNameQuery(id, characters))),
+    ids.map((id) => queryClient.fetchQuery(nameQuery(id, characters))),
   );
 
   const names = {};

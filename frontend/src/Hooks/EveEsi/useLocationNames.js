@@ -1,7 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import useUsersStore from "../../Zustand/usersStore";
-import { locationNameQuery } from "../React Query/World/locationNames";
+import { nameQuery } from "../React Query/World/names";
 import { LOCATION_OUTCOME } from "../../Functions/EveESI/World/locationOutcome";
 import { asNumberIDSet } from "../../Functions/Helper/ids";
 
@@ -15,9 +15,9 @@ const EMPTY_NAMES = {};
  * than a hole in this view's set. The batching that keeps one entry per id from becoming one request
  * per id belongs to the loader beneath the query.
  *
- * `worldData` is read as well as written, because the surfaces that resolve nothing themselves read
- * their names from there and the older resolve-and-write path still fills it. A name the store
- * already holds is an answer, and is not asked for again.
+ * `worldData` is read as well as written, because a flow that resolves names outside a render —
+ * the shopping list's corporation assets — writes into it directly. A name the store already holds
+ * is an answer, and is not asked for again.
  *
  * @param {Array<number>|Set<number>} [locationIds]
  * @returns {{names: Object<string, Object>, isLoading: boolean, isError: boolean, error: Error|null}}
@@ -45,7 +45,7 @@ export default function useLocationNames(locationIds) {
     isError,
     error,
   } = useQueries({
-    queries: missing.map((id) => locationNameQuery(id, characters ?? [])),
+    queries: missing.map((id) => nameQuery(id, characters ?? [])),
     combine: (results) => {
       const found = {};
       let pending = false;

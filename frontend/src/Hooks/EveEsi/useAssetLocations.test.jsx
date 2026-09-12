@@ -40,8 +40,8 @@ vi.mock("../React Query/Corporation/assets", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
-  requestLocationName: async (id) => {
+vi.mock("../../Functions/EveESI/World/nameLoader", () => ({
+  requestName: async (id) => {
     resolveCalls.push([id]);
     // An id left pending stands for one still being asked about.
     if (pending.current.has(id)) await new Promise(() => {});

@@ -18,8 +18,8 @@ vi.mock("../../Zustand/usersStore", () => ({
 
 // An id the store does not already hold stands for one still being asked about, so no test here
 // reaches for a real lookup.
-vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
-  requestLocationName: () => new Promise(() => {}),
+vi.mock("../../Functions/EveESI/World/nameLoader", () => ({
+  requestName: () => new Promise(() => {}),
 }));
 
 import CorporationOfficesSelect from "./corporationOffices";

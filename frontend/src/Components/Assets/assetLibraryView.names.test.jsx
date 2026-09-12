@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
@@ -186,12 +186,15 @@ function stack(itemId, locationId, flag = "Hangar") {
   };
 }
 
-function renderLibrary() {
-  const client = new QueryClient({
-    // `locationNameQuery` sets its own `retry`, which outlives a client default — so the wait
+function newClient() {
+  return new QueryClient({
+    // `nameQuery` sets its own `retry`, which outlives a client default — so the wait
     // between attempts is collapsed rather than the attempts removed.
     defaultOptions: { queries: { retryDelay: 0, gcTime: Infinity } },
   });
+}
+
+function renderLibrary(client = newClient()) {
   return render(
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={client}>
@@ -303,6 +306,36 @@ describe("the names an asset view shows", () => {
     renderLibrary();
 
     expect(await screen.findByText("Jita IV-4")).toBeTruthy();
+  });
+
+  // What the whole package is for: a name resolved once is present wherever it is wanted next. The
+  // defect this replaced kept a cache entry per set of ids a page happened to ask for, so the next
+  // view asked again — and could settle differently.
+  it("does not ask again for a structure a previous view already named", async () => {
+    characterRows.current = [stack(1, ALT_ONLY_STRUCTURE)];
+    esiAnswers.current[ALT_ONLY_STRUCTURE] = (asker) =>
+      asker === ALT.CharacterHash ? named("Alt's Raitaru")() : refused;
+    const shared = newClient();
+
+    const first = renderLibrary(shared);
+    expect(await screen.findByText("Alt's Raitaru")).toBeTruthy();
+    const asksAfterFirst = esiCalls.filter((call) =>
+      call.url.includes(String(ALT_ONLY_STRUCTURE)),
+    ).length;
+    first.unmount();
+    // A tick, as a reader moving between pages takes: an entry kept only until the end of the
+    // current task would be gone by the time the next view asks, and this would re-ask.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    renderLibrary(shared);
+
+    expect(await screen.findByText("Alt's Raitaru")).toBeTruthy();
+    expect(
+      esiCalls.filter((call) => call.url.includes(String(ALT_ONLY_STRUCTURE)))
+        .length,
+    ).toBe(asksAfterFirst);
   });
 
   it("asks each character once, and only once, for a structure", async () => {

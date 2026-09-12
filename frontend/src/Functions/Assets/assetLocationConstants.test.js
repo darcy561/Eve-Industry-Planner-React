@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  LOCATION_KIND,
-  LOCATION_NAME_SOURCE,
-  locationNameSource,
-  resolveLocationKind,
-} from "./assetLocationConstants";
+import { LOCATION_KIND, resolveLocationKind } from "./assetLocationConstants";
 
 // The ranges EVE publishes: https://developers.eveonline.com/docs/guides/id-ranges/
 describe("what an id says about the place it names", () => {
@@ -68,30 +63,5 @@ describe("what an id says about the place it names", () => {
   it("does not take an id in no documented range for a structure", () => {
     expect(resolveLocationKind(999999)).not.toBe(LOCATION_KIND.STRUCTURE);
     expect(resolveLocationKind(2117028121)).not.toBe(LOCATION_KIND.STRUCTURE);
-  });
-});
-
-describe("where a location's name can be got", () => {
-  it.each([
-    [10000002, LOCATION_NAME_SOURCE.BULK],
-    [20000020, LOCATION_NAME_SOURCE.BULK],
-    [30000142, LOCATION_NAME_SOURCE.BULK],
-    [32000001, LOCATION_NAME_SOURCE.BULK],
-    [60003760, LOCATION_NAME_SOURCE.BULK],
-    [1035466617946, LOCATION_NAME_SOURCE.CHARACTER],
-  ])("asks for %i where it can be answered", (id, source) => {
-    expect(locationNameSource(id)).toBe(source);
-  });
-
-  // `POST /universe/names` answers for regions, constellations, systems and stations, and refuses
-  // the whole call over anything else — so these must never be batched with ids that can be named.
-  it.each([
-    [40009077, "a planet"],
-    [50001248, "a stargate"],
-    [66000001, "a station's office folder"],
-    [2004, "asset safety"],
-    [999999, "an id in no documented range"],
-  ])("asks nowhere about %i (%s)", (id) => {
-    expect(locationNameSource(id)).toBe(LOCATION_NAME_SOURCE.NONE);
   });
 });

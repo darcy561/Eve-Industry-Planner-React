@@ -19,8 +19,8 @@ vi.mock("../../Zustand/usersStore", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/locationNameLoader", () => ({
-  requestLocationName: async (id) => {
+vi.mock("../../Functions/EveESI/World/nameLoader", () => ({
+  requestName: async (id) => {
     requestCalls.push(id);
     if (gate.current) await gate.current;
     const answer = answers.current.get(id);

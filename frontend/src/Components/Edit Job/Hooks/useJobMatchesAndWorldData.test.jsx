@@ -24,13 +24,13 @@ vi.mock("../../../Zustand/usersStore", () => ({
 
 // The path this hook used to take: ids gathered in an effect, names fetched imperatively, and the
 // answer written into the store by hand.
-vi.mock("../../../Hooks/React Query/World/locationNames", async (original) => ({
+vi.mock("../../../Hooks/React Query/World/names", async (original) => ({
   ...(await original()),
-  fetchLocationNames: (...args) => imperativeFetch(...args),
+  fetchNames: (...args) => imperativeFetch(...args),
 }));
 
-vi.mock("../../../Functions/EveESI/World/locationNameLoader", () => ({
-  requestLocationName: async (id) => {
+vi.mock("../../../Functions/EveESI/World/nameLoader", () => ({
+  requestName: async (id) => {
     requested.push(id);
     // An id left pending stands for one still being asked about.
     if (pending.current.has(id)) await new Promise(() => {});

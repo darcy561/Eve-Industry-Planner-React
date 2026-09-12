@@ -3,7 +3,7 @@ import { LocationResolutionError } from "./locationOutcome";
 import { asNumberIDSet } from "../../Helper/ids";
 
 /** ESI's answer when the request body itself is unusable, rather than the ids in it. */
-export const MALFORMED_REQUEST_STATUS = 400;
+const MALFORMED_REQUEST_STATUS = 400;
 
 /**
  * Retrieves universe names for location IDs from EVE ESI API.

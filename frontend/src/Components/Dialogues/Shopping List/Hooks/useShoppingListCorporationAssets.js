@@ -9,7 +9,7 @@ import {
 } from "../../../../Hooks/EveEsi/useAssetIndex";
 import useUsersStore from "../../../../Zustand/usersStore";
 import { OFFICE_FOLDER_FLAG } from "../../../../Functions/Assets/buildAssetNodes";
-import { fetchLocationNames } from "../../../../Hooks/React Query/World/locationNames";
+import { fetchNames } from "../../../../Hooks/React Query/World/names";
 
 /**
  * Hook for processing corporation assets in the shopping list.
@@ -87,7 +87,7 @@ export function useShoppingListCorporationAssets({
                   // Every character, not just this corporation's: an office one member cannot read
                   // is often readable by another, and an office that cannot be named still holds
                   // the assets this list is counting.
-                  const names = await fetchLocationNames(
+                  const names = await fetchNames(
                     queryClient,
                     updatedCorporationObject.officeLocations,
                     Object.values(useUsersStore.getState().account.characters),

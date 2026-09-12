@@ -54,10 +54,10 @@ vi.mock("../../../Hooks/App/useCachedData", () => ({
   }),
 }));
 
-vi.mock("../../../Functions/EveESI/World/locationNameLoader", () => ({
+vi.mock("../../../Functions/EveESI/World/nameLoader", () => ({
   // Anything these tests do not seed into the store is a location ESI has no name for, which is a
   // settled answer rather than a failure to retry.
-  requestLocationName: async (id) => ({ id, resolutionStatus: "unnamed" }),
+  requestName: async (id) => ({ id, resolutionStatus: "unnamed" }),
 }));
 
 vi.mock("../../../Functions/EveESI/World/getAssetLocationNames", () => ({

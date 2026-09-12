@@ -81,7 +81,6 @@ export async function fetchStructureName(citadelID, character, config = {}) {
     maxRetries: 3,
     useQueue: true,
     group: "universe",
-    characterHash: config.characterHash,
     ...config,
   };
 

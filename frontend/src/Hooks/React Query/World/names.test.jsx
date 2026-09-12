@@ -3,11 +3,11 @@ import { QueryClient } from "@tanstack/react-query";
 
 const { requestMock } = vi.hoisted(() => ({ requestMock: vi.fn() }));
 
-vi.mock("../../../Functions/EveESI/World/locationNameLoader", () => ({
-  requestLocationName: (...args) => requestMock(...args),
+vi.mock("../../../Functions/EveESI/World/nameLoader", () => ({
+  requestName: (...args) => requestMock(...args),
 }));
 
-import { fetchLocationNames, locationNameQuery } from "./locationNames";
+import { fetchNames, nameQuery } from "./names";
 import {
   LOCATION_OUTCOME,
   LocationResolutionError,
@@ -26,7 +26,7 @@ beforeEach(() => {
   requestMock.mockReset();
 });
 
-describe("locationNameQuery", () => {
+describe("nameQuery", () => {
   it("keys on the id alone, so two callers share one entry", async () => {
     requestMock.mockResolvedValue({
       id: JITA,
@@ -36,11 +36,9 @@ describe("locationNameQuery", () => {
     const queryClient = client();
 
     const [first, second] = await Promise.all([
-      queryClient.fetchQuery(locationNameQuery(JITA, characters)),
+      queryClient.fetchQuery(nameQuery(JITA, characters)),
       // A second consumer, asking with a different character list, wants the same fact.
-      queryClient.fetchQuery(
-        locationNameQuery(JITA, [{ CharacterHash: "hash-b" }]),
-      ),
+      queryClient.fetchQuery(nameQuery(JITA, [{ CharacterHash: "hash-b" }])),
     ]);
 
     expect(requestMock).toHaveBeenCalledTimes(1);
@@ -57,7 +55,7 @@ describe("locationNameQuery", () => {
     // them is pinned below.
     await expect(
       queryClient.fetchQuery({
-        ...locationNameQuery(JITA, characters),
+        ...nameQuery(JITA, characters),
         retry: false,
       }),
     ).rejects.toThrow();
@@ -68,7 +66,7 @@ describe("locationNameQuery", () => {
       resolutionStatus: LOCATION_OUTCOME.NAMED,
     });
     const retried = await queryClient.fetchQuery({
-      ...locationNameQuery(JITA, characters),
+      ...nameQuery(JITA, characters),
       retry: false,
     });
 
@@ -84,14 +82,14 @@ describe("locationNameQuery", () => {
     });
     const queryClient = client();
 
-    await queryClient.fetchQuery(locationNameQuery(JITA, characters));
-    await queryClient.fetchQuery(locationNameQuery(JITA, characters));
+    await queryClient.fetchQuery(nameQuery(JITA, characters));
+    await queryClient.fetchQuery(nameQuery(JITA, characters));
 
     expect(requestMock).toHaveBeenCalledTimes(1);
   });
 
   it("asks again before giving up on a failure", () => {
-    const { retry } = locationNameQuery(JITA, characters);
+    const { retry } = nameQuery(JITA, characters);
     const failure = new LocationResolutionError("universe names: 503", {
       status: 503,
     });
@@ -104,7 +102,7 @@ describe("locationNameQuery", () => {
   // A refused request is refused identically every time, and each attempt costs five times a hit
   // against ESI's error budget.
   it("does not ask again when ESI refused the request itself", () => {
-    const { retry } = locationNameQuery(JITA, characters);
+    const { retry } = nameQuery(JITA, characters);
     const refused = new LocationResolutionError("universe names: 400", {
       status: 400,
       permanent: true,
@@ -114,12 +112,12 @@ describe("locationNameQuery", () => {
   });
 
   it("asks for nothing without an id or a character", () => {
-    expect(locationNameQuery(0, characters).enabled).toBe(false);
-    expect(locationNameQuery(JITA, []).enabled).toBe(false);
+    expect(nameQuery(0, characters).enabled).toBe(false);
+    expect(nameQuery(JITA, []).enabled).toBe(false);
   });
 });
 
-describe("fetchLocationNames", () => {
+describe("fetchNames", () => {
   it("answers with what was named, keyed by id", async () => {
     requestMock.mockImplementation(async (id) => ({
       id,
@@ -127,11 +125,7 @@ describe("fetchLocationNames", () => {
       resolutionStatus: LOCATION_OUTCOME.NAMED,
     }));
 
-    const names = await fetchLocationNames(
-      client(),
-      [JITA, 60008494],
-      characters,
-    );
+    const names = await fetchNames(client(), [JITA, 60008494], characters);
 
     expect(names[JITA].name).toBe(`Place ${JITA}`);
     expect(names[60008494].name).toBe("Place 60008494");
@@ -148,7 +142,7 @@ describe("fetchLocationNames", () => {
       };
     });
 
-    const names = await fetchLocationNames(
+    const names = await fetchNames(
       { ...client(), fetchQuery: (options) => options.queryFn() },
       [JITA, 60008494],
       characters,
@@ -158,11 +152,23 @@ describe("fetchLocationNames", () => {
     expect(names[60008494].name).toBe("Amarr VIII");
   });
 
-  it("asks for nothing without ids or characters", async () => {
-    await expect(fetchLocationNames(client(), [], characters)).resolves.toEqual(
-      {},
-    );
-    await expect(fetchLocationNames(client(), [JITA], [])).resolves.toEqual({});
+  it("asks for nothing when there are no ids", async () => {
+    await expect(fetchNames(client(), [], characters)).resolves.toEqual({});
     expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  // Only a player structure needs a character's token. A station, a system, a corporation or a
+  // faction is named by the bulk lookup, and waiting for characters to load would hold those back
+  // for no reason.
+  it("names what needs no character without one", async () => {
+    requestMock.mockResolvedValue({
+      id: JITA,
+      name: "Jita IV-4",
+      resolutionStatus: LOCATION_OUTCOME.NAMED,
+    });
+
+    await expect(fetchNames(client(), [JITA])).resolves.toEqual({
+      [JITA]: expect.objectContaining({ name: "Jita IV-4" }),
+    });
   });
 });

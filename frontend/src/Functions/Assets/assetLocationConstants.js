@@ -122,52 +122,6 @@ export const LOCATION_KIND = Object.freeze({
 });
 
 /**
- * How a location's name can be got, if at all.
- *
- * @type {Readonly<Record<string, string>>}
- */
-export const LOCATION_NAME_SOURCE = Object.freeze({
-  BULK: "bulk",
-  CHARACTER: "character",
-  NONE: "none",
-});
-
-/**
- * The kinds `POST /universe/names` answers for.
- *
- * The endpoint resolves alliances, characters, constellations, corporations, types, regions, solar
- * systems, stations and factions — and nothing else. An id outside that set is not merely left out
- * of the answer: it refuses the whole call, taking every id batched beside it with it.
- *
- * @type {Set<string>}
- */
-const BULK_NAMEABLE_KINDS = new Set([
-  LOCATION_KIND.REGION,
-  LOCATION_KIND.CONSTELLATION,
-  LOCATION_KIND.SYSTEM,
-  LOCATION_KIND.ABYSSAL_SYSTEM,
-  LOCATION_KIND.STATION,
-]);
-
-/**
- * Where to ask for this location's name.
- *
- * `NONE` is an answer, not a gap: a moon, a stargate, a station's office folder and an id in no
- * documented range can each arrive as something's location, and none of them can be named by either
- * path. Asking anyway spends an error either way — a refused batch for the bulk lookup, a 403 per
- * character for the structure walk.
- *
- * @param {number} locationId
- * @returns {string} one of {@link LOCATION_NAME_SOURCE}
- */
-export function locationNameSource(locationId) {
-  const kind = resolveLocationKind(locationId);
-  if (BULK_NAMEABLE_KINDS.has(kind)) return LOCATION_NAME_SOURCE.BULK;
-  if (kind === LOCATION_KIND.STRUCTURE) return LOCATION_NAME_SOURCE.CHARACTER;
-  return LOCATION_NAME_SOURCE.NONE;
-}
-
-/**
  * Classifies a location id by its range, per EVE's published id ranges.
  *
  * A row's `location_type` cannot do this on its own: a player structure arrives as `"item"`, the
@@ -178,6 +132,10 @@ export function locationNameSource(locationId) {
  * and outside a documented range is `UNKNOWN`, which is the point of classifying at all: an id
  * treated as a structure on the strength of matching nothing else is asked of every linked
  * character and refused by all of them, which is what a ship in space used to cost.
+ *
+ * This answers what a *place* is. The ids of characters, corporations, alliances and factions fall
+ * outside every range here and read as `UNKNOWN`; {@link nameSource} is what knows those can
+ * still be named.
  *
  * `SHIP` is not decided here: a ship's item id sits in the same range as a structure's, and only the
  * flag of the thing filed inside it tells the two apart. {@link buildAssetNodes} settles that.

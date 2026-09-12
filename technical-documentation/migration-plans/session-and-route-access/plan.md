@@ -97,8 +97,10 @@ for the leaf. It runs, in order:
 1. **First login** — an account whose guided flow is incomplete goes to `/first-login`. This already
    lives here; the duplicate copy in `_protected.jsx` goes.
 2. **Resume** — `audience` is not `transient`, the route does not opt out, and a session is stored:
-   await the login **to completion**, then continue. A resume that fails falls through to step 3.
-3. **Require** — `audience` is `private` and no session was rebuilt: start a fresh sign-in.
+   await the login **to completion**, then continue.
+3. **Require** — a fresh sign-in starts when the route is `private` and no session was rebuilt, and
+   also when a stored session was there to resume and the resume failed. A reader who *had* a session
+   is asked to sign in again rather than dropped onto a signed-out page, whatever the audience.
 
 After this, `_protected.jsx` is a layout with no `beforeLoad`, `allowPublicAccess` and `requireAuth`
 are gone with their seven call sites, and `/auth` and `/signout` keep only the work that is genuinely
@@ -281,7 +283,7 @@ tidiness, and it is the fiddliest part of the auth surface.
 |---|---|
 | 1 — the declaration | **Landed.** All 16 routes declare an audience, `utils/routeAccess.js` reads the tree, and the fail-closed test covers a route that declares nothing. Behaviour: [overlay.md](./overlay.md) § What a route declares |
 | 2 — the progress tracker | **Landed.** `Functions/Auth/loginProgress.js` holds step state outside React and `useLoginState` reads it. Behaviour: [overlay.md](./overlay.md) § How login progress is tracked |
-| 3 — one guard | **Landed.** The root guard owns first login, resume and the private requirement; `allowPublicAccess`, `requireAuth` and `utils/authGuard.js` are gone. Behaviour: [overlay.md](./overlay.md) § Guarding a route |
+| 3 — one guard | **Landed, with one follow-up.** The root guard owns first login, resume and the private requirement; `allowPublicAccess`, `requireAuth` and `utils/authGuard.js` are gone. Outstanding: a resume that fails on a **public** route currently renders signed-out, and § Settled now says it should start a fresh sign-in. Behaviour: [overlay.md](./overlay.md) § Guarding a route |
 | 4 — the data a page needs | **Landed.** `/editjob/$jobID` and `/group/$groupID` carry loaders, the router has a not-found page and a deliberate preload staleness, and the fetch-or-bounce in the two pages is gone. Behaviour: [overlay.md](./overlay.md) § What a page needs beyond a session |
 | 5 — the handshake | **Landed.** `state` carries where the reader was headed and is checked against the real routes on return; `getRedirectPathAfterAuth` is down to "a route the app has, and not transient"; `storeOriginalPathFromOAuthState` and the `originalPath` key are gone. Behaviour: [overlay.md](./overlay.md) § Signing in and coming back |
 | 6 — the second readers | **Landed.** The side menu asks each route whether a reader may go there, through `canVisitRoute`. Behaviour: [overlay.md](./overlay.md) § Who sees which navigation |
@@ -296,14 +298,15 @@ tidiness, and it is the fiddliest part of the auth surface.
   render mid-login.
 - **A route with no declaration is private**, enforced by a test over the generated tree.
 - **`state` carries a nonce, never a path.**
+- **A resume that fails sends the reader into the sign-in flow**, whatever the route's audience. A
+  reader who had a session and lost it is asked to sign in again rather than silently dropped to a
+  signed-out page they were not expecting.
 
 ## Open questions
 
 - **Should a route chunk downloading during a login look different from the login itself?** Settled
   in Stage 3 as: the pending component shows login progress whenever a login is running and the
   route splash otherwise, so the two waits do not look alike.
-- **What does a failed resume do on a public page?** Rendering signed-out is the obvious answer, but a
-  reader who had a session and silently loses it deserves to be told something. No decision yet.
 - **The additional-account window stays as it is.** It was only ever a candidate for folding into a
   shared nonce mechanism, and that mechanism was built and then taken back out. Its own
   `additional:<nonce>` handshake and `BroadcastChannel` hand-off are the right shape for two live

@@ -158,7 +158,10 @@ describe("useLocationNames", () => {
     );
   });
 
-  it("leaves out an id ESI answered about and did not name", async () => {
+  // A place ESI has no name for is an answer, not a gap. Withholding it left a surface unable to
+  // tell it from an id still being asked about, so it showed nothing where a place had been asked
+  // for.
+  it("hands on an id ESI answered about and did not name", async () => {
     answers.current.set(JITA, {
       id: JITA,
       resolutionStatus: LOCATION_OUTCOME.UNNAMED,
@@ -167,8 +170,10 @@ describe("useLocationNames", () => {
     const { result } = harness()([JITA]);
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    // Settled, so it is not asked for again — and nameless, so it is not offered as a named place.
-    expect(result.current.names[JITA]).toBeUndefined();
+    expect(result.current.names[JITA]).toMatchObject({
+      resolutionStatus: LOCATION_OUTCOME.UNNAMED,
+    });
+    expect(result.current.names[JITA].name).toBeUndefined();
     expect(result.current.isError).toBe(false);
   });
 });

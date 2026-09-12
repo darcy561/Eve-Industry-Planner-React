@@ -7,13 +7,14 @@ vi.mock("../../../Functions/EveESI/World/nameLoader", () => ({
   requestName: (...args) => requestMock(...args),
 }));
 
-import { fetchNames, nameQuery } from "./names";
+import { fetchNames, forgetNames, nameQuery } from "./names";
 import {
   LOCATION_OUTCOME,
   LocationResolutionError,
 } from "../../../Functions/EveESI/World/locationOutcome";
 
 const JITA = 60003760;
+const RAITARU = 1035466617946;
 const characters = [{ CharacterHash: "hash-a" }];
 
 function client() {
@@ -170,5 +171,43 @@ describe("fetchNames", () => {
     await expect(fetchNames(client(), [JITA])).resolves.toEqual({
       [JITA]: expect.objectContaining({ name: "Jita IV-4" }),
     });
+  });
+});
+
+// Nothing watches for a character being linked or a corporation changing yet. This is the handle
+// that whatever does will reach for, so a settled refusal can stop being the account's answer.
+describe("forgetNames", () => {
+  it("forgets the ids it is given, and leaves the rest", async () => {
+    const queryClient = client();
+    requestMock.mockImplementation(async (id) => ({
+      id,
+      name: `Place ${id}`,
+      resolutionStatus: LOCATION_OUTCOME.NAMED,
+    }));
+    await fetchNames(queryClient, [JITA, RAITARU], characters);
+    requestMock.mockClear();
+
+    forgetNames(queryClient, [JITA]);
+    await fetchNames(queryClient, [JITA, RAITARU], characters);
+
+    expect(requestMock.mock.calls.map(([id]) => id)).toEqual([JITA]);
+  });
+
+  it("forgets every name when given none", async () => {
+    const queryClient = client();
+    requestMock.mockImplementation(async (id) => ({
+      id,
+      name: `Place ${id}`,
+      resolutionStatus: LOCATION_OUTCOME.NAMED,
+    }));
+    await fetchNames(queryClient, [JITA, RAITARU], characters);
+    requestMock.mockClear();
+
+    forgetNames(queryClient);
+    await fetchNames(queryClient, [JITA, RAITARU], characters);
+
+    expect(requestMock.mock.calls.map(([id]) => id).sort()).toEqual(
+      [JITA, RAITARU].sort(),
+    );
   });
 });

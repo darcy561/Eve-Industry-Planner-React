@@ -143,9 +143,45 @@ describe("the locations a picker offers", () => {
 
   it("marks the one nobody can read", () => {
     expect(locationOptions([1, 3], names)).toEqual([
-      { locationId: 1, name: "Zoohen VII", unreadable: false },
-      { locationId: 3, name: "No Access To Location - 3", unreadable: true },
+      { locationId: 1, name: "Zoohen VII", unnamed: false, unreadable: false },
+      {
+        locationId: 3,
+        name: "No Access To Location - 3",
+        unnamed: false,
+        unreadable: true,
+      },
     ]);
+  });
+
+  // ESI answered and had no name for it. That is an answer, so the place is offered saying what
+  // little there is to say, rather than dropped as though it were not there.
+  it("offers a place nothing can name, under a stand-in label", () => {
+    const withNameless = {
+      ...names,
+      4: { id: 4, resolutionStatus: "unnamed" },
+    };
+
+    expect(locationOptions([4], withNameless)).toEqual([
+      {
+        locationId: 4,
+        name: "Unknown Location",
+        unnamed: true,
+        unreadable: false,
+      },
+    ]);
+  });
+
+  // Its stand-in label starts with a letter like any other, so without a rule of its own it would
+  // sort into the middle of the real names.
+  it("puts a place nothing can name below the named ones, and above the unreadable", () => {
+    const mixed = {
+      ...names,
+      4: { id: 4, resolutionStatus: "unnamed" },
+    };
+
+    expect(
+      locationOptions([3, 4, 1, 2], mixed).map(({ locationId }) => locationId),
+    ).toEqual([2, 1, 4, 3]);
   });
 
   // A blank row says nothing a reader can act on, and the name is moments away.

@@ -86,10 +86,9 @@ vi.mock("../../Functions/Auth/esiCredentials/provider.js", () => ({
   }),
 }));
 
-vi.mock("../../Functions/Endpoints/Private/citadelNames", () => ({
-  buildEsiStructureSubmission: () => null,
-  queueCitadelStructureSubmission: () => {},
-  resolveCitadelName: async (id) => community.current[id] ?? null,
+vi.mock("../../Functions/EveESI/World/communityNames", () => ({
+  submitStructureName: () => {},
+  communityName: async (id) => community.current[id] ?? null,
 }));
 
 // The one edge that is faked: ESI itself. Everything between this and the rendered rows is the real

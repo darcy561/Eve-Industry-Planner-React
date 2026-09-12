@@ -20,6 +20,7 @@ import { formatNumberForLocale } from "../../../../../../Functions/Helper/number
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
+import { UNNAMED_LOCATION_LABEL } from "../../../../../../Functions/Assets/assetLocationConstants";
 
 export function LinkedMarketOrdersTab({
   state,
@@ -58,8 +59,7 @@ export function LinkedMarketOrdersTab({
             .getState()
             .account.actions.findCharacterByHash(order.CharacterHash);
           const locationName =
-            locationNames[order.location_id]?.name ||
-            "Location Data Unavailable";
+            locationNames[order.location_id]?.name || UNNAMED_LOCATION_LABEL;
 
           const corpData = getCorporation(charData?.corporation_id);
 

@@ -1,5 +1,8 @@
 import { OFFICE_FOLDER_FLAG } from "./buildAssetNodes";
-import { isNoAccessLocation } from "./assetLocationConstants";
+import {
+  isNoAccessLocation,
+  UNNAMED_LOCATION_LABEL,
+} from "./assetLocationConstants";
 
 /**
  * Whether a node is one of the rows shown directly under a location or compartment.
@@ -151,10 +154,14 @@ export function officeLocationIds(collection) {
  * @returns {{locationId: number, name: string, unreadable: boolean}}
  */
 export function describeLocation(locationId, names) {
+  const known = names[locationId];
   return {
     locationId,
-    name: names[locationId]?.name ?? "",
-    unreadable: isNoAccessLocation(names[locationId]),
+    // A settled answer with no name still gets said out loud, so a place nothing can name reads as
+    // that rather than as a blank row.
+    name: known ? (known.name ?? UNNAMED_LOCATION_LABEL) : "",
+    unnamed: Boolean(known) && !known.name,
+    unreadable: isNoAccessLocation(known),
   };
 }
 
@@ -169,6 +176,9 @@ export function describeLocation(locationId, names) {
  */
 export function byLocationOrder(a, b) {
   if (a.unreadable !== b.unreadable) return a.unreadable ? 1 : -1;
+  // A place with no name sits below the named ones rather than under whatever letter its stand-in
+  // label happens to start with.
+  if (a.unnamed !== b.unnamed) return a.unnamed ? 1 : -1;
   if (!a.name || !b.name) return a.name ? -1 : b.name ? 1 : 0;
   return a.name.localeCompare(b.name);
 }
@@ -193,10 +203,10 @@ export function orderLocations(entries, names) {
 /**
  * Locations on their own, in display order — what a picker offers.
  *
- * An id with no entry in `names` is held back rather than offered as a blank row: unlike a list,
- * where an unnamed location keeps its place because the assets are visibly there, a picker row with
- * no label says nothing a reader can act on. That covers an id still being asked about, and also
- * one ESI answered about without naming, which `useLocationNames` does not return at all.
+ * An id still being asked about is held back rather than offered as a blank row: a picker row with
+ * no label says nothing a reader can act on, and the name is moments away. A place ESI answered
+ * about and had no name for is offered like any other, under the stand-in label — that is an
+ * answer, and saying it is better than a gap where a place was asked for.
  *
  * @param {Iterable<number>} locationIds
  * @param {Object<string, {name: string}>} names

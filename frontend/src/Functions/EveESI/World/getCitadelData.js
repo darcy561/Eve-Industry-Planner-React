@@ -1,11 +1,7 @@
 import fetchWithCustomHeaders from "../fetchWithCustomHeaders";
 import { NO_ACCESS_LOCATION_NAME_PREFIX } from "../../Assets/assetLocationConstants";
 import useUsersStore from "../../../Zustand/usersStore";
-import {
-  buildEsiStructureSubmission,
-  queueCitadelStructureSubmission,
-  resolveCitadelName,
-} from "../../Endpoints/Private/citadelNames";
+import { communityName, submitStructureName } from "./communityNames";
 import { getEsiAccessToken } from "../../Auth/esiCredentials/provider.js";
 import {
   STRUCTURE_SCOPE,
@@ -107,10 +103,7 @@ export async function fetchStructureName(citadelID, character, config = {}) {
     json.id = citadelID;
     json.resolutionStatus = LOCATION_OUTCOME.NAMED;
     if (useUsersStore.getState().account?.shareCitadelNames) {
-      const submission = buildEsiStructureSubmission(citadelID, json);
-      if (submission) {
-        queueCitadelStructureSubmission(submission);
-      }
+      submitStructureName(citadelID, json);
     }
     return { refused: false, name: json };
   }
@@ -145,7 +138,7 @@ export async function communityNameOrRefusal(citadelID) {
     return refused;
   }
 
-  const fallback = await resolveCitadelName(citadelID);
+  const fallback = await communityName(citadelID);
   if (!fallback?.name) return refused;
 
   return {

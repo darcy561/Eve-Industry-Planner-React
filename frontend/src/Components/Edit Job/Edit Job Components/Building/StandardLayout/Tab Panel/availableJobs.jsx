@@ -28,6 +28,7 @@ import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDoc
 import { useCurrentTime } from "../../../../../../Hooks/useCurrentTime";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
+import { UNNAMED_LOCATION_LABEL } from "../../../../../../Functions/Assets/assetLocationConstants";
 
 /**
  * Linking an ESI job adds a run to `activeJob.build.costs.linkedJobs` (persisted),
@@ -152,8 +153,7 @@ export function AvailableJobsTab(props) {
               queryClient,
             );
             const facilityName =
-              facilityNames[job.facility_id]?.name ||
-              "Location Data Unavailable";
+              facilityNames[job.facility_id]?.name || UNNAMED_LOCATION_LABEL;
             const timeRemaining = formatTimeRemaining(
               Date.parse(job.end_date),
               { now },

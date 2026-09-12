@@ -21,6 +21,7 @@ import {
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
+import { UNNAMED_LOCATION_LABEL } from "../../../../../../Functions/Assets/assetLocationConstants";
 
 export function AvailableMarketOrdersTab({ state, actions, itemOrderMatch }) {
   const queryClient = useQueryClient();
@@ -57,8 +58,7 @@ export function AvailableMarketOrdersTab({ state, actions, itemOrderMatch }) {
               .getState()
               .account.actions.findCharacterByHash(order.CharacterHash);
             const locationName =
-              locationNames[order.location_id]?.name ??
-              "Location Data Unavailable";
+              locationNames[order.location_id]?.name ?? UNNAMED_LOCATION_LABEL;
 
             let corpData = null;
             if (order.is_corporation) {

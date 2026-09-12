@@ -2,7 +2,6 @@ import { useQueries } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import useUsersStore from "../../Zustand/usersStore";
 import { nameQuery } from "../React Query/World/names";
-import { LOCATION_OUTCOME } from "../../Functions/EveESI/World/locationOutcome";
 import { asNumberIDSet } from "../../Functions/Helper/ids";
 
 const EMPTY_NAMES = {};
@@ -52,13 +51,10 @@ export default function useLocationNames(locationIds) {
       let failure = null;
 
       results.forEach((result, index) => {
-        // An id ESI answered about and did not name is settled rather than missing — but it has no
-        // name to show, and a consumer taking an entry for a named place would render a blank. It
-        // stays in the cache and out of here.
-        if (
-          result.data &&
-          result.data.resolutionStatus !== LOCATION_OUTCOME.UNNAMED
-        ) {
+        // An id ESI answered about and did not name is an answer, and is handed on like any other:
+        // a surface showing it says the place has no name rather than leaving a gap where one was
+        // asked for. Only an id still being asked about is absent from here.
+        if (result.data) {
           found[missing[index]] = result.data;
         }
         if (result.isLoading) pending = true;

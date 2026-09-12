@@ -3,6 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { appShellMarketDataGridSx } from "../../Context/appShell";
+import { UNNAMED_LOCATION_LABEL } from "../../Functions/Assets/assetLocationConstants";
 
 /**
  * Sell and buy orders in separate sortable grids.
@@ -68,7 +69,7 @@ function MarketDataDisplayGrid({
       headerName: "Location",
       type: "string",
       flex: 1,
-      valueGetter: (id) => locationNames[id]?.name ?? "Unknown Location",
+      valueGetter: (id) => locationNames[id]?.name ?? UNNAMED_LOCATION_LABEL,
     },
     {
       field: "range",
@@ -108,7 +109,7 @@ function MarketDataDisplayGrid({
       headerName: "Location",
       type: "string",
       flex: 1,
-      valueGetter: (id) => locationNames[id]?.name ?? "Unknown Location",
+      valueGetter: (id) => locationNames[id]?.name ?? UNNAMED_LOCATION_LABEL,
     },
     {
       field: "range",

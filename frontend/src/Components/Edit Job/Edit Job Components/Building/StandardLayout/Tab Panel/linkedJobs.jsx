@@ -26,6 +26,7 @@ import findBlueprintType from "../../../../../../Functions/Shared/findBlueprintT
 import { useActiveJobReadOnly } from "../../../../Edit Job Hooks/useActiveJobDocumentLock";
 import { lockReasonText } from "../../../../../DocumentLock/LockGatedTooltip";
 import useLocationNames from "../../../../../../Hooks/EveEsi/useLocationNames";
+import { UNNAMED_LOCATION_LABEL } from "../../../../../../Functions/Assets/assetLocationConstants";
 
 /**
  * Unlinking an ESI job removes a run from `activeJob.build.costs.linkedJobs` (persisted), so
@@ -249,9 +250,7 @@ export function LinkedJobsTab(props) {
                             color: "text.secondary",
                           }}
                         >
-                          {facilityData
-                            ? facilityData.name
-                            : "Location Data Unavailable"}
+                          {facilityData?.name ?? UNNAMED_LOCATION_LABEL}
                         </Typography>
                       }
                     />

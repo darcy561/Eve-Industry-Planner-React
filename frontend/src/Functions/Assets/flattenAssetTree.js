@@ -1,5 +1,6 @@
 import { sortNodesByName } from "./assetTree";
 import { assetName } from "./assetPresentation";
+import { UNNAMED_LOCATION_LABEL } from "./assetLocationConstants";
 
 /**
  * What a row in the tree stands for.
@@ -89,7 +90,7 @@ export default function flattenAssetTree({
       index: 0,
       // An office holding nothing still has its divisions to show.
       expandable: rows.length > 0 || Boolean(compartments),
-      label: name || "Unknown Location",
+      label: name || UNNAMED_LOCATION_LABEL,
       count: countStacks(rows, byItemId, { excludeItemIds, matching }),
     });
 

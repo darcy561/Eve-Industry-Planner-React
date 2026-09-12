@@ -5,6 +5,16 @@
  * @type {string}
  */
 export const NO_ACCESS_LOCATION_NAME_PREFIX = "No Access To Location";
+
+/**
+ * What a place is called when nothing can name it — ESI answered and had no name for the id.
+ *
+ * Distinct from a refusal, which says the account cannot see the place and is worth saying in those
+ * words. This one says only that the place has no name to give.
+ *
+ * @type {string}
+ */
+export const UNNAMED_LOCATION_LABEL = "Unknown Location";
 export const LOCATION_RESOLUTION_STATUS = {
   RESOLVED: "resolved",
   COMMUNITY: "community",

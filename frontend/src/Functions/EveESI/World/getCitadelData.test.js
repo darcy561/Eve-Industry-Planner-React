@@ -17,10 +17,9 @@ vi.mock("../../../Zustand/usersStore", () => ({
   default: { getState: () => ({ account }) },
 }));
 
-vi.mock("../../Endpoints/Private/citadelNames", () => ({
-  buildEsiStructureSubmission: (id, esi) => ({ id, name: esi.name }),
-  queueCitadelStructureSubmission: (row) => submissions.push(row),
-  resolveCitadelName: (...args) => communityMock(...args),
+vi.mock("./communityNames", () => ({
+  submitStructureName: (id, esi) => submissions.push({ id, name: esi.name }),
+  communityName: (...args) => communityMock(...args),
 }));
 
 vi.mock("../../Auth/esiCredentials/provider.js", () => ({

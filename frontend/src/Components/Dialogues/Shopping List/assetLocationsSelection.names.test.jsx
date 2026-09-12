@@ -13,15 +13,13 @@ const { store, esiCalls, esiAnswers, community } = vi.hoisted(() => ({
   community: { current: {} },
 }));
 
-vi.mock("../../Zustand/usersStore", () => ({
+vi.mock("../../../Zustand/usersStore", () => ({
   default: Object.assign((selector) => selector(store), {
     getState: () => store,
   }),
 }));
 
-// Every character's token carries the structure scope, so what ESI answers is the only thing
-// deciding an outcome. The hash rides in the claims so the fake ESI can tell who is asking.
-vi.mock("../../Functions/Auth/esiCredentials/provider.js", () => ({
+vi.mock("../../../Functions/Auth/esiCredentials/provider.js", () => ({
   getEsiAccessToken: async (characterHash) => ({
     accessToken: `header.${btoa(
       JSON.stringify({
@@ -35,14 +33,13 @@ vi.mock("../../Functions/Auth/esiCredentials/provider.js", () => ({
   }),
 }));
 
-vi.mock("../../Functions/EveESI/World/communityNames", () => ({
+vi.mock("../../../Functions/EveESI/World/communityNames", () => ({
   submitStructureName: () => {},
   communityName: async (id) => community.current[id] ?? null,
 }));
 
-// The only edge faked. Everything between this and the rendered options is the real classifier,
-// loader, per-id cache, hook and resolvers.
-vi.mock("../../Functions/EveESI/fetchWithCustomHeaders", () => ({
+// The only edge faked. The classifier, loader, per-id cache, hook and resolvers all run for real.
+vi.mock("../../../Functions/EveESI/fetchWithCustomHeaders", () => ({
   default: async (url, options) => {
     const structure = url.match(/universe\/structures\/(\d+)/)?.[1];
     const token = options?.headers?.Authorization?.split(" ")[1] ?? "";
@@ -73,9 +70,8 @@ vi.mock("../../Functions/EveESI/fetchWithCustomHeaders", () => ({
   },
 }));
 
-import CorporationOfficesSelect from "./corporationOffices";
+import SelectAssetLocation_ShoppingListDialogue from "./assetLocationsSelection";
 
-const CORPORATION = 98000001;
 const JITA = 60003760;
 const ALT_ONLY = 1035466617946;
 const CLOSED = 1035466617948;
@@ -83,12 +79,9 @@ const CLOSED = 1035466617948;
 const MAIN = { CharacterHash: "hash-main", CharacterName: "Main" };
 const ALT = { CharacterHash: "hash-alt", CharacterName: "Alt" };
 
-function open(offices) {
+function open(assetLocations) {
   const user = userEvent.setup();
-  store.account = {
-    characters: [MAIN, ALT],
-    corporations: [{ corporation_id: CORPORATION, officeLocations: offices }],
-  };
+  store.account = { characters: [MAIN, ALT], corporations: [] };
   render(
     <QueryClientProvider
       client={
@@ -97,18 +90,27 @@ function open(offices) {
         })
       }
     >
-      <CorporationOfficesSelect
-        selectedCorporation={CORPORATION}
-        value=""
-        onChange={() => {}}
+      <SelectAssetLocation_ShoppingListDialogue
+        state={{
+          assetType: "character",
+          selectedCharacter: MAIN.CharacterHash,
+          selectedAssetLocation: "",
+          assetLocations,
+        }}
+        actions={{
+          setSelectedCharacter: () => {},
+          setSelectedAssetLocation: () => {},
+        }}
+        assetLocationsLoading={false}
+        assetLocationsError={false}
       />
     </QueryClientProvider>,
   );
   return user;
 }
 
-async function optionsShown(user) {
-  await user.click(screen.getByRole("combobox"));
+async function locationsOffered(user) {
+  await user.click(screen.getAllByRole("combobox")[1]);
   return within(screen.getByRole("listbox"))
     .getAllByRole("option")
     .map((option) => option.textContent);
@@ -124,10 +126,16 @@ beforeEach(() => {
   community.current = {};
 });
 
-// The picker end to end: what a reader is offered after a real walk across every linked character,
-// rather than after names were seeded into the store.
-describe("the offices a corporation picker offers, resolved for real", () => {
-  it("names an office only an alt can dock at", async () => {
+// The shopping list's own location picker, resolved for real rather than from names seeded into
+// the store: the same ladder the asset views walk, reached through this dialogue's dropdown.
+describe("the asset locations a shopping list offers, resolved for real", () => {
+  it("names a station from the bulk lookup", async () => {
+    const user = open([JITA]);
+
+    expect(await locationsOffered(user)).toEqual([`Station ${JITA}`]);
+  });
+
+  it("names a structure only an alt can dock at", async () => {
     esiAnswers.current[ALT_ONLY] = (asker) =>
       asker === ALT.CharacterHash
         ? {
@@ -142,21 +150,15 @@ describe("the offices a corporation picker offers, resolved for real", () => {
             json: async () => null,
           };
 
-    const user = open([JITA, ALT_ONLY]);
+    const user = open([ALT_ONLY]);
 
-    await screen.findByRole("combobox");
-    expect(await optionsShown(user)).toContain("Alt's Raitaru");
+    expect(await locationsOffered(user)).toContain("Alt's Raitaru");
   });
 
-  // The standard: an office nobody can read is offered saying so, after the named ones — never
-  // dropped, which would read as the corporation not holding it.
-  it("offers an office nobody can read, saying so, after the named ones", async () => {
+  it("offers a location nobody can read, saying so, after the named ones", async () => {
     const user = open([JITA, CLOSED]);
 
-    await screen.findByRole("combobox");
-    const offices = await optionsShown(user);
-    expect(offices).toEqual([
-      "Select an office",
+    expect(await locationsOffered(user)).toEqual([
       `Station ${JITA}`,
       `No Access To Location - ${CLOSED}`,
     ]);
@@ -167,15 +169,16 @@ describe("the offices a corporation picker offers, resolved for real", () => {
 
     const user = open([CLOSED]);
 
-    await screen.findByRole("combobox");
-    expect(await optionsShown(user)).toContain("Someone Else's Sotiyo");
+    expect(await locationsOffered(user)).toContain("Someone Else's Sotiyo");
   });
 
-  it("asks every linked character before giving up on an office", async () => {
+  // Docking access is per character and nothing records which character holds it, so a refusal by
+  // one says nothing about the account until every one of them has been asked.
+  it("asks every linked character before giving up on a structure", async () => {
     const user = open([CLOSED]);
 
-    await screen.findByRole("combobox");
-    await optionsShown(user);
+    await locationsOffered(user);
+
     const askers = esiCalls
       .filter((call) => call.url.includes(String(CLOSED)))
       .map((call) => call.asker);

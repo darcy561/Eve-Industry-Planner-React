@@ -5,6 +5,7 @@ import {
   editJobStore,
   esiIndustryJob,
   esiMarketOrder,
+  JITA_IV,
   linkedIndustryJob,
 } from "../../tests/editJobFixtures";
 
@@ -262,6 +263,30 @@ describe("the places these panels name", () => {
     ));
 
     expect(screen.getByText("Abbey Raitaru")).toBeTruthy();
+  });
+
+  // The names map carries an id ESI answered about and had no name for, and such an entry has no
+  // `name` at all. A row testing the entry rather than the name renders nothing at all.
+  it("says a linked job's facility is unknown when nothing could name it", () => {
+    // ESI answered about the facility and had no name for it, so the entry carries no `name`.
+    store.current.worldData.universeIDs[JITA_IV] = {
+      id: JITA_IV,
+      resolutionStatus: "unnamed",
+    };
+
+    renderOverEditJob(
+      jobWithOneSlot({ linkedJobs: [linkedIndustryJob(500001)] }),
+      ({ state, actions }) => (
+        <LinkedJobsTab
+          state={state}
+          actions={actions}
+          isLoading={false}
+          isError={false}
+        />
+      ),
+    );
+
+    expect(screen.getByText("Unknown Location")).toBeTruthy();
   });
 
   it("names where a linked industry job is running", () => {

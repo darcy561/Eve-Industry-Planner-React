@@ -8,8 +8,8 @@ import {
   getCachedAssetIndex,
 } from "../../../../Hooks/EveEsi/useAssetIndex";
 import useUsersStore from "../../../../Zustand/usersStore";
-import { OFFICE_FOLDER_FLAG } from "../../../../Functions/Assets/buildAssetNodes";
-import { fetchNames } from "../../../../Hooks/React Query/World/names";
+import { officeLocationIds } from "../../../../Functions/Assets/assetTree";
+import buildAssetNodes from "../../../../Functions/Assets/buildAssetNodes";
 
 /**
  * Hook for processing corporation assets in the shopping list.
@@ -63,45 +63,17 @@ export function useShoppingListCorporationAssets({
           const officesKey = `${state.selectedCorporation}-${corporationAssets.length}`;
 
           if (!corporationOfficesSetRef.current.has(officesKey)) {
-            useUsersStore.getState().account.actions.setCorporationOffices(
-              state.selectedCorporation,
-              corporationAssets
-                .filter(
-                  ({ location_flag }) => location_flag === OFFICE_FOLDER_FLAG,
-                )
-                .map(({ location_id }) => location_id),
-            );
+            // What counts as an office is the asset tree's to say, so the picker and this list
+            // agree on which places the corporation rents. Built from the rows in hand rather than
+            // read from the shared index, which answers empty while any member's assets are still
+            // arriving — and an empty answer here would take the offices off the corporation.
+            useUsersStore
+              .getState()
+              .account.actions.setCorporationOffices(
+                state.selectedCorporation,
+                officeLocationIds(buildAssetNodes(corporationAssets)),
+              );
             corporationOfficesSetRef.current.add(officesKey);
-
-            // Fetch location names for all office locations
-            async function fetchOfficeLocationNames() {
-              const updatedCorporationObject = useUsersStore
-                .getState()
-                .account.actions.getCorporation(state.selectedCorporation);
-
-              if (
-                updatedCorporationObject &&
-                updatedCorporationObject.officeLocations
-              ) {
-                if (updatedCorporationObject.officeLocations.length > 0) {
-                  // Every character, not just this corporation's: an office one member cannot read
-                  // is often readable by another, and an office that cannot be named still holds
-                  // the assets this list is counting.
-                  const names = await fetchNames(
-                    queryClient,
-                    updatedCorporationObject.officeLocations,
-                    Object.values(useUsersStore.getState().account.characters),
-                  );
-                  if (Object.keys(names).length > 0) {
-                    useUsersStore
-                      .getState()
-                      .worldData.actions.addUniverseIDs(names);
-                  }
-                }
-              }
-            }
-
-            fetchOfficeLocationNames();
           }
         }
       }

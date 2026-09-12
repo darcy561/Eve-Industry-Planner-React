@@ -75,3 +75,29 @@ export async function fetchNames(queryClient, ids_, characters = []) {
   });
   return names;
 }
+
+/**
+ * Forgets what is known about these ids, so the next view asking for them resolves them again.
+ *
+ * A settled outcome is kept for the session, which is right while the account is the same account:
+ * a structure that refused every linked character will refuse them again. It stops being right when
+ * what the account can see changes — a character linked, a corporation or alliance joined or left —
+ * because a `no-access` entry then states something that is no longer true and nothing else would
+ * ever re-ask it.
+ *
+ * Nothing calls this yet. It exists so that whatever comes to watch for those changes has somewhere
+ * to say so, rather than having to reach into the cache's keys from outside.
+ *
+ * @param {import("@tanstack/react-query").QueryClient} queryClient
+ * @param {Array<number>|Set<number>} [ids] - the ids to forget; every name when omitted
+ */
+export function forgetNames(queryClient, ids) {
+  const wanted = [...asNumberIDSet(ids)];
+  if (wanted.length === 0) {
+    queryClient.removeQueries({ queryKey: NAME_QUERY_KEY });
+    return;
+  }
+  for (const id of wanted) {
+    queryClient.removeQueries({ queryKey: [...NAME_QUERY_KEY, id] });
+  }
+}

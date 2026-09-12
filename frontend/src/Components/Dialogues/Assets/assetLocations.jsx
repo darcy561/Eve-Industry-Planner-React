@@ -2,6 +2,7 @@ import { Box, Typography } from "@mui/material";
 
 import AssetLocationLogic_AssetDialogueWindow from "./AssetTemplates/templateLogic";
 import InsetSurface from "../../../Styled Components/Paper/InsetSurface";
+import { UNNAMED_LOCATION_LABEL } from "../../../Functions/Assets/assetLocationConstants";
 
 /**
  * Where a material is held: a heading per location, and under it the containers holding it.
@@ -27,7 +28,7 @@ export default function AssetLocations_AssetDialogueWindow({
             }}
           >
             <Typography noWrap sx={{ fontWeight: 600 }}>
-              {name || "Unknown Location"}
+              {name || UNNAMED_LOCATION_LABEL}
             </Typography>
           </InsetSurface>
           <Box

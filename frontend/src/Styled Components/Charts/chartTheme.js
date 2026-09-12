@@ -258,3 +258,30 @@ export function timeSeriesSurfaceStyle(deviceNotMobile) {
     maxHeight: 320,
   };
 }
+
+/**
+ * Where zero sits in a series' vertical span, as a 0–1 fraction from the top —
+ * the stop a two-colour gradient splits at so the part of an area above the
+ * axis draws in one colour and the part below it in another.
+ *
+ * Taken from the drawn axis rather than from the rows when a domain is pinned,
+ * because the colour break has to land on the axis' zero line and a pinned
+ * domain need not match the data's own span.
+ *
+ * @param {Array<Object>} rows
+ * @param {string} key
+ * @param {[number, number]} [domain]
+ * @returns {number}
+ */
+export function zeroSplitOffset(rows, key, domain) {
+  const values = (rows ?? [])
+    .map((row) => Number(row?.[key]))
+    .filter((value) => Number.isFinite(value));
+  const [low, high] = Array.isArray(domain) ? domain.map(Number) : [];
+  const min = Number.isFinite(low) ? low : Math.min(0, ...values);
+  const max = Number.isFinite(high) ? high : Math.max(0, ...values);
+
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= 0) return 0;
+  if (min >= 0) return 1;
+  return max / (max - min);
+}

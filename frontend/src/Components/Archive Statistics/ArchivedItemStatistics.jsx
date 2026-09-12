@@ -3,17 +3,19 @@ import { useMemo } from "react";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
 import { ArchiveRangeControl } from "./ArchiveRangeControl";
-import { monthLabel, NoData } from "./panelParts";
+import { monthLabel, NoData, useCostComponentStack } from "./panelParts";
+// From the module rather than the folder's index, which a panel test replaces
+// with stand-ins for the chart components; the state behind the keys is not one.
+import { useChartKeys } from "../../Styled Components/Charts/useChartKeys";
 import VirtualisedRecipeSearch from "../../Styled Components/autocomplete/virtualisedRecipeSearch";
-import { TimeSeriesChart } from "../../Styled Components/Charts";
+import { ChartKeys, TimeSeriesChart } from "../../Styled Components/Charts";
 import { useAccountTotalsQuery } from "../../Hooks/React Query/Backend/statisticsTotals";
 import { useArchiveTimeline } from "./useArchiveTimeline";
 import {
-  COST_COMPONENTS,
   toBuildCostPerUnitRows,
   COST_SERIES,
+  COST_SERIES_SEED,
   sumTimelineMeasures,
-  toCostComponentRows,
   toCumulativeRows,
   toQuantityRows,
 } from "./chartAdapters";
@@ -116,7 +118,14 @@ export function ArchivedItemStatistics({
 
   const perUnit = useMemo(() => toBuildCostPerUnitRows(timeline), [timeline]);
   const quantities = useMemo(() => toQuantityRows(timeline), [timeline]);
-  const components = useMemo(() => toCostComponentRows(timeline), [timeline]);
+  const { series: unitCostSeries, toggle: toggleUnitCost } =
+    useChartKeys(COST_SERIES);
+  const {
+    rows: components,
+    series: componentSeries,
+    toggle: toggleComponent,
+    seed: componentSeed,
+  } = useCostComponentStack(timeline, { stacked: true });
   const cumulative = useMemo(() => toCumulativeRows(timeline), [timeline]);
 
   return (
@@ -261,12 +270,21 @@ export function ArchivedItemStatistics({
               {perUnit.length === 0 ? (
                 <NoData>Nothing built in this period.</NoData>
               ) : (
-                <TimeSeriesChart
-                  rows={perUnit}
-                  categoryKey="month"
-                  formatCategory={monthLabel(perUnit)}
-                  series={COST_SERIES}
-                />
+                <>
+                  <ChartKeys
+                    series={unitCostSeries}
+                    seed={COST_SERIES_SEED}
+                    onToggle={toggleUnitCost}
+                  />
+                  <TimeSeriesChart
+                    rows={perUnit}
+                    categoryKey="month"
+                    formatCategory={monthLabel(perUnit)}
+                    series={unitCostSeries}
+                    paletteSeed={COST_SERIES_SEED}
+                    showLegend={false}
+                  />
+                </>
               )}
             </AppShellPanel>
           </Grid>
@@ -305,17 +323,21 @@ export function ArchivedItemStatistics({
               {components.length === 0 ? (
                 <NoData>Nothing built in this period.</NoData>
               ) : (
-                <TimeSeriesChart
-                  rows={components}
-                  categoryKey="month"
-                  formatCategory={monthLabel(components)}
-                  series={COST_COMPONENTS.map(({ key, label }) => ({
-                    key,
-                    label,
-                    type: "bar",
-                    stackId: "cost",
-                  }))}
-                />
+                <>
+                  <ChartKeys
+                    series={componentSeries}
+                    seed={componentSeed}
+                    onToggle={toggleComponent}
+                  />
+                  <TimeSeriesChart
+                    rows={components}
+                    categoryKey="month"
+                    formatCategory={monthLabel(components)}
+                    series={componentSeries}
+                    paletteSeed={componentSeed}
+                    showLegend={false}
+                  />
+                </>
               )}
             </AppShellPanel>
           </Grid>

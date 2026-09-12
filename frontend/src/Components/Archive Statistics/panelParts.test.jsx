@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { monthLabel } from "./panelParts";
+import { renderHook, act } from "@testing-library/react";
+import { monthLabel, useCostComponentStack } from "./panelParts";
+import { COST_COMPONENTS } from "./chartAdapters";
 
 // The two panels that plot months each solved half of this and lost the other
 // half. Combined, both statements hold wherever months are drawn.
@@ -43,5 +45,62 @@ describe("monthLabel", () => {
   it("labels a value it has no row for", () => {
     expect(monthLabel(short)("2025-01")).toBe("2025-01");
     expect(monthLabel()("2025-01")).toBe("2025-01");
+  });
+});
+
+// Both panels that draw the cost split — the account's months and an item's own
+// — take the stack from here, so what a reader sets aside behaves the same on
+// either of them.
+describe("the cost component stack", () => {
+  const data = {
+    months: [
+      {
+        year: 2026,
+        month: 3,
+        complete: true,
+        materialCostTotal: 100,
+        installCostTotal: 10,
+        inventionCostTotal: 5,
+        extrasTotal: 7,
+        brokersFeeTotal: 2,
+        transactionFeeTotal: 3,
+      },
+    ],
+  };
+
+  it("names every component, in ISK, beside one another", () => {
+    const { result } = renderHook(() => useCostComponentStack(data));
+
+    expect(result.current.series.map((s) => s.key)).toEqual(
+      COST_COMPONENTS.map((c) => c.key),
+    );
+    expect(result.current.series.every((s) => s.stackId === undefined)).toBe(
+      true,
+    );
+    expect(result.current.rows[0].materialCostTotal).toBe(100);
+  });
+
+  // An item's own composition is one column a month; the account's is a column
+  // per component. The rows are the same either way.
+  it("stacks them into one column a month when asked", () => {
+    const { result } = renderHook(() =>
+      useCostComponentStack(data, { stacked: true }),
+    );
+
+    expect(result.current.series.every((s) => s.stackId === "cost")).toBe(true);
+  });
+
+  // Taking materials off is what lets the axis scale to what is left, which is
+  // the whole point of the keys on these charts.
+  it("marks what a reader has taken off the chart", () => {
+    const { result } = renderHook(() => useCostComponentStack(data));
+
+    act(() => result.current.toggle("materialCostTotal"));
+
+    expect(
+      result.current.series.find((s) => s.key === "materialCostTotal").hidden,
+    ).toBe(true);
+    // The figure stays on the row: the key can be pressed again.
+    expect(result.current.rows[0].materialCostTotal).toBe(100);
   });
 });

@@ -100,6 +100,17 @@ export function chartMocks() {
       record("ranked", props);
       return <div data-testid="ranked" />;
     },
+    // Stands in for the keys a reader presses, so a panel test can press one.
+    // What a key looks like is [ChartKeys]'s own test.
+    ChartKeys: ({ series, onToggle }) => (
+      <div>
+        {series.map((s) => (
+          <button key={s.key} type="button" onClick={() => onToggle(s.key)}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+    ),
     PieChart: (props) => {
       record("pie", props);
       return <div data-testid="pie" />;

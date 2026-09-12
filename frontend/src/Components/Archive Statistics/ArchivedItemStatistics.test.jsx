@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { renderWithTheme } from "../../tests/archiveHarness.jsx";
 
 const useAccountTimelineQuery = vi.fn();
@@ -128,6 +128,20 @@ describe("ArchivedItemStatistics", () => {
     // than sitting under it, because it is what those bars add up to. jsdom
     // renders no marks, so the wrapper count is what this harness can see.
     expect(container.querySelectorAll(".recharts-wrapper").length).toBe(4);
+  });
+
+  // Both cost charts on this tab carry keys, and each holds its own idea of
+  // what is on it: taking materials off the per-unit history must not take it
+  // off the composition beside it.
+  it("gives each chart its own keys", () => {
+    renderTab({ item: tritanium });
+    const keys = screen.getAllByRole("button", { name: "Materials" });
+
+    expect(keys).toHaveLength(2);
+    fireEvent.click(keys[0]);
+
+    expect(keys[0]).toHaveAttribute("aria-pressed", "false");
+    expect(keys[1]).toHaveAttribute("aria-pressed", "true");
   });
 
   // The figures are lifetime and the charts follow the range, so each says which

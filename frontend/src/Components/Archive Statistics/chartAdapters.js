@@ -174,6 +174,13 @@ export const BUILD_COST_COMPONENTS = COST_COMPONENTS.filter(({ key }) =>
 );
 
 /**
+ * Where the per-unit cost chart sits in the colour rotation. Named, so the same
+ * component is the same colour wherever the chart is drawn, and so the keys
+ * beside it resolve the colours the marks were drawn in.
+ */
+export const COST_SERIES_SEED = "build-cost-per-unit";
+
+/**
  * The build-cost-per-unit chart, wherever an item's cost history is shown. Reads
  * the rows [toBuildCostPerUnitRows] produces.
  */
@@ -274,9 +281,13 @@ export function toQuantityRows(data) {
 }
 
 /**
- * Cost components per month, as stacked bars.
+ * Cost components per month, in ISK.
  *
- * @param {Object} data
+ * Every component is carried whether or not a chart is drawing it: what a reader
+ * has taken off the chart is the chart's business, and a row that dropped it
+ * would have to be rebuilt to put it back.
+ *
+ * @param {Object} data - `GET /statistics/{owner}/timeline`
  */
 export function toCostComponentRows(data) {
   const months = data?.months ?? [];

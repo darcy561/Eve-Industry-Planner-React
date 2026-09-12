@@ -370,6 +370,8 @@ describe("cost components", () => {
     ]);
   });
 
+  // A component nobody spent on still belongs on the row: the chart draws it as
+  // a key a reader can bring back, not as a gap.
   test("a month missing a component reads as zero rather than a gap", () => {
     const rows = toCostComponentRows({ months: [{ year: 2026, month: 4 }] });
 

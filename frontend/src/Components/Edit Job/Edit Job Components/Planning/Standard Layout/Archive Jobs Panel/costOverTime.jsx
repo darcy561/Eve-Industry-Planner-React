@@ -2,12 +2,15 @@ import { useMemo } from "react";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 import {
+  ChartKeys,
   TimeSeriesChart,
   timeSeriesSurfaceStyle,
 } from "../../../../../../Styled Components/Charts";
+import { useChartKeys } from "../../../../../../Styled Components/Charts/useChartKeys";
 import { appShellInsetSurfaceSx } from "../../../../../../Context/appShell";
 import {
   COST_SERIES,
+  COST_SERIES_SEED,
   toBuildCostPerUnitRows,
 } from "../../../../../../Components/Archive Statistics/chartAdapters";
 import { shortMonthLabel } from "./buildHistoryFigures";
@@ -34,9 +37,14 @@ export default function CostOverTime({ timelineData }) {
     () => toBuildCostPerUnitRows(timelineData),
     [timelineData],
   );
+  const { series, toggle } = useChartKeys(COST_SERIES);
 
   return (
     <Box sx={[appShellInsetSurfaceSx, { p: 1.5 }]}>
+      {rows.length > 0 && (
+        // Outside the box below, which holds the height the chart settles at.
+        <ChartKeys series={series} seed={COST_SERIES_SEED} onToggle={toggle} />
+      )}
       {/* The chart sizes itself from its container, which it can only measure
           once laid out. Holding that height keeps a collapse growing to the
           size the chart settles at. */}
@@ -49,7 +57,9 @@ export default function CostOverTime({ timelineData }) {
           <TimeSeriesChart
             rows={rows}
             categoryKey="month"
-            series={COST_SERIES}
+            series={series}
+            paletteSeed={COST_SERIES_SEED}
+            showLegend={false}
             formatCategory={shortMonthLabel}
             leftAxisLabel="Cost per unit"
           />

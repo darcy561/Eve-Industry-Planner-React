@@ -262,3 +262,125 @@ describe("a sparse line series", () => {
     expect(container.querySelectorAll(".recharts-line-dot").length).toBe(1);
   });
 });
+
+// Running profit crosses the axis, and one colour across the whole area reads a
+// loss as a gain. SVG can only paint a mark two colours through a gradient, so
+// what the chart must produce is a two-stop gradient the area is filled with.
+describe("an area split at zero", () => {
+  const series = {
+    key: "cumulativeProfit",
+    label: "Running profit",
+    type: "area",
+    splitAtZero: true,
+  };
+
+  function stops(container) {
+    const gradient = container.querySelector("linearGradient");
+    return [...(gradient?.children ?? [])].map((stop) => ({
+      offset: stop.getAttribute("offset"),
+      colour: stop.getAttribute("stop-color"),
+    }));
+  }
+
+  it("breaks the fill where the running total crosses zero", () => {
+    const { container } = sized(
+      <TimeSeriesChart
+        rows={[
+          { month: "2026-07", cumulativeProfit: 300 },
+          { month: "2026-08", cumulativeProfit: -100 },
+        ]}
+        categoryKey="month"
+        series={[series]}
+      />,
+    );
+
+    const [above, below] = stops(container);
+    expect(above.offset).toBe("0.75");
+    expect(below.offset).toBe("0.75");
+    expect(below.colour).not.toBe(above.colour);
+    // The gradient is only worth defining if the area actually takes it.
+    const area = container.querySelector(".recharts-area-area");
+    expect(area.getAttribute("fill")).toMatch(/^url\(#/);
+  });
+
+  // Every other caller of the primitive draws a flat colour, and must keep it.
+  it("leaves an ordinary area on its series colour", () => {
+    const { container } = sized(
+      <TimeSeriesChart
+        rows={months}
+        categoryKey="month"
+        series={[{ key: "profitLoss", label: "Profit", type: "area" }]}
+      />,
+    );
+
+    expect(container.querySelector("linearGradient")).toBeNull();
+    expect(
+      container.querySelector(".recharts-area-area").getAttribute("fill"),
+    ).not.toMatch(/^url\(#/);
+  });
+});
+
+// A stack of shares is only readable while what is on it is worth comparing, so
+// a caller can set a series aside. The control that does it sits beside the
+// chart, in [ChartKeys]; what the chart owes is not drawing what it was told to
+// leave out.
+describe("series a reader has set aside", () => {
+  const series = [
+    { key: "jobCostTotal", label: "Cost", type: "bar", stackId: "c" },
+    { key: "profitLoss", label: "Profit", type: "bar", stackId: "c" },
+  ];
+
+  function draw(hiddenKey) {
+    return sized(
+      <TimeSeriesChart
+        rows={months}
+        categoryKey="month"
+        series={series.map((s) => ({ ...s, hidden: s.key === hiddenKey }))}
+        showLegend={false}
+      />,
+    );
+  }
+
+  it("draws only the series still on show", () => {
+    const all = draw(null).container.querySelectorAll(".recharts-bar").length;
+    const one =
+      draw("jobCostTotal").container.querySelectorAll(".recharts-bar").length;
+
+    expect(all).toBe(2);
+    expect(one).toBe(1);
+  });
+
+  // The keys are drawn beside the chart, so its own legend would be a second
+  // set of them saying something different.
+  it("leaves its own legend out when asked", () => {
+    const { container } = draw(null);
+
+    expect(container.querySelector(".recharts-legend-wrapper")).toBeNull();
+  });
+});
+
+// A pinned domain is a statement about the axis, not a starting point: shares
+// that sum to 100.00000000000003 must not put that on the axis.
+describe("a pinned axis", () => {
+  it("holds the domain it was given", () => {
+    const { container } = sized(
+      <TimeSeriesChart
+        rows={[{ month: "2026-07", share: 100.00000000000003 }]}
+        categoryKey="month"
+        series={[{ key: "share", label: "Share", type: "bar" }]}
+        leftDomain={[0, 100]}
+        formatAxisTick={(value) => `${value}%`}
+      />,
+    );
+    // Ticks are drawn into the chart's own portal layer rather than inside the
+    // axis element, so they are found by what they are, not by where they sit.
+    const ticks = [
+      ...container.querySelectorAll(".recharts-cartesian-axis-tick-value"),
+    ]
+      .map((tick) => tick.textContent)
+      .filter((text) => text.endsWith("%"));
+
+    expect(ticks).toContain("100%");
+    expect(ticks.some((tick) => tick.includes("100.0000"))).toBe(false);
+  });
+});

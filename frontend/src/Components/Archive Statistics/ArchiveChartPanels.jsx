@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import { MenuItem } from "@mui/material";
 import AppShellSelect from "../../Styled Components/Select/AppShellSelect";
 import AppShellPanel from "../../Styled Components/Paper/AppShellPanel";
-import { PieChart, TimeSeriesChart } from "../../Styled Components/Charts";
+import {
+  ChartKeys,
+  PieChart,
+  TimeSeriesChart,
+} from "../../Styled Components/Charts";
 import { useAccountTimelineItemsQuery } from "../../Hooks/React Query/Backend/statisticsTimeline";
 import { useAccountTotalsSummaryQuery } from "../../Hooks/React Query/Backend/statisticsTotals";
 import {
-  COST_COMPONENTS,
-  toCostComponentRows,
   toCostComponentTotalRows,
   toCumulativeRows,
   toExtrasRows,
@@ -17,7 +19,10 @@ import {
   toSegmentRows,
   toTimelineRows,
 } from "./chartAdapters";
-import { monthLabel, NoData } from "./panelParts";
+import { monthLabel, NoData, useCostComponentStack } from "./panelParts";
+// From the module rather than the folder's index, which a panel test replaces
+// with stand-ins for the chart components; the state behind the keys is not one.
+import { useChartKeys } from "../../Styled Components/Charts/useChartKeys";
 import { formatNumberForLocale } from "../../Functions/Helper/numberParser";
 import { timelineWindow, useArchiveTimeline } from "./useArchiveTimeline";
 import { useItemNames } from "../../Hooks/useItemNames";
@@ -100,7 +105,7 @@ export function ArchiveCumulativePanel({ from, to, range }) {
               key: "cumulativeProfit",
               label: "Running profit",
               type: "area",
-              role: "profit",
+              splitAtZero: true,
             },
           ]}
         />
@@ -207,12 +212,7 @@ export function ArchiveSegmentPanel() {
 /** What a period's cost was spent on, month by month. */
 export function ArchiveCostBreakdownPanel({ from, to, range }) {
   const { data, isLoading, isError } = useArchiveTimeline({ from, to, range });
-  const rows = useMemo(() => toCostComponentRows(data), [data]);
-  const series = useMemo(
-    () =>
-      COST_COMPONENTS.map(({ key, label }) => ({ key, label, type: "bar" })),
-    [],
-  );
+  const { rows, series, toggle, seed } = useCostComponentStack(data);
 
   return (
     <AppShellPanel
@@ -224,15 +224,17 @@ export function ArchiveCostBreakdownPanel({ from, to, range }) {
       {rows.length === 0 ? (
         <NoData>No archived jobs in this period.</NoData>
       ) : (
-        <TimeSeriesChart
-          rows={rows}
-          categoryKey="month"
-          formatCategory={monthLabel(rows)}
-          series={series}
-          // Its own colours: the series here come from the data, and every month chart would
-          // otherwise start from the same place as the fixed ones.
-          paletteSeed="archive-cost-breakdown"
-        />
+        <>
+          <ChartKeys series={series} seed={seed} onToggle={toggle} />
+          <TimeSeriesChart
+            rows={rows}
+            categoryKey="month"
+            formatCategory={monthLabel(rows)}
+            series={series}
+            showLegend={false}
+            paletteSeed={seed}
+          />
+        </>
       )}
     </AppShellPanel>
   );
@@ -327,14 +329,28 @@ export function ArchiveExtrasTotalsPanel({ from, to, range }) {
 }
 
 /**
+ * Its own colours: the categories here come from the data, and every month chart
+ * would otherwise start from the same place in the rotation as the fixed ones.
+ */
+const EXTRAS_SEED = "archive-extras";
+
+/**
  * Extras spend per month, split by category.
  *
  * Category names come from the account's own list, deleted entries included: a
  * past cost belongs to the category it was filed under.
+ *
+ * One category can be most of an account's extras — a haulage bill against a few
+ * million in copies — so the categories are keys a reader can take off, the same
+ * control the cost charts carry.
  */
 export function ArchiveExtrasPanel({ from, to, range }) {
   const { data, isLoading, isError } = useArchiveTimeline({ from, to, range });
-  const { rows, series } = useMemo(() => toExtrasRows(data), [data]);
+  const { rows, series: categories } = useMemo(
+    () => toExtrasRows(data),
+    [data],
+  );
+  const { series, toggle } = useChartKeys(categories);
 
   return (
     <AppShellPanel
@@ -343,18 +359,20 @@ export function ArchiveExtrasPanel({ from, to, range }) {
       isLoading={isLoading}
       isError={isError}
     >
-      {series.length === 0 ? (
+      {categories.length === 0 ? (
         <NoData>No extra costs recorded in this period.</NoData>
       ) : (
-        <TimeSeriesChart
-          rows={rows}
-          categoryKey="month"
-          formatCategory={monthLabel(rows)}
-          series={series}
-          // Its own colours: the series here come from the data, and every month chart would
-          // otherwise start from the same place as the fixed ones.
-          paletteSeed="archive-extras"
-        />
+        <>
+          <ChartKeys series={series} seed={EXTRAS_SEED} onToggle={toggle} />
+          <TimeSeriesChart
+            rows={rows}
+            categoryKey="month"
+            formatCategory={monthLabel(rows)}
+            series={series}
+            showLegend={false}
+            paletteSeed={EXTRAS_SEED}
+          />
+        </>
       )}
     </AppShellPanel>
   );

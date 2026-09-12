@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
@@ -16,11 +17,13 @@ import {
   chartGridStroke,
   chartLegendProps,
   chartMargins,
+  chartRoleColours,
   chartTooltipProps,
   formatAxisValue,
   formatTooltipValue,
   resolveSeriesColour,
   timeSeriesSurfaceStyle,
+  zeroSplitOffset,
 } from "../chartTheme";
 
 /**
@@ -31,13 +34,16 @@ import {
  * @param {Object} props
  * @param {Array<Object>} props.rows
  * @param {string} props.categoryKey - row field for the category axis
- * @param {Array<{key: string, label: string, type?: 'bar'|'line'|'area', colour?: string, axis?: 'left'|'right', fillOpacity?: number}>} props.series
+ * @param {Array<{key: string, label: string, type?: 'bar'|'line'|'area', colour?: string, axis?: 'left'|'right', fillOpacity?: number, splitAtZero?: boolean, hidden?: boolean}>} props.series
  * @param {(value: any) => string} [props.formatCategory]
  * @param {(value: any) => string} [props.formatValue]
  * @param {(value: any) => string} [props.formatCategoryLabel] - tooltip heading
  * @param {(value: any) => string} [props.formatAxisTick] - axis ticks; defaults to short text
  * @param {string} [props.leftAxisLabel]
- * @param {[number, number]} [props.leftDomain] - defaults to recharts' own scaling
+ * @param {[number, number]} [props.leftDomain] - defaults to recharts' own
+ *   scaling; a pinned domain is held to exactly, not widened to fit the rows
+ * @param {boolean} [props.showLegend] - on for a chart with more than one
+ *   series; off for one whose keys are drawn beside it by [ChartKeys]
  * @param {[number, number]} [props.rightDomain]
  * @param {number} [props.categoryAngle] - rotate category labels when they are long
  * @param {boolean} [props.showGrid] - grid lines; on by default
@@ -66,6 +72,7 @@ export function TimeSeriesChart({
    * share a category, and wherever the series are built from the data.
    */
   paletteSeed,
+  showLegend = true,
   tooltipProps,
   axisProps: axisPropsOverride,
   style,
@@ -84,6 +91,16 @@ export function TimeSeriesChart({
   const deviceNotMobile = useMediaQuery(theme.breakpoints.up("sm"));
   const axisProps = { ...chartAxisProps(theme), ...axisPropsOverride };
   const hasRightAxis = series.some((s) => s.axis === "right");
+  const gradientPrefix = useId();
+  // An area that reports a gain or a loss is drawn in one colour either side of
+  // the axis, which SVG can only express as a gradient the mark is filled with.
+  // The id has to be unique per chart on the page, so two panels drawing the
+  // same series do not share one another's split point.
+  const splitSeries = series.filter(
+    (s) => s.type === "area" && s.splitAtZero === true,
+  );
+  const splitGradientID = (key) => `${gradientPrefix}split-${key}`;
+  const roleColours = chartRoleColours(theme);
 
   return (
     <ComposedChart
@@ -100,6 +117,30 @@ export function TimeSeriesChart({
         ...style,
       }}
     >
+      {splitSeries.length > 0 && (
+        <defs>
+          {splitSeries.map((s) => {
+            const offset = zeroSplitOffset(
+              rows,
+              s.key,
+              s.axis === "right" ? rightDomain : leftDomain,
+            );
+            return (
+              <linearGradient
+                key={s.key}
+                id={splitGradientID(s.key)}
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset={offset} stopColor={roleColours.profit} />
+                <stop offset={offset} stopColor={roleColours.loss} />
+              </linearGradient>
+            );
+          })}
+        </defs>
+      )}
       {showGrid && (
         <CartesianGrid stroke={chartGridStroke(theme)} vertical={false} />
       )}
@@ -114,6 +155,7 @@ export function TimeSeriesChart({
         width="auto"
         tickFormatter={formatAxisTick}
         domain={leftDomain}
+        allowDataOverflow={Boolean(leftDomain)}
         label={
           leftAxisLabel
             ? { value: leftAxisLabel, position: "top", offset: 15 }
@@ -128,6 +170,7 @@ export function TimeSeriesChart({
           width="auto"
           tickFormatter={formatAxisTick}
           domain={rightDomain}
+          allowDataOverflow={Boolean(rightDomain)}
           label={
             rightAxisLabel
               ? { value: rightAxisLabel, position: "top", offset: 12 }
@@ -139,10 +182,16 @@ export function TimeSeriesChart({
       <Tooltip
         {...chartTooltipProps(theme)}
         {...tooltipProps}
-        formatter={(value, name) => [formatValue(value), name]}
+        // recharts keeps a hidden series' figures in the tooltip; a formatter
+        // that answers nothing is how an entry is dropped from it.
+        formatter={(value, name, entry) =>
+          series.find((s) => s.key === entry?.dataKey)?.hidden
+            ? null
+            : [formatValue(value), name]
+        }
         labelFormatter={formatCategoryLabel ?? formatCategory}
       />
-      {series.length > 1 && (
+      {showLegend && series.length > 1 && (
         <Legend position="top" {...chartLegendProps(theme)} />
       )}
       {series.map((s, index) => {
@@ -150,6 +199,9 @@ export function TimeSeriesChart({
         const shared = {
           dataKey: s.key,
           name: s.label,
+          // Declared and hidden rather than left out, so every series keeps its
+          // place in the colour rotation while a reader sets some of them aside.
+          hide: Boolean(s.hidden),
           ...(s.axis === "right" ? { yAxisId: "right" } : {}),
           // Stacked bars total to their height, which suits composition but not
           // comparison — so it is per series, not chart-wide.
@@ -175,13 +227,18 @@ export function TimeSeriesChart({
           );
         }
         if (s.type === "area") {
+          // The same gradient serves both edges: `fillOpacity` applies to the
+          // fill alone, so the outline stays solid while the body is washed out.
+          const paint = s.splitAtZero
+            ? `url(#${splitGradientID(s.key)})`
+            : colour;
           return (
             <Area
               key={s.key}
               {...shared}
               type="monotone"
-              stroke={colour}
-              fill={colour}
+              stroke={paint}
+              fill={paint}
               fillOpacity={s.fillOpacity ?? 0.2}
             />
           );

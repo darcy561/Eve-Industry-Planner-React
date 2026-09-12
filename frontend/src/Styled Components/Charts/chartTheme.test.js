@@ -7,6 +7,7 @@ import {
   chartSeriesColours,
   sectorHighlight,
   withSeriesColours,
+  zeroSplitOffset,
 } from "./chartTheme";
 
 const theme = createTheme();
@@ -346,5 +347,33 @@ describe("a chart whose series come from its data", () => {
     expect(resolveSeriesColour(theme, {}, 0, "hauling,copies")).not.toBe(
       resolveSeriesColour(theme, {}, 0, "hauling,copies,collateral"),
     );
+  });
+});
+
+// The stop a gain/loss gradient splits at. It has to sit on the axis' zero line,
+// so a run that never went negative must not be handed a break at all.
+describe("the zero split of an area series", () => {
+  const rows = [{ total: 300 }, { total: -100 }];
+
+  it("puts the break where zero falls in the span", () => {
+    expect(zeroSplitOffset(rows, "total")).toBeCloseTo(0.75);
+  });
+
+  it("draws a series that never lost entirely in the gain colour", () => {
+    expect(zeroSplitOffset([{ total: 5 }, { total: 9 }], "total")).toBe(1);
+  });
+
+  it("draws a series that never gained entirely in the loss colour", () => {
+    expect(zeroSplitOffset([{ total: -5 }, { total: -9 }], "total")).toBe(0);
+  });
+
+  // A pinned axis need not match the data's own span, and the colour break
+  // follows the axis the reader is looking at.
+  it("follows a pinned domain rather than the rows", () => {
+    expect(zeroSplitOffset(rows, "total", [-300, 300])).toBeCloseTo(0.5);
+  });
+
+  it("survives a series with nothing in it", () => {
+    expect(zeroSplitOffset([], "total")).toBe(0);
   });
 });

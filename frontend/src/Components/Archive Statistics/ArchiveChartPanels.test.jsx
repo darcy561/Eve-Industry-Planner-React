@@ -220,6 +220,26 @@ describe("what a panel shows with nothing to draw", () => {
 
     expect(screen.queryByTestId("chart")).not.toBeInTheDocument();
   });
+
+  // Materials are most of a build, so the components drawn against one another
+  // in ISK leave everything else on the axis floor. Taking a component off is
+  // what makes the rest readable, because the axis then scales to what is left.
+  it("takes a component off the chart when its key is pressed", () => {
+    renderWithProviders(
+      <panels.ArchiveCostBreakdownPanel from="2026-07" to="2026-08" />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Materials" }));
+    const chart = lastChart("time");
+
+    expect(chart.series.find((s) => s.key === "materialCostTotal").hidden).toBe(
+      true,
+    );
+    // The figure stays on the row, so pressing the key again brings it back.
+    expect(chart.rows[0].materialCostTotal).toBeGreaterThan(0);
+    // Its own legend would be a second set of keys saying something else.
+    expect(chart.showLegend).toBe(false);
+  });
 });
 
 describe("the pie panels", () => {
@@ -292,6 +312,41 @@ describe("the extras panels", () => {
     );
 
     expect(lastChart("time").series.length).toBe(2);
+  });
+
+  // One category can be most of an account's extras, so the categories carry
+  // the same keys the cost charts do rather than a control of their own.
+  it("takes a category off the chart when its key is pressed", () => {
+    useAccountTimelineQuery.mockReturnValue(
+      settled({
+        months: [monthRow(2026, 8, { extraCategoryTotals: { 0: 5, 7: 3 } })],
+      }),
+    );
+    renderWithProviders(
+      <panels.ArchiveExtrasPanel from="2026-08" to="2026-08" />,
+    );
+
+    const [firstKey] = screen.getAllByRole("button");
+    fireEvent.click(firstKey);
+
+    const chart = lastChart("time");
+    expect(chart.series.filter((s) => s.hidden)).toHaveLength(1);
+    expect(chart.showLegend).toBe(false);
+  });
+
+  it("plots what each category cost in ISK", () => {
+    useAccountTimelineQuery.mockReturnValue(
+      settled({
+        months: [monthRow(2026, 8, { extraCategoryTotals: { 0: 5_000_000 } })],
+      }),
+    );
+    renderWithProviders(
+      <panels.ArchiveExtrasPanel from="2026-08" to="2026-08" />,
+    );
+    const chart = lastChart("time");
+
+    expect(chart.leftDomain).toBeUndefined();
+    expect(chart.rows[0][chart.series[0].key]).toBe(5_000_000);
   });
 
   it("says so when no extras were recorded", () => {

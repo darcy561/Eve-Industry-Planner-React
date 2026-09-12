@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   PRICING_SIDE,
   resolvePricingSide,
+  resolveGroupDefault,
   setJobPricingSide,
 } from "./pricingSide.js";
 
@@ -103,6 +104,45 @@ describe("setJobPricingSide", () => {
     ).toBe("dodixie");
   });
 
+  // The selling branch has no control writing to it yet, so nothing but this
+  // would notice the side argument being ignored.
+  it("writes the selling side without touching the buying one", () => {
+    const withBuying = setJobPricingSide(
+      null,
+      PRICING_SIDE.BUYING,
+      "market",
+      "jita",
+    );
+
+    const next = setJobPricingSide(
+      withBuying,
+      PRICING_SIDE.SELLING,
+      "market",
+      "amarr",
+    );
+
+    expect(next.selling).toEqual({ market: "amarr", basis: null });
+    expect(next.buying).toEqual({ market: "jita", basis: null });
+  });
+
+  it("writes each field of the selling side independently", () => {
+    const market = setJobPricingSide(
+      null,
+      PRICING_SIDE.SELLING,
+      "market",
+      "hek",
+    );
+    const both = setJobPricingSide(
+      market,
+      PRICING_SIDE.SELLING,
+      "basis",
+      "buyP95",
+    );
+
+    expect(both.selling).toEqual({ market: "hek", basis: "buyP95" });
+    expect(both.buying).toEqual({ market: null, basis: null });
+  });
+
   it("answers null once nothing is chosen anywhere", () => {
     const one = setJobPricingSide(null, PRICING_SIDE.SELLING, "basis", "buy");
 
@@ -117,5 +157,89 @@ describe("setJobPricingSide", () => {
     expect(
       setJobPricingSide(one, PRICING_SIDE.BUYING, "market", ""),
     ).toBeNull();
+  });
+});
+
+// Tritanium sits in Minerals, which sits in Manufacture & Research.
+const marketGroups = {
+  1857: { name: "Minerals", parent_id: 1855 },
+  1855: { name: "Manufacture & Research", parent_id: 1849 },
+  1849: { name: "Materials" },
+  516: { name: "Ore" },
+};
+
+const groupWalk = (groupDefaults, marketGroupID = 1857) =>
+  resolveGroupDefault({ marketGroupID, marketGroups, groupDefaults });
+
+describe("resolveGroupDefault", () => {
+  it("answers from the item's own group", () => {
+    expect(groupWalk({ 1857: { market: "jita", basis: "sell" } })).toEqual({
+      market: "jita",
+      basis: "sell",
+    });
+  });
+
+  it("climbs to an ancestor when the item's group says nothing", () => {
+    expect(groupWalk({ 1849: { market: "amarr" } })).toEqual({
+      market: "amarr",
+      basis: null,
+    });
+  });
+
+  // The rule every other rung uses, applied per field: a nearer group answers
+  // what it names, and leaves what it does not to the one above.
+  it("lets a nearer group outrank a further one, field by field", () => {
+    const answer = groupWalk({
+      1849: { market: "amarr", basis: "buy" },
+      1857: { market: "hek" },
+    });
+
+    expect(answer).toEqual({ market: "hek", basis: "buy" });
+  });
+
+  it("answers nothing when no ancestor names anything", () => {
+    expect(groupWalk({ 516: { market: "dodixie" } })).toEqual({
+      market: null,
+      basis: null,
+    });
+  });
+
+  // An item can have a market group before the defaults map has loaded, and that
+  // is a normal early state rather than a reason to throw on every row.
+  it("answers nothing when the defaults have not loaded", () => {
+    expect(resolveGroupDefault({ marketGroupID: 1857, marketGroups })).toEqual({
+      market: null,
+      basis: null,
+    });
+  });
+
+  it("answers nothing for an item with no market group", () => {
+    expect(
+      resolveGroupDefault({
+        marketGroupID: undefined,
+        marketGroups,
+        groupDefaults: { 1857: { market: "jita" } },
+      }),
+    ).toEqual({ market: null, basis: null });
+  });
+
+  it("reads an empty value as no choice, and keeps climbing", () => {
+    expect(
+      groupWalk({ 1857: { market: "", basis: "" }, 1855: { market: "hek" } }),
+    ).toEqual({ market: "hek", basis: null });
+  });
+
+  // A cycle should not reach the published file, but this runs once per material
+  // on every row, so it cannot be the thing that hangs the page.
+  it("stops rather than circling a tree that points at itself", () => {
+    const circular = { 1: { parent_id: 2 }, 2: { parent_id: 1 } };
+
+    expect(
+      resolveGroupDefault({
+        marketGroupID: 1,
+        marketGroups: circular,
+        groupDefaults: { 99: { market: "jita" } },
+      }),
+    ).toEqual({ market: null, basis: null });
   });
 });

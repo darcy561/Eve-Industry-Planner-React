@@ -41,6 +41,7 @@ func runSDEConversionStage(mapResult *sdeMapBuildResult) (*sdeConversionResult, 
 	searchIndex := conversion.GenerateSearchIndexOutput(recipeList)
 	fullItemList := conversion.GenerateFullItemListOutput(combinedItemMap, conversion.BuildCategoryByGroupID(groupsData))
 	reprocessingObjects := conversion.GenerateReprocessingDataOutput(typeMaterialsData, combinedItemMap, marketGroupsData)
+	marketGroups := conversion.GenerateMarketGroupsOutput(marketGroupsData)
 	inventionModifiers, err := conversion.GenerateInventionModifiersOutput(typesData, dogmaAttributesData, typeDogmaData)
 	if err != nil {
 		return nil, err
@@ -57,6 +58,9 @@ func runSDEConversionStage(mapResult *sdeMapBuildResult) (*sdeConversionResult, 
 		return nil, err
 	}
 	if err := addJSONFile(files, "output/reprocessingData", reprocessingObjects); err != nil {
+		return nil, err
+	}
+	if err := addJSONFile(files, "output/marketGroups", marketGroups); err != nil {
 		return nil, err
 	}
 	if err := addJSONFile(files, "output/inventionModifiers", inventionModifiers); err != nil {

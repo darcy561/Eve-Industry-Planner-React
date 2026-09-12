@@ -96,6 +96,20 @@ type FullItem struct {
 	Name   string `json:"name"`
 	// CategoryID is the SDE inventory category the type's group belongs to; 0 when unknown.
 	CategoryID int `json:"category_id,omitempty"`
+	// MarketGroupID is where the type sits in the market's own tree — the SDE's
+	// `marketGroupID`, which `EVEType` carries as `MarketSectionID`. It is not
+	// `EVEType.MarketGroupID`, which is the inventory group CategoryID comes from.
+	// 0 for a type with no market group, which is most unpublished ones.
+	MarketGroupID int `json:"market_group_id,omitempty"`
+}
+
+// MarketGroup is one node of the market tree: what to call it, and what contains
+// it. A pricing default set on a group applies to everything beneath it, so the
+// parent link is what makes the tree walkable rather than a flat list.
+type MarketGroup struct {
+	Name string `json:"name"`
+	// ParentID is 0 at a root, which is the only place the walk can stop.
+	ParentID int `json:"parent_id,omitempty"`
 }
 
 type ReprocessingItem struct {

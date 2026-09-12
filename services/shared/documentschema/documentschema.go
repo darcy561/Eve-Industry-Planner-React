@@ -57,28 +57,31 @@ func (u Upgrader) ApplicationSettings(doc *models.ApplicationSettings, accountID
 	// Not gated on the schema version: an unversioned document is stamped with the
 	// current one above, so a version test would never fire for the legacy rows
 	// this fills. The empty market is the signal instead.
+	// Only the two fields being filled: assigning the whole side would take its
+	// market group table with it, and a side can carry groups without yet naming
+	// a market of its own.
 	if doc.DefaultPricing.Buying.Market == "" {
-		doc.DefaultPricing.Buying = legacyPricingSide(doc)
+		doc.DefaultPricing.Buying.PricingChoice = legacyPricingChoice(doc)
 	}
 	if doc.DefaultPricing.Selling.Market == "" {
-		doc.DefaultPricing.Selling = legacyPricingSide(doc)
+		doc.DefaultPricing.Selling.PricingChoice = legacyPricingChoice(doc)
 	}
 }
 
-// legacyPricingSide is the market and basis an account named before the buying
+// legacyPricingChoice is the market and basis an account named before the buying
 // and selling sides were told apart.
 //
 // Both sides seed from it: an account that named one market said nothing about
 // which side of a job it meant, so neither side may claim it over the other.
-func legacyPricingSide(doc *models.ApplicationSettings) models.PricingSide {
-	side := models.DefaultPricingDefaults().Buying
+func legacyPricingChoice(doc *models.ApplicationSettings) models.PricingChoice {
+	choice := models.DefaultPricingDefaults().Buying.PricingChoice
 	if doc.DefaultMarketLocation != "" {
-		side.Market = doc.DefaultMarketLocation
+		choice.Market = doc.DefaultMarketLocation
 	}
 	if doc.DefaultOrderType != "" {
-		side.Basis = doc.DefaultOrderType
+		choice.Basis = doc.DefaultOrderType
 	}
-	return side
+	return choice
 }
 
 // Group normalises legacy job_groups documents in memory. Idempotent.

@@ -682,6 +682,7 @@ type APIStaticDataMetrics struct {
 	FullItemList       *StaticDataFileMetrics
 	Reprocessing       *StaticDataFileMetrics
 	InventionModifiers *StaticDataFileMetrics
+	MarketGroups       *StaticDataFileMetrics
 	Meta               *StaticDataFileMetrics
 	Errors             *counterVec
 }
@@ -712,6 +713,7 @@ func GetAPIStaticData() *APIStaticDataMetrics {
 			FullItemList:       newFile("full_item_list", "fullItemList.json"),
 			Reprocessing:       newFile("reprocessing", "reprocessingData.json"),
 			InventionModifiers: newFile("invention_modifiers", "inventionModifiers.json"),
+			MarketGroups:       newFile("market_groups", "marketGroups.json"),
 			Meta:               newFile("meta", "static-data meta"),
 			Errors: &counterVec{
 				c: telemetry.Must(m.Int64Counter("api.static_data.errors_total",

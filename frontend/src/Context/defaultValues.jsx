@@ -777,21 +777,20 @@ export const Implants = {
 export const STATIC_DATA_CACHE = "static-data-cache-v2";
 
 /**
- * Cached data file names for EVE Industry Planner.
+ * The static data files the server publishes, by the key its metadata names them
+ * under. A key that does not match one the server serves throws on first use, so
+ * this list answers to `staticDataFileDefs` in `shared/core/sde/files.go`, and a
+ * test there fails if the two ever disagree.
  *
- * @type {Object}
- * @property {string} SEARCH_INDEX - Search index file name
- * @property {string} FULL_ITEM_LIST - Complete item list file name
- * @property {string} REPROCESSING_DATA - Reprocessing data file name
- * @property {string} RECIPE_LIST - Recipe list file name
- * @property {string} INVENTION_DATA - Invention data file name
+ * @type {Object<string, string>}
  */
 export const CACHED_DATA_FILES = {
   SEARCH_INDEX: "SEARCH_INDEX",
   FULL_ITEM_LIST: "FULL_ITEM_LIST",
   REPROCESSING_DATA: "REPROCESSING_DATA",
   RECIPE_LIST: "RECIPE_LIST",
-  INVENTION_DATA: "INVENTION_DATA",
+  INVENTION_MODIFIERS: "INVENTION_MODIFIERS",
+  MARKET_GROUPS: "MARKET_GROUPS",
 };
 
 /**

@@ -57,6 +57,11 @@ func InventionModifiersHandler(w http.ResponseWriter, r *http.Request) {
 	serveStaticDataFile(w, r, sdecore.InventionModifiersFile, m.InventionModifiers, "invention_modifiers")
 }
 
+func MarketGroupsHandler(w http.ResponseWriter, r *http.Request) {
+	m := apimetrics.GetAPIStaticData()
+	serveStaticDataFile(w, r, sdecore.MarketGroupsFile, m.MarketGroups, "market_groups")
+}
+
 func MetaHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	start, ok := logs.RequestStartTime(ctx)

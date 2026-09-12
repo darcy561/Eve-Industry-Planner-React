@@ -1,6 +1,7 @@
 package documentschema
 
 import (
+	"reflect"
 	"testing"
 	"time"
 
@@ -124,7 +125,8 @@ func TestApplicationSettingsSeedsPricingFromTheSingleDefault(t *testing.T) {
 	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
 
 	want := models.PricingSide{Market: "amarr", Basis: "buy"}
-	if doc.DefaultPricing.Buying != want || doc.DefaultPricing.Selling != want {
+	if !reflect.DeepEqual(doc.DefaultPricing.Buying, want) ||
+		!reflect.DeepEqual(doc.DefaultPricing.Selling, want) {
 		t.Fatalf("pricing = %+v, want both sides %+v", doc.DefaultPricing, want)
 	}
 }
@@ -140,10 +142,11 @@ func TestApplicationSettingsLeavesAChosenPricingSideAlone(t *testing.T) {
 	var u Upgrader
 	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
 
-	if doc.DefaultPricing.Selling != chosen {
+	if !reflect.DeepEqual(doc.DefaultPricing.Selling, chosen) {
 		t.Fatalf("selling = %+v, want %+v", doc.DefaultPricing.Selling, chosen)
 	}
-	if want := (models.PricingSide{Market: "amarr", Basis: "buy"}); doc.DefaultPricing.Buying != want {
+	want := models.PricingSide{Market: "amarr", Basis: "buy"}
+	if !reflect.DeepEqual(doc.DefaultPricing.Buying, want) {
 		t.Fatalf("buying = %+v, want %+v", doc.DefaultPricing.Buying, want)
 	}
 }
@@ -158,7 +161,7 @@ func TestApplicationSettingsPricingSeedIsIdempotent(t *testing.T) {
 	first := doc.DefaultPricing
 	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
 
-	if doc.DefaultPricing != first {
+	if !reflect.DeepEqual(doc.DefaultPricing, first) {
 		t.Fatalf("second run changed pricing: %+v then %+v", first, doc.DefaultPricing)
 	}
 }
@@ -170,7 +173,30 @@ func TestApplicationSettingsPricingFallsBackToTheGlobalDefault(t *testing.T) {
 	var u Upgrader
 	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
 
-	if want := models.DefaultPricingDefaults(); doc.DefaultPricing != want {
+	if want := models.DefaultPricingDefaults(); !reflect.DeepEqual(doc.DefaultPricing, want) {
 		t.Fatalf("pricing = %+v, want %+v", doc.DefaultPricing, want)
+	}
+}
+
+// A side can carry market group defaults before it names a market of its own, so
+// the seed fills the two fields rather than replacing the side.
+func TestApplicationSettingsSeedKeepsAGroupTable(t *testing.T) {
+	groups := map[string]models.PricingChoice{"1857": {Market: "hek"}}
+	doc := &models.ApplicationSettings{
+		DefaultMarketLocation: "amarr",
+		DefaultOrderType:      "buy",
+		DefaultPricing: models.PricingDefaults{
+			Buying: models.PricingSide{Groups: groups},
+		},
+	}
+
+	var u Upgrader
+	u.ApplicationSettings(doc, "acct-1", time.Now().UTC())
+
+	if !reflect.DeepEqual(doc.DefaultPricing.Buying.Groups, groups) {
+		t.Fatalf("groups = %+v, want %+v", doc.DefaultPricing.Buying.Groups, groups)
+	}
+	if doc.DefaultPricing.Buying.Market != "amarr" {
+		t.Fatalf("market = %q, want amarr", doc.DefaultPricing.Buying.Market)
 	}
 }

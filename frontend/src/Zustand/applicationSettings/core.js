@@ -60,11 +60,18 @@ function mergePricingDefaults(incoming, prev, market, basis) {
 
   const side = (name) => {
     // A side with no market has not been filled in yet rather than being a
-    // choice of nowhere: Go serialises the whole struct either way, so an
-    // account stored before the split arrives here as empty strings.
+    // choice of nowhere: Go serialises the pair whether or not Mongo held it,
+    // so an account stored before the split arrives as `{}` on each side.
     const sent = incoming.defaultPricing?.[name];
-    if (!sent?.market) return { market, basis };
-    return { market: sent.market, basis: sent.basis || previous[name].basis };
+    const chosen = sent?.market
+      ? { market: sent.market, basis: sent.basis || previous[name].basis }
+      : { market, basis };
+
+    // The side's market group defaults travel with it. Dropping them here would
+    // lose them on the next save, because what is persisted is this merged copy.
+    const groups = sent?.groups ?? previous[name].groups;
+
+    return groups ? { ...chosen, groups } : chosen;
   };
 
   return { buying: side("buying"), selling: side("selling") };

@@ -151,19 +151,30 @@ type ReprocessingSettings struct {
 	SellExcessMineralTypes       bool    `bson:"sellExcessMineralTypes" json:"sellExcessMineralTypes"`
 }
 
-// PricingSide is where one side of a job is priced: the market, and which side
-// of that market's order book the figure comes from.
+// PricingChoice is a market and which side of its order book a figure comes from.
+// It is the shape of an answer at every rung that can give one.
 //
 // Both axes are called buy and sell and they do not agree. Basis is a listing
 // type — buy, sell, buyP95 or sellP05 — so materials being bought are normally
 // priced with Basis "sell", because the ask is what buying actually costs.
 //
-// An empty field is not a choice. An account's are filled by the upgrader, but a
-// job's override sets whichever half the player named and leaves the other for
-// the rung below to answer.
-type PricingSide struct {
+// An empty field is not a choice. Both are omitempty, so an unanswered pair is
+// sent as an empty object rather than as empty strings, and a consumer must read
+// either as "not answered".
+type PricingChoice struct {
 	Market string `bson:"market,omitempty" json:"market,omitempty"`
 	Basis  string `bson:"basis,omitempty" json:"basis,omitempty"`
+}
+
+// PricingSide is one side of the account's defaults: what it prices against, and
+// what any market group beneath it prices against instead.
+//
+// Groups is keyed by market group id and prices everything under that group. It
+// lives on the side rather than beside it, so a group can never answer the side
+// it was not set on.
+type PricingSide struct {
+	PricingChoice `bson:",inline" json:",inline"`
+	Groups        map[string]PricingChoice `bson:"groups,omitempty" json:"groups,omitempty"`
 }
 
 // PricingDefaults is what a figure is priced against when nothing nearer has
@@ -173,12 +184,23 @@ type PricingDefaults struct {
 	Selling PricingSide `bson:"selling" json:"selling"`
 }
 
+// JobPricing is one job's own choice of where each side of it is priced.
+//
+// It carries no group table: market groups are an account-level rung beneath the
+// job, so a job naming one would be answering a question it does not own.
+type JobPricing struct {
+	// No json omitempty: it does nothing for a struct field, so an empty side is
+	// written as `{}` rather than left out. LocalPricing is a pointer for that
+	// reason — a job that has chosen nothing omits the whole thing.
+	Buying  PricingChoice `bson:"buying,omitempty" json:"buying"`
+	Selling PricingChoice `bson:"selling,omitempty" json:"selling"`
+}
+
 // DefaultPricingDefaults returns the pricing defaults a new account starts with.
 func DefaultPricingDefaults() PricingDefaults {
-	return PricingDefaults{
-		Buying:  PricingSide{Market: "jita", Basis: "sell"},
-		Selling: PricingSide{Market: "jita", Basis: "sell"},
-	}
+	side := PricingSide{Market: "jita", Basis: "sell"}
+
+	return PricingDefaults{Buying: side, Selling: side}
 }
 
 // LinkedCharacterSession is returned at login / auth refresh for cloud-mode additional characters

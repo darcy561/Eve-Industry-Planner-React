@@ -209,6 +209,12 @@ func StartAPIServer(ctx context.Context, clients *stackservices.Clients, esi esi
 			},
 		},
 		{
+			Path: "/api/static-data/marketGroups.json",
+			Handler: func(w http.ResponseWriter, r *http.Request) {
+				staticdata.MarketGroupsHandler(w, r)
+			},
+		},
+		{
 			Path: "/api/static-data/meta",
 			Handler: func(w http.ResponseWriter, r *http.Request) {
 				staticdata.MetaHandler(w, r)

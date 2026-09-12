@@ -80,3 +80,41 @@ func TestGenerateFullItemListOutputNamesEveryPublishedType(t *testing.T) {
 		t.Errorf("relic category = %d, want 34", out["30599"].CategoryID)
 	}
 }
+
+// The two ids are crossed on EVEType and a swap would look right everywhere: both
+// are small integers and both resolve to a real group. Only asserting them apart
+// on one type catches it.
+func TestGenerateFullItemListOutputTakesTheMarketGroupNotTheInventoryGroup(t *testing.T) {
+	combined := map[string]*EVEType{
+		"34": {
+			ItemID: 34,
+			Name:   "Tritanium",
+			// The inventory group, which the category is looked up by.
+			MarketGroupID: 18,
+			// The market group, which is what a pricing default is keyed on.
+			MarketSectionID: 1857,
+		},
+	}
+
+	out := GenerateFullItemListOutput(combined, map[int]int{18: 4})
+
+	if got := out["34"].MarketGroupID; got != 1857 {
+		t.Errorf("market group = %d, want 1857", got)
+	}
+	if got := out["34"].CategoryID; got != 4 {
+		t.Errorf("category = %d, want 4", got)
+	}
+}
+
+// Most unpublished types have no market group, and omitempty keeps the field off
+// them rather than claiming group zero.
+func TestGenerateFullItemListOutputLeavesTypesWithNoMarketGroup(t *testing.T) {
+	out := GenerateFullItemListOutput(
+		map[string]*EVEType{"1": {ItemID: 1, Name: "Nameless"}},
+		map[int]int{},
+	)
+
+	if got := out["1"].MarketGroupID; got != 0 {
+		t.Errorf("market group = %d, want 0", got)
+	}
+}

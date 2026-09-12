@@ -707,7 +707,7 @@ type JobLayout struct {
 	// LocalPricing is this job's own choice of where each side of it is priced,
 	// standing in for the account's defaults. Nil on a job that has not chosen,
 	// which is most of them.
-	LocalPricing *PricingDefaults `json:"localPricing,omitempty" bson:"localPricing,omitempty"`
+	LocalPricing *JobPricing `json:"localPricing,omitempty" bson:"localPricing,omitempty"`
 	// MaterialPriceOverrides is keyed by material type id. An entry names the
 	// market or order type that one material is priced from, standing in for the
 	// job's own choice above.
@@ -725,14 +725,14 @@ type MaterialPriceOverride struct {
 // and orderType keys some rows were written with.
 func (l *JobLayout) UnmarshalBSON(data []byte) error {
 	var aux struct {
-		LocalMarketDisplay  string           `bson:"localMarketDisplay"`
-		LocalOrderDisplay   string           `bson:"localOrderDisplay"`
-		MarketLocation      string           `bson:"marketLocation"`
-		OrderType           string           `bson:"orderType"`
-		ESIJobTab           string           `bson:"esiJobTab"`
-		SetupToEdit         string           `bson:"setupToEdit"`
-		ResourceDisplayType string           `bson:"resourceDisplayType"`
-		LocalPricing        *PricingDefaults `bson:"localPricing"`
+		LocalMarketDisplay  string      `bson:"localMarketDisplay"`
+		LocalOrderDisplay   string      `bson:"localOrderDisplay"`
+		MarketLocation      string      `bson:"marketLocation"`
+		OrderType           string      `bson:"orderType"`
+		ESIJobTab           string      `bson:"esiJobTab"`
+		SetupToEdit         string      `bson:"setupToEdit"`
+		ResourceDisplayType string      `bson:"resourceDisplayType"`
+		LocalPricing        *JobPricing `bson:"localPricing"`
 
 		MaterialPriceOverrides map[string]MaterialPriceOverride `bson:"materialPriceOverrides"`
 	}
@@ -759,14 +759,14 @@ func (l *JobLayout) UnmarshalBSON(data []byte) error {
 // and orderType keys some rows were written with.
 func (l *JobLayout) UnmarshalJSON(data []byte) error {
 	var aux struct {
-		LocalMarketDisplay  string           `json:"localMarketDisplay"`
-		LocalOrderDisplay   string           `json:"localOrderDisplay"`
-		MarketLocation      string           `json:"marketLocation"`
-		OrderType           string           `json:"orderType"`
-		ESIJobTab           string           `json:"esiJobTab"`
-		SetupToEdit         string           `json:"setupToEdit"`
-		ResourceDisplayType string           `json:"resourceDisplayType"`
-		LocalPricing        *PricingDefaults `json:"localPricing"`
+		LocalMarketDisplay  string      `json:"localMarketDisplay"`
+		LocalOrderDisplay   string      `json:"localOrderDisplay"`
+		MarketLocation      string      `json:"marketLocation"`
+		OrderType           string      `json:"orderType"`
+		ESIJobTab           string      `json:"esiJobTab"`
+		SetupToEdit         string      `json:"setupToEdit"`
+		ResourceDisplayType string      `json:"resourceDisplayType"`
+		LocalPricing        *JobPricing `json:"localPricing"`
 
 		MaterialPriceOverrides map[string]MaterialPriceOverride `json:"materialPriceOverrides"`
 	}

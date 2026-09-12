@@ -5,5 +5,6 @@ const Dashboard = lazyRouteComponent(
 );
 
 export const Route = createFileRoute("/_protected/dashboard")({
+  staticData: { audience: "private" },
   component: Dashboard,
 });

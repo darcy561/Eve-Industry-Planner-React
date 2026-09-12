@@ -2,49 +2,109 @@ import { render } from "@testing-library/react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
   createMemoryHistory,
-  createRootRoute,
-  createRoute,
   createRouter,
-  Outlet,
+  RouterContextProvider,
   RouterProvider,
 } from "@tanstack/react-router";
+import { routeTree } from "../routeTree.gen.js";
+import { appRouterOptions } from "../appRouter.jsx";
 
 const theme = createTheme();
 
 /**
- * Mounts `ui` at `/` under a memory router, with a theme for `useMediaQuery` to read
- * breakpoints off.
+ * A router over the app's **real** route tree.
  *
- * A link renders an `href` only once the router can resolve its target, so a path left
- * out of `paths` renders as a dead control and the test passes for the wrong reason.
+ * Tests used to build a tree of their own, which meant a link could point at a route
+ * the app does not have and still pass. Everything here matches, guards and loads what
+ * the app would.
+ *
+ * @param {string} [initialPath]
+ */
+export function testRouter(initialPath = "/") {
+  return createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: [initialPath] }),
+  });
+}
+
+/**
+ * Renders `ui` with router context but without rendering any route, for a component
+ * that holds links or navigates. A theme comes with it: `useMediaQuery` reads
+ * breakpoints off one, so a responsive component cannot render without it.
  *
  * @param {React.ReactNode} ui
- * @param {string[]} [paths] - Route paths `ui` links to, beyond `/`.
- * @returns {Promise<import("@testing-library/react").RenderResult>}
+ * @param {Object} [options]
+ * @param {string} [options.path] - The location the component believes it is on.
+ * @returns {Promise<import("@testing-library/react").RenderResult & {router: Object}>}
  */
-export async function renderWithRouter(ui, paths = []) {
-  const rootRoute = createRootRoute({ component: Outlet });
-  const routes = [
-    createRoute({
-      getParentRoute: () => rootRoute,
-      path: "/",
-      component: () => <ThemeProvider theme={theme}>{ui}</ThemeProvider>,
-    }),
-    ...paths.map((path) =>
-      createRoute({
-        getParentRoute: () => rootRoute,
-        path,
-        component: () => null,
-      }),
-    ),
-  ];
-  const router = createRouter({
-    routeTree: rootRoute.addChildren(routes),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
-  });
-
-  // The router resolves its first match before anything renders; without this the tree
-  // comes back empty and every query fails on nothing.
+export async function renderWithRouter(ui, { path = "/" } = {}) {
+  const router = testRouter(path);
   await router.load();
-  return render(<RouterProvider router={router} />);
+
+  const rendered = render(
+    <RouterContextProvider router={router}>
+      <ThemeProvider theme={theme}>{ui}</ThemeProvider>
+    </RouterContextProvider>,
+  );
+  // No route is rendered, so `ui` stays put across a navigation: the router is how a
+  // test sees where a click went.
+  return { ...rendered, router };
+}
+
+/**
+ * Walks the app to `url` through the real router — matching, the root guard, then the
+ * route's own loader — and reports where a reader ends up.
+ *
+ * Nothing is rendered, so no page component is pulled in; what this covers is the
+ * routing layer itself, which is the part that decides what a reader may see and what
+ * has to be there before they see it.
+ *
+ * @param {string} url
+ * @returns {Promise<{router: Object, pathname: string, search: Object, routeId: string|undefined, isNotFound: boolean, error: unknown}>}
+ */
+export async function enterRoute(url) {
+  const router = testRouter(url);
+  await router.load();
+
+  const matches = router.state.matches;
+  const leaf = matches.at(-1);
+
+  return {
+    router,
+    pathname: router.state.location.pathname,
+    search: router.state.location.search,
+    routeId: leaf?.routeId,
+    // A loader that threw `notFound()` leaves the match saying so rather than erroring.
+    isNotFound: Boolean(
+      leaf?.status === "notFound" ||
+      leaf?.globalNotFound ||
+      leaf?._forcedNotFound,
+    ),
+    error: leaf?.error,
+  };
+}
+
+/**
+ * Mounts the app at `url` and renders whatever a reader would be looking at, under the
+ * app's own router options — its pending screen, its not-found page, its preloading.
+ *
+ * The root route's component is `App`, which reaches for websockets and queries, so a
+ * test using this mocks `src/App` with something that renders an `Outlet`.
+ *
+ * @param {string} url
+ * @returns {Promise<import("@testing-library/react").RenderResult & {router: Object}>}
+ */
+export async function renderRoute(url) {
+  const router = createRouter({
+    ...appRouterOptions,
+    history: createMemoryHistory({ initialEntries: [url] }),
+  });
+  await router.load();
+
+  const rendered = render(
+    <ThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ThemeProvider>,
+  );
+  return { ...rendered, router };
 }

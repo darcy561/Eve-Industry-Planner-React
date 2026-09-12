@@ -1,7 +1,6 @@
 import { SnackBarNotification } from "./Components/snackbar";
 import GeneralDialogue from "./Components/Dialogues/General/generalDialogue";
 import JobDependencyTreeDialogue from "./Components/Dialogues/Job Tree/JobDependencyTreeDialogue";
-import CssBaseline from "@mui/material/CssBaseline";
 import { Outlet } from "@tanstack/react-router";
 import { FeedbackIcon } from "./Components/Dialogues/Feedback/feedback";
 import { CrashReportDialogue } from "./Components/Dialogues/CrashReport/CrashReportDialogue";
@@ -10,7 +9,6 @@ import { Box } from "@mui/material";
 import MaintenanceMode from "./MaintenanceMode";
 import DefaultPageLayout from "./Styled Components/defaultPageLayout";
 import PageTransition, { usePageKey } from "./Components/pageTransition";
-import { ThemeProvider } from "./Context/ThemeContext";
 import ErrorBoundary from "./Components/ErrorBoundary";
 import { useTranquilityServerStatusQuery } from "./Hooks/React Query/tranquilityServerStatus.js";
 import useFetchStaticDataFiles from "./Hooks/App/useFetchStaticDataFiles";
@@ -35,10 +33,9 @@ export default function App() {
   useFetchStaticDataFiles();
 
   return (
-    <ThemeProvider>
+    <>
       <CrashReportDialogue />
       <Box sx={{ display: "flex", width: "100%", height: "100%" }}>
-        <CssBaseline />
         <ErrorBoundary>
           <SnackBarNotification />
           <GeneralDialogue />
@@ -55,6 +52,6 @@ export default function App() {
           )}
         </ErrorBoundary>
       </Box>
-    </ThemeProvider>
+    </>
   );
 }

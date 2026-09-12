@@ -1,3 +1,4 @@
+import CssBaseline from "@mui/material/CssBaseline";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PlannerDnDProvider } from "./Context/PlannerDnDProvider";
@@ -9,6 +10,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { appRouter } from "./appRouter";
 import { enableGa4WebVitals } from "./analytics/googleAnalytics";
 import useUsersStore from "./Zustand/usersStore";
+import { ThemeProvider } from "./Context/ThemeContext";
 
 // Lazy load React Query DevTools when ENVIRONMENT=development (see vite.config define + root .env)
 const ReactQueryDevtools =
@@ -39,11 +41,16 @@ export function AppWrapper() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <PlannerDnDProvider>
-          <RouterProvider router={appRouter} />
-        </PlannerDnDProvider>
-      </LocalizationProvider>
+      {/* Above the router: it renders a pending screen while the root route's own
+          guard is still running, and that screen is the reader's app too. */}
+      <ThemeProvider>
+        <CssBaseline />
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <PlannerDnDProvider>
+            <RouterProvider router={appRouter} />
+          </PlannerDnDProvider>
+        </LocalizationProvider>
+      </ThemeProvider>
       {import.meta.env.ENVIRONMENT === "development" && ReactQueryDevtools && (
         <Suspense fallback={null}>
           <ReactQueryDevtools initialIsOpen={false} />

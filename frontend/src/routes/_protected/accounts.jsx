@@ -5,5 +5,6 @@ const Accounts = lazyRouteComponent(
 );
 
 export const Route = createFileRoute("/_protected/accounts")({
+  staticData: { audience: "private" },
   component: Accounts,
 });

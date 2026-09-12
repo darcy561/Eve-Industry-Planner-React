@@ -22,15 +22,10 @@ export function useEditJobInitialState({
     async function setInitialState() {
       if (jobID === currentActiveJobID) return;
 
+      // The route's loader will not render this page without the job.
       const matchedJob = useUsersStore
         .getState()
         .jobData.actions.findJobInJobArray(jobID);
-
-      if (!matchedJob) {
-        console.error("Unable to find job document");
-        navigate({ to: "/jobplanner" });
-        return;
-      }
 
       try {
         const linkedJobs = await useUsersStore

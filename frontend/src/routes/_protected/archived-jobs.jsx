@@ -5,5 +5,6 @@ const ArchivedJobs = lazyRouteComponent(
 );
 
 export const Route = createFileRoute("/_protected/archived-jobs")({
+  staticData: { audience: "private" },
   component: ArchivedJobs,
 });

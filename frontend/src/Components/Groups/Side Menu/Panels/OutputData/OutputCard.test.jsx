@@ -46,7 +46,6 @@ function showCard(pageView) {
       state={{ highlightedItems: new Set(), pageView }}
       actions={{ setHighlightedItems: vi.fn() }}
     />,
-    ["/editjob/$jobID"],
   );
 }
 

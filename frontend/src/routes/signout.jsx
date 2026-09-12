@@ -42,6 +42,7 @@ function clearBrowserStorage() {
 }
 
 export const Route = createFileRoute("/signout")({
+  staticData: { audience: "transient" },
   // Teardown runs as a navigation guard rather than a mounted component, so
   // signing out never renders a page of its own.
   beforeLoad: async () => {

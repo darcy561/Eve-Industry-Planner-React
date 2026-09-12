@@ -40,10 +40,7 @@ const DESTINATIONS = [
 const setOpen = vi.fn();
 
 function showMenu() {
-  return renderWithRouter(
-    <SideMenu open setOpen={setOpen} />,
-    DESTINATIONS.map(([, path]) => path).concat("/signout"),
-  );
+  return renderWithRouter(<SideMenu open setOpen={setOpen} />);
 }
 
 beforeEach(() => {

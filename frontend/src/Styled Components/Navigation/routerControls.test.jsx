@@ -17,9 +17,7 @@ const controls = [
 
 describe.each(controls)("%s", (name, Control) => {
   it("renders an anchor carrying the route it points at", async () => {
-    await renderWithRouter(<Control to="/jobplanner">Planner</Control>, [
-      "/jobplanner",
-    ]);
+    await renderWithRouter(<Control to="/jobplanner">Planner</Control>);
 
     const link = screen.getByRole("link", { name: "Planner" });
     expect(link).toHaveAttribute("href", "/jobplanner");
@@ -34,7 +32,6 @@ describe.each(controls)("%s", (name, Control) => {
       >
         Job
       </Control>,
-      ["/editjob/$jobID"],
     );
 
     expect(screen.getByRole("link", { name: "Job" })).toHaveAttribute(
@@ -44,13 +41,14 @@ describe.each(controls)("%s", (name, Control) => {
   });
 
   it("navigates in place instead of leaving the page", async () => {
-    await renderWithRouter(<Control to="/jobplanner">Planner</Control>, [
-      "/jobplanner",
-    ]);
+    const { router } = await renderWithRouter(
+      <Control to="/jobplanner">Planner</Control>,
+    );
 
     await userEvent.click(screen.getByRole("link", { name: "Planner" }));
 
-    expect(screen.queryByRole("link", { name: "Planner" })).toBeNull();
+    expect(router.state.location.pathname).toBe("/jobplanner");
+    // The document never navigated: the router took the click.
     expect(window.location.pathname).toBe("/");
   });
 
@@ -59,7 +57,6 @@ describe.each(controls)("%s", (name, Control) => {
       <Control to="/jobplanner" color="secondary" aria-label="Planner">
         Planner
       </Control>,
-      ["/jobplanner"],
     );
 
     expect(screen.getByRole("link", { name: "Planner" })).toHaveClass(
@@ -74,7 +71,6 @@ describe.each(controls)("%s", (name, Control) => {
       <Control to="/jobplanner" disabled aria-label="Planner">
         Planner
       </Control>,
-      ["/jobplanner"],
     );
 
     const control = screen.getByLabelText("Planner");

@@ -63,6 +63,18 @@ class Group {
    * @param {number|string} typeID
    * @returns {boolean}
    */
+  /**
+   * The members that have a job document to load. An archived member has none until it
+   * is restored, so asking for one is a fetch that can only fail.
+   *
+   * @returns {string[]}
+   */
+  get liveMemberIDs() {
+    return [...this.includedJobIDs].filter(
+      (jobID) => !this.archivedJobIDs.has(jobID),
+    );
+  }
+
   hasIncludedTypeId(typeID) {
     const n = asNumberID(typeID);
     return n !== null && this.includedTypeIDs.has(n);

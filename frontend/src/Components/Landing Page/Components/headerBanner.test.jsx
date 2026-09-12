@@ -5,7 +5,7 @@ import { HeaderBanner } from "./headerBanner";
 
 describe("the landing page banner", () => {
   it("offers the planner as a link a reader can open anywhere", async () => {
-    await renderWithRouter(<HeaderBanner />, ["/jobplanner"]);
+    await renderWithRouter(<HeaderBanner />);
 
     expect(
       screen.getByRole("link", { name: "Give it a try!" }),

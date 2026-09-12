@@ -63,7 +63,6 @@ function showCard(editReturnPageView) {
       highlightedItems={new Set()}
       editReturnPageView={editReturnPageView}
     />,
-    ["/editjob/$jobID"],
   );
 }
 

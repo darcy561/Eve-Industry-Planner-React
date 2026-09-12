@@ -63,3 +63,22 @@ describe("archived members", () => {
     expect([...restored.includedJobIDs].sort()).toEqual(["job-a", "job-b"]);
   });
 });
+
+describe("which members have a job document", () => {
+  // An archived member has none until it is restored, so both the route that opens a
+  // group and the page that draws it ask the group rather than deriving it again.
+  test("leaves archived members out", () => {
+    const group = new Group({
+      includedJobIDs: ["job-1", "job-2", "job-3"],
+      archivedJobIDs: ["job-2"],
+    });
+
+    expect(group.liveMemberIDs).toEqual(["job-1", "job-3"]);
+  });
+
+  test("is every member when none are archived", () => {
+    const group = new Group({ includedJobIDs: ["job-1"] });
+
+    expect(group.liveMemberIDs).toEqual(["job-1"]);
+  });
+});

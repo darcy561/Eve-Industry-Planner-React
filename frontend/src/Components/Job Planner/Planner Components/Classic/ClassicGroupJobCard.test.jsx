@@ -49,9 +49,7 @@ beforeEach(() => {
 
 describe("a classic group card", () => {
   it("opens the group as a link a reader can take to another tab", async () => {
-    await renderWithRouter(<ClassicGroupJobCard group={group} />, [
-      "/group/$groupID",
-    ]);
+    await renderWithRouter(<ClassicGroupJobCard group={group} />);
 
     const link = screen.getByRole("link", { name: "View" });
     expect(link).toHaveAttribute("href", "/group/group-3");

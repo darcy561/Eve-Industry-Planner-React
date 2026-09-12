@@ -52,9 +52,7 @@ beforeEach(() => {
 
 describe("a compact job card", () => {
   it("opens the job as a link a reader can take to another tab", async () => {
-    await renderWithRouter(<CompactJobCardFrame job={job} />, [
-      "/editjob/$jobID",
-    ]);
+    await renderWithRouter(<CompactJobCardFrame job={job} />);
 
     const link = screen.getByRole("link", { name: "Edit" });
     expect(link).toHaveAttribute("href", "/editjob/job-7");

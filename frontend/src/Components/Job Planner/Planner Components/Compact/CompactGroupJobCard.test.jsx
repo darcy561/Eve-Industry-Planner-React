@@ -49,9 +49,7 @@ beforeEach(() => {
 
 describe("a compact group card", () => {
   it("opens the group as a link a reader can take to another tab", async () => {
-    await renderWithRouter(<CompactGroupJobCard group={group} />, [
-      "/group/$groupID",
-    ]);
+    await renderWithRouter(<CompactGroupJobCard group={group} />);
 
     const link = screen.getByRole("link", { name: "View" });
     expect(link).toHaveAttribute("href", "/group/group-3");

@@ -1,13 +1,17 @@
-import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
-import { allowPublicAccess } from "../../utils/authGuard";
+import {
+  createFileRoute,
+  lazyRouteComponent,
+  notFound,
+} from "@tanstack/react-router";
 import { parseGroupPageViewSearchParam } from "../../Functions/Groups/groupPageViewSearch";
+import { ensureGroupJobs } from "../../Functions/Groups/ensureGroupJobs";
 
 const GroupFrame = lazyRouteComponent(
   () => import("../../Components/Groups/groupFrame"),
 );
 
 export const Route = createFileRoute("/group/$groupID")({
-  beforeLoad: allowPublicAccess,
+  staticData: { audience: "public" },
   validateSearch: (raw) => ({
     pageView: parseGroupPageViewSearchParam(raw.pageView),
     focusJobId:
@@ -15,5 +19,8 @@ export const Route = createFileRoute("/group/$groupID")({
         ? raw.focusJobId.trim()
         : undefined,
   }),
+  loader: async ({ params }) => {
+    if (!(await ensureGroupJobs(params.groupID))) throw notFound();
+  },
   component: GroupFrame,
 });

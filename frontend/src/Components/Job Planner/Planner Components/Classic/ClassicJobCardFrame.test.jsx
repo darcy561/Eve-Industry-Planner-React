@@ -51,7 +51,7 @@ const job = {
 };
 
 function showCard() {
-  return renderWithRouter(<JobCardFrame job={job} />, ["/editjob/$jobID"]);
+  return renderWithRouter(<JobCardFrame job={job} />);
 }
 
 beforeEach(() => {

@@ -14,7 +14,6 @@ import CollapsibleContentDrawer_Right from "../SideMenu/rightContentDrawer";
 import RightSideMenuContent_GroupPage from "./Side Menu/rightSideMenuContent";
 import GroupNameFrame from "./Group Name/groupNameFrame";
 import { useGroupPageSideMenuFunctions } from "./Side Menu/Buttons/buttonFunctions";
-import getMissingJobObjects from "../../Functions/Helper/getMissingJobObjects";
 import { PriceEntryDialogue } from "../Dialogues/Price Entry/PriceEntry";
 import { recalculateInstallCostsWithNewData } from "../../Functions/Installation Costs/installCosts";
 import getMissingESIData from "../../Functions/Shared/getMissingESIData";
@@ -41,7 +40,7 @@ import ApplyGroupTemplateDialogue from "../Dialogues/Group Templates/ApplyGroupT
 function GroupPageFrame() {
   const isLoggedIn = useUsersStore((state) => state.account.isLoggedIn);
   const { activeGroupID, jobArray } = useUsersStore((state) => state.jobData);
-  const { setActiveGroupID, getGroupObject, clearMultiSelect } =
+  const { getGroupObject, clearMultiSelect } =
     useUsersStore.getState().jobData.actions;
   const params = useParams({ from: "/group/$groupID" });
   const { groupID } = params;
@@ -122,20 +121,12 @@ function GroupPageFrame() {
           throw new Error("Unable to find requested group");
         }
 
-        // Archived members have no job document to load until they are restored.
-        const liveMemberIDs = [
-          ...currentActiveGroupObject.includedJobIDs,
-        ].filter(
-          (jobID) => !currentActiveGroupObject.archivedJobIDs.has(jobID),
-        );
-
-        hint("Loading jobs…");
-        await getMissingJobObjects(liveMemberIDs);
-
         hint("Preparing job data…");
         const allJobObjects = await useUsersStore
           .getState()
-          .jobData.actions.jobsFromIdsOrObjects(liveMemberIDs);
+          .jobData.actions.jobsFromIdsOrObjects(
+            currentActiveGroupObject.liveMemberIDs,
+          );
 
         hint("Gathering market data…");
         const { requestedMarketData, requestedSystemIndexes } =
@@ -153,13 +144,6 @@ function GroupPageFrame() {
           .getState()
           .worldData.actions.addSystemIndex(requestedSystemIndexes);
 
-        // Only set activeGroupID if it's not already set to this group
-        // This prevents unnecessary updates and race conditions
-        const currentActiveGroupID =
-          useUsersStore.getState().jobData.activeGroupID;
-        if (currentActiveGroupID !== currentActiveGroupObject.groupID) {
-          setActiveGroupID(currentActiveGroupObject.groupID);
-        }
         clearMultiSelect();
       } catch (err) {
         console.error(err);

@@ -5,5 +5,6 @@ const BlueprintLibrary = lazyRouteComponent(
 );
 
 export const Route = createFileRoute("/_protected/blueprint-library")({
+  staticData: { audience: "private" },
   component: BlueprintLibrary,
 });

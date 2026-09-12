@@ -34,6 +34,10 @@ Named for the **work**, not a git branch. **Project close** = plan tracks done +
   only the account-level default beneath it.
 - **The material price override on a job** (`layout.materialPriceOverrides`), which is the ladder's
   top rung and already works. This project does not change it.
+- **Backfilling the stored documents.** `account_settings` is stamped in the shared-planners release
+  window, so writing `DefaultPricing` once per account is a step in that project's `prepareRelease`
+  run → [shared-planners/contents.md](../shared-planners/contents.md). This project owns the field and
+  the read-time seed that carries it until then.
 - Live SPA and backend behaviour → [frontend/](../../frontend/contents.md),
   [backend/](../../backend/contents.md) (promote targets).
 

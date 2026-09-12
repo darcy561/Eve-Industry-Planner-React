@@ -10,8 +10,24 @@ Promote target on go-ahead: [frontend/](../../frontend/contents.md) and
 
 ### A1 — The stored fields
 
-_Not started._ Record here: what replaced `defaultMarketLocation` / `defaultOrderType`, how an
-existing account's single value was seeded into both, and what stopped being written.
+`ApplicationSettings.DefaultPricing` holds a `PricingSide` for each of `Buying` and `Selling`, each
+naming a `Market` and a `Basis`. A basis is a listing type, so a side that buys carries `Basis:
+"sell"` — the ask is what buying costs. A new account starts both sides on Jita sell orders.
+
+The SPA mirrors the shape at `applicationSettings.defaultPricing` and persists it. Where the server
+sends no pair, `mergePricingDefaults` seeds **both** sides from the single `defaultMarketLocation` /
+`defaultOrderType`: an account that has only ever named one market has said nothing about which side
+of a job it meant, so neither side may claim it over the other. A side the server sends partially
+keeps what it sent and seeds the other.
+
+`Upgrader.ApplicationSettings` seeds an unfilled side from the account's single `DefaultMarketLocation`
+/ `DefaultOrderType`, falling back to Jita sell orders when it has neither. It runs on every read, so
+nothing downstream sees an unfilled side. The seed is gated on an empty `Market` rather than on the
+schema version, because an unversioned document is stamped with the current version earlier in the
+same function and a version test would never fire for the rows that need filling.
+
+Still open: the once-per-account backfill, which rides the shared-planners release window rather than
+a schema step, and what stops writing the single pair.
 
 ### A2 — Asking for a side
 

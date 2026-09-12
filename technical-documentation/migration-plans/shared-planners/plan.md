@@ -1283,6 +1283,26 @@ them in step.
 **`SessionGrants` takes no version.** It lives in Redis and its records expire, so its shape change
 rolls out rather than migrating; a version there would imply a migration that cannot happen.
 
+**The pricing defaults ride the window rather than a schema step.** The
+[market-pricing-defaults](../market-pricing-defaults/plan.md) project adds `DefaultPricing` to
+`ApplicationSettings` — a buying and a selling side, each naming a market and a basis — replacing the
+single `defaultMarketLocation` / `defaultOrderType` an account holds today. A document stored before
+it decodes to empty sides, and Go serialises them whether or not Mongo held them, so something has to
+fill them before a client can tell "unset" from "chosen".
+
+`Upgrader.ApplicationSettings` does that on every read, gated on an empty `Market` rather than on a
+version. That is why the field needs no `ApplicationSettingsSchemaCurrent` movement and appears in
+none of the constants above.
+
+Because `account_settings` is already being stamped in this release's window, the backfill belongs in
+`prepareRelease` beside the owner stamp instead, where it writes once for every account rather than
+on every read for the life of the field. Its step is idempotent for the same reason the read-time seed
+is — an already-filled side is left alone — and it sits after `completeSchemaMaintenance`, as C2's does.
+Once it has run and the gate has passed, the read-time seed has nothing left to find and retires with
+it.
+
+This stays a backfill, not a migration: no constant moves, and no `vN → vN+1` step is written for it.
+
 ### Grants
 
 ```go

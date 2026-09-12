@@ -1,6 +1,6 @@
 # Market pricing defaults — plan
 
-**Status:** Phase 1 (docs) complete; no stage work started.
+**Status:** Stage A in progress — steps 1-2 landed; steps 3-7 open. Stage B not started.
 **Code in scope:** [`frontend/src/`](../../../frontend/src/) — `Hooks/Planner/`, `Functions/MarketData/`,
 `Styled Components/Select/`, `Zustand/applicationSettings/`, `Classes/shoppingList.js` and the panels
 and dialogues listed in § Stage A; [`services/shared/models/`](../../../services/shared/models/),
@@ -133,11 +133,26 @@ on `ApplicationSettings` in `services/shared/models/accountDocuments.go`, defaul
 `"sell"`, with no enum behind them. The new fields go in alongside.
 
 `ApplicationSettings` does carry a `SchemaVersion` with `ApplicationSettingsSchemaCurrent`, and
-`Upgrader.ApplicationSettings` runs on **every read** rather than only in the offline drain. That
-makes the upgrader the right place to seed both new defaults from an existing account's single value,
-rather than defaulting them in the SPA — a stored document converges the next time it is written and
-nothing reads an unset field in the meantime. Whether that warrants a version step or rides the
-existing one is § Open decisions.
+`Upgrader.ApplicationSettings` runs on **every read** rather than only in the offline drain, which
+makes it the place to seed the new defaults from an existing account's single value.
+
+**Seeding is not optional, and it cannot be deferred behind the field it fills.** Go serialises a
+non-pointer struct field whether or not Mongo held it, so an account stored before the split reaches
+the SPA as `"defaultPricing":{"buying":{"market":"","basis":""},…}` — empty strings, not a missing
+key. A client that reads that as an answer overwrites the account's real default and writes the empty
+strings back on the next save. The upgrader fills it before anything downstream sees it, and the SPA
+merge treats a side with no market as unfilled rather than as a choice of nowhere.
+
+**The seed is gated on the empty market, not on the schema version.** An unversioned document is
+stamped with the current version at the top of the same function, so a `SchemaVersion < n` test would
+never fire for exactly the legacy rows that need filling.
+
+**The stored backfill rides the shared-planners release rather than a schema step.**
+`account_settings` is already being stamped in that project's release window, so writing
+`DefaultPricing` once per account belongs in its `prepareRelease` run beside the owner stamp — see
+[shared-planners/plan.md](../shared-planners/plan.md) § Schema versioning. The read-time seed is what
+carries the field until then, and retires once that step has run and its gate has passed. Either way
+no `*SchemaCurrent` constant moves: this is a backfill, not a migration.
 
 Nothing in `services/` computes anything from these two fields; the backend only stores them.
 `esicore.DefaultMarketLocations` is an unrelated constant naming which hubs to refresh, and is not
@@ -149,13 +164,13 @@ again, and the old pair stops being written and ages out with the documents.
 
 ### The work
 
-1. Name the two axes apart (§ Two axes, both called buy and sell) and add the fields.
-2. Seed them in `Upgrader.ApplicationSettings` from the existing single value.
+1. ~~Name the two axes apart (§ Two axes, both called buy and sell) and add the fields.~~ Done.
+2. ~~Seed them in `Upgrader.ApplicationSettings` from the existing single value.~~ Done — landed with step 1, because step 1 alone is a data-loss bug.
 3. Give the resolver a side argument; split or parameterise `useEffectiveMarketHubFromLayout`.
 4. Point each surface in the table at a side, explicitly.
 5. Guard the unguarded price reads in the three files above.
 6. Settings and first-login controls offer both pairs.
-7. Stop writing the old fields.
+7. Stop writing the old fields, once the shared-planners release has backfilled the stored ones.
 
 **Done when** every surface in the table names a side, no code reads `defaultMarketLocation` or
 `defaultOrderType`, and a player can buy against one market and sell against another without touching
@@ -207,9 +222,6 @@ is published alongside it so the setting can offer "Minerals" rather than an id.
 
 ## Open decisions
 
-- **Whether the new fields ride `ApplicationSettingsSchemaCurrent` or take a step of their own.**
-  Seeding in the upgrader works either way; the question is whether a document that has never been
-  rewritten should report the new version.
 - **What a basis default means on the selling side.** Listing an order and dumping into bids are
   different exits with different bases, and Returns already shows both. Whether the selling default
   names one basis or names the exit route is undecided.
@@ -224,12 +236,14 @@ is published alongside it so the setting can offer "Minerals" rather than an id.
 | Stage | State |
 |-------|-------|
 | Phase 1 — project folder and docs | Done |
-| Stage A — retire the single account default | Not started |
+| Stage A — retire the single account default | In progress — steps 1-2 of 7 |
 | Stage B — defaults by market group | Not started, blocked on Stage A |
 
 ## Start here
 
-Stage A, from § The work. Read § Two axes, both called buy and sell first — it is the one thing that
+Stage A step 3 — giving the resolver a side argument, and splitting or parameterising
+`useEffectiveMarketHubFromLayout`, which today answers for both sides at once. The fields exist,
+default correctly and are seeded for accounts that predate them; nothing reads them yet. Read § Two axes, both called buy and sell first — it is the one thing that
 will make a reviewer reject the field names if it is skipped.
 
 The design in this plan was worked out while building the Planning stage panels, which is where the

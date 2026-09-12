@@ -62,6 +62,38 @@ dumping into bids, or the sell side if you are listing. So a correctly configure
 Name the axes apart and never let one field carry both. The job side is **buying** / **selling**; the
 book side keeps the existing `listingType` vocabulary and is called a **basis**, not an order type.
 
+## Where this project stops and market price delivery starts
+
+This project decides **what to ask for**; [market-price-delivery](../market-price-delivery/contents.md)
+decides **how the asking works**. One picks the market and the basis, the other carries the request,
+shapes the row that comes back, holds it and decides when it has gone stale. Neither redefines the four
+bases.
+
+The cut matters because both projects live in `frontend/src/Functions/MarketData/` and the split is not
+obvious from the file names:
+
+| Question | Owned by |
+|----------|----------|
+| Which market and basis a figure is priced against | here — the ladder, the two account sides, group defaults |
+| What a request names and what the response carries | market-price-delivery § Stage B |
+| Where a price row is held, and what makes it stale | market-price-delivery § Stage C, § Stage D |
+| Which markets may exist at all beyond the four hubs | market-price-delivery § Stage A, § Stage F |
+
+**The dependency runs one way: that project consumes this one's resolver.** Its § Stage B, item 5 moves
+every call site onto naming the source it wants, and names this project's resolver as what answers that
+question — "where it is not yet wired, a call site names the market it is already pricing against". So
+Stage A landing ahead of it is what makes that step cheap, and there is nothing this project needs back
+before finishing Stage B.
+
+**What that project will rewrite underneath this one.** `findMarketData` and `worldData.marketData` are
+being rekeyed to type-and-source and put behind a single accessor (§ Stage B, items 3 and 4). The guards
+this project added to the unguarded price reads (§ Three files throw rather than degrade) sit on top of
+that function, so expect them to be reshaped rather than preserved — they were still the right change,
+because the id that misses became reachable the moment the account default split.
+
+`DEFAULT_MARKET_OPTION` survives. That project retires `MARKET_OPTIONS` across its readers but keeps the
+default choice, so this project's fallback at the bottom of the ladder is not affected.
+
 ## The ladder
 
 Resolving a market id is one ladder, and only its ends are built:
@@ -163,7 +195,10 @@ which is a small piece of evidence for what side that surface is on.
 
 `worldData.findMarketData` builds its empty default by reducing `MARKET_OPTIONS`, which is what makes
 an unrecognised id miss in the first place. It is the one function every price read bottoms out in and
-the natural home for whatever the answer turns out to be.
+the natural home for whatever the answer turns out to be — and it is the function
+[market-price-delivery](../market-price-delivery/contents.md) § Stage B rekeys to type-and-source and
+puts behind a single accessor, so these guards are expected to be reshaped by that work rather than to
+stand as written.
 
 ### Wire compatibility
 
@@ -297,8 +332,10 @@ every job follow it, without touching a row.
 ## Non-goals
 
 - Changing what a pricing basis means, or adding a fifth.
-- Making `MARKET_OPTIONS` hold anything but the four NPC hubs. Widening what a market id may be is the
-  custom-structure work; this project must not assume the list stays four, but does not extend it.
+- Making `MARKET_OPTIONS` hold anything but the four NPC hubs. Widening what a market id may be is
+  [market-price-delivery](../market-price-delivery/contents.md), which retires that list for a source
+  registry admitting reader-saved markets (§ Stage A) and takes saved citadels as pricing locations
+  (§ Stage F). This project must not assume the list stays four, but does not extend it.
 - A per-planner or per-group default. These are account settings, as they are today.
 
 ## Open decisions

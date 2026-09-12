@@ -24,10 +24,15 @@ Named for the **work**, not a git branch. **Project close** = plan tracks done +
 ## Does not own
 
 - **Saved citadels as pricing locations** — storing them, the editing surface, and reading a
-  structure's own market → the custom-structure work, recorded at
+  structure's own market → [market-price-delivery/contents.md](../market-price-delivery/contents.md)
+  § Stage F, which is the custom-structure work for markets and inherits the shape worked out at
   [planning-stage-panels/plan.md](../planning-stage-panels/plan.md) § Handed to the custom-structure
   work. Both projects widen what a market id may be; neither blocks the other, and both land on this
   project's resolver.
+- **How a price reaches the browser and what keeps it current** — the request, the row, the cache and
+  the freshness rule → [market-price-delivery/contents.md](../market-price-delivery/contents.md). This
+  project decides what to ask for; that one decides how the asking works. Boundary and the one-way
+  dependency: [plan.md](./plan.md) § Where this project stops and market price delivery starts.
 - **The four pricing bases themselves** (`buy`, `sell`, `buyP95`, `sellP05`) and the server-side
   figures behind them. This project decides which basis is reached for by default, not what a basis
   means.
@@ -49,6 +54,7 @@ Named for the **work**, not a git branch. **Project close** = plan tracks done +
 |------------|------|
 | Goals, stages, done-when, open decisions | [plan.md](./plan.md) |
 | Understand why one default was two questions | [plan.md](./plan.md) § Why this project exists |
+| Know where this stops and market price delivery starts | [plan.md](./plan.md) § Where this project stops and market price delivery starts |
 | Avoid the buy/sell naming trap before writing any field | [plan.md](./plan.md) § Two axes, both called buy and sell |
 | See the full resolution ladder and which rungs exist | [plan.md](./plan.md) § The ladder |
 | Find every surface reading the account default today | [plan.md](./plan.md) § Stage A |
